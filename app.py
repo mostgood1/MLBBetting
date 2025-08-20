@@ -3108,6 +3108,15 @@ def api_today_games():
             away_score_raw = predictions.get('predicted_away_score', 0) or game_data.get('predicted_away_score', 0) or 0
             home_score_raw = predictions.get('predicted_home_score', 0) or game_data.get('predicted_home_score', 0) or 0
             
+            # DEBUG: Log the raw score extraction for Houston Astros
+            if 'Houston Astros' in away_team or 'Houston Astros' in home_team:
+                logger.info(f"🔍 HOUSTON DEBUG - predictions keys: {list(predictions.keys())}")
+                logger.info(f"🔍 HOUSTON DEBUG - predictions.predicted_away_score: {predictions.get('predicted_away_score')}")
+                logger.info(f"🔍 HOUSTON DEBUG - predictions.predicted_home_score: {predictions.get('predicted_home_score')}")
+                logger.info(f"🔍 HOUSTON DEBUG - away_score_raw: {away_score_raw}")
+                logger.info(f"🔍 HOUSTON DEBUG - home_score_raw: {home_score_raw}")
+                logger.info(f"🔍 HOUSTON DEBUG - condition check: ({away_score_raw} == 0 and {home_score_raw} == 0) = {(away_score_raw == 0 and home_score_raw == 0)}")
+            
             # Get total runs prediction
             predicted_total_raw = (
                 game_data.get('predicted_total_runs', 0) or  # Primary source
