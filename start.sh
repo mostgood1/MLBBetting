@@ -13,6 +13,9 @@ export FLASK_APP=app.py
 export FLASK_ENV=production
 export PORT=${PORT:-5000}
 
+# Ensure Python path includes current directory
+export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+
 # Start the application with Gunicorn
 echo "🌐 Starting Gunicorn server on port $PORT..."
-exec gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --preload app:app
+exec gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 120 --max-requests 1000 --preload app:app

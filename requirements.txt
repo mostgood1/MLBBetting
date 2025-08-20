@@ -8,3 +8,5 @@ python-dotenv==1.0.0
 gunicorn==21.2.0
 pytz==2023.3
 psutil==5.9.5
+setuptools==69.5.1
+wheel==0.41.2
