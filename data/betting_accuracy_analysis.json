@@ -1,0 +1,221 @@
+{
+  "analysis_date": "2025-08-17T15:02:25.205243",
+  "current_date_excluded": "2025-08-17",
+  "total_games_analyzed": 121,
+  "betting_performance": {
+    "moneyline_bets": 121,
+    "moneyline_correct": 59,
+    "moneyline_accuracy_pct": 48.8,
+    "over_under_bets": 119,
+    "over_under_correct": 60,
+    "over_under_accuracy_pct": 50.4,
+    "perfect_games": 24,
+    "perfect_games_pct": 19.8,
+    "winner_predictions_correct": 59,
+    "winner_accuracy_pct": 48.8,
+    "total_predictions_correct": 60,
+    "total_accuracy_pct": 50.4
+  },
+  "detailed_games": [
+    {
+      "date": "2025-08-15",
+      "away_team": "Arizona Diamondbacks",
+      "home_team": "Colorado Rockies",
+      "actual_score": "3.0-4.0",
+      "actual_total": 7.0,
+      "moneyline_correct": false,
+      "over_under_correct": false,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-15",
+      "away_team": "Los Angeles Angels",
+      "home_team": "Athletics",
+      "actual_score": "3.0-10.0",
+      "actual_total": 13.0,
+      "moneyline_correct": true,
+      "over_under_correct": true,
+      "perfect_game": true
+    },
+    {
+      "date": "2025-08-15",
+      "away_team": "San Diego Padres",
+      "home_team": "Los Angeles Dodgers",
+      "actual_score": "2.0-3.0",
+      "actual_total": 5.0,
+      "moneyline_correct": true,
+      "over_under_correct": true,
+      "perfect_game": true
+    },
+    {
+      "date": "2025-08-15",
+      "away_team": "Tampa Bay Rays",
+      "home_team": "San Francisco Giants",
+      "actual_score": "7.0-6.0",
+      "actual_total": 13.0,
+      "moneyline_correct": false,
+      "over_under_correct": true,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Pittsburgh Pirates",
+      "home_team": "Chicago Cubs",
+      "actual_score": "1.0-3.0",
+      "actual_total": 4.0,
+      "moneyline_correct": true,
+      "over_under_correct": false,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Texas Rangers",
+      "home_team": "Toronto Blue Jays",
+      "actual_score": "2.0-14.0",
+      "actual_total": 16.0,
+      "moneyline_correct": true,
+      "over_under_correct": false,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Washington Nationals",
+      "actual_score": "0.0-2.0",
+      "actual_total": 2.0,
+      "moneyline_correct": true,
+      "over_under_correct": false,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Seattle Mariners",
+      "home_team": "New York Mets",
+      "actual_score": "1.0-3.0",
+      "actual_total": 4.0,
+      "moneyline_correct": true,
+      "over_under_correct": false,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Miami Marlins",
+      "home_team": "Boston Red Sox",
+      "actual_score": "5.0-7.0",
+      "actual_total": 12.0,
+      "moneyline_correct": true,
+      "over_under_correct": false,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Cincinnati Reds",
+      "actual_score": "6.0-5.0",
+      "actual_total": 11.0,
+      "moneyline_correct": false,
+      "over_under_correct": false,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Baltimore Orioles",
+      "home_team": "Houston Astros",
+      "actual_score": "4.0-5.0",
+      "actual_total": 9.0,
+      "moneyline_correct": true,
+      "over_under_correct": false,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Atlanta Braves",
+      "home_team": "Cleveland Guardians",
+      "actual_score": "10.0-1.0",
+      "actual_total": 11.0,
+      "moneyline_correct": false,
+      "over_under_correct": true,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Chicago White Sox",
+      "home_team": "Kansas City Royals",
+      "actual_score": "2.0-6.0",
+      "actual_total": 8.0,
+      "moneyline_correct": true,
+      "over_under_correct": false,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Detroit Tigers",
+      "home_team": "Minnesota Twins",
+      "actual_score": "8.0-5.0",
+      "actual_total": 13.0,
+      "moneyline_correct": false,
+      "over_under_correct": true,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "New York Yankees",
+      "home_team": "St. Louis Cardinals",
+      "actual_score": "12.0-8.0",
+      "actual_total": 20.0,
+      "moneyline_correct": false,
+      "over_under_correct": false,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Arizona Diamondbacks",
+      "home_team": "Colorado Rockies",
+      "actual_score": "7.0-10.0",
+      "actual_total": 17.0,
+      "moneyline_correct": true,
+      "over_under_correct": true,
+      "perfect_game": true
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Tampa Bay Rays",
+      "home_team": "San Francisco Giants",
+      "actual_score": "2.0-1.0",
+      "actual_total": 3.0,
+      "moneyline_correct": false,
+      "over_under_correct": true,
+      "perfect_game": false
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "San Diego Padres",
+      "home_team": "Los Angeles Dodgers",
+      "actual_score": "0.0-6.0",
+      "actual_total": 6.0,
+      "moneyline_correct": true,
+      "over_under_correct": true,
+      "perfect_game": true
+    },
+    {
+      "date": "2025-08-16",
+      "away_team": "Los Angeles Angels",
+      "home_team": "Athletics",
+      "actual_score": "2.0-7.0",
+      "actual_total": 9.0,
+      "moneyline_correct": true,
+      "over_under_correct": true,
+      "perfect_game": true
+    },
+    {
+      "date": "2025-08-17",
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Washington Nationals",
+      "actual_score": "11.0-9.0",
+      "actual_total": 20.0,
+      "moneyline_correct": true,
+      "over_under_correct": false,
+      "perfect_game": false
+    }
+  ]
+}

@@ -1,0 +1,209 @@
+{
+  "date": "2025-08-19",
+  "generated_at": "2025-08-19T14:19:13.461482",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Milwaukee Brewers_vs_Chicago Cubs": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Houston Astros_vs_Detroit Tigers": {
+      "away_team": "Houston Astros",
+      "home_team": "Detroit Tigers",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Toronto Blue Jays_vs_Pittsburgh Pirates": {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Pittsburgh Pirates",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "St. Louis Cardinals_vs_Miami Marlins": {
+      "away_team": "St. Louis Cardinals",
+      "home_team": "Miami Marlins",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "New York Mets_vs_Washington Nationals": {
+      "away_team": "New York Mets",
+      "home_team": "Washington Nationals",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Seattle Mariners_vs_Philadelphia Phillies": {
+      "away_team": "Seattle Mariners",
+      "home_team": "Philadelphia Phillies",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Baltimore Orioles_vs_Boston Red Sox": {
+      "away_team": "Baltimore Orioles",
+      "home_team": "Boston Red Sox",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Chicago White Sox_vs_Atlanta Braves": {
+      "away_team": "Chicago White Sox",
+      "home_team": "Atlanta Braves",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "New York Yankees_vs_Tampa Bay Rays": {
+      "away_team": "New York Yankees",
+      "home_team": "Tampa Bay Rays",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Texas Rangers_vs_Kansas City Royals": {
+      "away_team": "Texas Rangers",
+      "home_team": "Kansas City Royals",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Athletics_vs_Minnesota Twins": {
+      "away_team": "Athletics",
+      "home_team": "Minnesota Twins",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Los Angeles Dodgers_vs_Colorado Rockies": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Colorado Rockies",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Cincinnati Reds_vs_Los Angeles Angels": {
+      "away_team": "Cincinnati Reds",
+      "home_team": "Los Angeles Angels",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Cleveland Guardians_vs_Arizona Diamondbacks": {
+      "away_team": "Cleveland Guardians",
+      "home_team": "Arizona Diamondbacks",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "San Francisco Giants_vs_San Diego Padres": {
+      "away_team": "San Francisco Giants",
+      "home_team": "San Diego Padres",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 15,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 0,
+    "high_confidence_bets": 0,
+    "medium_confidence_bets": 0
+  }
+}
