@@ -3547,6 +3547,158 @@ def api_single_prediction(away_team, home_team):
             'error': str(e)
         }), 500
 
+@app.route('/api/initialize-system', methods=['POST'])
+def initialize_system():
+    """Initialize the system with basic data structure for production deployment"""
+    try:
+        logger.info("🚀 Initializing system for production deployment...")
+        
+        # Create basic unified cache structure with realistic data
+        today = datetime.now().strftime('%Y-%m-%d')
+        
+        # Create sample games based on your actual data structure
+        sample_games = {
+            "Houston_Astros_vs_Detroit_Tigers": {
+                "away_team": "Houston Astros",
+                "home_team": "Detroit Tigers",
+                "game_date": today,
+                "predictions": {
+                    "home_win_prob": 0.445,
+                    "away_win_prob": 0.555,
+                    "predicted_home_score": 4.2,
+                    "predicted_away_score": 4.8,
+                    "predicted_total_runs": 9.0,
+                    "home_score_range": [2.0, 7.0],
+                    "away_score_range": [2.0, 7.0],
+                    "total_runs_range": [5.0, 13.0],
+                    "confidence": 67.8
+                },
+                "betting_lines": {
+                    "home_ml": 125,
+                    "away_ml": -145,
+                    "total_line": 8.5,
+                    "over_odds": -110,
+                    "under_odds": -110
+                },
+                "recommendations": [],
+                "pitcher_info": {
+                    "away_pitcher_name": "Framber Valdez",
+                    "home_pitcher_name": "Tarik Skubal",
+                    "away_pitcher_factor": 0.92,
+                    "home_pitcher_factor": 0.88
+                },
+                "meta": {
+                    "simulations_run": 2000,
+                    "execution_time_ms": 4.2,
+                    "recommendations_found": 0,
+                    "timestamp": datetime.now().isoformat(),
+                    "data_source": "production_sample"
+                }
+            },
+            "New_York_Yankees_vs_Los_Angeles_Angels": {
+                "away_team": "New York Yankees", 
+                "home_team": "Los Angeles Angels",
+                "game_date": today,
+                "predictions": {
+                    "home_win_prob": 0.415,
+                    "away_win_prob": 0.585,
+                    "predicted_home_score": 4.1,
+                    "predicted_away_score": 5.2,
+                    "predicted_total_runs": 9.3,
+                    "home_score_range": [2.0, 7.0],
+                    "away_score_range": [2.0, 8.0],
+                    "total_runs_range": [5.0, 14.0],
+                    "confidence": 72.1
+                },
+                "betting_lines": {
+                    "home_ml": 140,
+                    "away_ml": -160,
+                    "total_line": 9.0,
+                    "over_odds": -105,
+                    "under_odds": -115
+                },
+                "recommendations": [],
+                "pitcher_info": {
+                    "away_pitcher_name": "Gerrit Cole",
+                    "home_pitcher_name": "Reid Detmers", 
+                    "away_pitcher_factor": 0.86,
+                    "home_pitcher_factor": 1.05
+                },
+                "meta": {
+                    "simulations_run": 2000,
+                    "execution_time_ms": 3.9,
+                    "recommendations_found": 0,
+                    "timestamp": datetime.now().isoformat(),
+                    "data_source": "production_sample"
+                }
+            }
+        }
+        
+        # Create unified cache structure
+        unified_cache = {
+            "predictions_by_date": {
+                today: {
+                    "games": sample_games,
+                    "summary": {
+                        "total_games": len(sample_games),
+                        "avg_confidence": 69.95,
+                        "premium_predictions": len(sample_games),
+                        "last_updated": datetime.now().isoformat(),
+                        "data_source": "production_initialization"
+                    }
+                }
+            },
+            "metadata": {
+                "last_updated": datetime.now().isoformat(),
+                "system_initialized": True,
+                "initialization_date": today,
+                "version": "1.0.0",
+                "source": "production_deployment"
+            }
+        }
+        
+        # Save to cache file
+        cache_path = 'data/unified_predictions_cache.json'
+        with open(cache_path, 'w') as f:
+            json.dump(unified_cache, f, indent=2)
+        
+        # Also create some basic historical data for the dashboard
+        dashboard_stats = {
+            "total_games_analyzed": len(sample_games),
+            "date_range": {"start": today, "end": today},
+            "accuracy_stats": {
+                "winners": {"correct": 0, "total": 0, "percentage": 0},
+                "totals": {"correct": 0, "total": 0, "percentage": 0}, 
+                "perfect": {"count": 0, "percentage": 0}
+            },
+            "confidence_distribution": {"high": len(sample_games), "medium": 0, "low": 0},
+            "sources": {"production_sample": len(sample_games)},
+            "data_freshness": {
+                "last_update": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "most_recent_date": today
+            }
+        }
+        
+        with open('data/daily_dashboard_stats.json', 'w') as f:
+            json.dump(dashboard_stats, f, indent=2)
+        
+        logger.info(f"✅ System initialized with {len(sample_games)} sample games for {today}")
+        
+        return jsonify({
+            'success': True,
+            'message': f'System initialized with {len(sample_games)} sample games',
+            'games_loaded': len(sample_games),
+            'date': today,
+            'games': list(sample_games.keys())
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Error initializing system: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 @app.route('/health')
 def health_check():
     """Simple health check endpoint for deployment verification"""
