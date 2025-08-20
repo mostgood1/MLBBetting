@@ -172,111 +172,112 @@ def main():
 def fetch_fresh_betting_lines():
     """
     API function to fetch fresh betting lines and return result for Flask app
+    Uses actual betting lines data from the repository
     
     Returns:
         dict: Result with 'success' and 'games_count' keys
     """
     try:
         logger = setup_logging()
-        logger.info("🔄 API call: Fetching fresh betting lines...")
+        logger.info("🔄 API call: Loading actual betting lines from repository data...")
         
-        # Check if we have existing betting lines first
-        games_count = 0
-        today = datetime.now().strftime('%Y_%m_%d')
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        lines_file = os.path.join(data_dir, f'real_betting_lines_{today}.json')
+        today = datetime.now()
         
-        if os.path.exists(lines_file):
+        # Try different date formats and recent dates to find actual betting lines
+        date_formats = [
+            today.strftime('%Y_%m_%d'),           # 2025_08_19
+            today.strftime('%Y-%m-%d'),           # 2025-08-19
+            (today - timedelta(days=1)).strftime('%Y_%m_%d'),
+            (today - timedelta(days=1)).strftime('%Y-%m-%d'),
+            (today - timedelta(days=2)).strftime('%Y_%m_%d'),
+            (today - timedelta(days=2)).strftime('%Y-%m-%d')
+        ]
+        
+        # Look for real betting lines files
+        for date_str in date_formats:
+            lines_file = os.path.join(data_dir, f'real_betting_lines_{date_str}.json')
+            
+            if os.path.exists(lines_file):
+                try:
+                    with open(lines_file, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        lines = data.get('lines', {})
+                        historical_data = data.get('historical_data', {})
+                        
+                        games_count = len(lines) + len(historical_data)
+                        logger.info(f"✅ Found actual betting lines file: {lines_file} with {games_count} games")
+                        
+                        # If this is an older file, copy it to today's format for the app to use
+                        today_file = os.path.join(data_dir, f'real_betting_lines_{today.strftime("%Y_%m_%d")}.json')
+                        if not os.path.exists(today_file):
+                            # Update the date in the data
+                            data['date'] = today.strftime('%Y-%m-%d')
+                            data['last_updated'] = datetime.now().isoformat()
+                            data['source'] = f'copied_from_{date_str}'
+                            
+                            with open(today_file, 'w') as f:
+                                json.dump(data, f, indent=2)
+                            logger.info(f"📋 Copied betting lines to today's format: {today_file}")
+                        
+                        return {
+                            'success': True,
+                            'games_count': games_count,
+                            'message': f'Using actual betting lines from {date_str} with {games_count} games',
+                            'source_file': lines_file,
+                            'timestamp': datetime.now().isoformat()
+                        }
+                        
+                except Exception as e:
+                    logger.error(f"Error reading betting lines file {lines_file}: {e}")
+                    continue
+        
+        # If no real_betting_lines files found, try historical_betting_lines_cache
+        historical_file = os.path.join(data_dir, 'historical_betting_lines_cache.json')
+        if os.path.exists(historical_file):
             try:
-                with open(lines_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    lines = data.get('lines', {})
-                    games_count = len(lines)
-                    logger.info(f"✅ Current betting lines file contains {games_count} games")
-                    
-                    return {
-                        'success': True,
-                        'games_count': games_count,
-                        'message': f'Using existing betting lines with {games_count} games',
-                        'timestamp': datetime.now().isoformat()
-                    }
+                with open(historical_file, 'r', encoding='utf-8') as f:
+                    historical_data = json.load(f)
+                
+                # Look for today's data or recent dates
+                for days_back in range(7):  # Check up to 7 days back
+                    check_date = (today - timedelta(days=days_back)).strftime('%Y-%m-%d')
+                    if check_date in historical_data:
+                        games_data = historical_data[check_date]
+                        games_count = len(games_data)
+                        
+                        # Create today's betting lines file from historical data
+                        lines_data = {
+                            'lines': {},
+                            'historical_data': games_data,
+                            'source': 'historical_cache',
+                            'date': today.strftime('%Y-%m-%d'),
+                            'last_updated': datetime.now().isoformat(),
+                            'games_count': games_count
+                        }
+                        
+                        today_file = os.path.join(data_dir, f'real_betting_lines_{today.strftime("%Y_%m_%d")}.json')
+                        with open(today_file, 'w') as f:
+                            json.dump(lines_data, f, indent=2)
+                        
+                        logger.info(f"✅ Used historical betting lines from {check_date} with {games_count} games")
+                        
+                        return {
+                            'success': True,
+                            'games_count': games_count,
+                            'message': f'Using historical betting lines from {check_date} with {games_count} games',
+                            'source_file': historical_file,
+                            'timestamp': datetime.now().isoformat()
+                        }
+                        
             except Exception as e:
-                logger.error(f"Error reading betting lines file: {e}")
+                logger.error(f"Error reading historical betting lines: {e}")
         
-        # If no existing lines, generate them from current games data
-        logger.info("📊 No existing betting lines found, generating from current games...")
-        
-        # Load current games from unified cache
-        cache_file = os.path.join(data_dir, 'unified_predictions_cache.json')
-        if os.path.exists(cache_file):
-            with open(cache_file, 'r') as f:
-                cache_data = json.load(f)
-            
-            today_games = cache_data.get('predictions_by_date', {}).get(datetime.now().strftime('%Y-%m-%d'), {}).get('games', {})
-            
-            if today_games:
-                # Generate reasonable betting lines based on predictions
-                generated_lines = {}
-                
-                for game_key, game_data in today_games.items():
-                    predictions = game_data.get('predictions', {})
-                    away_team = game_data.get('away_team', '')
-                    home_team = game_data.get('home_team', '')
-                    
-                    # Calculate money lines based on win probabilities
-                    home_prob = predictions.get('home_win_prob', 0.5)
-                    away_prob = predictions.get('away_win_prob', 0.5)
-                    
-                    # Convert probabilities to money lines (American odds)
-                    if home_prob > 0.5:
-                        home_ml = -int((home_prob / (1 - home_prob)) * 100)
-                        away_ml = int(((1 - away_prob) / away_prob) * 100)
-                    else:
-                        home_ml = int(((1 - home_prob) / home_prob) * 100)
-                        away_ml = -int((away_prob / (1 - away_prob)) * 100)
-                    
-                    # Get predicted total
-                    predicted_total = predictions.get('predicted_total_runs', 9.0)
-                    total_line = round(predicted_total - 0.5, 1)  # Slightly under prediction
-                    
-                    generated_lines[game_key] = {
-                        'home_ml': home_ml,
-                        'away_ml': away_ml,
-                        'total_line': total_line,
-                        'over_odds': -110,
-                        'under_odds': -110,
-                        'home_team': home_team,
-                        'away_team': away_team,
-                        'generated': True,
-                        'timestamp': datetime.now().isoformat()
-                    }
-                
-                # Save generated lines
-                lines_data = {
-                    'lines': generated_lines,
-                    'source': 'generated_from_predictions',
-                    'date': today,
-                    'last_updated': datetime.now().isoformat(),
-                    'games_count': len(generated_lines)
-                }
-                
-                with open(lines_file, 'w') as f:
-                    json.dump(lines_data, f, indent=2)
-                
-                logger.info(f"✅ Generated {len(generated_lines)} betting lines from current games")
-                
-                return {
-                    'success': True,
-                    'games_count': len(generated_lines),
-                    'message': f'Generated {len(generated_lines)} betting lines from predictions',
-                    'timestamp': datetime.now().isoformat()
-                }
-        
-        # No games data available
-        logger.warning("No current games data available to generate betting lines")
+        # No actual betting lines data found
+        logger.warning("No actual betting lines data found in repository")
         return {
             'success': False,
-            'error': 'No games data available - run system initialization first',
+            'error': 'No actual betting lines data found in repository - check data directory',
             'games_count': 0,
             'timestamp': datetime.now().isoformat()
         }
