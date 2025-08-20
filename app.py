@@ -1946,9 +1946,20 @@ def home():
             comprehensive_details = game_data.get('comprehensive_details', {})
             winner_prediction = comprehensive_details.get('winner_prediction', {})
             
-            # Calculate numeric confidence for betting recommendations
-            away_win_prob = game_data.get('away_win_probability', 0.5) * 100
-            home_win_prob = game_data.get('home_win_probability', 0.5) * 100
+            # Extract win probabilities from nested predictions structure first
+            predictions = game_data.get('predictions', {})
+            away_win_prob_decimal = predictions.get('away_win_prob', 0)
+            home_win_prob_decimal = predictions.get('home_win_prob', 0)
+            
+            # Fallback to old structure if new structure doesn't have the data
+            if not away_win_prob_decimal:
+                away_win_prob_decimal = game_data.get('away_win_probability', 0.5)
+            if not home_win_prob_decimal:
+                home_win_prob_decimal = game_data.get('home_win_probability', 0.5)
+            
+            # Convert to percentages for display
+            away_win_prob = away_win_prob_decimal * 100 if away_win_prob_decimal <= 1 else away_win_prob_decimal
+            home_win_prob = home_win_prob_decimal * 100 if home_win_prob_decimal <= 1 else home_win_prob_decimal
             max_confidence = max(away_win_prob, home_win_prob)
             
             # Get real betting lines for this game - need to convert format
@@ -1978,10 +1989,10 @@ def home():
             # Generate dynamic betting recommendations with robust error handling
             if game_recommendations is None:
                 try:
-                    # Safely extract prediction data
-                    away_win_decimal = game_data.get('away_win_probability', 0.5)
-                    home_win_decimal = game_data.get('home_win_probability', 0.5)
-                    predicted_total_safe = game_data.get('predicted_total_runs', 0) or 9.0
+                    # Use the already extracted decimal values
+                    away_win_decimal = away_win_prob_decimal
+                    home_win_decimal = home_win_prob_decimal
+                    predicted_total_safe = predicted_total_final or 9.0
                     
                     # Ensure values are valid
                     if not (0 <= away_win_decimal <= 1) or not (0 <= home_win_decimal <= 1):
@@ -2070,13 +2081,13 @@ def home():
             
             # CRITICAL FIX: If individual scores are missing but we have total runs, calculate them
             if (away_score_final == 0 and home_score_final == 0) and predicted_total_final > 0:
-                # Get win probabilities to distribute the runs
-                away_win_decimal = predictions.get('away_win_prob', 0) or game_data.get('away_win_probability', 0.5)
-                home_win_decimal = predictions.get('home_win_prob', 0) or game_data.get('home_win_probability', 0.5)
+                # Use the already extracted win probabilities
+                away_win_for_calc = away_win_prob_decimal
+                home_win_for_calc = home_win_prob_decimal
                 
                 # Calculate scores based on win probability (higher probability = slightly more runs)
                 base_score = predicted_total_final / 2.0  # Split evenly as baseline
-                prob_adjustment = (away_win_decimal - 0.5) * 0.5  # Small adjustment based on win prob
+                prob_adjustment = (away_win_for_calc - 0.5) * 0.5  # Small adjustment based on win prob
                 
                 away_score_final = max(1.0, base_score + prob_adjustment)
                 home_score_final = max(1.0, predicted_total_final - away_score_final)
@@ -2087,15 +2098,9 @@ def home():
             if not predicted_total_final and away_score_final and home_score_final:
                 predicted_total_final = away_score_final + home_score_final
             
-            # Extract win probabilities from nested structure
-            away_win_prob_final = predictions.get('away_win_prob', 0)
-            home_win_prob_final = predictions.get('home_win_prob', 0)
-            
-            # Fallback to old structure for win probabilities
-            if not away_win_prob_final:
-                away_win_prob_final = game_data.get('away_win_probability', away_win_prob / 100.0)
-            if not home_win_prob_final:
-                home_win_prob_final = game_data.get('home_win_probability', home_win_prob / 100.0)
+            # Extract win probabilities from nested structure (already extracted above)
+            away_win_prob_final = away_win_prob_decimal
+            home_win_prob_final = home_win_prob_decimal
             
             enhanced_game = {
                 'game_id': game_key,
