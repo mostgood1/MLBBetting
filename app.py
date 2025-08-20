@@ -3137,7 +3137,7 @@ def api_today_games():
                 away_score_final = max(1.0, base_score + prob_adjustment)
                 home_score_final = max(1.0, predicted_total_raw - away_score_final)
                 
-                logger.info(f"📊 API route calculated scores for {away_team} @ {home_team}: {away_score_final:.1f} - {home_score_final:.1f} (total: {predicted_total_raw})")
+                logger.info(f"📊 API route calculated scores for {away_team} @ {home_team}: {away_score_final:.1f} - {home_score_final:.1f} (total: {predicted_total_raw}) [FORCE DEPLOY v2]")
             else:
                 away_score_final = away_score_raw
                 home_score_final = home_score_raw
