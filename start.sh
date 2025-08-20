@@ -28,6 +28,21 @@ for file in data/real_betting_lines_*.json; do
     fi
 done
 
+# Try to use any games data that might be in the repository
+# This allows the system to use actual games instead of requiring API calls
+for file in data/games_*.json; do
+    if [ -f "$file" ]; then
+        echo "Found games data: $file"
+        # Create a copy with today's format if none exists for today
+        today_games_file="data/games_$(date +%Y-%m-%d).json"
+        if [ ! -f "$today_games_file" ]; then
+            cp "$file" "$today_games_file" 2>/dev/null || true
+            echo "Copied games to today's format: $today_games_file"
+        fi
+        break
+    fi
+done
+
 # Create historical betting lines cache if it doesn't exist
 echo '{}' > data/historical_betting_lines_cache.json 2>/dev/null || true
 

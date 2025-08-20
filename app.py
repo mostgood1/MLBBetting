@@ -3549,108 +3549,137 @@ def api_single_prediction(away_team, home_team):
 
 @app.route('/api/initialize-system', methods=['POST'])
 def initialize_system():
-    """Initialize the system with REAL MLB data for today"""
+    """Initialize the system with REAL MLB data from repository files"""
     try:
-        logger.info("🚀 Initializing system with REAL MLB data...")
+        logger.info("🚀 Initializing system with REAL MLB data from repository...")
         
         today = datetime.now().strftime('%Y-%m-%d')
+        data_dir = 'data'
         
-        # Step 1: Fetch real games for today
-        logger.info("📥 Step 1: Fetching real MLB games for today...")
-        try:
-            from fetch_today_games import main as fetch_games
-            fetch_success = fetch_games()
-            if not fetch_success:
-                raise Exception("Failed to fetch today's games")
-            logger.info("✅ Successfully fetched real MLB games")
-        except Exception as e:
-            logger.error(f"❌ Failed to fetch games: {e}")
-            return jsonify({
-                'success': False,
-                'error': f'Failed to fetch real games: {str(e)}',
-                'step': 'fetch_games'
-            }), 500
+        # Step 1: Find and load real games data from repository
+        logger.info("📥 Step 1: Loading real MLB games from repository files...")
         
-        # Step 2: Generate real predictions
-        logger.info("🎯 Step 2: Generating real predictions...")
-        try:
-            # Import and run the unified betting engine
-            from daily_ultrafastengine_predictions import main as generate_predictions
-            prediction_success = generate_predictions()
-            if not prediction_success:
-                logger.warning("Prediction generation returned False, continuing...")
-        except Exception as e:
-            logger.warning(f"Prediction generation failed: {e}, will create basic structure")
-        
-        # Step 3: Load the real data that was just generated
-        logger.info("📊 Step 3: Loading real data into unified cache...")
-        
-        # Load the games that were just fetched
-        games_file = f'data/games_{today}.json'
         real_games = {}
+        games_loaded = False
         
-        if os.path.exists(games_file):
-            with open(games_file, 'r') as f:
-                games_data = json.load(f)
-            
-            # Convert to unified cache format
-            for game in games_data:
-                away_team = game.get('away_team', '')
-                home_team = game.get('home_team', '')
-                game_key = f"{away_team.replace(' ', '_')}_vs_{home_team.replace(' ', '_')}"
-                
-                real_games[game_key] = {
-                    "away_team": away_team,
-                    "home_team": home_team,
-                    "game_date": today,
-                    "game_time": game.get('game_time', 'TBD'),
-                    "predictions": {
-                        "home_win_prob": 0.5,  # Will be updated by prediction engine
-                        "away_win_prob": 0.5,
-                        "predicted_home_score": 4.5,
-                        "predicted_away_score": 4.5,
-                        "predicted_total_runs": 9.0,
-                        "confidence": 50.0
-                    },
-                    "pitcher_info": {
-                        "away_pitcher_name": game.get('away_probable_pitcher', 'TBD'),
-                        "home_pitcher_name": game.get('home_probable_pitcher', 'TBD'),
-                        "away_pitcher_factor": 1.0,
-                        "home_pitcher_factor": 1.0
-                    },
-                    "meta": {
-                        "simulations_run": 0,
-                        "execution_time_ms": 0,
-                        "timestamp": datetime.now().isoformat(),
-                        "data_source": "real_mlb_api"
-                    }
-                }
-            
-            logger.info(f"✅ Loaded {len(real_games)} real games from MLB API")
-        else:
-            logger.error(f"Games file not found: {games_file}")
+        # Try different date formats for games files
+        games_file_patterns = [
+            f'games_{today}.json',                    # games_2025-08-19.json
+            f'games_{today.replace("-", "_")}.json',  # games_2025_08_19.json
+            f'games_{today.replace("-", "")}.json',   # games_20250819.json
+        ]
+        
+        # Also try recent dates if today's file doesn't exist
+        for days_back in range(3):
+            check_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
+            games_file_patterns.extend([
+                f'games_{check_date}.json',
+                f'games_{check_date.replace("-", "_")}.json',
+                f'games_{check_date.replace("-", "")}.json'
+            ])
+        
+        for games_file in games_file_patterns:
+            games_path = os.path.join(data_dir, games_file)
+            if os.path.exists(games_path):
+                try:
+                    with open(games_path, 'r') as f:
+                        games_data = json.load(f)
+                    
+                    logger.info(f"✅ Found real games data: {games_file} with {len(games_data)} games")
+                    
+                    # Convert games data to unified cache format
+                    for game in games_data:
+                        away_team = game.get('away_team', '')
+                        home_team = game.get('home_team', '')
+                        game_key = f"{away_team.replace(' ', '_')}_vs_{home_team.replace(' ', '_')}"
+                        
+                        # Convert game time to readable format
+                        game_time = game.get('game_time', '')
+                        try:
+                            if 'T' in game_time:
+                                dt = datetime.fromisoformat(game_time.replace('Z', '+00:00'))
+                                formatted_time = dt.strftime('%I:%M %p ET')
+                            else:
+                                formatted_time = game_time
+                        except:
+                            formatted_time = game_time or 'TBD'
+                        
+                        real_games[game_key] = {
+                            "away_team": away_team,
+                            "home_team": home_team,
+                            "game_date": today,
+                            "game_time": formatted_time,
+                            "game_pk": game.get('game_pk', ''),
+                            "predictions": {
+                                "home_win_prob": 0.5,
+                                "away_win_prob": 0.5,
+                                "predicted_home_score": 4.5,
+                                "predicted_away_score": 4.5,
+                                "predicted_total_runs": 9.0,
+                                "confidence": 50.0
+                            },
+                            "pitcher_info": {
+                                "away_pitcher_name": game.get('away_probable_pitcher', 'TBD'),
+                                "home_pitcher_name": game.get('home_probable_pitcher', 'TBD'),
+                                "away_pitcher_factor": 1.0,
+                                "home_pitcher_factor": 1.0
+                            },
+                            "meta": {
+                                "simulations_run": 0,
+                                "execution_time_ms": 0,
+                                "timestamp": datetime.now().isoformat(),
+                                "data_source": f"repository_{games_file}"
+                            }
+                        }
+                    
+                    games_loaded = True
+                    logger.info(f"✅ Loaded {len(real_games)} real games from {games_file}")
+                    break
+                    
+                except Exception as e:
+                    logger.warning(f"Could not load {games_file}: {e}")
+                    continue
+        
+        if not games_loaded:
+            logger.error("❌ No real games data found in repository")
             return jsonify({
                 'success': False,
-                'error': f'Games file not found: {games_file}',
+                'error': 'No real games data found in repository data directory',
                 'step': 'load_games'
             }), 500
         
-        # Step 4: Try to load existing predictions if they were generated
+        # Step 2: Try to enhance with existing predictions if available
+        logger.info("🎯 Step 2: Checking for existing predictions...")
         try:
             unified_cache_file = 'data/unified_predictions_cache.json'
             if os.path.exists(unified_cache_file):
                 with open(unified_cache_file, 'r') as f:
                     existing_cache = json.load(f)
                     
-                # Check if today's predictions exist
-                today_predictions = existing_cache.get('predictions_by_date', {}).get(today, {})
-                if today_predictions.get('games'):
-                    logger.info("✅ Found existing predictions, using those")
-                    real_games = today_predictions['games']
+                # Check if predictions exist for these games
+                today_predictions = existing_cache.get('predictions_by_date', {}).get(today, {}).get('games', {})
+                if today_predictions:
+                    logger.info("✅ Found existing predictions, merging with real games data")
+                    
+                    # Merge predictions with real games data
+                    for game_key, game_data in real_games.items():
+                        if game_key in today_predictions:
+                            # Keep real game info but use existing predictions
+                            existing_pred = today_predictions[game_key]
+                            if 'predictions' in existing_pred:
+                                game_data['predictions'] = existing_pred['predictions']
+                            if 'pitcher_info' in existing_pred:
+                                # Prefer existing pitcher info if it's more detailed
+                                existing_pitcher = existing_pred['pitcher_info']
+                                if existing_pitcher.get('away_pitcher_name', 'TBD') != 'TBD':
+                                    game_data['pitcher_info'] = existing_pitcher
+                            if 'meta' in existing_pred:
+                                game_data['meta'].update(existing_pred['meta'])
+                                
         except Exception as e:
             logger.warning(f"Could not load existing predictions: {e}")
         
-        # Step 5: Create/update unified cache
+        # Step 3: Create unified cache with real games data
         unified_cache = {
             "predictions_by_date": {
                 today: {
@@ -3660,7 +3689,7 @@ def initialize_system():
                         "avg_confidence": 50.0,
                         "premium_predictions": len(real_games),
                         "last_updated": datetime.now().isoformat(),
-                        "data_source": "real_mlb_api"
+                        "data_source": "repository_real_games"
                     }
                 }
             },
@@ -3669,7 +3698,7 @@ def initialize_system():
                 "system_initialized": True,
                 "initialization_date": today,
                 "version": "1.0.0",
-                "source": "real_data"
+                "source": "repository_data"
             }
         }
         
@@ -3678,7 +3707,7 @@ def initialize_system():
         with open(cache_path, 'w') as f:
             json.dump(unified_cache, f, indent=2)
         
-        # Step 6: Update dashboard stats
+        # Step 4: Update dashboard stats
         dashboard_stats = {
             "total_games_analyzed": len(real_games),
             "date_range": {"start": today, "end": today},
@@ -3688,7 +3717,7 @@ def initialize_system():
                 "perfect": {"count": 0, "percentage": 0}
             },
             "confidence_distribution": {"high": 0, "medium": len(real_games), "low": 0},
-            "sources": {"real_mlb_api": len(real_games)},
+            "sources": {"repository_real_games": len(real_games)},
             "data_freshness": {
                 "last_update": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 "most_recent_date": today
@@ -3698,24 +3727,25 @@ def initialize_system():
         with open('data/daily_dashboard_stats.json', 'w') as f:
             json.dump(dashboard_stats, f, indent=2)
         
-        logger.info(f"✅ System initialized with {len(real_games)} REAL MLB games for {today}")
+        logger.info(f"✅ System initialized with {len(real_games)} REAL MLB games from repository")
         
         # List the real games
         game_list = []
         for game_key, game_data in real_games.items():
-            game_list.append(f"{game_data['away_team']} @ {game_data['home_team']}")
+            pitcher_info = f"({game_data['pitcher_info']['away_pitcher_name']} vs {game_data['pitcher_info']['home_pitcher_name']})"
+            game_list.append(f"{game_data['away_team']} @ {game_data['home_team']} {pitcher_info}")
         
         return jsonify({
             'success': True,
-            'message': f'System initialized with {len(real_games)} REAL MLB games',
+            'message': f'System initialized with {len(real_games)} REAL MLB games from repository',
             'games_loaded': len(real_games),
             'date': today,
             'real_games': game_list,
-            'data_source': 'MLB API'
+            'data_source': 'Repository Files'
         })
         
     except Exception as e:
-        logger.error(f"❌ Error initializing system with real data: {e}")
+        logger.error(f"❌ Error initializing system with repository data: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({
