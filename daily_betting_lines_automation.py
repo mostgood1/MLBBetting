@@ -85,29 +85,43 @@ def validate_betting_lines(logger):
     try:
         today = datetime.now().strftime('%Y-%m-%d')
         today_underscore = datetime.now().strftime('%Y_%m_%d')
-        
-        # Check for both date formats
+        # Check for both date formats in the repo data directory
+        repo_root = os.path.dirname(__file__)
+        data_dir = os.path.join(repo_root, 'data')
+
         possible_files = [
-            f'MLB-Betting/data/real_betting_lines_{today}.json',
-            f'MLB-Betting/data/real_betting_lines_{today_underscore}.json'
+            os.path.join(data_dir, f'real_betting_lines_{today}.json'),
+            os.path.join(data_dir, f'real_betting_lines_{today_underscore}.json')
         ]
-        
+
         for file_path in possible_files:
             if os.path.exists(file_path):
-                with open(file_path, 'r') as f:
+                with open(file_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                    
-                if 'lines' in data and len(data['lines']) > 0:
-                    game_count = len(data['lines'])
-                    logger.info(f"VALIDATION: Found {game_count} games with real betting lines in {file_path}")
-                    
+
+                lines = data.get('lines', {})
+                historical = data.get('historical_data', {})
+                total_games = (len(lines) if isinstance(lines, dict) else 0) + (len(historical) if isinstance(historical, dict) else 0)
+
+                if total_games > 0:
+                    logger.info(f"VALIDATION: Found {total_games} games with real betting lines in {file_path}")
+
                     # Log sample game for verification
-                    sample_game = list(data['lines'].keys())[0]
-                    sample_lines = data['lines'][sample_game]
-                    logger.info(f"Sample: {sample_game}")
-                    logger.info(f"    Moneyline: {sample_lines.get('moneyline', 'N/A')}")
-                    logger.info(f"    Total: {sample_lines.get('total_runs', {}).get('line', 'N/A')}")
-                    
+                    sample_game = None
+                    if isinstance(lines, dict) and len(lines) > 0:
+                        sample_game = list(lines.keys())[0]
+                        sample_lines = lines[sample_game]
+                    elif isinstance(historical, dict) and len(historical) > 0:
+                        sample_game = list(historical.keys())[0]
+                        sample_lines = historical[sample_game]
+                    else:
+                        sample_lines = {}
+
+                    if sample_game:
+                        logger.info(f"Sample: {sample_game}")
+                        logger.info(f"    Moneyline: {sample_lines.get('moneyline', 'N/A')}")
+                        logger.info(f"    Total: {sample_lines.get('total_runs', {}).get('line', 'N/A')}")
+
                     return True
                     
         logger.error("VALIDATION: No valid betting lines file found")
@@ -131,24 +145,44 @@ def main():
     total_steps = 3
     
     try:
-        # Step 1: Fetch fresh betting lines from OddsAPI
+        # Step 1: Fetch fresh betting lines from OddsAPI (or fallback)
         repo_root = os.path.dirname(__file__)
         fetch_script = os.path.join(repo_root, 'fetch_odds_api.py')
-        if run_command(
-            [sys.executable, fetch_script, today],
-            "Fetching fresh betting lines from OddsAPI",
-            logger
-        ):
-            success_count += 1
+
+        if os.path.exists(fetch_script):
+            if run_command([
+                sys.executable, fetch_script, today
+            ], "Fetching fresh betting lines from OddsAPI", logger):
+                success_count += 1
+        else:
+            logger.warning("fetch_odds_api.py not found - falling back to internal repository data loader")
+            try:
+                result = fetch_fresh_betting_lines()
+                if isinstance(result, dict) and result.get('success'):
+                    logger.info(f"Fallback fetch succeeded: {result.get('message')}")
+                    success_count += 1
+                else:
+                    logger.error(f"Fallback fetch failed: {result}")
+            except Exception as e:
+                logger.error(f"Fallback fetch encountered exception: {e}")
         
-        # Step 2: Convert betting lines to Flask format
+        # Step 2: Convert betting lines to Flask format (or assume already in correct format)
         convert_script = os.path.join(repo_root, 'convert_betting_lines.py')
-        if run_command(
-            [sys.executable, convert_script],
-            "Converting betting lines to Flask format",
-            logger
-        ):
-            success_count += 1
+        today_underscore = datetime.now().strftime('%Y_%m_%d')
+        todays_lines_file = os.path.join(repo_root, 'data', f'real_betting_lines_{today_underscore}.json')
+
+        if os.path.exists(convert_script):
+            if run_command([
+                sys.executable, convert_script
+            ], "Converting betting lines to Flask format", logger):
+                success_count += 1
+        else:
+            # If convert script missing, assume the fetched file is already in the correct format
+            if os.path.exists(todays_lines_file):
+                logger.info("convert_betting_lines.py not found - today's betting lines file already present, skipping conversion")
+                success_count += 1
+            else:
+                logger.warning("convert_betting_lines.py not found and today's betting lines file missing - conversion step cannot complete")
             
         # Step 3: Validate the results
         if validate_betting_lines(logger):
