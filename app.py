@@ -2068,6 +2068,21 @@ def home():
             if not predicted_total_final:
                 predicted_total_final = game_data.get('predicted_total_runs', 0)
             
+            # CRITICAL FIX: If individual scores are missing but we have total runs, calculate them
+            if (away_score_final == 0 and home_score_final == 0) and predicted_total_final > 0:
+                # Get win probabilities to distribute the runs
+                away_win_decimal = predictions.get('away_win_prob', 0) or game_data.get('away_win_probability', 0.5)
+                home_win_decimal = predictions.get('home_win_prob', 0) or game_data.get('home_win_probability', 0.5)
+                
+                # Calculate scores based on win probability (higher probability = slightly more runs)
+                base_score = predicted_total_final / 2.0  # Split evenly as baseline
+                prob_adjustment = (away_win_decimal - 0.5) * 0.5  # Small adjustment based on win prob
+                
+                away_score_final = max(1.0, base_score + prob_adjustment)
+                home_score_final = max(1.0, predicted_total_final - away_score_final)
+                
+                logger.info(f"📊 Calculated home route scores for {away_team} @ {home_team}: {away_score_final:.1f} - {home_score_final:.1f} (total: {predicted_total_final})")
+            
             # Final fallback: calculate from sum if individual scores exist
             if not predicted_total_final and away_score_final and home_score_final:
                 predicted_total_final = away_score_final + home_score_final
