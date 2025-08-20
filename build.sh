@@ -1,25 +1,37 @@
 #!/bin/bash
 
-# Render build script
-echo "🔧 Building MLB Betting System..."
+#!/bin/bash
 
-# Print Python version for debugging
+# Render build script for MLB Betting System
+echo "🏗️ Building MLB Betting System on Render..."
+
+# Debug Python version to ensure we're using 3.11
+echo "🐍 Python version:"
 python --version
+python3 --version || echo "python3 not available"
 
-# Upgrade pip and setuptools first
-pip install --upgrade pip
-pip install --upgrade setuptools==69.5.1 wheel==0.41.2
+# Upgrade pip for better package resolution
+echo "📦 Upgrading pip..."
+python -m pip install --upgrade pip
 
-# Install core dependencies first
-pip install --no-cache-dir gunicorn==21.2.0
-pip install --no-cache-dir Flask==2.3.3
-pip install --no-cache-dir requests==2.31.0
+# Install each package individually to catch any failures
+echo "🔧 Installing core packages individually..."
+python -m pip install gunicorn==21.2.0
+python -m pip install Flask==2.3.3
+python -m pip install requests==2.31.0
+python -m pip install numpy==1.24.3
+python -m pip install python-dateutil==2.8.2
+python -m pip install schedule==1.2.0
+python -m pip install python-dotenv==1.0.0
+python -m pip install pytz==2023.3
+python -m pip install psutil==5.9.5
 
-# Install remaining requirements
-pip install --no-cache-dir -r requirements.txt
+# Verify critical packages are installed
+echo "✅ Verifying package installations..."
+python -c "import flask; print(f'Flask {flask.__version__} installed')"
+python -c "import gunicorn; print(f'Gunicorn installed')"
+python -c "import schedule; print(f'Schedule installed')"
+python -c "import requests; print(f'Requests installed')"
+python -c "import numpy; print(f'Numpy installed')"
 
-# Verify gunicorn is installed
-which gunicorn || echo "❌ Gunicorn not found!"
-gunicorn --version || echo "❌ Gunicorn version check failed!"
-
-echo "✅ Build complete!"
+echo "🎯 Build completed successfully!"
