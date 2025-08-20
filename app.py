@@ -2055,19 +2055,32 @@ def home():
             
             # Extract prediction data with fallback handling
             predictions = game_data.get('predictions', {})
-            away_score_final = predictions.get('predicted_away_score', 0) or game_data.get('predicted_away_score', 0)
-            home_score_final = predictions.get('predicted_home_score', 0) or game_data.get('predicted_home_score', 0)
+            away_score_final = predictions.get('predicted_away_score', 0)
+            home_score_final = predictions.get('predicted_home_score', 0)
             # Fix: ensure we get predicted_total_runs from the correct source
-            predicted_total_final = (
-                game_data.get('predicted_total_runs', 0) or  # Primary source
-                predictions.get('predicted_total_runs', 0) or  # Secondary fallback
-                predicted_total or  # Calculated fallback
-                (away_score_final + home_score_final)  # Final fallback
-            )
+            predicted_total_final = predictions.get('predicted_total_runs', 0)
+            
+            # Fallback to old structure if new structure doesn't have the data
+            if not away_score_final:
+                away_score_final = game_data.get('predicted_away_score', 0)
+            if not home_score_final:
+                home_score_final = game_data.get('predicted_home_score', 0)
+            if not predicted_total_final:
+                predicted_total_final = game_data.get('predicted_total_runs', 0)
+            
+            # Final fallback: calculate from sum if individual scores exist
+            if not predicted_total_final and away_score_final and home_score_final:
+                predicted_total_final = away_score_final + home_score_final
             
             # Extract win probabilities from nested structure
-            away_win_prob_final = predictions.get('away_win_prob', 0) or away_win_prob
-            home_win_prob_final = predictions.get('home_win_prob', 0) or home_win_prob
+            away_win_prob_final = predictions.get('away_win_prob', 0)
+            home_win_prob_final = predictions.get('home_win_prob', 0)
+            
+            # Fallback to old structure for win probabilities
+            if not away_win_prob_final:
+                away_win_prob_final = game_data.get('away_win_probability', away_win_prob / 100.0)
+            if not home_win_prob_final:
+                home_win_prob_final = game_data.get('home_win_probability', home_win_prob / 100.0)
             
             enhanced_game = {
                 'game_id': game_key,
