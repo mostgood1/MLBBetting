@@ -54,7 +54,7 @@ def run_script(script_path: Path, description: str, logger, timeout: int = 300):
 
         result = subprocess.run([
             sys.executable, str(script_path)
-        ], capture_output=True, text=True, timeout=timeout, cwd=str(script_path.parent))
+        ], capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=timeout, cwd=str(script_path.parent))
         
         if result.returncode == 0:
             logger.info(f"✅ SUCCESS: {description}")
@@ -110,6 +110,18 @@ def complete_daily_automation():
     
     # Step 1: Run the enhanced daily automation (try fallbacks)
     logger.info("\n🎯 STEP 1: Running Enhanced Daily Automation")
+    
+    # First, ensure we have today's games file - this is critical for predictions
+    games_fetch_script = base_dir / "fetch_today_games.py"
+    games_success = False
+    if games_fetch_script.exists():
+        games_success = run_script(games_fetch_script, "Fetch Today's Games (Required for predictions)", logger, 300)
+        if not games_success:
+            logger.error("❌ CRITICAL: Failed to fetch today's games - predictions will fail")
+    else:
+        logger.error("❌ CRITICAL: fetch_today_games.py not found - predictions will fail")
+    
+    # Then run other automation scripts
     enhanced_candidates = [
         base_dir / "daily_enhanced_automation_clean.py",
         base_dir / "daily_betting_lines_automation.py",
@@ -136,6 +148,10 @@ def complete_daily_automation():
                 success1 = mod.main()
         except Exception as e:
             logger.debug(f"Fallback enhanced automation import failed: {e}")
+    
+    # Mark step 1 as successful if we at least got games (critical requirement)
+    if games_success:
+        success1 = True
     
     # Step 2: Generate today's predictions (try fallbacks)
     logger.info("\n🎯 STEP 2: Generating Today's Predictions")

@@ -61,6 +61,8 @@ def run_command(command, description, logger):
             shell=isinstance(cmd, str),
             capture_output=True,
             text=True,
+            encoding='utf-8',
+            errors='replace',
             cwd=os.path.dirname(__file__)
         )
         
