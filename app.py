@@ -2123,7 +2123,8 @@ def home():
                 'over_under_recommendation': 'PREDICTION_ONLY',  # Real O/U recommendations come from betting_recommendations
                 'status': 'Scheduled',
                 'real_betting_lines': real_lines,
-                'betting_recommendations': game_recommendations
+                'betting_recommendations': game_recommendations,
+                'debug_prediction_fix': 'v2.1_nested_predictions_fix'  # Debug flag to verify deployment
             }
             today_predictions.append(enhanced_game)
         
