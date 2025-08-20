@@ -48,6 +48,10 @@ render.yaml
 # Runtime data files (too large for Git)
 data/*.json
 !data/team_assets.json
+# Include essential data files for production deployment
+!data/games_*.json
+!data/real_betting_lines_*.json
+!data/starting_pitchers_*.json
 !data/master_team_strength.json
 !data/master_pitcher_stats.json
 data/*_backup*.json
