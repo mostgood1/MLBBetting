@@ -1,0 +1,70 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test files
+test_*.py
+debug_*.py
+
+# Development and optimization files
+*optimization*
+backup_*/
+analyze_*.py
+track_*.py
+create_performance_*.py
+fix_*.py
+
+# Allow essential tuning files but block others
+!admin_tuning.py
+!continuous_auto_tuning.py
+auto_tuning_*.py
+*tuning_test*
+daily_optimization*
+
+# Temporary files
+temp_*.html
+temp_*.json
+*.tmp
+
+# Cache files
+*_cache_*.json
+*_backup*.json
+*_analysis_update*.json
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env.local
+.env.development
+.env.test
+
+# Render deployment
+.render/
+render.yaml
+
+# Runtime data files (too large for Git)
+data/*.json
+!data/team_assets.json
+!data/master_team_strength.json
+!data/master_pitcher_stats.json
+data/*_backup*.json
+monitoring_data/
+logs/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

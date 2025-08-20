@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLB-Betting Prediction System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: #4fd1c7;
+        }
+
+        .stat-card p {
+            opacity: 0.8;
+        }
+
+        .games-section {
+            margin-top: 30px;
+        }
+
+        .games-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .date-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .date-selector input {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #4fd1c7;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #45b7b8;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            background: #4fd1c7;
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn-small:hover {
+            background: #45b7b8;
+        }
+
+        .games-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .starting-pitchers {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .pitcher-matchup {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .away-pitcher, .home-pitcher {
+            flex: 1;
+            text-align: center;
+        }
+
+        .pitcher-label {
+            display: block;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+
+        .pitcher-name {
+            display: block;
+            font-weight: bold;
+            color: #4fd1c7;
+        }
+
+        .pitcher-matchup .vs-separator {
+            font-size: 0.8rem;
+            opacity: 0.5;
+            margin: 0 5px;
+        }
+
+        .game-teams {
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .team-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .team-name {
+            font-weight: bold;
+        }
+
+        .vs-separator {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin: 0 5px;
+        }
+
+        .game-time {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .prediction-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .betting-lines {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .betting-lines h4 {
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #4fd1c7;
+        }
+
+        .betting-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .betting-item {
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .betting-item .line-label {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-bottom: 2px;
+        }
+
+        .betting-item .line-value {
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .moneyline-away, .moneyline-home {
+            font-size: 0.75rem;
+        }
+
+        .moneyline-away {
+            color: #ff6b6b;
+        }
+
+        .moneyline-home {
+            color: #4ecdc4;
+        }
+
+        .betting-recommendations {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid #4fd1c7;
+        }
+
+        .betting-recommendations h4 {
+            margin: 0 0 12px 0;
+            color: #4fd1c7;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .value-bet {
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .value-bet:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .value-bet.high-confidence {
+            border-left-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.15);
+        }
+
+        .value-bet.medium-confidence {
+            border-left-color: #ffa726;
+            background: rgba(255, 167, 38, 0.15);
+        }
+
+        .value-bet.low-confidence {
+            border-left-color: #66bb6a;
+            background: rgba(102, 187, 106, 0.15);
+        }
+
+        .no-value-bet {
+            padding: 10px;
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .edge-indicator {
+            font-weight: bold;
+            margin-left: 4px;
+        }
+
+        .game-status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .badge-scheduled {
+            background: rgba(108, 117, 125, 0.2);
+            color: #6c757d;
+            border: 1px solid rgba(108, 117, 125, 0.3);
+        }
+
+        .badge-live {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .badge-final {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.4);
+        }
+
+        .badge-delayed {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.4);
+        }
+
+        .badge-unknown {
+            background: rgba(255, 255, 255, 0.1);
+            color: #adb5bd;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .game-time {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .live-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: 6px;
+            border-left: 3px solid #dc3545;
+        }
+
+        .live-score .team-score {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .final-analysis {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #28a745;
+        }
+
+        .final-analysis h5 {
+            color: #28a745;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .analysis-item {
+            margin: 4px 0;
+            font-size: 0.8rem;
+            padding: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .analysis-correct {
+            color: #28a745;
+        }
+
+        .analysis-incorrect {
+            color: #dc3545;
+        }
+
+        .betting-comparison {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .betting-comparison h6 {
+            margin: 5px 0 8px 0;
+            font-size: 0.9rem;
+            color: #ffd700;
+        }
+
+        .betting-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .section-title {
+            color: #4fd1c7;
+            font-size: 1.2rem;
+            margin: 20px 0 15px 0;
+            padding: 10px 15px;
+            background: rgba(79, 209, 199, 0.1);
+            border-left: 4px solid #4fd1c7;
+            border-radius: 5px;
+        }
+
+        .btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .prediction-item {
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .prediction-item .value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #4fd1c7;
+        }
+
+        .prediction-item .label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        .recommendations {
+            margin-top: 20px;
+        }
+
+        .recommendation {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .recommendation.high-confidence {
+            border-left: 4px solid #4fd1c7;
+        }
+
+        .recommendation.medium-confidence {
+            border-left: 4px solid #f39c12;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .games-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚾ MLB-Betting</h1>
+            <p>Advanced MLB Prediction System with Real-Time Betting Analysis</p>
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">
+                📊 Comprehensive Analysis Since August 7th • Updated Daily • 113 Games Tracked
+            </p>
+        </div>
+
+        <div id="summary-stats" class="stats-grid">
+            <div class="stat-card">
+                <h3>113</h3>
+                <p>Total Games Predicted</p>
+                <small>Since 2025-08-07</small>
+            </div>
+            <div class="stat-card">
+                <h3>66</h3>
+                <p>Predicted Winners</p>
+                <small>58.4% accuracy (66/113 analyzed)</small>
+            </div>
+            <div class="stat-card">
+                <h3>61</h3>
+                <p>Predicted Totals</p>
+                <small>54.0% correct on O/U (61/113 analyzed)</small>
+            </div>
+            <div class="stat-card">
+                <h3>35</h3>
+                <p>Perfect Games</p>
+                <small>31.0% both correct (35/113 analyzed)</small>
+            </div>
+            <div class="stat-card" id="tbd-monitor-card">
+                <h3 id="tbd-status-indicator">🔍</h3>
+                <p>TBD Monitor</p>
+                <small id="tbd-status-text">Loading...</small>
+                <div style="margin-top: 8px;">
+                    <button class="btn-small" onclick="checkTBD()" id="tbd-check-btn">Check Now</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="games-section">
+            <div class="games-header">
+                <h2>Today's MLB Games</h2>
+                <div class="date-selector">
+                    <input type="date" id="game-date" style="display: none;" />
+                    <button class="btn" onclick="loadToday()">Refresh</button>
+                    <button class="btn secondary" onclick="goToHistoricalAnalysis()">📊 Historical Analysis</button>
+                </div>
+            </div>
+
+            <!-- Live Games Section -->
+            <div id="live-games-section" style="display: none;">
+                <h3 class="section-title">🔴 Live Games</h3>
+                <div id="live-games-container" class="games-grid"></div>
+            </div>
+
+            <!-- Upcoming Games Section -->
+            <div id="upcoming-games-section" style="display: none;">
+                <h3 class="section-title">⏰ Upcoming Games</h3>
+                <div id="upcoming-games-container" class="games-grid"></div>
+            </div>
+
+            <!-- Completed Games Section -->
+            <div id="completed-games-section" style="display: none;">
+                <h3 class="section-title">✅ Completed Games</h3>
+                <div id="completed-games-container" class="games-grid"></div>
+            </div>
+
+            <div id="games-container">
+                <div class="loading">Loading today's games...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prediction Modal -->
+    <div id="prediction-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Game Prediction</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modal-body">
+                Loading prediction...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get user's local date, not UTC date
+        let currentDate = new Date();
+        let localDateString = currentDate.getFullYear() + '-' + 
+                              String(currentDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                              String(currentDate.getDate()).padStart(2, '0');
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('game-date').value = localDateString;
+            loadSummary();
+            loadTodaysGames();
+            
+            // Start live updates for games in progress
+            startLiveUpdates();
+            
+            // Initialize TBD monitoring
+            updateTBDStatus();
+            
+            // Update TBD status every 5 minutes
+            setInterval(updateTBDStatus, 300000);
+        });
+
+        function goToHistoricalAnalysis() {
+            // Navigate to historical analysis page
+            window.location.href = '/historical';
+        }
+
+        function loadToday() {
+            currentDate = new Date();
+            localDateString = currentDate.getFullYear() + '-' + 
+                              String(currentDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                              String(currentDate.getDate()).padStart(2, '0');
+            document.getElementById('game-date').value = localDateString;
+            loadTodaysGames();
+        }
+
+        // TBD Monitoring Functions
+        async function updateTBDStatus() {
+            try {
+                const response = await fetch('/api/tbd-status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const status = data.status;
+                    const indicator = document.getElementById('tbd-status-indicator');
+                    const statusText = document.getElementById('tbd-status-text');
+                    
+                    if (status.tbd_games_count > 0) {
+                        indicator.textContent = '⚠️';
+                        statusText.textContent = `${status.tbd_games_count} games with TBD pitchers`;
+                    } else {
+                        indicator.textContent = '✅';
+                        statusText.textContent = 'All pitchers confirmed';
+                    }
+                    
+                    // Update last check time
+                    const lastCheck = new Date(status.last_check);
+                    const timeStr = lastCheck.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    statusText.innerHTML += `<br>Last checked: ${timeStr}`;
+                }
+            } catch (error) {
+                console.error('Error updating TBD status:', error);
+                document.getElementById('tbd-status-indicator').textContent = '❌';
+                document.getElementById('tbd-status-text').textContent = 'Monitor error';
+            }
+        }
+
+        async function checkTBD() {
+            const btn = document.getElementById('tbd-check-btn');
+            const originalText = btn.textContent;
+            
+            btn.textContent = 'Checking...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/tbd-check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.updated) {
+                        // Refresh the page to show updated recommendations
+                        loadToday();
+                        updateTBDStatus();
+                        alert('Pitcher updates found! Recommendations refreshed.');
+                    } else {
+                        alert('No pitcher updates found.');
+                    }
+                } else {
+                    alert('Error checking for updates: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error checking TBD:', error);
+                alert('Error checking for pitcher updates.');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function startLiveUpdates() {
+            // Check for live games every 30 seconds
+            setInterval(updateLiveGames, 30000);
+        }
+
+        async function updateLiveGames() {
+            try {
+                const date = document.getElementById('game-date').value;
+                const response = await fetch(`/api/live-status?date=${date}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const liveGames = data.games.filter(game => game.is_live || game.is_final);
+                    
+                    for (const liveGame of liveGames) {
+                        updateGameCard(liveGame);
+                    }
+                    
+                    // Update timestamp
+                    console.log(`Live update: ${new Date().toLocaleTimeString()} - ${liveGames.length} games updated`);
+                }
+            } catch (error) {
+                console.error('Error updating live games:', error);
+            }
+        }
+
+        function updateGameCard(liveGame) {
+            // Find the corresponding game card by unique game ID
+            const gameId = `${liveGame.away_team}_${liveGame.home_team}_${new Date().toISOString().split('T')[0]}`;
+            
+            // Debug logging
+            console.log(`🔍 Looking for live game: ${liveGame.away_team} @ ${liveGame.home_team}`);
+            console.log(`   Status: ${liveGame.status}, Live: ${liveGame.is_live}, Scores: ${liveGame.away_score}-${liveGame.home_score}`);
+            
+            // Try multiple selection strategies for better team name matching
+            let card = document.querySelector(`[data-game-id*="${liveGame.away_team}_${liveGame.home_team}"]`);
+            
+            // If not found, try with normalized team names (Athletics vs Oakland Athletics)
+            if (!card) {
+                const normalizedAway = liveGame.away_team.replace('Oakland ', '').replace(' Athletics', '').replace('Athletics', 'Athletics');
+                const normalizedHome = liveGame.home_team.replace('Oakland ', '').replace(' Athletics', '').replace('Athletics', 'Athletics');
+                card = document.querySelector(`[data-game-id*="${normalizedAway}"][data-game-id*="${normalizedHome}"]`);
+                console.log(`   Trying normalized names: ${normalizedAway} @ ${normalizedHome}`);
+            }
+            
+            // If still not found, try broader search
+            if (!card) {
+                // Look for cards containing both team names (partial match)
+                const allCards = document.querySelectorAll('.game-card[data-game-id]');
+                for (const gameCard of allCards) {
+                    const cardId = gameCard.getAttribute('data-game-id');
+                    if (cardId && cardId.includes('Tampa Bay') && cardId.includes('Athletics')) {
+                        card = gameCard;
+                        console.log(`   Found via partial match: ${cardId}`);
+                        break;
+                    }
+                }
+            }
+            
+            if (card) {
+                console.log(`✅ Found game card, updating live status`);
+                // Update status badge
+                const statusBadge = card.querySelector('.game-status-badge');
+                if (statusBadge) {
+                    statusBadge.className = `game-status-badge badge-${liveGame.badge_class}`;
+                    statusBadge.textContent = liveGame.status;
+                    console.log(`   Updated badge to: ${liveGame.status}`);
+                }
+                
+                // Remove existing live/final content to prevent duplicates
+                let existingScore = card.querySelector('.live-score');
+                if (existingScore) {
+                    existingScore.remove();
+                }
+                
+                let existingAnalysis = card.querySelector('.final-analysis');
+                if (existingAnalysis) {
+                    existingAnalysis.remove();
+                }
+                
+                const gameHeader = card.querySelector('.game-header');
+                if (liveGame.is_live && (liveGame.away_score !== undefined || liveGame.home_score !== undefined)) {
+                    const liveScoreHtml = createLiveScoreHtml(liveGame);
+                    console.log(`   Adding live score HTML: ${liveScoreHtml}`);
+                    gameHeader.insertAdjacentHTML('afterend', liveScoreHtml);
+                } else if (liveGame.is_final && (liveGame.away_score !== undefined || liveGame.home_score !== undefined)) {
+                    // Need to get prediction data for final analysis
+                    const gameId = card.querySelector('[id^="summary-"]').id.replace('summary-', '');
+                    const prediction = { /* We'd need to store this somehow */ };
+                    const finalScoreHtml = createFinalScoreHtml(liveGame, { prediction });
+                    gameHeader.insertAdjacentHTML('afterend', finalScoreHtml);
+                }
+            } else {
+                console.log(`❌ Game card not found for ${liveGame.away_team} @ ${liveGame.home_team}`);
+            }
+        }
+
+        async function loadSummary() {
+            try {
+                const response = await fetch('/api/summary');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const summary = data.summary;
+                    document.getElementById('total-games').textContent = summary.total_games;
+                    document.getElementById('completed-games').textContent = summary.completed_games;
+                    document.getElementById('prediction-accuracy').textContent = 
+                        (summary.prediction_accuracy * 100).toFixed(1) + '%';
+                    document.getElementById('avg-error').textContent = 
+                        summary.avg_score_error.toFixed(2);
+                }
+            } catch (error) {
+                console.error('Error loading summary:', error);
+            }
+        }
+
+        async function loadTodaysGames() {
+            const date = document.getElementById('game-date').value;
+            const container = document.getElementById('games-container');
+            
+            container.innerHTML = '<div class="loading">Loading today\'s games...</div>';
+            
+            try {
+                const response = await fetch(`/api/today-games?date=${date}`);
+                const data = await response.json();
+                
+                if (data.success && data.games.length > 0) {
+                    // Hide main container and show organized sections
+                    container.style.display = 'none';
+                    
+                    // Categorize games
+                    const liveGames = [];
+                    const upcomingGames = [];
+                    const completedGames = [];
+                    
+                    // Track unique games to prevent duplicates
+                    const uniqueGames = new Map();
+                    
+                    for (const game of data.games) {
+                        const gameKey = `${game.away_team}_${game.home_team}_${game.date}`;
+                        
+                        // Only add if we haven't seen this game before
+                        if (!uniqueGames.has(gameKey)) {
+                            uniqueGames.set(gameKey, game);
+                            
+                            const liveStatus = game.live_status || {};
+                            if (liveStatus.is_live) {
+                                liveGames.push(game);
+                            } else if (liveStatus.is_final) {
+                                completedGames.push(game);
+                            } else {
+                                upcomingGames.push(game);
+                            }
+                        }
+                    }
+                    
+                    // Sort games within each category
+                    liveGames.sort((a, b) => {
+                        // Live games: show by game time
+                        const timeA = new Date(a.game_time || 0);
+                        const timeB = new Date(b.game_time || 0);
+                        return timeA - timeB;
+                    });
+                    
+                    upcomingGames.sort((a, b) => {
+                        // Upcoming: earliest games first
+                        const timeA = new Date(a.game_time || '9999-12-31');
+                        const timeB = new Date(b.game_time || '9999-12-31');
+                        return timeA - timeB;
+                    });
+                    
+                    completedGames.sort((a, b) => {
+                        // Completed: most recently finished first
+                        const timeA = new Date(a.game_time || 0);
+                        const timeB = new Date(b.game_time || 0);
+                        return timeB - timeA;
+                    });
+                    
+                    // Display each section
+                    displayGameSection('live-games', liveGames);
+                    displayGameSection('upcoming-games', upcomingGames);
+                    displayGameSection('completed-games', completedGames);
+                    
+                    console.log(`Loaded games: ${liveGames.length} live, ${upcomingGames.length} upcoming, ${completedGames.length} completed`);
+                } else {
+                    container.innerHTML = '<div class="error">No games found for today.</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error loading games: ' + error.message + '</div>';
+            }
+        }
+
+        function displayGameSection(sectionPrefix, games) {
+            const section = document.getElementById(`${sectionPrefix}-section`);
+            const container = document.getElementById(`${sectionPrefix}-container`);
+            
+            if (games.length > 0) {
+                section.style.display = 'block';
+                container.innerHTML = '';
+                
+                games.forEach(game => {
+                    const gameCard = createGameCard(game);
+                    container.appendChild(gameCard);
+                });
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        // Keep the old loadGames function for historical page
+        async function loadGames() {
+            const date = document.getElementById('game-date').value;
+            const container = document.getElementById('games-container');
+            
+            container.innerHTML = '<div class="loading">Loading games...</div>';
+            
+            try {
+                const response = await fetch(`/api/today-games?date=${date}`);
+                const data = await response.json();
+                
+                if (data.success && data.games.length > 0) {
+                    // Clear container completely to prevent duplicates
+                    container.innerHTML = '';
+                    
+                    const gamesGrid = document.createElement('div');
+                    gamesGrid.className = 'games-grid';
+                    
+                    // Track unique games to prevent duplicates
+                    const uniqueGames = new Map();
+                    
+                    for (const game of data.games) {
+                        const gameKey = `${game.away_team}_${game.home_team}_${game.date}`;
+                        
+                        // Only add if we haven't seen this game before
+                        if (!uniqueGames.has(gameKey)) {
+                            uniqueGames.set(gameKey, game);
+                            const gameCard = createGameCard(game);
+                            gamesGrid.appendChild(gameCard);
+                        }
+                    }
+                    
+                    container.appendChild(gamesGrid);
+                    console.log(`Loaded ${uniqueGames.size} unique games`);
+                } else {
+                    container.innerHTML = '<div class="error">No games found for this date.</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error loading games: ' + error.message + '</div>';
+            }
+        }
+
+        function createGameCard(game) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.setAttribute('data-game-id', game.game_id); // Add unique identifier
+            card.onclick = () => loadPrediction(game.away_team, game.home_team, game.date);
+            
+            // Debug: log team names to check for duplication in data
+            console.log(`Creating card for: ${game.away_team} @ ${game.home_team}`);
+            
+            // Get team assets for logos
+            const awayAssets = game.away_team_assets || { logo_url: game.away_logo };
+            const homeAssets = game.home_team_assets || { logo_url: game.home_logo };
+            
+            // Get live status information
+            const liveStatus = game.live_status || {
+                status: 'Scheduled',
+                badge_class: 'scheduled',
+                game_time: 'TBD',
+                is_live: false,
+                is_final: false
+            };
+            
+            // Format game time - only show for scheduled games
+            let displayTime = '';
+            let displayStatus = liveStatus.status;
+            
+            // Only show time for scheduled games (not live or final)
+            if (!liveStatus.is_live && !liveStatus.is_final) {
+                // First, try to use the already-formatted time from live_status
+                if (liveStatus.game_time && liveStatus.game_time !== 'TBD' && 
+                    !liveStatus.game_time.includes('T') && !liveStatus.game_time.includes('Z')) {
+                    // This is already a formatted time like "7:10 PM"
+                    displayTime = liveStatus.game_time;
+                } 
+                // Otherwise, try to convert the raw game time
+                else if (game.game_time && game.game_time !== 'TBD') {
+                    try {
+                        // Handle enhanced data time format: "2025-08-14T17:05:00+00:00"
+                        let gameTimeString = game.game_time;
+                        
+                        console.log('🕐 Processing game time:', gameTimeString);
+                        
+                        // The enhanced data should already be in proper ISO format
+                        // "2025-08-14T17:05:00+00:00" is valid ISO 8601
+                        const gameDate = new Date(gameTimeString);
+                        
+                        // Verify the date was parsed correctly
+                        if (isNaN(gameDate.getTime())) {
+                            console.error('❌ Invalid date parsed:', gameTimeString);
+                            displayTime = 'TBD';
+                        } else {
+                            // Always convert to Central Time for consistency
+                            displayTime = gameDate.toLocaleTimeString('en-US', { 
+                                hour: 'numeric', 
+                                minute: '2-digit',
+                                hour12: true,
+                                timeZone: 'America/Chicago' // Central Time
+                            });
+                            
+                            displayTime += ' CT'; // Central Time indicator
+                            
+                            console.log('✅ Time converted successfully:', {
+                                original: gameTimeString,
+                                parsed: gameDate.toISOString(),
+                                central: displayTime
+                            });
+                        }
+                    } catch (error) {
+                        console.error('❌ Error converting game time:', error);
+                        displayTime = 'TBD';
+                    }
+                }
+            }
+            
+            // For live games, enhance status with inning info if available
+            if (liveStatus.is_live && liveStatus.inning && liveStatus.inning_state) {
+                displayStatus = `${liveStatus.inning_state} ${liveStatus.inning}`;
+            }
+            
+            // Get betting lines from either closing_lines or betting_data
+            const bettingData = game.closing_lines || game.betting_data || {};
+            const moneyline = bettingData.moneyline || {};
+            const total = bettingData.total || {};
+            const spread = bettingData.spread || {};
+            
+            let bettingLinesHtml = '';
+            // Show betting lines if we have closing lines data OR betting data
+            if ((game.has_closing_lines && bettingData) || Object.keys(bettingData).length > 0) {
+                bettingLinesHtml = `
+                    <div class="betting-lines">
+                        <h4>Betting Lines</h4>
+                        <div class="betting-grid">
+                            <div class="betting-item">
+                                <div class="line-label">Moneyline</div>
+                                <div class="line-value">
+                                    <div class="moneyline-away">${game.away_team.substring(0, 3)}: ${moneyline.away || 'N/A'}</div>
+                                    <div class="moneyline-home">${game.home_team.substring(0, 3)}: ${moneyline.home || 'N/A'}</div>
+                                </div>
+                            </div>
+                            <div class="betting-item">
+                                <div class="line-label">Total</div>
+                                <div class="line-value">
+                                    ${total.line ? `O/U ${total.line}` : 'N/A'}
+                                </div>
+                            </div>
+                            <div class="betting-item">
+                                <div class="line-label">Spread</div>
+                                <div class="line-value">
+                                    ${spread.line ? `${spread.line > 0 ? '+' : ''}${spread.line}` : 'N/A'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            card.innerHTML = `
+                <div class="game-header">
+                    <div class="game-teams">
+                        <div class="team-info">
+                            <img src="${awayAssets.logo_url || ''}" alt="${game.away_team}" class="team-logo" />
+                            <span class="team-name">${game.away_team}</span>
+                        </div>
+                        <span class="vs-separator">@</span>
+                        <div class="team-info">
+                            <img src="${homeAssets.logo_url || ''}" alt="${game.home_team}" class="team-logo" />
+                            <span class="team-name">${game.home_team}</span>
+                        </div>
+                    </div>
+                    <div class="game-info">
+                        ${displayTime ? `<div class="game-time">${displayTime}</div>` : ''}
+                        <span class="game-status-badge badge-${liveStatus.badge_class}">${displayStatus}</span>
+                    </div>
+                </div>
+                <div class="starting-pitchers">
+                    <div class="pitcher-matchup">
+                        <div class="away-pitcher">
+                            <span class="pitcher-label">Starting Pitcher:</span>
+                            <span class="pitcher-name">${game.away_pitcher || 'TBD'}</span>
+                        </div>
+                        <span class="vs-separator">vs</span>
+                        <div class="home-pitcher">
+                            <span class="pitcher-label">Starting Pitcher:</span>
+                            <span class="pitcher-name">${game.home_pitcher || 'TBD'}</span>
+                        </div>
+                    </div>
+                </div>
+                ${liveStatus.is_live ? createLiveScoreHtml(liveStatus) : ''}
+                ${liveStatus.is_final ? createFinalScoreHtml(liveStatus, game) : ''}
+                <div class="prediction-summary" id="summary-${game.game_id}">
+                    <div class="prediction-item">
+                        <div class="value">Loading...</div>
+                        <div class="label">Prediction</div>
+                    </div>
+                </div>
+                ${bettingLinesHtml}
+            `;
+            
+            // Load quick prediction summary
+            loadQuickPrediction(game.away_team, game.home_team, game.date, game.game_id);
+            
+            return card;
+        }
+
+        function createLiveScoreHtml(liveStatus) {
+            if (!liveStatus.away_score && !liveStatus.home_score) {
+                return '';
+            }
+            
+            // Create inning display for live games
+            let inningDisplay = 'LIVE';
+            if (liveStatus.inning && liveStatus.inning_state) {
+                inningDisplay = `${liveStatus.inning_state} ${liveStatus.inning}`;
+            }
+            
+            return `
+                <div class="live-score">
+                    <div>
+                        <span class="team-score">${liveStatus.away_score || 0}</span>
+                    </div>
+                    <div style="color: #dc3545; font-weight: bold; font-size: 0.9em;">${inningDisplay}</div>
+                    <div>
+                        <span class="team-score">${liveStatus.home_score || 0}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createFinalScoreHtml(liveStatus, game) {
+            if (!liveStatus.away_score && !liveStatus.home_score) {
+                return '';
+            }
+            
+            // Use game data directly as it contains prediction info
+            const predictedAwayScore = game.predicted_away_score || 0;
+            const predictedHomeScore = game.predicted_home_score || 0;
+            const predictedTotalRuns = game.predicted_total_runs || (predictedAwayScore + predictedHomeScore);
+            const actualAwayScore = liveStatus.away_score || 0;
+            const actualHomeScore = liveStatus.home_score || 0;
+            const actualTotalRuns = actualAwayScore + actualHomeScore;
+            
+            // Winner prediction accuracy
+            const predictedWinner = predictedAwayScore > predictedHomeScore ? 'away' : 'home';
+            const actualWinner = actualAwayScore > actualHomeScore ? 'away' : 'home';
+            const winnerCorrect = predictedWinner === actualWinner;
+            
+            // Score difference analysis
+            const awayScoreDiff = Math.abs(actualAwayScore - predictedAwayScore);
+            const homeScoreDiff = Math.abs(actualHomeScore - predictedHomeScore);
+            const avgScoreDiff = (awayScoreDiff + homeScoreDiff) / 2;
+            
+            // Total runs analysis
+            const totalRunsDiff = Math.abs(actualTotalRuns - predictedTotalRuns);
+            const totalRunsAccuracy = totalRunsDiff <= 1 ? 'Excellent' : 
+                                     totalRunsDiff <= 2 ? 'Good' : 
+                                     totalRunsDiff <= 3 ? 'Fair' : 'Poor';
+            
+            // Use the original bet_grade if available (from enhanced grading), otherwise calculate
+            let grade = game.bet_grade || '';
+            let gradePoints = 0;
+            
+            // If no bet_grade available, calculate traditional accuracy grade
+            if (!grade) {
+                if (winnerCorrect) gradePoints += 50;
+                if (avgScoreDiff <= 1) gradePoints += 30;
+                else if (avgScoreDiff <= 2) gradePoints += 20;
+                else if (avgScoreDiff <= 3) gradePoints += 10;
+                if (totalRunsDiff <= 1) gradePoints += 20;
+                else if (totalRunsDiff <= 2) gradePoints += 15;
+                else if (totalRunsDiff <= 3) gradePoints += 10;
+                
+                if (gradePoints >= 90) grade = 'A+';
+                else if (gradePoints >= 80) grade = 'A';
+                else if (gradePoints >= 70) grade = 'B+';
+                else if (gradePoints >= 60) grade = 'B';
+                else if (gradePoints >= 50) grade = 'C';
+                else grade = 'D';
+            }
+            
+            // Betting line analysis (if comprehensive analysis available)
+            let bettingAnalysisHtml = '';
+            const postGameAnalysis = game.post_game_analysis;
+            if (postGameAnalysis && postGameAnalysis.betting_analysis) {
+                const bettingAnalysis = postGameAnalysis.betting_analysis;
+                
+                let marketVsModelHtml = '';
+                if (bettingAnalysis.betting_favorite) {
+                    const favoriteWon = bettingAnalysis.favorite_won;
+                    const modelBeatMarket = bettingAnalysis.model_beat_market;
+                    
+                    marketVsModelHtml = `
+                        <div class="analysis-item ${favoriteWon ? 'analysis-correct' : 'analysis-incorrect'}">
+                            <strong>Market Favorite:</strong> ${favoriteWon ? '✅ Won' : '❌ Lost'}
+                        </div>
+                        <div class="analysis-item ${modelBeatMarket ? 'analysis-correct' : 'analysis-incorrect'}">
+                            <strong>Model vs Market:</strong> ${modelBeatMarket ? '✅ Beat Market' : '❌ Followed Market'}
+                        </div>
+                    `;
+                }
+                
+                let totalBetHtml = '';
+                if (bettingAnalysis.total_analysis) {
+                    const totalAnalysis = bettingAnalysis.total_analysis;
+                    const modelCorrectTotal = totalAnalysis.model_correct_total;
+                    
+                    totalBetHtml = `
+                        <div class="analysis-item ${modelCorrectTotal ? 'analysis-correct' : 'analysis-incorrect'}">
+                            <strong>Total Bet:</strong> ${modelCorrectTotal ? '✅ Correct' : '❌ Incorrect'} (Line: ${totalAnalysis.line})
+                        </div>
+                    `;
+                }
+                
+                if (marketVsModelHtml || totalBetHtml) {
+                    bettingAnalysisHtml = `
+                        <div class="betting-comparison">
+                            <h6>📈 Model vs Market Performance</h6>
+                            <div class="betting-grid">
+                                ${marketVsModelHtml}
+                                ${totalBetHtml}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            return `
+                <div class="live-score">
+                    <div>
+                        <span style="color: #ff6b6b;">${liveStatus.away_team ? liveStatus.away_team.substring(0, 3) : 'AWAY'}</span>
+                        <span class="team-score">${actualAwayScore}</span>
+                    </div>
+                    <div style="color: #28a745; font-weight: bold;">FINAL</div>
+                    <div>
+                        <span style="color: #4ecdc4;">${liveStatus.home_team ? liveStatus.home_team.substring(0, 3) : 'HOME'}</span>
+                        <span class="team-score">${actualHomeScore}</span>
+                    </div>
+                </div>
+                <div class="final-analysis">
+                    <h5>📊 Prediction Analysis (Grade: ${grade})</h5>
+                    <div class="analysis-grid">
+                        <div class="analysis-item ${winnerCorrect ? 'analysis-correct' : 'analysis-incorrect'}">
+                            <strong>Winner:</strong> ${winnerCorrect ? '✅ Correct' : '❌ Incorrect'}
+                        </div>
+                        <div class="analysis-item">
+                            <strong>Score Error:</strong> ±${avgScoreDiff.toFixed(1)} runs
+                        </div>
+                        <div class="analysis-item">
+                            <strong>Total Runs:</strong> ${actualTotalRuns} (predicted ${predictedTotalRuns})
+                        </div>
+                        <div class="analysis-item">
+                            <strong>Total Accuracy:</strong> ±${totalRunsDiff} runs (${totalRunsAccuracy})
+                        </div>
+                    </div>
+                    ${bettingAnalysisHtml}
+                </div>
+            `;
+        }
+
+        async function loadQuickPrediction(awayTeam, homeTeam, date, gameId) {
+            try {
+                const response = await fetch(`/api/prediction/${awayTeam}/${homeTeam}?date=${date}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const pred = data.prediction;  // data is directly in prediction object
+                    const meta = data.prediction.meta;
+                    
+                    const summaryElement = document.getElementById(`summary-${gameId}`);
+                    if (summaryElement) {
+                        // Get pitcher information for display
+                        const awayPitcher = pred.away_pitcher || 'TBD';
+                        const homePitcher = pred.home_pitcher || 'TBD';
+                        
+                        summaryElement.innerHTML = `
+                            <div class="prediction-item">
+                                <div class="value">${pred.predicted_away_score}</div>
+                                <div class="label">${awayTeam.split(' ').pop()}</div>
+                            </div>
+                            <div class="prediction-item">
+                                <div class="value">${pred.predicted_home_score}</div>
+                                <div class="label">${homeTeam.split(' ').pop()}</div>
+                            </div>
+                            <div class="prediction-item">
+                                <div class="value">${pred.home_win_probability.toFixed(0)}%</div>
+                                <div class="label">Home Win</div>
+                            </div>
+                        `;
+                        
+                        // Add quick betting tip if available
+                        const bettingRecs = data.betting_recommendations;  // Get from top level of data object
+                        if (bettingRecs && bettingRecs.best_bet) {
+                            const bestBet = bettingRecs.best_bet;
+                            const icon = bestBet.edge_rating || '🎯';
+                            summaryElement.innerHTML += `
+                                <div class="prediction-item betting-tip" style="background: rgba(79, 209, 199, 0.2); border-left: 2px solid #4fd1c7;">
+                                    <div class="value" style="font-size: 0.8em;">${icon} ${bestBet.bet}</div>
+                                    <div class="label" style="font-size: 0.7em;">Best Bet</div>
+                                </div>
+                            `;
+                        }
+                        
+                        // Add betting recommendations if available and not already present
+                        if (bettingRecs && bettingRecs.value_bets) {
+                            // Use more specific selector to prevent duplicates
+                            const gameCard = summaryElement.closest('.game-card');
+                            const existingRecs = gameCard.querySelector('.betting-recommendations');
+                            
+                            if (gameCard && !existingRecs) {
+                                const recHtml = createBettingRecommendationsHtml(bettingRecs, awayTeam, homeTeam);
+                                summaryElement.insertAdjacentHTML('afterend', recHtml);
+                            } else if (existingRecs) {
+                                // Update existing recommendations instead of creating new ones
+                                const newRecHtml = createBettingRecommendationsHtml(bettingRecs, awayTeam, homeTeam);
+                                existingRecs.outerHTML = newRecHtml;
+                            }
+                        }
+                    }
+                    
+                    // Update betting lines if available (only if not already present)
+                    const bettingData = data.prediction.betting_data;
+                    if (bettingData) {
+                        const gameCard = document.querySelector(`#summary-${gameId}`).closest('.game-card');
+                        const existingLines = gameCard.querySelector('.betting-lines');
+                        
+                        if (gameCard && !existingLines) {
+                            updateGameCardBetting(gameId, bettingData, awayTeam, homeTeam);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading quick prediction:', error);
+            }
+        }
+
+        function updateGameCardBetting(gameId, bettingData, awayTeam, homeTeam) {
+            // Find the game card and check if it already has betting lines
+            const gameCard = document.querySelector(`#summary-${gameId}`).closest('.game-card');
+            
+            // Double-check if betting lines already exist to prevent duplicates
+            if (!gameCard || gameCard.querySelector('.betting-lines')) {
+                return; // Already has betting lines or can't find game card
+            }
+            
+            const moneyline = bettingData.moneyline || {};
+            const total = bettingData.total || {};
+            const spread = bettingData.spread || {};
+            
+            const bettingLinesHtml = `
+                <div class="betting-lines">
+                    <h4>Betting Lines</h4>
+                    <div class="betting-grid">
+                        <div class="betting-item">
+                            <div class="line-label">Moneyline</div>
+                            <div class="line-value">
+                                <div class="moneyline-away">${awayTeam.substring(0, 3)}: ${moneyline.away || 'N/A'}</div>
+                                <div class="moneyline-home">${homeTeam.substring(0, 3)}: ${moneyline.home || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="betting-item">
+                            <div class="line-label">Total</div>
+                            <div class="line-value">
+                                ${total.line ? `O/U ${total.line}` : 'N/A'}
+                            </div>
+                        </div>
+                        <div class="betting-item">
+                            <div class="line-label">Spread</div>
+                            <div class="line-value">
+                                ${spread.line ? `${spread.line > 0 ? '+' : ''}${spread.line}` : 'N/A'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Insert betting lines after the prediction summary
+            const summaryElement = document.getElementById(`summary-${gameId}`);
+            summaryElement.insertAdjacentHTML('afterend', bettingLinesHtml);
+        }
+
+        function createBettingRecommendationsHtml(bettingRecs, awayTeam, homeTeam) {
+            if (!bettingRecs || (!bettingRecs.value_bets && !bettingRecs.recommendations)) {
+                return '';
+            }
+
+            let html = '<div class="betting-recommendations" data-added="true">';
+            html += '<h4>💰 Betting Recommendations</h4>';
+            
+            // Add summary if available
+            if (bettingRecs.summary) {
+                html += `<div style="font-size: 0.9em; color: #888; margin-bottom: 10px;">${bettingRecs.summary}</div>`;
+            }
+
+            // Handle new enhanced format with value_bets array
+            if (bettingRecs.value_bets && bettingRecs.value_bets.length > 0) {
+                bettingRecs.value_bets.forEach(bet => {
+                    const confidenceClass = bet.confidence === 'HIGH' ? 'high-confidence' : 
+                                          bet.confidence === 'MEDIUM' ? 'medium-confidence' : 'low-confidence';
+                    const icon = bet.edge_rating || (bet.confidence === 'HIGH' ? '🔥' : 
+                               bet.confidence === 'MEDIUM' ? '⚡' : '💡');
+                    
+                    // Display the recommendation with enhanced formatting
+                    const recommendation = bet.recommendation || `${bet.direction?.toUpperCase()} ${bet.line}`;
+                    const edgeText = typeof bet.edge === 'number' ? `${bet.edge.toFixed(1)}% edge` : bet.edge;
+                    
+                    html += `
+                        <div class="value-bet ${confidenceClass}" title="${bet.reasoning || 'No details available'}">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <span>${icon}</span>
+                                    <strong>${recommendation}</strong>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; font-size: 0.8em;">
+                                    <span style="color: #4fd1c7;">${edgeText}</span>
+                                    ${bet.estimated_odds !== 'N/A' ? `<span style="color: #888;">${bet.estimated_odds}</span>` : ''}
+                                </div>
+                            </div>
+                            <div style="font-size: 0.85em; color: #ccc; margin-top: 3px; line-height: 1.2;">
+                                ${bet.reasoning}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            // Handle legacy format
+            else if (bettingRecs.recommendations && bettingRecs.recommendations.length > 0) {
+                bettingRecs.recommendations.forEach(rec => {
+                    if (rec !== "No significant value bets identified") {
+                        html += `<div class="value-bet medium-confidence">⚡ ${rec}</div>`;
+                    }
+                });
+            }
+
+            // If no value bets found
+            if ((!bettingRecs.value_bets || bettingRecs.value_bets.length === 0) && 
+                (!bettingRecs.recommendations || bettingRecs.recommendations.every(r => r.includes("No significant")))) {
+                html += '<div class="no-value-bet">💡 No significant value bets identified - consider live betting opportunities</div>';
+            }
+
+            // Add best bet highlight if available
+            if (bettingRecs.best_bet) {
+                html += `
+                    <div style="margin-top: 10px; padding: 8px; background: rgba(79, 209, 199, 0.2); border-left: 3px solid #4fd1c7; border-radius: 4px;">
+                        <strong>🎯 Best Bet:</strong> ${bettingRecs.best_bet.recommendation}
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        async function loadPrediction(awayTeam, homeTeam, date) {
+            document.getElementById('modal-body').innerHTML = 'Loading detailed prediction...';
+            document.getElementById('prediction-modal').style.display = 'block';
+            
+            try {
+                const response = await fetch(`/api/prediction/${awayTeam}/${homeTeam}?date=${date}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const prediction = data.prediction;
+                    
+                    // Update modal title with team logos
+                    const awayAssets = prediction.away_team_assets || { logo_url: data.game.away_logo };
+                    const homeAssets = prediction.home_team_assets || { logo_url: data.game.home_logo };
+                    
+                    document.getElementById('modal-title').innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <img src="${awayAssets.logo_url || ''}" alt="${awayTeam}" style="width: 24px; height: 24px;" />
+                                <span>${awayTeam}</span>
+                            </div>
+                            <span>@</span>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <img src="${homeAssets.logo_url || ''}" alt="${homeTeam}" style="width: 24px; height: 24px;" />
+                                <span>${homeTeam}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    displayPredictionDetails(data);
+                } else {
+                    document.getElementById('modal-body').innerHTML = 
+                        '<div class="error">Error loading prediction: ' + data.error + '</div>';
+                }
+            } catch (error) {
+                document.getElementById('modal-body').innerHTML = 
+                    '<div class="error">Error loading prediction: ' + error.message + '</div>';
+            }
+        }
+
+        function displayPredictionDetails(data) {
+            const prediction = data.prediction;  // Extract prediction from data object
+            const game = data.game;  // Extract game info from data object
+            const pred = prediction;  // Keep this for backward compatibility with existing code
+            const meta = prediction.meta || {
+                execution_time_ms: 0,
+                simulations_run: prediction.simulation_count || 5000,
+                data_source: prediction.model_version || 'simulation'
+            };
+            const recs = prediction.recommendations || [];
+            
+            // Extract pitcher information from game data with real factors
+            const awayPitcher = { 
+                name: game.away_pitcher || 'TBD', 
+                factor: game.away_pitcher_factor || 1.0
+            };
+            const homePitcher = { 
+                name: game.home_pitcher || 'TBD', 
+                factor: game.home_pitcher_factor || 1.0
+            };
+            
+            // Get team names from game data
+            const awayTeam = game.away_team;
+            const homeTeam = game.home_team;
+            
+            // Get team assets for colors
+            const awayAssets = prediction.away_team_assets || {};
+            const homeAssets = prediction.home_team_assets || {};
+            
+            let html = `
+                <div class="prediction-details">
+                    <div class="prediction-summary">
+                        <div class="prediction-item" style="background-color: ${awayAssets.primary_color || '#4fd1c7'}22; border-left: 3px solid ${awayAssets.primary_color || '#4fd1c7'};">
+                            <div class="value">${pred.predicted_away_score}</div>
+                            <div class="label">${awayTeam} Score</div>
+                        </div>
+                        <div class="prediction-item" style="background-color: ${homeAssets.primary_color || '#4fd1c7'}22; border-left: 3px solid ${homeAssets.primary_color || '#4fd1c7'};">
+                            <div class="value">${pred.predicted_home_score}</div>
+                            <div class="label">${homeTeam} Score</div>
+                        </div>
+                        <div class="prediction-item">
+                            <div class="value">${pred.predicted_total_runs}</div>
+                            <div class="label">Total Runs</div>
+                        </div>
+                        <div class="prediction-item">
+                            <div class="value">${pred.home_win_probability.toFixed(1)}%</div>
+                            <div class="label">Home Win Prob</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h3>Starting Pitchers</h3>
+                        <p><strong>Away:</strong> ${awayPitcher.name || 'TBD'} (Quality Factor: ${(awayPitcher.factor || 1.0).toFixed(2)})</p>
+                        <p><strong>Home:</strong> ${homePitcher.name || 'TBD'} (Quality Factor: ${(homePitcher.factor || 1.0).toFixed(2)})</p>
+                        <div style="font-size: 0.9em; color: #888; margin-top: 10px;">
+                            <em>Factor < 1.0 = Better pitcher (allows fewer runs), Factor > 1.0 = Weaker pitcher</em>
+                        </div>
+                    </div>
+            `;
+            
+            // Add betting lines section if available
+            const bettingData = prediction.betting_data || prediction.closing_lines;
+            if (bettingData) {
+                const moneyline = bettingData.moneyline || {};
+                const total = bettingData.total || {};
+                const spread = bettingData.spread || {};
+                
+                html += `
+                    <div style="margin-top: 20px;">
+                        <h3>Betting Lines</h3>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px;">
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">Moneyline</div>
+                                <div style="font-size: 0.9rem;">
+                                    <div style="color: #ff6b6b;">${awayTeam}: ${moneyline.away || 'N/A'}</div>
+                                    <div style="color: #4ecdc4;">${homeTeam}: ${moneyline.home || 'N/A'}</div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">Total</div>
+                                <div style="font-size: 0.9rem;">
+                                    ${total.line ? `O/U ${total.line}` : 'N/A'}<br>
+                                    ${total.over && total.under ? `${total.over}/${total.under}` : ''}
+                                </div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">Spread</div>
+                                <div style="font-size: 0.9rem;">
+                                    ${spread.line ? `${spread.line > 0 ? '+' : ''}${spread.line}` : 'N/A'}<br>
+                                    ${spread.away && spread.home ? `${spread.away}/${spread.home}` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add enhanced betting recommendations section
+            const bettingRecs = data.betting_recommendations;  // Get from top level of data object
+            if (bettingRecs && (bettingRecs.value_bets || bettingRecs.summary)) {
+                html += '<div style="margin-top: 20px;"><h3>💰 Betting Recommendations</h3>';
+                
+                // Add summary if available
+                if (bettingRecs.summary) {
+                    html += `<div style="margin-bottom: 15px; padding: 10px; background: rgba(79, 209, 199, 0.1); border-radius: 6px; color: #4fd1c7; font-weight: bold;">${bettingRecs.summary}</div>`;
+                }
+                
+                // Show value bets in enhanced format
+                if (bettingRecs.value_bets && bettingRecs.value_bets.length > 0) {
+                    bettingRecs.value_bets.forEach(bet => {
+                        const confidenceColor = bet.confidence === 'HIGH' ? '#ff6b6b' : 
+                                               bet.confidence === 'MEDIUM' ? '#ffa726' : '#66bb6a';
+                        const icon = bet.edge_rating || (bet.confidence === 'HIGH' ? '🔥' : 
+                                   bet.confidence === 'MEDIUM' ? '⚡' : '💡');
+                        
+                        html += `
+                            <div style="margin: 12px 0; padding: 15px; background: rgba(255,255,255,0.08); border-left: 4px solid ${confidenceColor}; border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <strong style="color: ${confidenceColor}; font-size: 1.1em;">${icon} ${bet.recommendation || bet.bet}</strong>
+                                    <div style="text-align: right; font-size: 0.9em;">
+                                        <div style="color: #4fd1c7; font-weight: bold;">${typeof bet.edge === 'number' ? bet.edge.toFixed(1) + '% edge' : bet.edge}</div>
+                                        ${bet.estimated_odds !== 'N/A' ? `<div style="color: #888;">${bet.estimated_odds}</div>` : ''}
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.9em; color: #ccc; line-height: 1.3;">${bet.reasoning}</div>
+                                <div style="margin-top: 8px; font-size: 0.8em; color: #888;">
+                                    <span style="background: rgba(${bet.confidence === 'HIGH' ? '255, 107, 107' : bet.confidence === 'MEDIUM' ? '255, 167, 38' : '102, 187, 106'}, 0.3); padding: 2px 6px; border-radius: 4px;">${bet.confidence} CONFIDENCE</span>
+                                    <span style="margin-left: 10px;">${bet.type}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    // Highlight best bet if available
+                    if (bettingRecs.best_bet) {
+                        html += `
+                            <div style="margin-top: 15px; padding: 12px; background: rgba(79, 209, 199, 0.2); border: 2px solid #4fd1c7; border-radius: 8px;">
+                                <strong style="color: #4fd1c7;">🎯 Recommended Best Bet:</strong> ${bettingRecs.best_bet.recommendation || bettingRecs.best_bet.bet}
+                            </div>
+                        `;
+                    }
+                } else {
+                    html += '<div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-style: italic; opacity: 0.8; text-align: center;">💡 No strong value bets identified - consider live betting opportunities</div>';
+                }
+                
+                html += '</div>';
+            }
+            
+            if (recs.length > 0) {
+                html += '<div class="recommendations"><h3>Betting Recommendations</h3>';
+                for (const rec of recs) {
+                    html += `
+                        <div class="recommendation ${rec.confidence.toLowerCase()}-confidence">
+                            <strong>${rec.type.toUpperCase()} - ${rec.side.toUpperCase()}</strong><br>
+                            Expected Value: ${(rec.expected_value * 100).toFixed(1)}%<br>
+                            Kelly Bet Size: ${rec.kelly_bet_size.toFixed(1)}%<br>
+                            <em>${rec.reasoning}</em>
+                        </div>
+                    `;
+                }
+                html += '</div>';
+            } else {
+                html += '<div style="margin-top: 20px;"><em>No betting value found for this game.</em></div>';
+            }
+            
+            html += `
+                <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
+                    ${meta.execution_time_ms > 0 ? `Execution Time: ${meta.execution_time_ms.toFixed(1)}ms | ` : ''}
+                    Simulations: ${(meta.simulations_run || 5000).toLocaleString()} |
+                    Data Source: ${meta.data_source || 'comprehensive_engine'}
+                </div>
+            `;
+            
+            document.getElementById('modal-body').innerHTML = html;
+        }
+
+        function loadToday() {
+            document.getElementById('game-date').value = new Date().toISOString().split('T')[0];
+            loadTodaysGames();
+        }
+
+        function closeModal() {
+            document.getElementById('prediction-modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('prediction-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

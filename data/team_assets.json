@@ -1,0 +1,362 @@
+{
+  "Arizona Diamondbacks": {
+    "abbreviation": "ARI",
+    "logo": "https://www.mlbstatic.com/team-logos/109.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/109.svg",
+    "colors": {
+      "primary": "#A71930",
+      "secondary": "#E3D4AD"
+    },
+    "primary_color": "#A71930",
+    "secondary_color": "#E3D4AD",
+    "text_color": "#FFFFFF"
+  },
+  "Atlanta Braves": {
+    "abbreviation": "ATL",
+    "logo": "https://www.mlbstatic.com/team-logos/144.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/144.svg",
+    "colors": {
+      "primary": "#CE1141",
+      "secondary": "#13274F"
+    },
+    "primary_color": "#CE1141",
+    "secondary_color": "#13274F",
+    "text_color": "#FFFFFF"
+  },
+  "Baltimore Orioles": {
+    "abbreviation": "BAL",
+    "logo": "https://www.mlbstatic.com/team-logos/110.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/110.svg",
+    "colors": {
+      "primary": "#DF4601",
+      "secondary": "#000000"
+    },
+    "primary_color": "#DF4601",
+    "secondary_color": "#000000",
+    "text_color": "#FFFFFF"
+  },
+  "Boston Red Sox": {
+    "abbreviation": "BOS",
+    "logo": "https://www.mlbstatic.com/team-logos/111.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/111.svg",
+    "colors": {
+      "primary": "#BD3039",
+      "secondary": "#0C2340"
+    },
+    "primary_color": "#BD3039",
+    "secondary_color": "#0C2340",
+    "text_color": "#FFFFFF"
+  },
+  "Chicago Cubs": {
+    "abbreviation": "CHC",
+    "logo": "https://www.mlbstatic.com/team-logos/112.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/112.svg",
+    "colors": {
+      "primary": "#0E3386",
+      "secondary": "#CC3433"
+    },
+    "primary_color": "#0E3386",
+    "secondary_color": "#CC3433",
+    "text_color": "#FFFFFF"
+  },
+  "Chicago White Sox": {
+    "abbreviation": "CWS",
+    "logo": "https://www.mlbstatic.com/team-logos/145.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/145.svg",
+    "colors": {
+      "primary": "#27251F",
+      "secondary": "#C4CED4"
+    },
+    "primary_color": "#27251F",
+    "secondary_color": "#C4CED4",
+    "text_color": "#FFFFFF"
+  },
+  "Cincinnati Reds": {
+    "abbreviation": "CIN",
+    "logo": "https://www.mlbstatic.com/team-logos/113.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/113.svg",
+    "colors": {
+      "primary": "#C6011F",
+      "secondary": "#000000"
+    },
+    "primary_color": "#C6011F",
+    "secondary_color": "#000000",
+    "text_color": "#FFFFFF"
+  },
+  "Cleveland Guardians": {
+    "abbreviation": "CLE",
+    "logo": "https://www.mlbstatic.com/team-logos/114.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/114.svg",
+    "colors": {
+      "primary": "#E31937",
+      "secondary": "#0C2340"
+    },
+    "primary_color": "#E31937",
+    "secondary_color": "#0C2340",
+    "text_color": "#FFFFFF"
+  },
+  "Colorado Rockies": {
+    "abbreviation": "COL",
+    "logo": "https://www.mlbstatic.com/team-logos/115.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/115.svg",
+    "colors": {
+      "primary": "#33006F",
+      "secondary": "#C4CED4"
+    },
+    "primary_color": "#33006F",
+    "secondary_color": "#C4CED4",
+    "text_color": "#FFFFFF"
+  },
+  "Detroit Tigers": {
+    "abbreviation": "DET",
+    "logo": "https://www.mlbstatic.com/team-logos/116.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/116.svg",
+    "colors": {
+      "primary": "#0C2340",
+      "secondary": "#FA4616"
+    },
+    "primary_color": "#0C2340",
+    "secondary_color": "#FA4616",
+    "text_color": "#FFFFFF"
+  },
+  "Houston Astros": {
+    "abbreviation": "HOU",
+    "logo": "https://www.mlbstatic.com/team-logos/117.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/117.svg",
+    "colors": {
+      "primary": "#002D62",
+      "secondary": "#EB6E1F"
+    },
+    "primary_color": "#002D62",
+    "secondary_color": "#EB6E1F",
+    "text_color": "#FFFFFF"
+  },
+  "Kansas City Royals": {
+    "abbreviation": "KC",
+    "logo": "https://www.mlbstatic.com/team-logos/118.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/118.svg",
+    "colors": {
+      "primary": "#004687",
+      "secondary": "#BD9B60"
+    },
+    "primary_color": "#004687",
+    "secondary_color": "#BD9B60",
+    "text_color": "#FFFFFF"
+  },
+  "Los Angeles Angels": {
+    "abbreviation": "LAA",
+    "logo": "https://www.mlbstatic.com/team-logos/108.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/108.svg",
+    "colors": {
+      "primary": "#BA0021",
+      "secondary": "#003263"
+    },
+    "primary_color": "#BA0021",
+    "secondary_color": "#003263",
+    "text_color": "#FFFFFF"
+  },
+  "Los Angeles Dodgers": {
+    "abbreviation": "LAD",
+    "logo": "https://www.mlbstatic.com/team-logos/119.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/119.svg",
+    "colors": {
+      "primary": "#005A9C",
+      "secondary": "#FFFFFF"
+    },
+    "primary_color": "#005A9C",
+    "secondary_color": "#FFFFFF",
+    "text_color": "#FFFFFF"
+  },
+  "Miami Marlins": {
+    "abbreviation": "MIA",
+    "logo": "https://www.mlbstatic.com/team-logos/146.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/146.svg",
+    "colors": {
+      "primary": "#00A3E0",
+      "secondary": "#EF3340"
+    },
+    "primary_color": "#00A3E0",
+    "secondary_color": "#EF3340",
+    "text_color": "#FFFFFF"
+  },
+  "Milwaukee Brewers": {
+    "abbreviation": "MIL",
+    "logo": "https://www.mlbstatic.com/team-logos/158.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/158.svg",
+    "colors": {
+      "primary": "#FFC52F",
+      "secondary": "#12284B"
+    },
+    "primary_color": "#FFC52F",
+    "secondary_color": "#12284B",
+    "text_color": "#12284B"
+  },
+  "Minnesota Twins": {
+    "abbreviation": "MIN",
+    "logo": "https://www.mlbstatic.com/team-logos/142.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/142.svg",
+    "colors": {
+      "primary": "#002B5C",
+      "secondary": "#D31145"
+    },
+    "primary_color": "#002B5C",
+    "secondary_color": "#D31145",
+    "text_color": "#FFFFFF"
+  },
+  "New York Mets": {
+    "abbreviation": "NYM",
+    "logo": "https://www.mlbstatic.com/team-logos/121.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/121.svg",
+    "colors": {
+      "primary": "#002D72",
+      "secondary": "#FF5910"
+    },
+    "primary_color": "#002D72",
+    "secondary_color": "#FF5910",
+    "text_color": "#FFFFFF"
+  },
+  "New York Yankees": {
+    "abbreviation": "NYY",
+    "logo": "https://www.mlbstatic.com/team-logos/147.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/147.svg",
+    "colors": {
+      "primary": "#132448",
+      "secondary": "#C4CED4"
+    },
+    "primary_color": "#132448",
+    "secondary_color": "#C4CED4",
+    "text_color": "#FFFFFF"
+  },
+  "Athletics": {
+    "abbreviation": "OAK",
+    "logo": "https://www.mlbstatic.com/team-logos/133.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/133.svg",
+    "colors": {
+      "primary": "#003831",
+      "secondary": "#EFB21E"
+    },
+    "primary_color": "#003831",
+    "secondary_color": "#EFB21E",
+    "text_color": "#FFFFFF"
+  },
+  "Philadelphia Phillies": {
+    "abbreviation": "PHI",
+    "logo": "https://www.mlbstatic.com/team-logos/143.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/143.svg",
+    "colors": {
+      "primary": "#E81828",
+      "secondary": "#002D72"
+    },
+    "primary_color": "#E81828",
+    "secondary_color": "#002D72",
+    "text_color": "#FFFFFF"
+  },
+  "Pittsburgh Pirates": {
+    "abbreviation": "PIT",
+    "logo": "https://www.mlbstatic.com/team-logos/134.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/134.svg",
+    "colors": {
+      "primary": "#FDB827",
+      "secondary": "#27251F"
+    },
+    "primary_color": "#FDB827",
+    "secondary_color": "#27251F",
+    "text_color": "#27251F"
+  },
+  "San Diego Padres": {
+    "abbreviation": "SD",
+    "logo": "https://www.mlbstatic.com/team-logos/135.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/135.svg",
+    "colors": {
+      "primary": "#2F241D",
+      "secondary": "#FFC425"
+    },
+    "primary_color": "#2F241D",
+    "secondary_color": "#FFC425",
+    "text_color": "#FFFFFF"
+  },
+  "San Francisco Giants": {
+    "abbreviation": "SF",
+    "logo": "https://www.mlbstatic.com/team-logos/137.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/137.svg",
+    "colors": {
+      "primary": "#FD5A1E",
+      "secondary": "#27251F"
+    },
+    "primary_color": "#FD5A1E",
+    "secondary_color": "#27251F",
+    "text_color": "#FFFFFF"
+  },
+  "Seattle Mariners": {
+    "abbreviation": "SEA",
+    "logo": "https://www.mlbstatic.com/team-logos/136.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/136.svg",
+    "colors": {
+      "primary": "#0C2C56",
+      "secondary": "#005C5C"
+    },
+    "primary_color": "#0C2C56",
+    "secondary_color": "#005C5C",
+    "text_color": "#FFFFFF"
+  },
+  "St. Louis Cardinals": {
+    "abbreviation": "STL",
+    "logo": "https://www.mlbstatic.com/team-logos/138.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/138.svg",
+    "colors": {
+      "primary": "#C41E3A",
+      "secondary": "#FEDB00"
+    },
+    "primary_color": "#C41E3A",
+    "secondary_color": "#FEDB00",
+    "text_color": "#FFFFFF"
+  },
+  "Tampa Bay Rays": {
+    "abbreviation": "TB",
+    "logo": "https://www.mlbstatic.com/team-logos/139.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/139.svg",
+    "colors": {
+      "primary": "#092C5C",
+      "secondary": "#8FBCE6"
+    },
+    "primary_color": "#092C5C",
+    "secondary_color": "#8FBCE6",
+    "text_color": "#FFFFFF"
+  },
+  "Texas Rangers": {
+    "abbreviation": "TEX",
+    "logo": "https://www.mlbstatic.com/team-logos/140.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/140.svg",
+    "colors": {
+      "primary": "#003278",
+      "secondary": "#C0111F"
+    },
+    "primary_color": "#003278",
+    "secondary_color": "#C0111F",
+    "text_color": "#FFFFFF"
+  },
+  "Toronto Blue Jays": {
+    "abbreviation": "TOR",
+    "logo": "https://www.mlbstatic.com/team-logos/141.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/141.svg",
+    "colors": {
+      "primary": "#134A8E",
+      "secondary": "#1D2D5C"
+    },
+    "primary_color": "#134A8E",
+    "secondary_color": "#1D2D5C",
+    "text_color": "#FFFFFF"
+  },
+  "Washington Nationals": {
+    "abbreviation": "WSH",
+    "logo": "https://www.mlbstatic.com/team-logos/120.svg",
+    "logo_url": "https://www.mlbstatic.com/team-logos/120.svg",
+    "colors": {
+      "primary": "#AB0003",
+      "secondary": "#14225A"
+    },
+    "primary_color": "#AB0003",
+    "secondary_color": "#14225A",
+    "text_color": "#FFFFFF"
+  }
+}

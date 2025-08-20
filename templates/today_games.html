@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLB Predictions - Today's Games</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.4);
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.6);
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+        }
+        
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-item .value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-item .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .archaeological-insights {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        
+        .archaeological-insights h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .insight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .insight-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .predictions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        .prediction-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .prediction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .prediction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        
+        .premium-card::before {
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .teams {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .confidence-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .premium-badge {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+        
+        .prediction-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .detail-item {
+            text-align: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .detail-item .label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        
+        .detail-item .value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .win-probability {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .no-games {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 40px;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .predictions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 MLB Prediction System</h1>
+            <div class="subtitle">Today's Games - {{ today_date }}</div>
+        </div>
+        
+        <div class="nav-buttons">
+            <a href="/" class="nav-btn active">Today's Games</a>
+            <a href="/historical" class="nav-btn">Historical Analysis</a>
+            <a href="/performance-recap" class="nav-btn">Performance Recap</a>
+        </div>
+        
+        <div class="stats-panel">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="value">{{ stats.total_games }}</div>
+                    <div class="label">Games Today</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value">{{ stats.premium_predictions }}</div>
+                    <div class="label">Premium Predictions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value">{{ "%.1f"|format(stats.avg_confidence) }}%</div>
+                    <div class="label">Avg Confidence</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value">{{ stats.coverage_rate }}%</div>
+                    <div class="label">Coverage Rate</div>
+                </div>
+            </div>
+            
+            {% if archaeological_summary %}
+            <div class="archaeological-insights">
+                <h3>🏺 Archaeological Data Recovery Status</h3>
+                <div class="insight-grid">
+                    <div class="insight-item">
+                        <strong>Total Cache Entries:</strong> {{ archaeological_summary.total_cache_entries }}
+                    </div>
+                    <div class="insight-item">
+                        <strong>Date Range:</strong> {{ archaeological_summary.date_range_covered }}
+                    </div>
+                    <div class="insight-item">
+                        <strong>Premium Discoveries:</strong> {{ archaeological_summary.premium_discovery_count }}
+                    </div>
+                    <div class="insight-item">
+                        <strong>Data Sources:</strong> {{ archaeological_summary.data_sources_unified|length }} Unified
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if predictions %}
+        <div class="predictions-grid">
+            {% for prediction in predictions %}
+            <div class="prediction-card {% if prediction.confidence and prediction.confidence > 50 %}premium-card{% endif %}">
+                <div class="game-header">
+                    <div class="teams">{{ prediction.away_team }} @ {{ prediction.home_team }}</div>
+                    {% if prediction.confidence %}
+                    <div class="confidence-badge {% if prediction.confidence > 50 %}premium-badge{% endif %}">
+                        {{ prediction.confidence }}% Confidence
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="prediction-details">
+                    {% if prediction.away_score %}
+                    <div class="detail-item">
+                        <div class="label">Away Score</div>
+                        <div class="value">{{ prediction.away_score }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if prediction.home_score %}
+                    <div class="detail-item">
+                        <div class="label">Home Score</div>
+                        <div class="value">{{ prediction.home_score }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if prediction.total_score %}
+                    <div class="detail-item">
+                        <div class="label">Total Score</div>
+                        <div class="value">{{ prediction.total_score }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if prediction.predicted_winner %}
+                    <div class="detail-item">
+                        <div class="label">Predicted Winner</div>
+                        <div class="value">{{ prediction.predicted_winner }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if prediction.home_win_probability or prediction.away_win_probability %}
+                <div class="win-probability">
+                    <strong>Win Probabilities:</strong><br>
+                    {% if prediction.home_win_probability %}
+                    {{ prediction.home_team }}: {{ "%.1f"|format(prediction.home_win_probability) }}%
+                    {% endif %}
+                    {% if prediction.away_win_probability %}
+                    {{ prediction.away_team }}: {{ "%.1f"|format(prediction.away_win_probability) }}%
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-games">
+            <h2>No games scheduled for today</h2>
+            <p>Check back tomorrow or view historical analysis!</p>
+        </div>
+        {% endif %}
+        
+        <div class="footer">
+            <p>🏺 Archaeological Data Recovery Complete | 💎 Premium Quality Restored | 📊 100% Coverage Achieved</p>
+        </div>
+    </div>
+</body>
+</html>

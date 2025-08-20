@@ -1,0 +1,24 @@
+{
+  "monitoring_enabled": true,
+  "check_interval": 300,
+  "api_base_url": "http://localhost:5000",
+  "alerts": {
+    "email_enabled": false,
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "email_from": "",
+    "email_to": [],
+    "email_password": ""
+  },
+  "thresholds": {
+    "max_response_time": 5.0,
+    "min_success_rate": 95.0,
+    "max_memory_usage": 500,
+    "max_cpu_usage": 80.0,
+    "prediction_generation_timeout": 30.0
+  },
+  "endpoints_to_monitor": [
+    "/api/predictions/2025-08-19",
+    "/api/monitoring/performance"
+  ]
+}
