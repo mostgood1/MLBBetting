@@ -233,15 +233,25 @@ def start_auto_tuning_background():
 def load_config():
     """Load current configuration for the prediction engine"""
     try:
-        with open('data/optimized_config.json', 'r') as f:
-            return json.load(f)
-    except:
+        config_path = 'data/optimized_config.json'
+        if os.path.exists(config_path):
+            with open(config_path, 'r') as f:
+                return json.load(f)
+        else:
+            logger.warning(f"Config file not found: {config_path}")
+            return None
+    except Exception as e:
+        logger.warning(f"Error loading config: {e}")
         return None
 
 try:
     config = load_config()
-    prediction_engine = UltraFastSimEngine(config=config)
-    logger.info("✅ Prediction engine initialized with configurable parameters")
+    if ULTRA_FAST_ENGINE_AVAILABLE and config:
+        prediction_engine = UltraFastSimEngine(config=config)
+        logger.info("✅ Prediction engine initialized with configurable parameters")
+    else:
+        prediction_engine = None
+        logger.info("📊 Prediction engine disabled (not available or no config)")
 except Exception as e:
     logger.warning(f"⚠️ Prediction engine initialization failed: {e}, using fallback")
     prediction_engine = None
@@ -607,8 +617,22 @@ def load_real_betting_lines():
             continue
     
     # No real betting lines found after trying all fallbacks
-    logger.error(f"❌ CRITICAL: No real betting lines found for recent dates")
-    raise FileNotFoundError(f"No real betting lines available for {today} or recent dates")
+    logger.warning(f"⚠️ No real betting lines found for recent dates - using empty fallback")
+    
+    # Return empty structure instead of raising an exception
+    fallback_result = {
+        "lines": {},
+        "historical_data": {},
+        "source": "empty_fallback",
+        "date": today,
+        "last_updated": datetime.now().isoformat(),
+        "error": "No betting lines data available"
+    }
+    
+    # Cache the fallback result
+    _betting_lines_cache = fallback_result
+    _betting_lines_cache_time = current_time
+    return fallback_result
 
 # Removed create_sample_betting_lines() function - NO FAKE DATA ALLOWED
 
@@ -1872,7 +1896,13 @@ def home():
     try:
         # Load our treasure trove of data
         unified_cache = load_unified_cache()
-        real_betting_lines = load_real_betting_lines()
+        
+        # Load real betting lines with error handling
+        try:
+            real_betting_lines = load_real_betting_lines()
+        except Exception as e:
+            logger.warning(f"Error loading real betting lines for home page: {e}")
+            real_betting_lines = {"lines": {}, "error": "No betting lines available"}
         
         # Try to load betting recommendations, but handle missing files gracefully
         try:
