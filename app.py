@@ -3118,10 +3118,17 @@ def api_today_games():
             
             # If individual scores are missing but we have total runs, calculate them
             if (away_score_raw == 0 and home_score_raw == 0) and predicted_total_raw > 0:
-                # Get win probabilities to distribute the runs
-                win_probs = game_data.get('win_probabilities', {})
-                away_win_prob = win_probs.get('away_prob', 0.5)
-                home_win_prob = win_probs.get('home_prob', 0.5)
+                # Get win probabilities from nested predictions structure
+                away_win_prob = predictions.get('away_win_prob', 0.5)
+                home_win_prob = predictions.get('home_win_prob', 0.5)
+                
+                # Fallback to old structure if nested doesn't have the data
+                if away_win_prob == 0:
+                    win_probs = game_data.get('win_probabilities', {})
+                    away_win_prob = win_probs.get('away_prob', 0.5)
+                if home_win_prob == 0:
+                    win_probs = game_data.get('win_probabilities', {})
+                    home_win_prob = win_probs.get('home_prob', 0.5)
                 
                 # Calculate scores based on win probability (higher probability = slightly more runs)
                 base_score = predicted_total_raw / 2.0  # Split evenly as baseline
@@ -3130,7 +3137,7 @@ def api_today_games():
                 away_score_final = max(1.0, base_score + prob_adjustment)
                 home_score_final = max(1.0, predicted_total_raw - away_score_final)
                 
-                logger.debug(f"📊 Calculated scores for {away_team} @ {home_team}: {away_score_final:.1f} - {home_score_final:.1f} (total: {predicted_total_raw})")
+                logger.info(f"📊 API route calculated scores for {away_team} @ {home_team}: {away_score_final:.1f} - {home_score_final:.1f} (total: {predicted_total_raw})")
             else:
                 away_score_final = away_score_raw
                 home_score_final = home_score_raw
