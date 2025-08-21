@@ -336,7 +336,7 @@ class TBDMonitor:
             fetch_script = repo_root / 'fetch_todays_starters.py'
             result = subprocess.run([
                 sys.executable, str(fetch_script)
-            ], capture_output=True, text=True, encoding='utf-8', errors='replace', cwd=str(repo_root))
+            ], capture_output=True, text=True, cwd=str(repo_root))
             
             if result.returncode != 0:
                 logger.error(f"❌ TBD Monitor: Error fetching pitchers: {result.stderr}")
@@ -354,7 +354,7 @@ class TBDMonitor:
                 fix_script = repo_root / 'fix_betting_recommendations.py'
                 result = subprocess.run([
                     sys.executable, str(fix_script)
-                ], capture_output=True, text=True, encoding='utf-8', errors='replace', cwd=str(repo_root))
+                ], capture_output=True, text=True, cwd=str(repo_root))
                 
                 if result.returncode == 0:
                     logger.info("✅ TBD Monitor: Betting recommendations updated!")
@@ -1857,7 +1857,7 @@ def run_daily_automation():
                 logger.info("🚀 Starting complete daily automation...")
                 result = subprocess.run([
                     sys.executable, str(automation_script)
-                ], capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=900, cwd=str(repo_root))  # 15 minute timeout
+                ], capture_output=True, text=True, timeout=900, cwd=str(repo_root))  # 15 minute timeout
                 
                 if result.returncode == 0:
                     logger.info("✅ Complete daily automation completed successfully")
@@ -2193,22 +2193,6 @@ def monitoring_dashboard():
     Real-time monitoring dashboard for system health and performance
     """
     return render_template('monitoring_dashboard.html')
-
-@app.route('/system-health')
-def system_health_page():
-    """
-    Dedicated system health page with file status and refresh times
-    """
-    try:
-        # Get comprehensive health data
-        health_response = system_health_check()
-        health_data = health_response.get_json()
-        
-        return render_template('system_health.html', health_data=health_data)
-    except Exception as e:
-        logger.error(f"Error loading system health page: {e}")
-        return render_template('system_health.html', 
-                             health_data={'overall_status': 'error', 'error': str(e)})
 
 @app.route('/historical')
 def historical():
@@ -3848,155 +3832,6 @@ def health_check():
         'version': '1.0.0'
     })
 
-@app.route('/api/system-health')
-def system_health_check():
-    """Comprehensive system health check with file status and last refresh times"""
-    try:
-        current_date = datetime.now().strftime('%Y-%m-%d')
-        current_date_underscore = current_date.replace('-', '_')
-        
-        # Define critical files for operation
-        critical_files = {
-            'unified_predictions_cache.json': 'data/unified_predictions_cache.json',
-            f'games_{current_date}.json': f'data/games_{current_date}.json',
-            f'real_betting_lines_{current_date_underscore}.json': f'data/real_betting_lines_{current_date_underscore}.json',
-            f'betting_recommendations_{current_date_underscore}.json': f'data/betting_recommendations_{current_date_underscore}.json',
-            'master_team_strength.json': 'data/master_team_strength.json',
-            'master_pitcher_stats.json': 'data/master_pitcher_stats.json'
-        }
-        
-        # Optional files that enhance functionality
-        optional_files = {
-            f'starting_pitchers_{current_date_underscore}.json': f'data/starting_pitchers_{current_date_underscore}.json',
-            'team_assets.json': 'data/team_assets.json',
-            'current_season_schedule.json': 'data/current_season_schedule.json'
-        }
-        
-        # Check file status and get modification times
-        file_status = {}
-        overall_health = 'healthy'
-        critical_missing = []
-        
-        for file_name, file_path in critical_files.items():
-            if os.path.exists(file_path):
-                mod_time = datetime.fromtimestamp(os.path.getmtime(file_path))
-                age_hours = (datetime.now() - mod_time).total_seconds() / 3600
-                file_status[file_name] = {
-                    'exists': True,
-                    'path': file_path,
-                    'last_modified': mod_time.isoformat(),
-                    'age_hours': round(age_hours, 2),
-                    'size_kb': round(os.path.getsize(file_path) / 1024, 2),
-                    'critical': True
-                }
-                
-                # Mark as warning if critical files are too old (>24 hours)
-                if age_hours > 24:
-                    file_status[file_name]['warning'] = f'File is {round(age_hours, 1)} hours old'
-                    if overall_health == 'healthy':
-                        overall_health = 'warning'
-            else:
-                file_status[file_name] = {
-                    'exists': False,
-                    'path': file_path,
-                    'critical': True,
-                    'error': 'Critical file missing'
-                }
-                critical_missing.append(file_name)
-                overall_health = 'error'
-        
-        # Check optional files
-        for file_name, file_path in optional_files.items():
-            if os.path.exists(file_path):
-                mod_time = datetime.fromtimestamp(os.path.getmtime(file_path))
-                age_hours = (datetime.now() - mod_time).total_seconds() / 3600
-                file_status[file_name] = {
-                    'exists': True,
-                    'path': file_path,
-                    'last_modified': mod_time.isoformat(),
-                    'age_hours': round(age_hours, 2),
-                    'size_kb': round(os.path.getsize(file_path) / 1024, 2),
-                    'critical': False
-                }
-            else:
-                file_status[file_name] = {
-                    'exists': False,
-                    'path': file_path,
-                    'critical': False
-                }
-        
-        # Check cache freshness
-        cache_status = 'unknown'
-        games_today = 0
-        predictions_today = 0
-        
-        try:
-            cache_data = load_unified_cache()
-            if cache_data and 'predictions_by_date' in cache_data:
-                if current_date in cache_data['predictions_by_date']:
-                    predictions_data = cache_data['predictions_by_date'][current_date]
-                    if 'games' in predictions_data:
-                        predictions_today = len(predictions_data['games'])
-                    else:
-                        predictions_today = len(predictions_data) if isinstance(predictions_data, dict) else 0
-                    cache_status = 'current'
-                else:
-                    available_dates = list(cache_data['predictions_by_date'].keys())
-                    latest_date = max(available_dates) if available_dates else 'none'
-                    cache_status = f'outdated - latest: {latest_date}'
-        except Exception as e:
-            cache_status = f'error: {str(e)}'
-        
-        # Check if today's games file exists and count games
-        try:
-            games_file = f'data/games_{current_date}.json'
-            if os.path.exists(games_file):
-                with open(games_file, 'r') as f:
-                    games_data = json.load(f)
-                    games_today = len(games_data) if isinstance(games_data, list) else 0
-        except Exception:
-            games_today = 0
-        
-        # System components status
-        components = {
-            'database': 'file-based' if overall_health != 'error' else 'error',
-            'prediction_engine': 'available' if predictions_today > 0 else 'no_data',
-            'betting_lines': 'available' if f'real_betting_lines_{current_date_underscore}.json' in file_status and file_status[f'real_betting_lines_{current_date_underscore}.json']['exists'] else 'unavailable',
-            'live_data': 'available',  # Assuming live data is working if app is running
-            'automation': 'ready'      # Automation scripts are fixed and ready
-        }
-        
-        # Generate health summary
-        health_summary = {
-            'overall_status': overall_health,
-            'timestamp': datetime.now().isoformat(),
-            'current_date': current_date,
-            'critical_files_missing': len(critical_missing),
-            'critical_missing_list': critical_missing,
-            'total_games_today': games_today,
-            'predictions_available': predictions_today,
-            'cache_status': cache_status,
-            'components': components,
-            'file_details': file_status,
-            'system_info': {
-                'app_version': '1.0.0',
-                'python_executable': sys.executable,
-                'working_directory': os.getcwd(),
-                'data_directory_exists': os.path.exists('data')
-            }
-        }
-        
-        return jsonify(health_summary)
-        
-    except Exception as e:
-        logger.error(f"System health check error: {e}")
-        return jsonify({
-            'overall_status': 'error',
-            'timestamp': datetime.now().isoformat(),
-            'error': str(e),
-            'traceback': traceback.format_exc()
-        }), 500
-
 @app.route('/debug-files')
 def debug_files():
     """Debug route to check what files are available on Render"""
@@ -4481,7 +4316,7 @@ def start_monitoring_endpoint():
 
 @app.route('/api/monitoring/performance')
 def get_performance_metrics():
-    """Get current performance metrics - enhanced with system health"""
+    """Get current performance metrics - minimal fast version"""
     try:
         import os
         import gc
@@ -4509,95 +4344,22 @@ def get_performance_metrics():
                 'memory_status': 'good'
             }
         
-        # Enhanced cache and file status
+        # Cache status
         try:
-            current_date = datetime.now().strftime('%Y-%m-%d')
-            current_date_underscore = current_date.replace('-', '_')
-            
-            # Check critical files
             cache_file = 'data/unified_predictions_cache.json'
-            games_file = f'data/games_{current_date}.json'
-            betting_lines_file = f'data/real_betting_lines_{current_date_underscore}.json'
-            
             cache_exists = os.path.exists(cache_file)
-            games_exist = os.path.exists(games_file)
-            lines_exist = os.path.exists(betting_lines_file)
-            
             cache_size = os.path.getsize(cache_file) if cache_exists else 0
             
             metrics['cache'] = {
                 'status': 'active' if cache_exists else 'missing',
                 'size_kb': round(cache_size / 1024, 1) if cache_exists else 0,
-                'last_modified': datetime.fromtimestamp(os.path.getmtime(cache_file)).isoformat() if cache_exists else None
+                'health': 'good' if cache_exists and cache_size > 1000 else 'poor'
             }
-            
-            # Today's data status
-            metrics['todays_data'] = {
-                'games_available': games_exist,
-                'betting_lines_available': lines_exist,
-                'date': current_date
-            }
-            
-            # Count games and predictions
-            games_count = 0
-            predictions_count = 0
-            
-            if games_exist:
-                try:
-                    with open(games_file, 'r') as f:
-                        games_data = json.load(f)
-                        games_count = len(games_data) if isinstance(games_data, list) else 0
-                except Exception:
-                    games_count = 0
-            
-            if cache_exists:
-                try:
-                    cache_data = load_unified_cache()
-                    if cache_data and 'predictions_by_date' in cache_data:
-                        if current_date in cache_data['predictions_by_date']:
-                            predictions_data = cache_data['predictions_by_date'][current_date]
-                            if 'games' in predictions_data:
-                                predictions_count = len(predictions_data['games'])
-                            else:
-                                predictions_count = len(predictions_data) if isinstance(predictions_data, dict) else 0
-                except Exception:
-                    predictions_count = 0
-            
-            metrics['data_counts'] = {
-                'games_scheduled': games_count,
-                'predictions_available': predictions_count,
-                'data_complete': games_count > 0 and predictions_count > 0
-            }
-            
-            # Overall health assessment
-            critical_files_missing = sum([
-                not cache_exists,
-                not games_exist,
-                not lines_exist
-            ])
-            
-            if critical_files_missing == 0:
-                metrics['system_health'] = 'healthy'
-                metrics['status'] = 'operational'
-            elif critical_files_missing == 1:
-                metrics['system_health'] = 'warning'
-                metrics['status'] = 'degraded'
-            else:
-                metrics['system_health'] = 'error'
-                metrics['status'] = 'critical'
-                
-        except Exception as e:
-            logger.error(f"Error getting enhanced performance metrics: {e}")
-            metrics['cache'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-        
-        except Exception as cache_error:
+        except Exception:
             metrics['cache'] = {
                 'status': 'unknown',
                 'size_kb': 0,
-                'error': str(cache_error)
+                'health': 'unknown'
             }
         
         # Simple API health check (internal, no external calls)

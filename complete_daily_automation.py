@@ -54,7 +54,7 @@ def run_script(script_path: Path, description: str, logger, timeout: int = 300):
 
         result = subprocess.run([
             sys.executable, str(script_path)
-        ], capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=timeout, cwd=str(script_path.parent))
+        ], capture_output=True, text=True, timeout=timeout, cwd=str(script_path.parent))
         
         if result.returncode == 0:
             logger.info(f"✅ SUCCESS: {description}")
@@ -108,87 +108,139 @@ def complete_daily_automation():
     data_dir = base_dir / "data"
     mlb_betting_data_dir = data_dir
     
-    # Step 1: Run the enhanced daily automation (try fallbacks)
-    logger.info("\n🎯 STEP 1: Running Enhanced Daily Automation")
+    # Pre-check: Verify which scripts are available
+    logger.info("\n🔍 PRE-CHECK: Verifying Available Scripts")
+    scripts_to_check = [
+        "fetch_today_games.py",
+        "enhanced_mlb_fetcher.py", 
+        "fetch_todays_starters.py",
+        "daily_betting_lines_automation.py",
+        "daily_ultrafastengine_predictions.py",
+        "unified_betting_engine.py",
+        "betting_recommendations_engine.py"
+    ]
     
-    # First, ensure we have today's games file - this is critical for predictions
-    games_fetch_script = base_dir / "fetch_today_games.py"
-    games_success = False
-    if games_fetch_script.exists():
-        games_success = run_script(games_fetch_script, "Fetch Today's Games (Required for predictions)", logger, 300)
-        if not games_success:
-            logger.error("❌ CRITICAL: Failed to fetch today's games - predictions will fail")
+    available_scripts = []
+    for script in scripts_to_check:
+        script_path = base_dir / script
+        if script_path.exists():
+            available_scripts.append(script)
+            logger.info(f"  ✅ {script}")
+        else:
+            logger.warning(f"  ❌ {script} - NOT FOUND")
+    
+    logger.info(f"📊 Found {len(available_scripts)}/{len(scripts_to_check)} scripts")
+    
+    if len(available_scripts) < 3:
+        logger.warning("⚠️ Missing critical scripts - automation may fail")
     else:
-        logger.error("❌ CRITICAL: fetch_today_games.py not found - predictions will fail")
+        logger.info("✅ Sufficient scripts available for automation")
     
-    # Then run other automation scripts
-    enhanced_candidates = [
-        base_dir / "daily_enhanced_automation_clean.py",
-        base_dir / "daily_betting_lines_automation.py",
-        base_dir / "fetch_todays_starters.py"
+    # Step 1: Fetch Today's Games & Schedule 
+    logger.info("\n🎯 STEP 1: Fetching Today's MLB Games & Schedule")
+    games_candidates = [
+        base_dir / "fetch_today_games.py",
+        base_dir / "enhanced_mlb_fetcher.py"
     ]
 
     success1 = False
-    for candidate in enhanced_candidates:
+    for candidate in games_candidates:
         if candidate.exists():
-            success1 = run_script(candidate, f"Enhanced Daily Automation ({candidate.name})", logger, 600)
+            success1 = run_script(candidate, f"Fetch Today's Games ({candidate.name})", logger, 300)
             if success1:
                 break
         else:
-            logger.debug(f"Candidate not found: {candidate}")
+            logger.debug(f"Games fetch candidate not found: {candidate}")
 
-    # If none of the candidates were runnable, try importing module functions as a fallback
     if not success1:
+        logger.warning("⚠️ No games fetch script found - continuing with existing data")
+    
+    # Step 2: Fetch Probable Pitchers
+    logger.info("\n🎯 STEP 2: Fetching Probable Pitchers")
+    pitcher_candidates = [
+        base_dir / "fetch_todays_starters.py"
+    ]
+
+    success2 = False
+    for candidate in pitcher_candidates:
+        if candidate.exists():
+            success2 = run_script(candidate, f"Fetch Probable Pitchers ({candidate.name})", logger, 300)
+            if success2:
+                break
+        else:
+            logger.debug(f"Pitcher fetch candidate not found: {candidate}")
+
+    if not success2:
+        logger.warning("⚠️ No pitcher fetch script found - predictions may lack pitcher data")
+    
+    # Step 3: Fetch Real Betting Lines
+    logger.info("\n🎯 STEP 3: Fetching Real Betting Lines")
+    lines_candidates = [
+        base_dir / "daily_betting_lines_automation.py"
+    ]
+
+    success3 = False
+    for candidate in lines_candidates:
+        if candidate.exists():
+            success3 = run_script(candidate, f"Fetch Betting Lines ({candidate.name})", logger, 600)
+            if success3:
+                break
+        else:
+            logger.debug(f"Lines fetch candidate not found: {candidate}")
+
+    # Fallback: try importing and calling directly
+    if not success3:
         try:
-            # Try calling daily_betting_lines_automation.main()
             import importlib
             mod = importlib.import_module('daily_betting_lines_automation')
             if hasattr(mod, 'main'):
                 logger.info("🔁 Running daily_betting_lines_automation.main() as fallback")
-                success1 = mod.main()
+                success3 = mod.main()
         except Exception as e:
-            logger.debug(f"Fallback enhanced automation import failed: {e}")
+            logger.debug(f"Fallback betting lines import failed: {e}")
+            logger.warning("⚠️ No real betting lines available - continuing without them")
+            logger.info("📋 To get real betting lines:")
+            logger.info("   1. Get an OddsAPI key from https://the-odds-api.com/")
+            logger.info("   2. Add it to data/closing_lines_config.json")
+            logger.info("   3. Re-run the automation")
     
-    # Mark step 1 as successful if we at least got games (critical requirement)
-    if games_success:
-        success1 = True
-    
-    # Step 2: Generate today's predictions (try fallbacks)
-    logger.info("\n🎯 STEP 2: Generating Today's Predictions")
+    # Step 4: Generate Today's Predictions
+    logger.info("\n🎯 STEP 4: Generating Today's Predictions")
     prediction_candidates = [
-        base_dir / "daily_ultrafastengine_predictions.py",
-        # No direct equivalent; as best-effort, we can attempt to run a script that triggers engine routines
+        base_dir / "daily_ultrafastengine_predictions.py"
     ]
 
-    success2 = False
+    success4 = False
     for candidate in prediction_candidates:
         if candidate.exists():
-            success2 = run_script(candidate, f"Generate Today's Predictions ({candidate.name})", logger)
-            if success2:
+            success4 = run_script(candidate, f"Generate Today's Predictions ({candidate.name})", logger, 900)
+            if success4:
                 break
-    if not success2:
-        logger.info("No prediction script candidate found; relying on existing unified cache if present")
+        else:
+            logger.debug(f"Prediction candidate not found: {candidate}")
+            
+    if not success4:
+        logger.warning("⚠️ No prediction script found - betting engine will use existing cache if available")
     
-    # Step 3: Generate betting recommendations (try fallbacks)
-    logger.info("\n🎯 STEP 3: Generating Betting Recommendations")
+    # Step 5: Generate Betting Recommendations
+    logger.info("\n🎯 STEP 5: Generating Betting Recommendations")
     betting_candidates = [
-        base_dir / "betting_recommendations_engine.py",
         base_dir / "unified_betting_engine.py",
+        base_dir / "betting_recommendations_engine.py",
         base_dir / "app_betting_integration.py"
     ]
 
-    success3 = False
+    success5 = False
     for candidate in betting_candidates:
         if candidate.exists():
-            # If unified_betting_engine.py is present, prefer it because it has a main()
-            success3 = run_script(candidate, f"Generate Betting Recommendations ({candidate.name})", logger)
-            if success3:
+            success5 = run_script(candidate, f"Generate Betting Recommendations ({candidate.name})", logger, 300)
+            if success5:
                 break
         else:
-            logger.debug(f"Candidate not found: {candidate}")
+            logger.debug(f"Betting candidate not found: {candidate}")
 
     # Fallback: import unified_betting_engine and call main() or generate_recommendations()
-    if not success3:
+    if not success5:
         try:
             import importlib
             ube = importlib.import_module('unified_betting_engine')
@@ -196,7 +248,7 @@ def complete_daily_automation():
                 logger.info("🔁 Running unified_betting_engine.main() as fallback")
                 try:
                     ube.main()
-                    success3 = True
+                    success5 = True
                 except Exception as e:
                     logger.error(f"Unified engine main() failed: {e}")
             else:
@@ -207,18 +259,20 @@ def complete_daily_automation():
                         engine = ube.UnifiedBettingEngine()
                         recs = engine.generate_recommendations()
                         if recs and engine.save_recommendations(recs):
-                            success3 = True
+                            success5 = True
                     except Exception as e:
                         logger.error(f"Unified engine programmatic run failed: {e}")
         except Exception as e:
             logger.debug(f"Fallback betting recommendations import failed: {e}")
     
-    # Step 4: Copy files to correct locations
-    logger.info("\n🎯 STEP 4: Copying Files to MLB-Betting Directory")
+    # Step 6: Copy files to correct locations
+    logger.info("\n🎯 STEP 6: Copying Files to MLB-Betting Directory")
     
     files_to_copy = [
         (data_dir / "unified_predictions_cache.json", mlb_betting_data_dir / "unified_predictions_cache.json"),
         (data_dir / f"betting_recommendations_{today_underscore}.json", mlb_betting_data_dir / f"betting_recommendations_{today_underscore}.json"),
+        (data_dir / f"real_betting_lines_{today_underscore}.json", mlb_betting_data_dir / f"real_betting_lines_{today_underscore}.json"),
+        (data_dir / f"games_{today}.json", mlb_betting_data_dir / f"games_{today}.json"),
     ]
     
     copy_success = True
@@ -226,15 +280,19 @@ def complete_daily_automation():
         if not copy_file_safe(source, target, logger):
             copy_success = False
     
-    # Step 5: Verify data integrity
-    logger.info("\n🎯 STEP 5: Verifying Data Integrity")
+    # Step 7: Verify data integrity
+    logger.info("\n🎯 STEP 7: Verifying Data Integrity")
     
     # Check unified cache
     unified_cache_path = mlb_betting_data_dir / "unified_predictions_cache.json"
     betting_recs_path = mlb_betting_data_dir / f"betting_recommendations_{today_underscore}.json"
+    betting_lines_path = mlb_betting_data_dir / f"real_betting_lines_{today_underscore}.json"
+    games_path = mlb_betting_data_dir / f"games_{today}.json"
     
     cache_ok = unified_cache_path.exists()
     betting_ok = betting_recs_path.exists()
+    lines_ok = betting_lines_path.exists()
+    games_ok = games_path.exists()
     
     if cache_ok:
         try:
@@ -246,9 +304,14 @@ def complete_daily_automation():
                 games_count = len(cache_data.get('predictions_by_date', {}).get(today, {}).get('games', {}))
                 
                 logger.info(f"✅ Unified cache loaded: {len(dates)} dates, today included: {has_today}, games today: {games_count}")
+                if not has_today or games_count == 0:
+                    logger.warning(f"⚠️ Cache missing today's data: has_today={has_today}, games_count={games_count}")
+                    cache_ok = False
         except Exception as e:
             logger.error(f"❌ Error reading unified cache: {e}")
             cache_ok = False
+    else:
+        logger.error("❌ Unified cache file not found")
     
     if betting_ok:
         try:
@@ -260,6 +323,34 @@ def complete_daily_automation():
         except Exception as e:
             logger.error(f"❌ Error reading betting recommendations: {e}")
             betting_ok = False
+    else:
+        logger.warning("⚠️ Betting recommendations file not found")
+        
+    if lines_ok:
+        try:
+            import json
+            with open(betting_lines_path, 'r') as f:
+                lines_data = json.load(f)
+                lines_count = len(lines_data.get('lines', {}))
+                logger.info(f"✅ Betting lines loaded: {lines_count} games")
+        except Exception as e:
+            logger.error(f"❌ Error reading betting lines: {e}")
+            lines_ok = False
+    else:
+        logger.warning("⚠️ Betting lines file not found (continuing without real odds)")
+        
+    if games_ok:
+        try:
+            import json
+            with open(games_path, 'r') as f:
+                games_data = json.load(f)
+                games_count = len(games_data) if isinstance(games_data, list) else len(games_data.get('games', {}))
+                logger.info(f"✅ Games data loaded: {games_count} games")
+        except Exception as e:
+            logger.error(f"❌ Error reading games data: {e}")
+            games_ok = False
+    else:
+        logger.warning("⚠️ Games data file not found")
     
     # Final summary
     logger.info("\n" + "=" * 80)
@@ -267,27 +358,46 @@ def complete_daily_automation():
     logger.info("=" * 80)
     
     steps = [
-        ("Enhanced Daily Automation", success1),
-        ("Generate Predictions", success2),
-        ("Generate Betting Recommendations", success3),
+        ("Fetch Today's Games", success1),
+        ("Fetch Probable Pitchers", success2),
+        ("Fetch Betting Lines", success3),
+        ("Generate Predictions", success4),
+        ("Generate Betting Recommendations", success5),
         ("File Copying", copy_success),
         ("Unified Cache Verification", cache_ok),
-        ("Betting Recommendations Verification", betting_ok)
+        ("Betting Recommendations Verification", betting_ok),
+        ("Betting Lines Verification", lines_ok),
+        ("Games Data Verification", games_ok)
     ]
     
     all_success = True
+    critical_success = True  # Track critical components
+    critical_steps = ["Fetch Today's Games", "Generate Predictions", "Unified Cache Verification", "Games Data Verification"]
+    
     for step_name, success in steps:
         status = "✅ PASS" if success else "❌ FAIL"
+        # Mark non-critical betting lines as optional
+        if step_name in ["Fetch Betting Lines", "Betting Lines Verification"] and not success:
+            status = "⚠️ SKIP (no real odds available)"
         logger.info(f"{step_name}: {status}")
+        
         if not success:
             all_success = False
+            # Only mark as critical failure if it's a critical step
+            if step_name in critical_steps:
+                critical_success = False
     
     if all_success:
         logger.info("\n🎉 ALL STEPS COMPLETED SUCCESSFULLY!")
         logger.info(f"🎯 Ready for MLB betting analysis on {today}")
         return True
+    elif critical_success and (success4 or cache_ok):  # Allow partial success if predictions/cache are OK
+        logger.warning("\n⚠️ PARTIAL SUCCESS - Core functionality available")
+        logger.info(f"🎯 Basic MLB analysis available on {today}")
+        return True
     else:
-        logger.warning("\n⚠️  SOME STEPS FAILED - Check logs for details")
+        logger.error("\n❌ CRITICAL STEPS FAILED - System not ready")
+        logger.error("🚨 Manual intervention required to fix data pipeline")
         return False
 
 if __name__ == "__main__":

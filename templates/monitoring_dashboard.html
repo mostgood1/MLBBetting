@@ -746,62 +746,43 @@
             }
         }
 
-        // Load monitoring status using new system health endpoint
+        // Load monitoring status
         async function loadMonitoringStatus() {
             try {
-                const response = await fetch('/api/system-health');
+                const response = await fetch('/api/monitoring/status');
                 const data = await response.json();
                 
-                if (data.overall_status === 'healthy') {
-                    updateSystemStatus('online', 'System Healthy');
-                } else if (data.overall_status === 'warning') {
-                    updateSystemStatus('warning', 'System Warning');
+                if (data.success && data.monitoring_available) {
+                    updateSystemStatus('online', 'Monitoring Active');
+                    loadRecentAlerts(data.status.recent_alerts || []);
                 } else {
-                    updateSystemStatus('offline', 'System Issues');
+                    updateSystemStatus('warning', 'Monitoring Available - Not Active');
                 }
-                
-                // Load recent alerts from monitoring status
-                try {
-                    const alertResponse = await fetch('/api/monitoring/status');
-                    const alertData = await alertResponse.json();
-                    if (alertData.success && alertData.status) {
-                        loadRecentAlerts(alertData.status.recent_alerts || []);
-                    }
-                } catch (alertError) {
-                    console.log('Alerts not available:', alertError);
-                }
-                
             } catch (error) {
-                console.error('Error loading system health:', error);
-                updateSystemStatus('offline', 'System Unavailable');
+                console.error('Error loading monitoring status:', error);
+                updateSystemStatus('offline', 'Monitoring Unavailable');
             }
         }
 
-        // Load performance metrics using new system health endpoint
+        // Load performance metrics
         async function loadPerformanceMetrics() {
             try {
-                const response = await fetch('/api/system-health');
+                const response = await fetch('/api/monitoring/performance');
                 const data = await response.json();
                 
-                // Update system health with new data structure
-                updateSystemHealthNew(data);
-                updatePerformanceMetricsNew(data);
-                updateCacheStatusNew(data);
-                
-                // Try to get memory usage from monitoring endpoint
-                try {
-                    const perfResponse = await fetch('/api/monitoring/performance');
-                    const perfData = await perfResponse.json();
-                    if (perfData.success && perfData.metrics) {
-                        updateMemoryUsage(perfData.metrics.memory_usage);
-                        addToHistory(perfData.metrics.memory_usage, perfData.metrics);
-                    }
-                } catch (perfError) {
-                    console.log('Performance metrics not available:', perfError);
+                if (data.success) {
+                    updateSystemHealth(data.metrics);
+                    updatePerformanceMetrics(data.metrics);
+                    updateCacheStatus(data.metrics.cache_status);
+                    updateMemoryUsage(data.metrics.memory_usage);
+                    
+                    // Add data to charts
+                    addToHistory(data.metrics.memory_usage, data.metrics);
+                } else {
+                    throw new Error('Failed to load performance metrics');
                 }
-                
             } catch (error) {
-                console.error('Error loading system health:', error);
+                console.error('Error loading performance metrics:', error);
             }
         }
 
@@ -952,99 +933,6 @@
                     </div>
                 `;
             }
-        }
-
-        // New update functions for system health data
-        function updateSystemHealthNew(data) {
-            const container = document.getElementById('systemHealth');
-            const status = data.overall_status || 'unknown';
-            const gamesCount = data.total_games_today || 0;
-            const predictionsCount = data.predictions_available || 0;
-            
-            container.innerHTML = `
-                <div class="metric">
-                    <div class="metric-label">Overall Health</div>
-                    <div class="metric-value ${status === 'healthy' ? 'success' : status === 'warning' ? 'warning' : 'error'}">${status.toUpperCase()}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Games Today</div>
-                    <div class="metric-value info">${gamesCount}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Predictions</div>
-                    <div class="metric-value ${predictionsCount > 0 ? 'success' : 'warning'}">${predictionsCount}</div>
-                </div>
-            `;
-        }
-
-        function updatePerformanceMetricsNew(data) {
-            const container = document.getElementById('performanceMetrics');
-            const components = data.component_health || {};
-            const missingFiles = data.critical_files_missing || 0;
-            
-            let healthyComponents = 0;
-            let totalComponents = 0;
-            
-            for (const [component, health] of Object.entries(components)) {
-                totalComponents++;
-                if (health === 'healthy') healthyComponents++;
-            }
-            
-            const healthPercentage = totalComponents > 0 ? Math.round((healthyComponents / totalComponents) * 100) : 0;
-            
-            container.innerHTML = `
-                <div class="metric">
-                    <div class="metric-label">Component Health</div>
-                    <div class="metric-value ${healthPercentage >= 90 ? 'success' : healthPercentage >= 70 ? 'warning' : 'error'}">${healthPercentage}%</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Critical Files</div>
-                    <div class="metric-value ${missingFiles === 0 ? 'success' : 'error'}">${missingFiles === 0 ? 'All Present' : missingFiles + ' Missing'}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Cache Status</div>
-                    <div class="metric-value ${data.cache_status === 'current' ? 'success' : 'warning'}">${data.cache_status || 'Unknown'}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Last Update</div>
-                    <div class="metric-value info">${data.last_data_update || 'Unknown'}</div>
-                </div>
-            `;
-        }
-
-        function updateCacheStatusNew(data) {
-            const container = document.getElementById('cacheStatus');
-            const fileStatus = data.file_status || {};
-            
-            let html = '';
-            
-            for (const [fileName, status] of Object.entries(fileStatus)) {
-                const displayName = fileName.replace(/^.*[\\\/]/, '').replace('.json', '');
-                const exists = status.includes('exists');
-                const isRecent = status.includes('recent') || status.includes('current');
-                
-                let statusClass = 'success';
-                let statusText = 'OK';
-                
-                if (!exists) {
-                    statusClass = 'error';
-                    statusText = 'Missing';
-                } else if (!isRecent) {
-                    statusClass = 'warning';
-                    statusText = 'Old';
-                } else {
-                    statusText = 'Fresh';
-                }
-                
-                html += `
-                    <div class="metric">
-                        <div class="metric-label">${displayName}</div>
-                        <div class="metric-value ${statusClass}">${statusText}</div>
-                    </div>
-                `;
-            }
-            
-            container.innerHTML = html || '<div class="loading">Cache data loading...</div>';
         }
 
         function loadRecentAlerts(alerts) {
