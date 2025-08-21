@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historical Analysis - MLB Betting System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .date-selector {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .date-selector input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .date-selector button {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .date-selector button:hover {
+            transform: translateY(-2px);
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .analysis-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+        }
+
+        .analysis-card h3 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .metric-value.positive {
+            color: #28a745;
+        }
+
+        .metric-value.negative {
+            color: #dc3545;
+        }
+
+        .metric-value.neutral {
+            color: #6c757d;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-metric {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .summary-metric h4 {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .summary-metric .value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: #dc3545;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .nav-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        /* Game Cards Styles */
+        .game-cards-section {
+            margin-top: 30px;
+        }
+
+        .day-section {
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .day-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .day-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .day-stat {
+            text-align: center;
+        }
+
+        .day-stat .value {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 5px solid #007bff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .game-card.winner-correct {
+            border-left-color: #28a745;
+        }
+
+        .game-card.winner-incorrect {
+            border-left-color: #dc3545;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .matchup {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .final-score {
+            font-size: 1.0em;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .predictions-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .prediction-box {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .prediction-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .prediction-value {
+            font-weight: bold;
+            font-size: 1.0em;
+        }
+
+        .winner-correct .prediction-value {
+            color: #28a745;
+        }
+
+        .winner-incorrect .prediction-value {
+            color: #dc3545;
+        }
+
+        .recommendations-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .recommendations-header {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            background: white;
+            border-radius: 6px;
+            border-left: 3px solid #007bff;
+        }
+
+        .recommendation-item.correct {
+            border-left-color: #28a745;
+            background: #f8fff8;
+        }
+
+        .recommendation-item.incorrect {
+            border-left-color: #dc3545;
+            background: #fff8f8;
+        }
+
+        .rec-type {
+            font-weight: bold;
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+
+        .rec-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .rec-result {
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .rec-result.profit {
+            color: #28a745;
+        }
+
+        .rec-result.loss {
+            color: #dc3545;
+        }
+
+        .game-summary {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accuracy-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .accuracy-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .accuracy-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .accuracy-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .game-profit {
+            font-weight: bold;
+            font-size: 1.0em;
+        }
+
+        .profit-positive {
+            color: #28a745;
+        }
+
+        .profit-negative {
+            color: #dc3545;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .recommendation-breakdown {
+            margin-top: 15px;
+        }
+
+        .recommendation-type {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .recommendation-type:last-child {
+            border-bottom: none;
+        }
+
+        .type-name {
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .type-accuracy {
+            font-weight: bold;
+        }
+
+        .accuracy-high { color: #28a745; }
+        .accuracy-medium { color: #ffc107; }
+        .accuracy-low { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Historical Analysis</h1>
+            <p>Comprehensive model performance and betting analysis</p>
+            <div>
+                <a href="/" class="nav-button">🏠 Home</a>
+                <a href="/monitoring-dashboard" class="nav-button">📈 Dashboard</a>
+                <a href="/today-games" class="nav-button">⚾ Today's Games</a>
+            </div>
+        </div>
+
+        <div class="date-selector">
+            <button onclick="loadCumulativeAnalysis()" style="background: linear-gradient(45deg, #28a745, #20c997);">📊 Cumulative Analysis (Since 8/19)</button>
+            <button onclick="toggleGameCards()" id="toggle-cards-btn" style="background: linear-gradient(45deg, #6f42c1, #e83e8c); display: none;">🎮 Show Game Cards</button>
+            <label for="analysis-date">Single Date:</label>
+            <input type="date" id="analysis-date" name="analysis-date">
+            <button onclick="loadAnalysis()">Analyze Date</button>
+            <span id="date-analysis-status" style="margin-left: 10px; font-size: 0.9em; color: #666;"></span>
+            <button onclick="loadAvailableDates()">Show Available Dates</button>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            🔄 Loading historical analysis...
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="analysis-results" style="display: none;">
+            <!-- Summary Section -->
+            <div class="summary-card">
+                <h2>📈 Analysis Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-metric">
+                        <h4>Model Winner Accuracy</h4>
+                        <div class="value" id="summary-model-accuracy">--</div>
+                    </div>
+                    <div class="summary-metric">
+                        <h4>Betting Winner Accuracy</h4>
+                        <div class="value" id="summary-betting-accuracy">--</div>
+                    </div>
+                    <div class="summary-metric">
+                        <h4>Recommendation Accuracy</h4>
+                        <div class="value" id="summary-rec-accuracy">--</div>
+                    </div>
+                    <div class="summary-metric">
+                        <h4>ROI</h4>
+                        <div class="value" id="summary-roi">--</div>
+                    </div>
+                    <div class="summary-metric">
+                        <h4>Net Profit</h4>
+                        <div class="value" id="summary-profit">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-grid">
+                <!-- Predictability Analysis -->
+                <div class="analysis-card">
+                    <h3>🎯 Model Predictability</h3>
+                    <div class="metric">
+                        <span class="metric-label">Total Games Analyzed</span>
+                        <span class="metric-value" id="pred-total-games">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Matched Games</span>
+                        <span class="metric-value" id="pred-matched-games">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Winner Accuracy</span>
+                        <span class="metric-value" id="pred-winner-accuracy">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Team Score Error</span>
+                        <span class="metric-value" id="pred-team-error">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Total Score Error</span>
+                        <span class="metric-value" id="pred-total-error">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Coverage Rate</span>
+                        <span class="metric-value" id="pred-coverage">--</span>
+                    </div>
+                </div>
+
+                <!-- Betting Lens Analysis -->
+                <div class="analysis-card">
+                    <h3>💰 Betting Lens</h3>
+                    <div class="metric">
+                        <span class="metric-label">Matched Games</span>
+                        <span class="metric-value" id="betting-matched">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Winner Accuracy</span>
+                        <span class="metric-value" id="betting-winner-accuracy">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Side Accuracy</span>
+                        <span class="metric-value" id="betting-total-accuracy">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Winner Bets</span>
+                        <span class="metric-value" id="betting-winner-bets">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Side Bets</span>
+                        <span class="metric-value" id="betting-side-bets">--</span>
+                    </div>
+                </div>
+
+                <!-- Betting Recommendations -->
+                <div class="analysis-card">
+                    <h3>🎲 Betting Recommendations</h3>
+                    <div class="metric">
+                        <span class="metric-label">Total Recommendations</span>
+                        <span class="metric-value" id="rec-total">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Correct Recommendations</span>
+                        <span class="metric-value" id="rec-correct">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Overall Accuracy</span>
+                        <span class="metric-value" id="rec-accuracy">--</span>
+                    </div>
+                    <div class="recommendation-breakdown" id="rec-breakdown">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- ROI Analysis -->
+                <div class="analysis-card">
+                    <h3>💵 ROI Analysis</h3>
+                    <div class="metric">
+                        <span class="metric-label">Total Bets Placed</span>
+                        <span class="metric-value" id="roi-bets">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Amount Bet</span>
+                        <span class="metric-value" id="roi-amount">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Winnings</span>
+                        <span class="metric-value" id="roi-winnings">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Net Profit</span>
+                        <span class="metric-value" id="roi-profit">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">ROI Percentage</span>
+                        <span class="metric-value" id="roi-percentage">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Win Rate</span>
+                        <span class="metric-value" id="roi-win-rate">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Winning Bets</span>
+                        <span class="metric-value" id="roi-winning-bets">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Cards Section -->
+            <div class="game-cards-section" id="game-cards-section" style="display: none;">
+                <h2>🎮 Individual Game Analysis</h2>
+                <div id="daily-game-cards">
+                    <!-- Game cards will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load cumulative analysis by default
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCumulativeAnalysis();
+        });
+
+        function loadCumulativeAnalysis() {
+            showLoading();
+            
+            fetch('/api/historical-analysis?type=cumulative&start_date=2025-08-19')
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        showCumulativeAnalysis(data);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showError('Error loading cumulative analysis: ' + error.message);
+                });
+        }
+
+        function loadAnalysis() {
+            let date = document.getElementById('analysis-date').value;
+            if (!date) {
+                // Default to yesterday if no date selected
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                date = yesterday.toISOString().split('T')[0];
+                document.getElementById('analysis-date').value = date;
+            }
+
+            showLoading();
+            
+            fetch(`/api/historical-analysis?type=single&date=${date}`)
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        showAnalysis(data);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showError('Error loading analysis: ' + error.message);
+                });
+        }
+
+        function loadAvailableDates() {
+            fetch('/api/historical-analysis/dates')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.available_dates && data.available_dates.length > 0) {
+                        alert('Available dates:\n' + data.available_dates.slice(0, 10).join('\n') + 
+                              (data.available_dates.length > 10 ? '\n... and more' : ''));
+                    } else {
+                        alert('No historical data available');
+                    }
+                })
+                .catch(error => {
+                    alert('Error loading available dates: ' + error.message);
+                });
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('analysis-results').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('analysis-results').style.display = 'none';
+        }
+
+        function showCumulativeAnalysis(data) {
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('analysis-results').style.display = 'block';
+
+            // Update header to show it's cumulative
+            const header = document.querySelector('.header h1');
+            header.textContent = `Historical Analysis - Tracking Since ${data.date_range.start_date} (${data.date_range.total_days} days)`;
+
+            // Summary metrics - use cumulative performance
+            const perf = data.cumulative_performance;
+            document.getElementById('summary-model-accuracy').textContent = 
+                (perf.winner_accuracy * 100).toFixed(1) + '%';
+            document.getElementById('summary-betting-accuracy').textContent = 
+                (perf.winner_accuracy * 100).toFixed(1) + '%'; // Using same for betting lens
+            document.getElementById('summary-rec-accuracy').textContent = 
+                (perf.recommendation_accuracy * 100).toFixed(1) + '%';
+            document.getElementById('summary-roi').textContent = 
+                perf.roi_percentage.toFixed(1) + '%';
+            document.getElementById('summary-profit').textContent = 
+                '$' + perf.total_profit.toFixed(2);
+
+            // Predictability
+            document.getElementById('pred-total-games').textContent = data.data_summary.total_games_predicted;
+            document.getElementById('pred-matched-games').textContent = data.data_summary.total_games_matched;
+            document.getElementById('pred-winner-accuracy').textContent = 
+                (perf.winner_accuracy * 100).toFixed(1) + '%';
+            document.getElementById('pred-team-error').textContent = 
+                perf.avg_team_score_error.toFixed(2) + ' runs';
+            document.getElementById('pred-total-error').textContent = 
+                perf.avg_total_score_error.toFixed(2) + ' runs';
+            document.getElementById('pred-coverage').textContent = 
+                (data.data_summary.coverage_rate * 100).toFixed(1) + '%';
+
+            // Betting Lens - using cumulative data
+            document.getElementById('betting-matched').textContent = data.data_summary.total_games_matched;
+            document.getElementById('betting-winner-accuracy').textContent = 
+                (perf.winner_accuracy * 100).toFixed(1) + '%';
+            document.getElementById('betting-total-accuracy').textContent = 
+                (perf.win_rate * 100).toFixed(1) + '%'; // Use win rate as proxy
+            document.getElementById('betting-winner-bets').textContent = perf.total_bets_placed;
+            document.getElementById('betting-side-bets').textContent = perf.total_bets_placed;
+
+            // Betting Recommendations
+            document.getElementById('rec-total').textContent = perf.total_recommendations;
+            document.getElementById('rec-correct').textContent = perf.winning_bets;
+            document.getElementById('rec-accuracy').textContent = 
+                (perf.recommendation_accuracy * 100).toFixed(1) + '%';
+
+            // Recommendation breakdown - simplified for cumulative
+            const breakdown = document.getElementById('rec-breakdown');
+            breakdown.innerHTML = `
+                <h4 style="margin-top: 15px;">Cumulative Performance:</h4>
+                <div class="recommendation-type">
+                    <span class="type-name">Total Days</span>
+                    <span class="type-accuracy">${data.date_range.total_days}</span>
+                </div>
+                <div class="recommendation-type">
+                    <span class="type-name">Recent Accuracy</span>
+                    <span class="type-accuracy">${(data.recent_performance.recent_accuracy * 100).toFixed(1)}%</span>
+                </div>
+                <div class="recommendation-type">
+                    <span class="type-name">Recent ROI</span>
+                    <span class="type-accuracy">${data.recent_performance.recent_roi.toFixed(1)}%</span>
+                </div>
+            `;
+
+            // ROI Analysis
+            document.getElementById('roi-bets').textContent = perf.total_bets_placed;
+            document.getElementById('roi-amount').textContent = '$' + perf.total_amount_bet.toFixed(2);
+            document.getElementById('roi-winnings').textContent = '$' + (perf.total_amount_bet + perf.total_profit).toFixed(2);
+            
+            const profit = perf.total_profit;
+            const profitElement = document.getElementById('roi-profit');
+            profitElement.textContent = '$' + profit.toFixed(2);
+            profitElement.className = 'metric-value ' + (profit > 0 ? 'positive' : profit < 0 ? 'negative' : 'neutral');
+            
+            const roi = perf.roi_percentage;
+            const roiElement = document.getElementById('roi-percentage');
+            roiElement.textContent = roi.toFixed(1) + '%';
+            roiElement.className = 'metric-value ' + (roi > 0 ? 'positive' : roi < 0 ? 'negative' : 'neutral');
+            
+            document.getElementById('roi-win-rate').textContent = 
+                (perf.win_rate * 100).toFixed(1) + '%';
+            document.getElementById('roi-winning-bets').textContent = perf.winning_bets;
+
+            // Apply color coding to accuracy metrics
+            applyAccuracyColors();
+
+            // Hide game cards for cumulative analysis
+            document.getElementById('game-cards-section').style.display = 'none';
+            document.getElementById('toggle-cards-btn').style.display = 'none';
+            document.getElementById('date-analysis-status').textContent = '';
+        }
+
+        function toggleGameCards() {
+            const gameCardsSection = document.getElementById('game-cards-section');
+            const toggleBtn = document.getElementById('toggle-cards-btn');
+            
+            if (gameCardsSection.style.display === 'none') {
+                gameCardsSection.style.display = 'block';
+                toggleBtn.textContent = '🎮 Hide Game Cards';
+                toggleBtn.style.background = 'linear-gradient(45deg, #dc3545, #fd7e14)';
+            } else {
+                gameCardsSection.style.display = 'none';
+                toggleBtn.textContent = '🎮 Show Game Cards';
+                toggleBtn.style.background = 'linear-gradient(45deg, #6f42c1, #e83e8c)';
+            }
+        }
+
+        function showGameCards(dailyGameDetails) {
+            const container = document.getElementById('daily-game-cards');
+            container.innerHTML = '';
+
+            dailyGameDetails.forEach(dayData => {
+                // Create day section
+                const daySection = document.createElement('div');
+                daySection.className = 'day-section';
+
+                // Day header with stats
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+
+                const dayTitle = document.createElement('div');
+                dayTitle.className = 'day-title';
+                dayTitle.textContent = `📅 ${formatDate(dayData.date)} (${dayData.games_count} games)`;
+
+                const dayStats = document.createElement('div');
+                dayStats.className = 'day-stats';
+                dayStats.innerHTML = `
+                    <div class="day-stat">
+                        <div class="value">${(dayData.day_stats.winner_accuracy * 100).toFixed(1)}%</div>
+                        <div>Winner Accuracy</div>
+                    </div>
+                    <div class="day-stat">
+                        <div class="value">${dayData.day_stats.roi.toFixed(1)}%</div>
+                        <div>ROI</div>
+                    </div>
+                    <div class="day-stat">
+                        <div class="value">$${dayData.day_stats.profit.toFixed(2)}</div>
+                        <div>Profit</div>
+                    </div>
+                    <div class="day-stat">
+                        <div class="value">${dayData.day_stats.total_bets}</div>
+                        <div>Bets</div>
+                    </div>
+                `;
+
+                dayHeader.appendChild(dayTitle);
+                dayHeader.appendChild(dayStats);
+
+                // Games grid
+                const gamesGrid = document.createElement('div');
+                gamesGrid.className = 'games-grid';
+
+                dayData.game_cards.forEach(game => {
+                    const gameCard = createGameCard(game);
+                    gamesGrid.appendChild(gameCard);
+                });
+
+                daySection.appendChild(dayHeader);
+                daySection.appendChild(gamesGrid);
+                container.appendChild(daySection);
+            });
+        }
+
+        function createGameCard(game) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+
+            // Add winner correctness class
+            if (game.predictability && game.predictability.winner_correct !== null) {
+                card.classList.add(game.predictability.winner_correct ? 'winner-correct' : 'winner-incorrect');
+            }
+
+            // Game header with matchup and final score
+            const gameHeader = document.createElement('div');
+            gameHeader.className = 'game-header';
+
+            const matchup = document.createElement('div');
+            matchup.className = 'matchup';
+            matchup.textContent = `${game.away_team} @ ${game.home_team}`;
+
+            const finalScore = document.createElement('div');
+            finalScore.className = 'final-score';
+            if (game.has_final_score && game.final_scores) {
+                finalScore.textContent = `Final: ${game.final_scores.away_score}-${game.final_scores.home_score}`;
+            } else {
+                finalScore.textContent = 'No Final Score';
+                finalScore.style.color = '#999';
+            }
+
+            gameHeader.appendChild(matchup);
+            gameHeader.appendChild(finalScore);
+
+            // Predictions row
+            const predictionsRow = document.createElement('div');
+            predictionsRow.className = 'predictions-row';
+
+            // Winner prediction
+            const winnerBox = document.createElement('div');
+            winnerBox.className = 'prediction-box';
+            winnerBox.innerHTML = `
+                <div class="prediction-label">Winner Prediction</div>
+                <div class="prediction-value">${getWinnerPrediction(game)}</div>
+            `;
+
+            // Score prediction
+            const scoreBox = document.createElement('div');
+            scoreBox.className = 'prediction-box';
+            scoreBox.innerHTML = `
+                <div class="prediction-label">Score Prediction</div>
+                <div class="prediction-value">${getScorePrediction(game)}</div>
+            `;
+
+            predictionsRow.appendChild(winnerBox);
+            predictionsRow.appendChild(scoreBox);
+
+            // Recommendations section
+            const recsSection = document.createElement('div');
+            recsSection.className = 'recommendations-section';
+
+            const recsHeader = document.createElement('div');
+            recsHeader.className = 'recommendations-header';
+            recsHeader.textContent = `📊 Betting Recommendations (${game.recommendations.length})`;
+
+            recsSection.appendChild(recsHeader);
+
+            game.recommendations.forEach(rec => {
+                const recItem = document.createElement('div');
+                recItem.className = 'recommendation-item';
+                recItem.classList.add(rec.is_correct ? 'correct' : 'incorrect');
+
+                recItem.innerHTML = `
+                    <div>
+                        <span class="rec-type">${rec.type}</span>
+                        <span class="rec-details">${rec.side} ${rec.line ? `(${rec.line})` : ''}</span>
+                    </div>
+                    <div class="rec-result ${rec.profit >= 0 ? 'profit' : 'loss'}">
+                        ${rec.is_correct ? '✅' : '❌'} $${rec.profit.toFixed(2)}
+                    </div>
+                `;
+
+                recsSection.appendChild(recItem);
+            });
+
+            // Game summary
+            const gameSummary = document.createElement('div');
+            gameSummary.className = 'game-summary';
+
+            const accuracyBadge = document.createElement('div');
+            accuracyBadge.className = 'accuracy-badge';
+            const winRate = game.roi.win_rate || 0;
+            if (winRate >= 0.7) {
+                accuracyBadge.classList.add('accuracy-high');
+                accuracyBadge.textContent = `${(winRate * 100).toFixed(0)}% Win Rate`;
+            } else if (winRate >= 0.4) {
+                accuracyBadge.classList.add('accuracy-medium');
+                accuracyBadge.textContent = `${(winRate * 100).toFixed(0)}% Win Rate`;
+            } else {
+                accuracyBadge.classList.add('accuracy-low');
+                accuracyBadge.textContent = `${(winRate * 100).toFixed(0)}% Win Rate`;
+            }
+
+            const gameProfit = document.createElement('div');
+            gameProfit.className = 'game-profit';
+            gameProfit.classList.add(game.roi.total_profit >= 0 ? 'profit-positive' : 'profit-negative');
+            gameProfit.textContent = `${game.roi.total_profit >= 0 ? '+' : ''}$${game.roi.total_profit.toFixed(2)}`;
+
+            gameSummary.appendChild(accuracyBadge);
+            gameSummary.appendChild(gameProfit);
+
+            // Assemble the card
+            card.appendChild(gameHeader);
+            card.appendChild(predictionsRow);
+            card.appendChild(recsSection);
+            card.appendChild(gameSummary);
+
+            return card;
+        }
+
+        function getWinnerPrediction(game) {
+            if (game.win_probabilities && game.win_probabilities.away && game.win_probabilities.home) {
+                const awayProb = game.win_probabilities.away;
+                const homeProb = game.win_probabilities.home;
+                const winner = awayProb > homeProb ? game.away_team : game.home_team;
+                const confidence = Math.max(awayProb, homeProb);
+                return `${winner} (${(confidence * 100).toFixed(1)}%)`;
+            }
+            return 'No prediction';
+        }
+
+        function getScorePrediction(game) {
+            if (game.predicted_scores && game.predicted_scores.away !== null && game.predicted_scores.home !== null) {
+                const total = game.predicted_scores.total || (game.predicted_scores.away + game.predicted_scores.home);
+                return `${game.predicted_scores.away.toFixed(1)}-${game.predicted_scores.home.toFixed(1)} (${total.toFixed(1)})`;
+            }
+            return 'No prediction';
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function showAnalysis(data) {
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('analysis-results').style.display = 'block';
+
+            // Update header for single date analysis
+            const header = document.querySelector('.header h1');
+            header.textContent = `Historical Analysis - ${formatDate(data.date)}`;
+
+            // Summary metrics
+            document.getElementById('summary-model-accuracy').textContent = 
+                (data.predictability.winner_accuracy * 100).toFixed(1) + '%';
+            document.getElementById('summary-betting-accuracy').textContent = 
+                (data.betting_lens.winner_accuracy * 100).toFixed(1) + '%';
+            document.getElementById('summary-rec-accuracy').textContent = 
+                (data.betting_recommendations.overall_accuracy * 100).toFixed(1) + '%';
+            document.getElementById('summary-roi').textContent = 
+                data.roi_analysis.roi_percentage.toFixed(1) + '%';
+            document.getElementById('summary-profit').textContent = 
+                '$' + data.roi_analysis.net_profit.toFixed(2);
+
+            // Predictability
+            document.getElementById('pred-total-games').textContent = data.predictability.total_games;
+            document.getElementById('pred-matched-games').textContent = data.predictability.matched_games;
+            document.getElementById('pred-winner-accuracy').textContent = 
+                (data.predictability.winner_accuracy * 100).toFixed(1) + '%';
+            document.getElementById('pred-team-error').textContent = 
+                data.predictability.avg_team_score_error.toFixed(2) + ' runs';
+            document.getElementById('pred-total-error').textContent = 
+                data.predictability.avg_total_score_error.toFixed(2) + ' runs';
+            document.getElementById('pred-coverage').textContent = 
+                (data.predictability.coverage_rate * 100).toFixed(1) + '%';
+
+            // Betting Lens
+            document.getElementById('betting-matched').textContent = data.betting_lens.matched_games;
+            document.getElementById('betting-winner-accuracy').textContent = 
+                (data.betting_lens.winner_accuracy * 100).toFixed(1) + '%';
+            document.getElementById('betting-total-accuracy').textContent = 
+                (data.betting_lens.total_side_accuracy * 100).toFixed(1) + '%';
+            document.getElementById('betting-winner-bets').textContent = data.betting_lens.total_winner_bets;
+            document.getElementById('betting-side-bets').textContent = data.betting_lens.total_side_bets;
+
+            // Betting Recommendations
+            document.getElementById('rec-total').textContent = data.betting_recommendations.total_recommendations;
+            document.getElementById('rec-correct').textContent = data.betting_recommendations.total_correct;
+            document.getElementById('rec-accuracy').textContent = 
+                (data.betting_recommendations.overall_accuracy * 100).toFixed(1) + '%';
+
+            // Recommendation breakdown
+            const breakdown = document.getElementById('rec-breakdown');
+            breakdown.innerHTML = '<h4 style="margin-top: 15px;">By Type:</h4>';
+            
+            Object.entries(data.betting_recommendations.accuracy_by_type).forEach(([type, accuracy]) => {
+                const count = data.betting_recommendations.recommendation_types[type] || 0;
+                if (count > 0) {
+                    const div = document.createElement('div');
+                    div.className = 'recommendation-type';
+                    
+                    const accuracyClass = accuracy > 0.6 ? 'accuracy-high' : 
+                                         accuracy > 0.4 ? 'accuracy-medium' : 'accuracy-low';
+                    
+                    div.innerHTML = `
+                        <span class="type-name">${type}</span>
+                        <span class="type-accuracy ${accuracyClass}">${(accuracy * 100).toFixed(1)}% (${count})</span>
+                    `;
+                    breakdown.appendChild(div);
+                }
+            });
+
+            // ROI Analysis
+            document.getElementById('roi-bets').textContent = data.roi_analysis.total_bets_placed;
+            document.getElementById('roi-amount').textContent = '$' + data.roi_analysis.total_amount_bet.toFixed(2);
+            document.getElementById('roi-winnings').textContent = '$' + data.roi_analysis.total_winnings.toFixed(2);
+            
+            const profit = data.roi_analysis.net_profit;
+            const profitElement = document.getElementById('roi-profit');
+            profitElement.textContent = '$' + profit.toFixed(2);
+            profitElement.className = 'metric-value ' + (profit > 0 ? 'positive' : profit < 0 ? 'negative' : 'neutral');
+            
+            const roi = data.roi_analysis.roi_percentage;
+            const roiElement = document.getElementById('roi-percentage');
+            roiElement.textContent = roi.toFixed(1) + '%';
+            roiElement.className = 'metric-value ' + (roi > 0 ? 'positive' : roi < 0 ? 'negative' : 'neutral');
+            
+            document.getElementById('roi-win-rate').textContent = 
+                (data.roi_analysis.win_rate * 100).toFixed(1) + '%';
+            document.getElementById('roi-winning-bets').textContent = data.roi_analysis.winning_bets;
+
+            // Apply color coding to accuracy metrics
+            applyAccuracyColors();
+
+            // Show game cards for single-date analysis
+            if (data.game_cards && data.game_cards.length > 0) {
+                const singleDayData = [{
+                    date: data.date,
+                    games_count: data.game_cards.length,
+                    day_stats: {
+                        winner_accuracy: data.predictability.winner_accuracy,
+                        roi: data.roi_analysis.roi_percentage,
+                        profit: data.roi_analysis.net_profit,
+                        total_bets: data.roi_analysis.total_bets_placed
+                    },
+                    game_cards: data.game_cards
+                }];
+                showGameCards(singleDayData);
+                document.getElementById('game-cards-section').style.display = 'none'; // Start hidden
+                document.getElementById('toggle-cards-btn').style.display = 'inline-block';
+                document.getElementById('toggle-cards-btn').textContent = '🎮 Show Game Cards';
+                document.getElementById('date-analysis-status').textContent = `✅ ${data.game_cards.length} game cards available`;
+                document.getElementById('date-analysis-status').style.color = '#28a745';
+            } else {
+                document.getElementById('game-cards-section').style.display = 'none';
+                document.getElementById('toggle-cards-btn').style.display = 'none';
+                document.getElementById('date-analysis-status').textContent = `❌ No game cards available for this date`;
+                document.getElementById('date-analysis-status').style.color = '#dc3545';
+            }
+        }
+
+        function applyAccuracyColors() {
+            const accuracyElements = [
+                'pred-winner-accuracy',
+                'betting-winner-accuracy', 
+                'betting-total-accuracy',
+                'rec-accuracy'
+            ];
+
+            accuracyElements.forEach(id => {
+                const element = document.getElementById(id);
+                const value = parseFloat(element.textContent);
+                
+                element.className = 'metric-value ' + 
+                    (value >= 60 ? 'positive' : value >= 45 ? 'neutral' : 'negative');
+            });
+
+            // Apply color to coverage rate
+            const coverageElement = document.getElementById('pred-coverage');
+            const coverageValue = parseFloat(coverageElement.textContent);
+            coverageElement.className = 'metric-value ' + 
+                (coverageValue >= 80 ? 'positive' : coverageValue >= 60 ? 'neutral' : 'negative');
+        }
+    </script>
+</body>
+</html>

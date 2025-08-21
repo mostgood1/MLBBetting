@@ -1,0 +1,34 @@
+{
+  "api_keys": {
+    "odds_api_key": "07da97d86f1b1e431b4e01341abbf9e2",
+    "pinnacle_username": "",
+    "pinnacle_password": "",
+    "the_odds_api_key": "07da97d86f1b1e431b4e01341abbf9e2"
+  },
+  "fetch_timing": {
+    "fetch_timing_minutes": [45, 30, 20, 15, 10, 5],
+    "optimal_fetch_time": 20,
+    "max_attempts_per_timing": 3,
+    "enable_backup_sources": true
+  },
+  "data_quality": {
+    "prefer_pinnacle": true,
+    "minimum_line_confidence": 0.8,
+    "require_moneyline": true,
+    "require_total": false,
+    "require_spread": false
+  },
+  "alerts": {
+    "enable_email_alerts": false,
+    "enable_log_alerts": true,
+    "alert_on_fetch_failure": true,
+    "alert_on_api_error": true
+  },
+  "storage": {
+    "backup_on_update": true,
+    "max_backup_files": 10,
+    "compress_old_data": false
+  },
+  "created": "2025-08-21T09:00:00",
+  "last_updated": "2025-08-21T09:00:00"
+}

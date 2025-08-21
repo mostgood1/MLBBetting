@@ -19,14 +19,14 @@ def normalize_team_name(team_name: str) -> str:
     # Dictionary of all possible team name variations to our standard names
     # These map to the exact names used in team_assets.json
     name_mappings = {
-        # Athletics variations - special case using just "Athletics"
-        'Oakland Athletics': 'Athletics',
-        'Oakland A\'s': 'Athletics',
-        'Oakland As': 'Athletics',
-        'A\'s': 'Athletics',
-        'As': 'Athletics',
-        'OAK': 'Athletics',
-        'Athletics': 'Athletics',  # Identity mapping
+        # Athletics variations - use full "Oakland Athletics"
+        'Oakland Athletics': 'Oakland Athletics',  # Identity mapping
+        'Oakland A\'s': 'Oakland Athletics',
+        'Oakland As': 'Oakland Athletics',
+        'A\'s': 'Oakland Athletics',
+        'As': 'Oakland Athletics',
+        'OAK': 'Oakland Athletics',
+        'Athletics': 'Oakland Athletics',
         
         # Angels variations - use full "Los Angeles Angels"
         'Angels': 'Los Angeles Angels',

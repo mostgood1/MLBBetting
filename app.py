@@ -104,6 +104,14 @@ app = Flask(__name__)
 if ADMIN_TUNING_AVAILABLE and admin_bp:
     app.register_blueprint(admin_bp)
 
+# Register historical analysis blueprint
+try:
+    from historical_analysis_endpoint import historical_analysis_bp
+    app.register_blueprint(historical_analysis_bp)
+    logging.info("✅ Historical analysis endpoint registered successfully")
+except ImportError as e:
+    logging.warning(f"Historical analysis endpoint not available: {e}")
+
 import threading
 import queue
 from datetime import timedelta
@@ -825,6 +833,68 @@ def calculate_performance_stats(predictions):
     }
 
 def generate_comprehensive_dashboard_insights(unified_cache):
+    """Generate comprehensive dashboard insights using cumulative historical analysis since 8-19"""
+    from historical_analysis_endpoint import analyzer
+    
+    try:
+        # Get cumulative analysis since 8-19
+        cumulative_analysis = analyzer.perform_cumulative_analysis(start_date='2025-08-19')
+        
+        if 'error' in cumulative_analysis:
+            # Fallback to original method if historical analysis fails
+            return generate_original_dashboard_insights(unified_cache)
+        
+        # Extract data from cumulative analysis
+        perf = cumulative_analysis['cumulative_performance']
+        data_summary = cumulative_analysis['data_summary']
+        date_range = cumulative_analysis['date_range']
+        
+        # Convert to format expected by template
+        dashboard_insights = {
+            'total_games_analyzed': data_summary['total_games_matched'],
+            'total_dates_covered': date_range['total_days'],
+            'date_range': {
+                'start': '2025-08-19',  # Since 8-19
+                'end': date_range['end_date'],
+                'days_of_data': date_range['total_days']
+            },
+            'betting_performance': {
+                'winner_predictions_correct': int(perf['winner_accuracy'] * data_summary['total_games_matched']),
+                'total_predictions_correct': perf['winning_bets'],
+                'perfect_games': int(perf['win_rate'] * perf['total_bets_placed']),
+                'games_analyzed': data_summary['total_games_matched'],
+                'winner_accuracy_pct': round(perf['winner_accuracy'] * 100, 1),
+                'total_accuracy_pct': round(perf['recommendation_accuracy'] * 100, 1),
+                'perfect_games_pct': round(perf['win_rate'] * 100, 1),
+                'using_real_data': True,
+                'total_profit': perf['total_profit'],
+                'roi_percentage': perf['roi_percentage'],
+                'total_bets_placed': perf['total_bets_placed']
+            },
+            'score_analysis': {
+                'avg_total_runs': 8.5,  # Default MLB average
+                'avg_team_score_error': perf['avg_team_score_error'],
+                'avg_total_score_error': perf['avg_total_score_error'],
+                'games_with_scores': data_summary['total_games_matched']
+            },
+            'data_sources': {
+                'total_teams': 30,  # MLB teams
+                'analysis_type': 'cumulative_since_8_19'
+            },
+            'data_freshness': {
+                'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'most_recent_date': date_range['end_date']
+            }
+        }
+        
+        logger.info(f"✅ Using cumulative analysis since 8-19: {data_summary['total_games_matched']} games, {perf['roi_percentage']:.1f}% ROI")
+        return dashboard_insights
+        
+    except Exception as e:
+        logger.error(f"❌ Error getting cumulative analysis, falling back to original method: {e}")
+        return generate_original_dashboard_insights(unified_cache)
+
+def generate_original_dashboard_insights(unified_cache):
     """Generate comprehensive dashboard insights from all historical data"""
     from collections import defaultdict, Counter
     import statistics
@@ -2225,6 +2295,11 @@ def historical():
                              stats={'total_games': 0},
                              archaeological_insights={},
                              filter_type='all')
+
+@app.route('/historical-analysis')
+def historical_analysis():
+    """New comprehensive historical analysis page"""
+    return render_template('historical_analysis.html')
 
 @app.route('/api/historical-filtered/<filter_type>')
 def api_historical_filtered(filter_type):

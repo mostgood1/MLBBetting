@@ -1,11 +1,11 @@
 {
   "date": "2025-08-20",
-  "generated_at": "2025-08-20T12:12:38.514820",
+  "generated_at": "2025-08-21T10:15:24.718063",
   "source": "Unified Betting Engine v1.0",
   "games": {
     "Toronto Blue Jays_vs_Pittsburgh Pirates": {
-      "away_team": "Toronto Blue Jays",
-      "home_team": "Pittsburgh Pirates",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -17,8 +17,8 @@
       "value_bets": []
     },
     "Seattle Mariners_vs_Philadelphia Phillies": {
-      "away_team": "Seattle Mariners",
-      "home_team": "Philadelphia Phillies",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -30,8 +30,8 @@
       "value_bets": []
     },
     "Houston Astros_vs_Detroit Tigers": {
-      "away_team": "Houston Astros",
-      "home_team": "Detroit Tigers",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -43,8 +43,8 @@
       "value_bets": []
     },
     "Cleveland Guardians_vs_Arizona Diamondbacks": {
-      "away_team": "Cleveland Guardians",
-      "home_team": "Arizona Diamondbacks",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -56,8 +56,8 @@
       "value_bets": []
     },
     "St. Louis Cardinals_vs_Miami Marlins": {
-      "away_team": "St. Louis Cardinals",
-      "home_team": "Miami Marlins",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -69,8 +69,8 @@
       "value_bets": []
     },
     "New York Mets_vs_Washington Nationals": {
-      "away_team": "New York Mets",
-      "home_team": "Washington Nationals",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -82,8 +82,8 @@
       "value_bets": []
     },
     "Chicago White Sox_vs_Atlanta Braves": {
-      "away_team": "Chicago White Sox",
-      "home_team": "Atlanta Braves",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -95,8 +95,8 @@
       "value_bets": []
     },
     "New York Yankees_vs_Tampa Bay Rays": {
-      "away_team": "New York Yankees",
-      "home_team": "Tampa Bay Rays",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -108,8 +108,8 @@
       "value_bets": []
     },
     "Texas Rangers_vs_Kansas City Royals": {
-      "away_team": "Texas Rangers",
-      "home_team": "Kansas City Royals",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -120,9 +120,9 @@
       },
       "value_bets": []
     },
-    "Athletics_vs_Minnesota Twins": {
-      "away_team": "Athletics",
-      "home_team": "Minnesota Twins",
+    "Oakland Oakland Oakland Athletics_vs_Minnesota Twins": {
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -134,8 +134,8 @@
       "value_bets": []
     },
     "Milwaukee Brewers_vs_Chicago Cubs": {
-      "away_team": "Milwaukee Brewers",
-      "home_team": "Chicago Cubs",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -147,8 +147,8 @@
       "value_bets": []
     },
     "Los Angeles Dodgers_vs_Colorado Rockies": {
-      "away_team": "Los Angeles Dodgers",
-      "home_team": "Colorado Rockies",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -160,8 +160,8 @@
       "value_bets": []
     },
     "Cincinnati Reds_vs_Los Angeles Angels": {
-      "away_team": "Cincinnati Reds",
-      "home_team": "Los Angeles Angels",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",
@@ -173,8 +173,8 @@
       "value_bets": []
     },
     "San Francisco Giants_vs_San Diego Padres": {
-      "away_team": "San Francisco Giants",
-      "home_team": "San Diego Padres",
+      "away_team": "",
+      "home_team": "",
       "away_pitcher": "TBD",
       "home_pitcher": "TBD",
       "predicted_score": "0.0-0.0",

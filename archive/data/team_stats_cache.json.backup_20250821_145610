@@ -1,0 +1,93 @@
+{
+  "last_updated": "2025-08-19T09:40:00.000Z",
+  "data_source": "MLB API",
+  "teams": {
+    "LAA": {
+      "name": "Los Angeles Angels",
+      "games_played": 120,
+      "wins": 55,
+      "losses": 65,
+      "win_percentage": 0.458,
+      "runs_scored": 580,
+      "runs_allowed": 620,
+      "avg_runs_per_game": 4.83,
+      "avg_runs_allowed": 5.17,
+      "home_record": "30-30",
+      "away_record": "25-35",
+      "last_10_games": "4-6",
+      "streak": "L2"
+    },
+    "HOU": {
+      "name": "Houston Astros",
+      "games_played": 118,
+      "wins": 70,
+      "losses": 48,
+      "win_percentage": 0.593,
+      "runs_scored": 625,
+      "runs_allowed": 545,
+      "avg_runs_per_game": 5.30,
+      "avg_runs_allowed": 4.62,
+      "home_record": "38-20",
+      "away_record": "32-28",
+      "last_10_games": "7-3",
+      "streak": "W3"
+    },
+    "SEA": {
+      "name": "Seattle Mariners",
+      "games_played": 119,
+      "wins": 65,
+      "losses": 54,
+      "win_percentage": 0.546,
+      "runs_scored": 590,
+      "runs_allowed": 570,
+      "avg_runs_per_game": 4.96,
+      "avg_runs_allowed": 4.79,
+      "home_record": "35-25",
+      "away_record": "30-29",
+      "last_10_games": "6-4",
+      "streak": "W1"
+    },
+    "TEX": {
+      "name": "Texas Rangers",
+      "games_played": 120,
+      "wins": 58,
+      "losses": 62,
+      "win_percentage": 0.483,
+      "runs_scored": 595,
+      "runs_allowed": 605,
+      "avg_runs_per_game": 4.96,
+      "avg_runs_allowed": 5.04,
+      "home_record": "32-28",
+      "away_record": "26-34",
+      "last_10_games": "5-5",
+      "streak": "L1"
+    },
+    "OAK": {
+      "name": "Oakland Athletics",
+      "games_played": 118,
+      "wins": 48,
+      "losses": 70,
+      "win_percentage": 0.407,
+      "runs_scored": 520,
+      "runs_allowed": 640,
+      "avg_runs_per_game": 4.41,
+      "avg_runs_allowed": 5.42,
+      "home_record": "26-33",
+      "away_record": "22-37",
+      "last_10_games": "3-7",
+      "streak": "L4"
+    }
+  },
+  "league_averages": {
+    "runs_per_game": 4.85,
+    "home_win_percentage": 0.540,
+    "strikeouts_per_game": 8.9,
+    "home_runs_per_game": 1.2
+  },
+  "metadata": {
+    "total_teams": 30,
+    "games_analyzed": 3540,
+    "last_refresh": "2025-08-19T09:40:00.000Z",
+    "next_refresh": "2025-08-19T15:40:00.000Z"
+  }
+}

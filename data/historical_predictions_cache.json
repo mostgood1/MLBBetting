@@ -121,8 +121,8 @@
           "home_pitcher_factor": 1.0
         }
       },
-      "Athletics @ Orioles": {
-        "away_team": "Athletics",
+      "Oakland Athletics @ Orioles": {
+        "away_team": "Oakland Athletics",
         "home_team": "Orioles",
         "predicted_away_score": 4.0,
         "predicted_home_score": 4.0,
@@ -962,7 +962,7 @@
         "home_starter": "Braxton Ashcraft",
         "betting_lines": {}
       },
-      "Athletics @ Baltimore Orioles": {
+      "Oakland Athletics @ Baltimore Orioles": {
         "actual_away_score": 11,
         "actual_home_score": 3,
         "actual_total_score": 14,
@@ -1597,7 +1597,7 @@
           "under_odds": -110
         }
       },
-      "Athletics @ Washington Nationals": {
+      "Oakland Athletics @ Washington Nationals": {
         "actual_away_score": 6,
         "actual_home_score": 0,
         "actual_total_score": 6,
@@ -2977,7 +2977,7 @@
         "home_starter": "Braxton Ashcraft",
         "betting_lines": {}
       },
-      "Athletics @ Baltimore Orioles": {
+      "Oakland Athletics @ Baltimore Orioles": {
         "actual_away_score": 2,
         "actual_home_score": 3,
         "actual_total_score": 5,
@@ -3509,7 +3509,7 @@
         "prediction_error_total": 2.0999999999999996,
         "winner_predicted_correctly": false
       },
-      "Athletics @ Baltimore Orioles": {
+      "Oakland Athletics @ Baltimore Orioles": {
         "actual_away_score": 3,
         "actual_home_score": 2,
         "actual_total_score": 5,
@@ -4579,7 +4579,7 @@
       },
       "Rays @ Athletics": {
         "away_team": "Rays",
-        "home_team": "Athletics",
+        "home_team": "Oakland Athletics",
         "predictions": {
           "home_win_prob": 0.473,
           "away_win_prob": 0.527,

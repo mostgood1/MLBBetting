@@ -1,0 +1,92 @@
+[
+  {
+    "game_pk": 776653,
+    "game_time": "2025-08-21T17:10:00Z",
+    "away_team": "Athletics",
+    "home_team": "Minnesota Twins",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Jack Perkins",
+    "home_probable_pitcher": "Jos\u00e9 Ure\u00f1a"
+  },
+  {
+    "game_pk": 776657,
+    "game_time": "2025-08-21T18:10:00Z",
+    "away_team": "Texas Rangers",
+    "home_team": "Kansas City Royals",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Patrick Corbin",
+    "home_probable_pitcher": "Michael Lorenzen"
+  },
+  {
+    "game_pk": 776651,
+    "game_time": "2025-08-21T18:20:00Z",
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Chicago Cubs",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Quinn Priester",
+    "home_probable_pitcher": "Shota Imanaga"
+  },
+  {
+    "game_pk": 776644,
+    "game_time": "2025-08-21T19:10:00Z",
+    "away_team": "Los Angeles Dodgers",
+    "home_team": "Colorado Rockies",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Clayton Kershaw",
+    "home_probable_pitcher": "Chase Dollander"
+  },
+  {
+    "game_pk": 776650,
+    "game_time": "2025-08-21T20:05:00Z",
+    "away_team": "New York Mets",
+    "home_team": "Washington Nationals",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Sean Manaea",
+    "home_probable_pitcher": "MacKenzie Gore"
+  },
+  {
+    "game_pk": 776642,
+    "game_time": "2025-08-21T20:10:00Z",
+    "away_team": "San Francisco Giants",
+    "home_team": "San Diego Padres",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Justin Verlander",
+    "home_probable_pitcher": "Dylan Cease"
+  },
+  {
+    "game_pk": 776655,
+    "game_time": "2025-08-21T23:15:00Z",
+    "away_team": "Houston Astros",
+    "home_team": "Baltimore Orioles",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Jason Alexander",
+    "home_probable_pitcher": "Brandon Young"
+  },
+  {
+    "game_pk": 776654,
+    "game_time": "2025-08-21T23:15:00Z",
+    "away_team": "Boston Red Sox",
+    "home_team": "New York Yankees",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Lucas Giolito",
+    "home_probable_pitcher": "Luis Gil"
+  },
+  {
+    "game_pk": 776631,
+    "game_time": "2025-08-21T23:35:00Z",
+    "away_team": "St. Louis Cardinals",
+    "home_team": "Tampa Bay Rays",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Sonny Gray",
+    "home_probable_pitcher": "Joe Boyle"
+  }
+]

@@ -288,7 +288,7 @@
     },
     {
       "date": "2025-08-16",
-      "game": "Los Angeles Angels @ Athletics",
+      "game": "Los Angeles Angels @ Oakland Athletics",
       "betting_type": "totals",
       "recommendation": "Under 9.5",
       "predicted_total": 8.6,
@@ -599,10 +599,10 @@
     },
     {
       "date": "2025-08-17",
-      "game": "Los Angeles Angels @ Athletics",
+      "game": "Los Angeles Angels @ Oakland Athletics",
       "betting_type": "moneyline",
-      "recommendation": "Athletics ML",
-      "team": "Athletics",
+      "recommendation": "Oakland Oakland Oakland Athletics ML",
+      "team": "Oakland Athletics",
       "confidence": "LOW",
       "reasoning": "Predicted winner with 59.0% confidence",
       "odds": "-110",
@@ -612,7 +612,7 @@
     },
     {
       "date": "2025-08-17",
-      "game": "Los Angeles Angels @ Athletics",
+      "game": "Los Angeles Angels @ Oakland Athletics",
       "betting_type": "totals",
       "recommendation": "Under 9.5",
       "predicted_total": 9.0,

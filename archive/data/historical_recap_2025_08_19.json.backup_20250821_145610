@@ -1,0 +1,481 @@
+{
+  "date": "2025-08-19",
+  "summary": {
+    "total_games": 14,
+    "model_correct_winner": 8,
+    "model_accuracy_pct": 57.1,
+    "avg_total_score_error": 3.79,
+    "total_bets": 12,
+    "bet_wins": 7,
+    "bet_losses": 5,
+    "bet_pushes": 0,
+    "total_roi": 136.36,
+    "bet_type_stats": {
+      "total": {
+        "count": 12,
+        "wins": 7,
+        "losses": 5,
+        "pushes": 0,
+        "roi": 136.36363636363637
+      }
+    }
+  },
+  "games": [
+    {
+      "game_key": "Milwaukee Brewers_vs_Chicago Cubs",
+      "home_team": "Chicago Cubs",
+      "away_team": "Milwaukee Brewers",
+      "home_score": 6,
+      "away_score": 4,
+      "predicted_home": 5.1,
+      "predicted_away": 4.9,
+      "predicted_total": 10.0,
+      "actual_total": 10,
+      "model_pick": "Chicago Cubs",
+      "actual_winner": "Chicago Cubs",
+      "correct_winner": true,
+      "home_err": 0.9000000000000004,
+      "away_err": 0.9000000000000004,
+      "total_err": 0.0,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 10.0,
+            "edge": 1.5,
+            "expected_value": 0.101,
+            "kelly_bet_size": 5.9,
+            "confidence": "HIGH",
+            "reasoning": "Model: 10.0 vs Line: 8.5"
+          },
+          "result": "win",
+          "payout": 90.9090909090909
+        }
+      ]
+    },
+    {
+      "game_key": "Houston Astros_vs_Detroit Tigers",
+      "home_team": "Detroit Tigers",
+      "away_team": "Houston Astros",
+      "home_score": 1,
+      "away_score": 0,
+      "predicted_home": 5.9,
+      "predicted_away": 5.7,
+      "predicted_total": 11.6,
+      "actual_total": 1,
+      "model_pick": "Detroit Tigers",
+      "actual_winner": "Detroit Tigers",
+      "correct_winner": true,
+      "home_err": 4.9,
+      "away_err": 5.7,
+      "total_err": 10.6,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 11.6,
+            "edge": 3.1,
+            "expected_value": 0.25,
+            "kelly_bet_size": 16.4,
+            "confidence": "HIGH",
+            "reasoning": "Model: 11.6 vs Line: 8.5"
+          },
+          "result": "loss",
+          "payout": -100
+        }
+      ]
+    },
+    {
+      "game_key": "Toronto Blue Jays_vs_Pittsburgh Pirates",
+      "home_team": "Pittsburgh Pirates",
+      "away_team": "Toronto Blue Jays",
+      "home_score": 3,
+      "away_score": 7,
+      "predicted_home": 3.8,
+      "predicted_away": 3.7,
+      "predicted_total": 7.5,
+      "actual_total": 10,
+      "model_pick": "Pittsburgh Pirates",
+      "actual_winner": "Toronto Blue Jays",
+      "correct_winner": false,
+      "home_err": 0.7999999999999998,
+      "away_err": 3.3,
+      "total_err": 2.5,
+      "bet_results": []
+    },
+    {
+      "game_key": "St. Louis Cardinals_vs_Miami Marlins",
+      "home_team": "Miami Marlins",
+      "away_team": "St. Louis Cardinals",
+      "home_score": 4,
+      "away_score": 7,
+      "predicted_home": 3.7,
+      "predicted_away": 3.5,
+      "predicted_total": 7.2,
+      "actual_total": 11,
+      "model_pick": "Miami Marlins",
+      "actual_winner": "St. Louis Cardinals",
+      "correct_winner": false,
+      "home_err": 0.2999999999999998,
+      "away_err": 3.5,
+      "total_err": 3.8,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.2,
+            "edge": 1.3,
+            "expected_value": 0.076,
+            "kelly_bet_size": 4.3,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.2 vs Line: 8.5"
+          },
+          "result": "loss",
+          "payout": -100
+        }
+      ]
+    },
+    {
+      "game_key": "New York Mets_vs_Washington Nationals",
+      "home_team": "Washington Nationals",
+      "away_team": "New York Mets",
+      "home_score": 1,
+      "away_score": 8,
+      "predicted_home": 5.1,
+      "predicted_away": 5.0,
+      "predicted_total": 10.1,
+      "actual_total": 9,
+      "model_pick": "Washington Nationals",
+      "actual_winner": "New York Mets",
+      "correct_winner": false,
+      "home_err": 4.1,
+      "away_err": 3.0,
+      "total_err": 1.0999999999999996,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 10.1,
+            "edge": 1.6,
+            "expected_value": 0.108,
+            "kelly_bet_size": 6.3,
+            "confidence": "HIGH",
+            "reasoning": "Model: 10.1 vs Line: 8.5"
+          },
+          "result": "win",
+          "payout": 90.9090909090909
+        }
+      ]
+    },
+    {
+      "game_key": "Seattle Mariners_vs_Philadelphia Phillies",
+      "home_team": "Philadelphia Phillies",
+      "away_team": "Seattle Mariners",
+      "home_score": 6,
+      "away_score": 4,
+      "predicted_home": 5.0,
+      "predicted_away": 4.6,
+      "predicted_total": 9.7,
+      "actual_total": 10,
+      "model_pick": "Philadelphia Phillies",
+      "actual_winner": "Philadelphia Phillies",
+      "correct_winner": true,
+      "home_err": 1.0,
+      "away_err": 0.5999999999999996,
+      "total_err": 0.3000000000000007,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 9.7,
+            "edge": 1.2,
+            "expected_value": 0.067,
+            "kelly_bet_size": 3.7,
+            "confidence": "HIGH",
+            "reasoning": "Model: 9.7 vs Line: 8.5"
+          },
+          "result": "win",
+          "payout": 90.9090909090909
+        }
+      ]
+    },
+    {
+      "game_key": "Baltimore Orioles_vs_Boston Red Sox",
+      "home_team": "Boston Red Sox",
+      "away_team": "Baltimore Orioles",
+      "home_score": 3,
+      "away_score": 4,
+      "predicted_home": 3.7,
+      "predicted_away": 3.4,
+      "predicted_total": 7.0,
+      "actual_total": 7,
+      "model_pick": "Boston Red Sox",
+      "actual_winner": "Baltimore Orioles",
+      "correct_winner": false,
+      "home_err": 0.7000000000000002,
+      "away_err": 0.6000000000000001,
+      "total_err": 0.0,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.0,
+            "edge": 1.5,
+            "expected_value": 0.093,
+            "kelly_bet_size": 5.3,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.0 vs Line: 8.5"
+          },
+          "result": "win",
+          "payout": 90.9090909090909
+        }
+      ]
+    },
+    {
+      "game_key": "Chicago White Sox_vs_Atlanta Braves",
+      "home_team": "Atlanta Braves",
+      "away_team": "Chicago White Sox",
+      "home_score": 11,
+      "away_score": 10,
+      "predicted_home": 3.7,
+      "predicted_away": 3.5,
+      "predicted_total": 7.2,
+      "actual_total": 21,
+      "model_pick": "Atlanta Braves",
+      "actual_winner": "Atlanta Braves",
+      "correct_winner": true,
+      "home_err": 7.3,
+      "away_err": 6.5,
+      "total_err": 13.8,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.2,
+            "edge": 1.3,
+            "expected_value": 0.082,
+            "kelly_bet_size": 4.6,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.2 vs Line: 8.5"
+          },
+          "result": "loss",
+          "payout": -100
+        }
+      ]
+    },
+    {
+      "game_key": "New York Yankees_vs_Tampa Bay Rays",
+      "home_team": "Tampa Bay Rays",
+      "away_team": "New York Yankees",
+      "home_score": 3,
+      "away_score": 13,
+      "predicted_home": 5.4,
+      "predicted_away": 5.2,
+      "predicted_total": 10.6,
+      "actual_total": 16,
+      "model_pick": "Tampa Bay Rays",
+      "actual_winner": "New York Yankees",
+      "correct_winner": false,
+      "home_err": 2.4000000000000004,
+      "away_err": 7.8,
+      "total_err": 5.4,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 10.6,
+            "edge": 2.1,
+            "expected_value": 0.152,
+            "kelly_bet_size": 9.2,
+            "confidence": "HIGH",
+            "reasoning": "Model: 10.6 vs Line: 8.5"
+          },
+          "result": "win",
+          "payout": 90.9090909090909
+        }
+      ]
+    },
+    {
+      "game_key": "Texas Rangers_vs_Kansas City Royals",
+      "home_team": "Kansas City Royals",
+      "away_team": "Texas Rangers",
+      "home_score": 5,
+      "away_score": 2,
+      "predicted_home": 4.7,
+      "predicted_away": 4.4,
+      "predicted_total": 9.2,
+      "actual_total": 7,
+      "model_pick": "Kansas City Royals",
+      "actual_winner": "Kansas City Royals",
+      "correct_winner": true,
+      "home_err": 0.2999999999999998,
+      "away_err": 2.4000000000000004,
+      "total_err": 2.1999999999999993,
+      "bet_results": []
+    },
+    {
+      "game_key": "Los Angeles Dodgers_vs_Colorado Rockies",
+      "home_team": "Colorado Rockies",
+      "away_team": "Los Angeles Dodgers",
+      "home_score": 4,
+      "away_score": 11,
+      "predicted_home": 5.1,
+      "predicted_away": 5.2,
+      "predicted_total": 10.2,
+      "actual_total": 15,
+      "model_pick": "Los Angeles Dodgers",
+      "actual_winner": "Los Angeles Dodgers",
+      "correct_winner": true,
+      "home_err": 1.0999999999999996,
+      "away_err": 5.8,
+      "total_err": 4.800000000000001,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 10.2,
+            "edge": 1.7,
+            "expected_value": 0.12,
+            "kelly_bet_size": 7.1,
+            "confidence": "HIGH",
+            "reasoning": "Model: 10.2 vs Line: 8.5"
+          },
+          "result": "win",
+          "payout": 90.9090909090909
+        }
+      ]
+    },
+    {
+      "game_key": "Cincinnati Reds_vs_Los Angeles Angels",
+      "home_team": "Los Angeles Angels",
+      "away_team": "Cincinnati Reds",
+      "home_score": 4,
+      "away_score": 6,
+      "predicted_home": 5.5,
+      "predicted_away": 5.2,
+      "predicted_total": 10.7,
+      "actual_total": 10,
+      "model_pick": "Los Angeles Angels",
+      "actual_winner": "Cincinnati Reds",
+      "correct_winner": false,
+      "home_err": 1.5,
+      "away_err": 0.7999999999999998,
+      "total_err": 0.6999999999999993,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 10.7,
+            "edge": 2.2,
+            "expected_value": 0.169,
+            "kelly_bet_size": 10.4,
+            "confidence": "HIGH",
+            "reasoning": "Model: 10.7 vs Line: 8.5"
+          },
+          "result": "win",
+          "payout": 90.9090909090909
+        }
+      ]
+    },
+    {
+      "game_key": "Cleveland Guardians_vs_Arizona Diamondbacks",
+      "home_team": "Arizona Diamondbacks",
+      "away_team": "Cleveland Guardians",
+      "home_score": 6,
+      "away_score": 5,
+      "predicted_home": 3.7,
+      "predicted_away": 3.5,
+      "predicted_total": 7.2,
+      "actual_total": 11,
+      "model_pick": "Arizona Diamondbacks",
+      "actual_winner": "Arizona Diamondbacks",
+      "correct_winner": true,
+      "home_err": 2.3,
+      "away_err": 1.5,
+      "total_err": 3.8,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.2,
+            "edge": 1.3,
+            "expected_value": 0.078,
+            "kelly_bet_size": 4.4,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.2 vs Line: 8.5"
+          },
+          "result": "loss",
+          "payout": -100
+        }
+      ]
+    },
+    {
+      "game_key": "San Francisco Giants_vs_San Diego Padres",
+      "home_team": "San Diego Padres",
+      "away_team": "San Francisco Giants",
+      "home_score": 5,
+      "away_score": 1,
+      "predicted_home": 5.2,
+      "predicted_away": 4.8,
+      "predicted_total": 10.1,
+      "actual_total": 6,
+      "model_pick": "San Diego Padres",
+      "actual_winner": "San Diego Padres",
+      "correct_winner": true,
+      "home_err": 0.20000000000000018,
+      "away_err": 3.8,
+      "total_err": 4.1,
+      "bet_results": [
+        {
+          "bet": {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 10.1,
+            "edge": 1.6,
+            "expected_value": 0.103,
+            "kelly_bet_size": 6.0,
+            "confidence": "HIGH",
+            "reasoning": "Model: 10.1 vs Line: 8.5"
+          },
+          "result": "loss",
+          "payout": -100
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "away_team": "Toronto Blue Jays",
+    "home_team": "Pittsburgh Pirates",
+    "away_score": 1,
+    "home_score": 2
+  },
+  {
+    "away_team": "Seattle Mariners",
+    "home_team": "Philadelphia Phillies",
+    "away_score": 2,
+    "home_score": 11
+  },
+  {
+    "away_team": "Houston Astros",
+    "home_team": "Detroit Tigers",
+    "away_score": 2,
+    "home_score": 7
+  },
+  {
+    "away_team": "Cleveland Guardians",
+    "home_team": "Arizona Diamondbacks",
+    "away_score": 2,
+    "home_score": 3
+  },
+  {
+    "away_team": "St. Louis Cardinals",
+    "home_team": "Miami Marlins",
+    "away_score": 2,
+    "home_score": 6
+  },
+  {
+    "away_team": "New York Mets",
+    "home_team": "Washington Nationals",
+    "away_score": 4,
+    "home_score": 5
+  },
+  {
+    "away_team": "Chicago White Sox",
+    "home_team": "Atlanta Braves",
+    "away_score": 0,
+    "home_score": 1
+  },
+  {
+    "away_team": "New York Yankees",
+    "home_team": "Tampa Bay Rays",
+    "away_score": 6,
+    "home_score": 4
+  },
+  {
+    "away_team": "Texas Rangers",
+    "home_team": "Kansas City Royals",
+    "away_score": 6,
+    "home_score": 3
+  },
+  {
+    "away_team": "Athletics",
+    "home_team": "Minnesota Twins",
+    "away_score": 4,
+    "home_score": 2
+  },
+  {
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Chicago Cubs",
+    "away_score": 3,
+    "home_score": 4
+  },
+  {
+    "away_team": "Los Angeles Dodgers",
+    "home_team": "Colorado Rockies",
+    "away_score": 3,
+    "home_score": 8
+  },
+  {
+    "away_team": "Cincinnati Reds",
+    "home_team": "Los Angeles Angels",
+    "away_score": 1,
+    "home_score": 2
+  },
+  {
+    "away_team": "San Francisco Giants",
+    "home_team": "San Diego Padres",
+    "away_score": 1,
+    "home_score": 8
+  }
+]

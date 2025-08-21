@@ -162,11 +162,9 @@ def try_odds_api():
                 lines = {}
                 for line in parsed_lines:
                     matchup_key = f"{line.get('away_team', '')} @ {line.get('home_team', '')}"
-                    # Map 'total' to 'total_runs' for output
-                    total_runs = line.get('total', {})
                     lines[matchup_key] = {
                         "moneyline": line.get('moneyline', {}),
-                        "total_runs": total_runs,
+                        "total_runs": line.get('total_runs', {}),
                         "run_line": line.get('run_line', {})
                     }
                 

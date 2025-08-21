@@ -535,9 +535,9 @@
       "overall_confidence": 0.59,
       "recommendation_quality": "MEDIUM"
     },
-    "Los Angeles Angels @ Athletics": {
+    "Los Angeles Angels @ Oakland Athletics": {
       "away_team": "Los Angeles Angels",
-      "home_team": "Athletics",
+      "home_team": "Oakland Athletics",
       "away_pitcher": "Jos\u00e9 Soriano",
       "home_pitcher": "Jeffrey Springs",
       "has_tbd_pitchers": false,
@@ -550,7 +550,7 @@
       "betting_recommendations": {
         "moneyline": {
           "pick": "home",
-          "team": "Athletics",
+          "team": "Oakland Athletics",
           "confidence": 0.59
         },
         "total_runs": {
@@ -562,7 +562,7 @@
         "value_bets": [
           {
             "type": "moneyline",
-            "recommendation": "Athletics ML",
+            "recommendation": "Oakland Oakland Oakland Athletics ML",
             "expected_value": 0.18,
             "win_probability": 0.59,
             "american_odds": 110,

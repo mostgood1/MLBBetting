@@ -1,0 +1,131 @@
+{
+  "date": "2025-08-21",
+  "generated_at": "2025-08-21T10:12:09.985851",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Oakland Oakland Athletics_vs_Minnesota Twins": {
+      "away_team": "Oakland Athletics",
+      "home_team": "Minnesota Twins",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Texas Rangers_vs_Kansas City Royals": {
+      "away_team": "Texas Rangers",
+      "home_team": "Kansas City Royals",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Milwaukee Brewers_vs_Chicago Cubs": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Los Angeles Dodgers_vs_Colorado Rockies": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Colorado Rockies",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "New York Mets_vs_Washington Nationals": {
+      "away_team": "New York Mets",
+      "home_team": "Washington Nationals",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "San Francisco Giants_vs_San Diego Padres": {
+      "away_team": "San Francisco Giants",
+      "home_team": "San Diego Padres",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Houston Astros_vs_Baltimore Orioles": {
+      "away_team": "Houston Astros",
+      "home_team": "Baltimore Orioles",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "Boston Red Sox_vs_New York Yankees": {
+      "away_team": "Boston Red Sox",
+      "home_team": "New York Yankees",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    },
+    "St. Louis Cardinals_vs_Tampa Bay Rays": {
+      "away_team": "St. Louis Cardinals",
+      "home_team": "Tampa Bay Rays",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "predicted_score": "0.0-0.0",
+      "predicted_total_runs": 0,
+      "win_probabilities": {
+        "away_prob": 0,
+        "home_prob": 0
+      },
+      "value_bets": []
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 9,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 0,
+    "high_confidence_bets": 0,
+    "medium_confidence_bets": 0
+  }
+}

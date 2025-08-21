@@ -1,0 +1,3004 @@
+{
+  "2025-08-09": {
+    "Marlins_at_Braves": {
+      "moneyline": {
+        "Braves": -106,
+        "Marlins": 93
+      },
+      "runline": [
+        {
+          "team": "Braves",
+          "point": 1.5,
+          "price": -157
+        },
+        {
+          "team": "Marlins",
+          "point": -1.5,
+          "price": 135
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.0,
+          "price": -115
+        },
+        {
+          "name": "Under",
+          "point": 8.0,
+          "price": -108
+        }
+      ]
+    },
+    "Astros_at_Yankees": {
+      "moneyline": {
+        "Yankees": -106,
+        "Astros": 93
+      },
+      "runline": [
+        {
+          "team": "Yankees",
+          "point": 1.5,
+          "price": -132
+        },
+        {
+          "team": "Astros",
+          "point": -1.5,
+          "price": 110
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.8,
+          "price": -109
+        },
+        {
+          "name": "Under",
+          "point": 8.8,
+          "price": -112
+        }
+      ]
+    },
+    "Nationals_at_Giants": {
+      "moneyline": {
+        "Giants": -106,
+        "Nationals": 93
+      },
+      "runline": [
+        {
+          "team": "Giants",
+          "point": 1.5,
+          "price": -153
+        },
+        {
+          "team": "Nationals",
+          "point": -1.5,
+          "price": 138
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 7.5,
+          "price": -110
+        },
+        {
+          "name": "Under",
+          "point": 7.5,
+          "price": -109
+        }
+      ]
+    },
+    "Angels_at_Tigers": {
+      "moneyline": {
+        "Tigers": -106,
+        "Angels": 93
+      },
+      "runline": [
+        {
+          "team": "Tigers",
+          "point": 1.5,
+          "price": -155
+        },
+        {
+          "team": "Angels",
+          "point": -1.5,
+          "price": 117
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.3,
+          "price": -109
+        },
+        {
+          "name": "Under",
+          "point": 9.3,
+          "price": -114
+        }
+      ]
+    },
+    "Reds_at_Pirates": {
+      "moneyline": {
+        "Pirates": -106,
+        "Reds": 93
+      },
+      "runline": [
+        {
+          "team": "Pirates",
+          "point": 1.5,
+          "price": -160
+        },
+        {
+          "team": "Reds",
+          "point": -1.5,
+          "price": 120
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.9,
+          "price": -111
+        },
+        {
+          "name": "Under",
+          "point": 8.9,
+          "price": -115
+        }
+      ]
+    },
+    "Royals_at_Twins": {
+      "moneyline": {
+        "Twins": -106,
+        "Royals": 93
+      },
+      "runline": [
+        {
+          "team": "Twins",
+          "point": 1.5,
+          "price": -152
+        },
+        {
+          "team": "Royals",
+          "point": -1.5,
+          "price": 128
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.2,
+          "price": -109
+        },
+        {
+          "name": "Under",
+          "point": 9.2,
+          "price": -105
+        }
+      ]
+    },
+    "Guardians_at_White Sox": {
+      "moneyline": {
+        "White Sox": -106,
+        "Guardians": 93
+      },
+      "runline": [
+        {
+          "team": "White Sox",
+          "point": 1.5,
+          "price": -151
+        },
+        {
+          "team": "Guardians",
+          "point": -1.5,
+          "price": 140
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.2,
+          "price": -113
+        },
+        {
+          "name": "Under",
+          "point": 9.2,
+          "price": -115
+        }
+      ]
+    },
+    "Mets_at_Brewers": {
+      "moneyline": {
+        "Brewers": -106,
+        "Mets": 93
+      },
+      "runline": [
+        {
+          "team": "Brewers",
+          "point": 1.5,
+          "price": -136
+        },
+        {
+          "team": "Mets",
+          "point": -1.5,
+          "price": 128
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.8,
+          "price": -112
+        },
+        {
+          "name": "Under",
+          "point": 8.8,
+          "price": -106
+        }
+      ]
+    },
+    "Cubs_at_Cardinals": {
+      "moneyline": {
+        "Cardinals": -106,
+        "Cubs": 93
+      },
+      "runline": [
+        {
+          "team": "Cardinals",
+          "point": 1.5,
+          "price": -147
+        },
+        {
+          "team": "Cubs",
+          "point": -1.5,
+          "price": 133
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.0,
+          "price": -112
+        },
+        {
+          "name": "Under",
+          "point": 9.0,
+          "price": -115
+        }
+      ]
+    },
+    "Phillies_at_Rangers": {
+      "moneyline": {
+        "Rangers": -106,
+        "Phillies": 93
+      },
+      "runline": [
+        {
+          "team": "Rangers",
+          "point": 1.5,
+          "price": -152
+        },
+        {
+          "team": "Phillies",
+          "point": -1.5,
+          "price": 111
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.5,
+          "price": -111
+        },
+        {
+          "name": "Under",
+          "point": 9.5,
+          "price": -105
+        }
+      ]
+    },
+    "Rockies_at_Diamondbacks": {
+      "moneyline": {
+        "Diamondbacks": -106,
+        "Rockies": 93
+      },
+      "runline": [
+        {
+          "team": "Diamondbacks",
+          "point": 1.5,
+          "price": -135
+        },
+        {
+          "team": "Rockies",
+          "point": -1.5,
+          "price": 136
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 7.5,
+          "price": -107
+        },
+        {
+          "name": "Under",
+          "point": 7.5,
+          "price": -114
+        }
+      ]
+    },
+    "Red Sox_at_Padres": {
+      "moneyline": {
+        "Padres": -106,
+        "Red Sox": 93
+      },
+      "runline": [
+        {
+          "team": "Padres",
+          "point": 1.5,
+          "price": -145
+        },
+        {
+          "team": "Red Sox",
+          "point": -1.5,
+          "price": 127
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 7.7,
+          "price": -106
+        },
+        {
+          "name": "Under",
+          "point": 7.7,
+          "price": -115
+        }
+      ]
+    },
+    "Blue Jays_at_Dodgers": {
+      "moneyline": {
+        "Dodgers": -106,
+        "Blue Jays": 93
+      },
+      "runline": [
+        {
+          "team": "Dodgers",
+          "point": 1.5,
+          "price": -130
+        },
+        {
+          "team": "Blue Jays",
+          "point": -1.5,
+          "price": 128
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.3,
+          "price": -107
+        },
+        {
+          "name": "Under",
+          "point": 8.3,
+          "price": -115
+        }
+      ]
+    },
+    "Rays_at_Mariners": {
+      "moneyline": {
+        "Mariners": -106,
+        "Rays": 93
+      },
+      "runline": [
+        {
+          "team": "Mariners",
+          "point": 1.5,
+          "price": -138
+        },
+        {
+          "team": "Rays",
+          "point": -1.5,
+          "price": 130
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.8,
+          "price": -105
+        },
+        {
+          "name": "Under",
+          "point": 8.8,
+          "price": -113
+        }
+      ]
+    }
+  },
+  "2025-08-07": {
+    "ATH@WSN": {
+      "away_team": "ATH",
+      "home_team": "WSN",
+      "moneyline": {
+        "away": -130,
+        "home": 110
+      },
+      "spread": {
+        "away": -1.5,
+        "home": 1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 5.5,
+        "under": 5.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-07T19:00:00Z",
+      "game_id": "776837"
+    },
+    "CWS@SEA": {
+      "away_team": "CWS",
+      "home_team": "SEA",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 6.5,
+        "under": 6.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-07T19:00:00Z",
+      "game_id": "776830"
+    },
+    "CIN@PIT": {
+      "away_team": "CIN",
+      "home_team": "PIT",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 6.5,
+        "under": 6.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-07T19:00:00Z",
+      "game_id": "776840"
+    },
+    "MIA@ATL": {
+      "away_team": "MIA",
+      "home_team": "ATL",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 13.5,
+        "under": 13.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-07T19:00:00Z",
+      "game_id": "776842"
+    }
+  },
+  "2025-08-08": {
+    "CIN@PIT": {
+      "away_team": "CIN",
+      "home_team": "PIT",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 4.5,
+        "under": 4.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776829"
+    },
+    "ATH@BAL": {
+      "away_team": "ATH",
+      "home_team": "BAL",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 4.5,
+        "under": 4.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776831"
+    },
+    "HOU@NYY": {
+      "away_team": "HOU",
+      "home_team": "NYY",
+      "moneyline": {
+        "away": -130,
+        "home": 110
+      },
+      "spread": {
+        "away": -1.5,
+        "home": 1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 7.5,
+        "under": 7.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776835"
+    },
+    "LAA@DET": {
+      "away_team": "LAA",
+      "home_team": "DET",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 10.5,
+        "under": 10.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776832"
+    },
+    "MIA@ATL": {
+      "away_team": "MIA",
+      "home_team": "ATL",
+      "moneyline": {
+        "away": -130,
+        "home": 110
+      },
+      "spread": {
+        "away": -1.5,
+        "home": 1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 5.5,
+        "under": 5.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776834"
+    },
+    "CLE@CWS": {
+      "away_team": "CLE",
+      "home_team": "CWS",
+      "moneyline": {
+        "away": -130,
+        "home": 110
+      },
+      "spread": {
+        "away": -1.5,
+        "home": 1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 13.5,
+        "under": 13.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776833"
+    },
+    "PHI@TEX": {
+      "away_team": "PHI",
+      "home_team": "TEX",
+      "moneyline": {
+        "away": -130,
+        "home": 110
+      },
+      "spread": {
+        "away": -1.5,
+        "home": 1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 9.5,
+        "under": 9.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776821"
+    },
+    "KC@MIN": {
+      "away_team": "KC",
+      "home_team": "MIN",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 12.5,
+        "under": 12.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776827"
+    },
+    "NYM@MIL": {
+      "away_team": "NYM",
+      "home_team": "MIL",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 4.5,
+        "under": 4.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776828"
+    },
+    "CHC@STL": {
+      "away_team": "CHC",
+      "home_team": "STL",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 4.5,
+        "under": 4.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776826"
+    },
+    "COL@ARI": {
+      "away_team": "COL",
+      "home_team": "ARI",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 6.5,
+        "under": 6.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776825"
+    },
+    "BOS@SD": {
+      "away_team": "BOS",
+      "home_team": "SD",
+      "moneyline": {
+        "away": -130,
+        "home": 110
+      },
+      "spread": {
+        "away": -1.5,
+        "home": 1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 11.5,
+        "under": 11.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776820"
+    },
+    "TB@SEA": {
+      "away_team": "TB",
+      "home_team": "SEA",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 4.5,
+        "under": 4.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776824"
+    },
+    "TOR@LAD": {
+      "away_team": "TOR",
+      "home_team": "LAD",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 5.5,
+        "under": 5.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776823"
+    },
+    "WSN@SF": {
+      "away_team": "WSN",
+      "home_team": "SF",
+      "moneyline": {
+        "away": 115,
+        "home": -135
+      },
+      "spread": {
+        "away": 1.5,
+        "home": -1.5,
+        "away_odds": -110,
+        "home_odds": -110
+      },
+      "total": {
+        "over": 4.5,
+        "under": 4.5,
+        "over_odds": -110,
+        "under_odds": -110
+      },
+      "source": "mock_data",
+      "closing_time": "2025-08-08T19:00:00Z",
+      "game_id": "776822"
+    }
+  },
+  "2025-08-12": {
+    "Arizona_Diamondbacks_at_Texas_Rangers": {
+      "moneyline": {
+        "Rangers": -165,
+        "Diamondbacks": 130
+      },
+      "runline": [
+        {
+          "team": "Rangers",
+          "point": -1.5,
+          "price": 132
+        },
+        {
+          "team": "Diamondbacks",
+          "point": 1.5,
+          "price": -175
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.0,
+          "price": -113
+        },
+        {
+          "name": "Under",
+          "point": 8.0,
+          "price": -113
+        }
+      ]
+    },
+    "Boston_Red_Sox_at_Houston_Astros": {
+      "moneyline": {
+        "Astros": -190,
+        "Red Sox": 145
+      },
+      "runline": [
+        {
+          "team": "Astros",
+          "point": -1.5,
+          "price": 118
+        },
+        {
+          "team": "Red Sox",
+          "point": 1.5,
+          "price": -152
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.0,
+          "price": -105
+        },
+        {
+          "name": "Under",
+          "point": 8.0,
+          "price": -122
+        }
+      ]
+    },
+    "Colorado_Rockies_at_St._Louis_Cardinals": {
+      "moneyline": {
+        "Cardinals": -240,
+        "Rockies": 180
+      },
+      "runline": [
+        {
+          "team": "Cardinals",
+          "point": -1.5,
+          "price": -104
+        },
+        {
+          "team": "Rockies",
+          "point": 1.5,
+          "price": -122
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.0,
+          "price": -103
+        },
+        {
+          "name": "Under",
+          "point": 9.0,
+          "price": -124
+        }
+      ]
+    },
+    "Detroit_Tigers_at_Chicago_White_Sox": {
+      "moneyline": {
+        "White Sox": -10000,
+        "Tigers": 1450
+      },
+      "runline": [
+        {
+          "team": "White Sox",
+          "point": -4.5,
+          "price": -121
+        },
+        {
+          "team": "Tigers",
+          "point": 4.5,
+          "price": -114
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.0,
+          "price": -125
+        },
+        {
+          "name": "Under",
+          "point": 9.0,
+          "price": -112
+        }
+      ]
+    },
+    "Los_Angeles_Dodgers_at_Los_Angeles_Angels": {
+      "moneyline": {
+        "Angels": 175,
+        "Dodgers": -230
+      },
+      "runline": [
+        {
+          "team": "Angels",
+          "point": -1.5,
+          "price": 108
+        },
+        {
+          "team": "Dodgers",
+          "point": 1.5,
+          "price": -137
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.0,
+          "price": -120
+        },
+        {
+          "name": "Under",
+          "point": 9.0,
+          "price": -106
+        }
+      ]
+    },
+    "San_Diego_Padres_at_San_Francisco_Giants": {
+      "moneyline": {
+        "Giants": 134,
+        "Padres": -159
+      },
+      "runline": [
+        {
+          "team": "Giants",
+          "point": -1.5,
+          "price": -134
+        },
+        {
+          "team": "Padres",
+          "point": 1.5,
+          "price": 105
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.0,
+          "price": -112
+        },
+        {
+          "name": "Under",
+          "point": 8.0,
+          "price": -113
+        }
+      ]
+    },
+    "Tampa_Bay_Rays_at_Oakland_Athletics": {
+      "moneyline": {
+        "Athletics": 108,
+        "Rays": -136
+      },
+      "runline": [
+        {
+          "team": "Athletics",
+          "point": -1.5,
+          "price": -143
+        },
+        {
+          "team": "Rays",
+          "point": 1.5,
+          "price": 114
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.5,
+          "price": -115
+        },
+        {
+          "name": "Under",
+          "point": 9.5,
+          "price": -110
+        }
+      ]
+    },
+    "Washington_Nationals_at_Kansas_City_Royals": {
+      "moneyline": {
+        "Royals": -177,
+        "Nationals": 156
+      },
+      "runline": [
+        {
+          "team": "Royals",
+          "point": -1.5,
+          "price": 115
+        },
+        {
+          "team": "Nationals",
+          "point": 1.5,
+          "price": -135
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.0,
+          "price": 105
+        },
+        {
+          "name": "Under",
+          "point": 9.0,
+          "price": -125
+        }
+      ]
+    },
+    "Pittsburgh_Pirates_at_Milwaukee_Brewers": {
+      "moneyline": {
+        "Brewers": -210,
+        "Pirates": 160
+      },
+      "runline": [
+        {
+          "team": "Brewers",
+          "point": -1.5,
+          "price": 112
+        },
+        {
+          "team": "Pirates",
+          "point": 1.5,
+          "price": -141
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 7.5,
+          "price": -117
+        },
+        {
+          "name": "Under",
+          "point": 7.5,
+          "price": -109
+        }
+      ]
+    },
+    "Philadelphia_Phillies_at_Cincinnati_Reds": {
+      "moneyline": {
+        "Reds": 118,
+        "Phillies": -157
+      },
+      "runline": [
+        {
+          "team": "Reds",
+          "point": -1.5,
+          "price": -139
+        },
+        {
+          "team": "Phillies",
+          "point": 1.5,
+          "price": 110
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.5,
+          "price": -106
+        },
+        {
+          "name": "Under",
+          "point": 8.5,
+          "price": -120
+        }
+      ]
+    },
+    "Seattle_Mariners_at_Baltimore_Orioles": {
+      "moneyline": {
+        "Orioles": 123,
+        "Mariners": -157
+      },
+      "runline": [
+        {
+          "team": "Orioles",
+          "point": -1.5,
+          "price": -132
+        },
+        {
+          "team": "Mariners",
+          "point": 1.5,
+          "price": 104
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.5,
+          "price": -118
+        },
+        {
+          "name": "Under",
+          "point": 8.5,
+          "price": -108
+        }
+      ]
+    },
+    "Miami_Marlins_at_Cleveland_Guardians": {
+      "moneyline": {
+        "Guardians": -139,
+        "Marlins": 110
+      },
+      "runline": [
+        {
+          "team": "Guardians",
+          "point": -1.5,
+          "price": 160
+        },
+        {
+          "team": "Marlins",
+          "point": 1.5,
+          "price": -215
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.0,
+          "price": -105
+        },
+        {
+          "name": "Under",
+          "point": 8.0,
+          "price": -121
+        }
+      ]
+    },
+    "Minnesota_Twins_at_New_York_Yankees": {
+      "moneyline": {
+        "Yankees": -137,
+        "Twins": 108
+      },
+      "runline": [
+        {
+          "team": "Yankees",
+          "point": -1.5,
+          "price": 145
+        },
+        {
+          "team": "Twins",
+          "point": 1.5,
+          "price": -195
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.5,
+          "price": -124
+        },
+        {
+          "name": "Under",
+          "point": 8.5,
+          "price": -104
+        }
+      ]
+    },
+    "Chicago_Cubs_at_Toronto_Blue_Jays": {
+      "moneyline": {
+        "Blue Jays": -127,
+        "Cubs": 100
+      },
+      "runline": [
+        {
+          "team": "Blue Jays",
+          "point": -1.5,
+          "price": -215
+        },
+        {
+          "team": "Cubs",
+          "point": 1.5,
+          "price": 160
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.5,
+          "price": -120
+        },
+        {
+          "name": "Under",
+          "point": 8.5,
+          "price": -106
+        }
+      ]
+    },
+    "Atlanta_Braves_at_New_York_Mets": {
+      "moneyline": {
+        "Mets": -215,
+        "Braves": 165
+      },
+      "runline": [
+        {
+          "team": "Mets",
+          "point": -1.5,
+          "price": -104
+        },
+        {
+          "team": "Braves",
+          "point": 1.5,
+          "price": -122
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.5,
+          "price": -125
+        },
+        {
+          "name": "Under",
+          "point": 8.5,
+          "price": -103
+        }
+      ]
+    }
+  },
+  "2025-08-10": {
+    "2025081001": {
+      "game_id": "2025081001",
+      "home_team": "LAD",
+      "away_team": "SF",
+      "game_date": "2025-08-10",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "SF": -117,
+          "LAD": 111
+        },
+        "run_line": {
+          "line": 1.5,
+          "SF": -110,
+          "LAD": 100
+        },
+        "total": {
+          "line": 10.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081002": {
+      "game_id": "2025081002",
+      "home_team": "NYY",
+      "away_team": "BAL",
+      "game_date": "2025-08-10",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "NYY": -124,
+          "BAL": 122
+        },
+        "run_line": {
+          "line": 1.5,
+          "NYY": -110,
+          "BAL": 100
+        },
+        "total": {
+          "line": 9.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081003": {
+      "game_id": "2025081003",
+      "home_team": "HOU",
+      "away_team": "SEA",
+      "game_date": "2025-08-10",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "SEA": -131,
+          "HOU": 133
+        },
+        "run_line": {
+          "line": 1.5,
+          "SEA": -110,
+          "HOU": 100
+        },
+        "total": {
+          "line": 8.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081004": {
+      "game_id": "776803",
+      "home_team": "ATL",
+      "away_team": "MIA",
+      "game_date": "2025-08-10",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "ATL": -138,
+          "MIA": 144
+        },
+        "run_line": {
+          "line": 1.5,
+          "ATL": -110,
+          "MIA": 100
+        },
+        "total": {
+          "line": 7.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081005": {
+      "game_id": "2025081005",
+      "home_team": "PHI",
+      "away_team": "WAS",
+      "game_date": "2025-08-10",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "WAS": -145,
+          "PHI": 155
+        },
+        "run_line": {
+          "line": 1.5,
+          "WAS": -110,
+          "PHI": 100
+        },
+        "total": {
+          "line": 10.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081006": {
+      "game_id": "2025081006",
+      "home_team": "SD",
+      "away_team": "AZ",
+      "game_date": "2025-08-10",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "SD": -152,
+          "AZ": 166
+        },
+        "run_line": {
+          "line": 1.5,
+          "SD": -110,
+          "AZ": 100
+        },
+        "total": {
+          "line": 9.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081007": {
+      "game_id": "2025081007",
+      "home_team": "NYM",
+      "away_team": "TB",
+      "game_date": "2025-08-10",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "TB": -159,
+          "NYM": 177
+        },
+        "run_line": {
+          "line": 1.5,
+          "TB": -110,
+          "NYM": 100
+        },
+        "total": {
+          "line": 8.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081008": {
+      "game_id": "2025081008",
+      "home_team": "BOS",
+      "away_team": "TOR",
+      "game_date": "2025-08-10",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "BOS": -166,
+          "TOR": 188
+        },
+        "run_line": {
+          "line": 1.5,
+          "BOS": -110,
+          "TOR": 100
+        },
+        "total": {
+          "line": 7.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081009": {
+      "game_id": "2025081009",
+      "home_team": "CHC",
+      "away_team": "CIN",
+      "game_date": "2025-08-10",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "CIN": -173,
+          "CHC": 199
+        },
+        "run_line": {
+          "line": 1.5,
+          "CIN": -110,
+          "CHC": 100
+        },
+        "total": {
+          "line": 10.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081010": {
+      "game_id": "2025081010",
+      "home_team": "MIN",
+      "away_team": "CLE",
+      "game_date": "2025-08-10",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "MIN": -180,
+          "CLE": 110
+        },
+        "run_line": {
+          "line": 1.5,
+          "MIN": -110,
+          "CLE": 100
+        },
+        "total": {
+          "line": 9.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    }
+  },
+  "2025-08-11": {
+    "2025081101": {
+      "game_id": "2025081101",
+      "home_team": "LAD",
+      "away_team": "SF",
+      "game_date": "2025-08-11",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "SF": -117,
+          "LAD": 111
+        },
+        "run_line": {
+          "line": 1.5,
+          "SF": -110,
+          "LAD": 100
+        },
+        "total": {
+          "line": 10.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081102": {
+      "game_id": "2025081102",
+      "home_team": "NYY",
+      "away_team": "BAL",
+      "game_date": "2025-08-11",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "NYY": -124,
+          "BAL": 122
+        },
+        "run_line": {
+          "line": 1.5,
+          "NYY": -110,
+          "BAL": 100
+        },
+        "total": {
+          "line": 9.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081103": {
+      "game_id": "2025081103",
+      "home_team": "HOU",
+      "away_team": "SEA",
+      "game_date": "2025-08-11",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "SEA": -131,
+          "HOU": 133
+        },
+        "run_line": {
+          "line": 1.5,
+          "SEA": -110,
+          "HOU": 100
+        },
+        "total": {
+          "line": 8.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081104": {
+      "game_id": "2025081104",
+      "home_team": "ATL",
+      "away_team": "MIA",
+      "game_date": "2025-08-11",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "ATL": -138,
+          "MIA": 144
+        },
+        "run_line": {
+          "line": 1.5,
+          "ATL": -110,
+          "MIA": 100
+        },
+        "total": {
+          "line": 7.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081105": {
+      "game_id": "2025081105",
+      "home_team": "PHI",
+      "away_team": "WAS",
+      "game_date": "2025-08-11",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "WAS": -145,
+          "PHI": 155
+        },
+        "run_line": {
+          "line": 1.5,
+          "WAS": -110,
+          "PHI": 100
+        },
+        "total": {
+          "line": 10.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081106": {
+      "game_id": "2025081106",
+      "home_team": "SD",
+      "away_team": "AZ",
+      "game_date": "2025-08-11",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "SD": -152,
+          "AZ": 166
+        },
+        "run_line": {
+          "line": 1.5,
+          "SD": -110,
+          "AZ": 100
+        },
+        "total": {
+          "line": 9.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081107": {
+      "game_id": "2025081107",
+      "home_team": "NYM",
+      "away_team": "TB",
+      "game_date": "2025-08-11",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "TB": -159,
+          "NYM": 177
+        },
+        "run_line": {
+          "line": 1.5,
+          "TB": -110,
+          "NYM": 100
+        },
+        "total": {
+          "line": 8.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081108": {
+      "game_id": "2025081108",
+      "home_team": "BOS",
+      "away_team": "TOR",
+      "game_date": "2025-08-11",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "BOS": -166,
+          "TOR": 188
+        },
+        "run_line": {
+          "line": 1.5,
+          "BOS": -110,
+          "TOR": 100
+        },
+        "total": {
+          "line": 7.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081109": {
+      "game_id": "2025081109",
+      "home_team": "CHC",
+      "away_team": "CIN",
+      "game_date": "2025-08-11",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "CIN": -173,
+          "CHC": 199
+        },
+        "run_line": {
+          "line": 1.5,
+          "CIN": -110,
+          "CHC": 100
+        },
+        "total": {
+          "line": 10.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    },
+    "2025081110": {
+      "game_id": "2025081110",
+      "home_team": "MIN",
+      "away_team": "CLE",
+      "game_date": "2025-08-11",
+      "closing": true,
+      "lines": {
+        "moneyline": {
+          "MIN": -180,
+          "CLE": 110
+        },
+        "run_line": {
+          "line": 1.5,
+          "MIN": -110,
+          "CLE": 100
+        },
+        "total": {
+          "line": 9.5,
+          "over": -110,
+          "under": -110
+        }
+      },
+      "source": "randomly_generated"
+    }
+  },
+  "2025-08-13": {
+    "Washington_Nationals_at_Kansas_City_Royals": {
+      "moneyline": {
+        "Royals": 210,
+        "Nationals": -275
+      },
+      "runline": [
+        {
+          "team": "Royals",
+          "point": -2.5,
+          "price": -120
+        },
+        {
+          "team": "Nationals",
+          "point": 2.5,
+          "price": -105
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 14.5,
+          "price": -130
+        },
+        {
+          "name": "Under",
+          "point": 14.5,
+          "price": 100
+        }
+      ]
+    },
+    "Detroit_Tigers_at_Chicago_White_Sox": {
+      "moneyline": {
+        "White Sox": 118,
+        "Tigers": -150
+      },
+      "runline": [
+        {
+          "team": "White Sox",
+          "point": -1.5,
+          "price": -175
+        },
+        {
+          "team": "Tigers",
+          "point": 1.5,
+          "price": 135
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 5.5,
+          "price": 110
+        },
+        {
+          "name": "Under",
+          "point": 5.5,
+          "price": -140
+        }
+      ]
+    },
+    "Pittsburgh_Pirates_at_Milwaukee_Brewers": {
+      "moneyline": {
+        "Brewers": -295,
+        "Pirates": 200
+      },
+      "runline": [
+        {
+          "team": "Brewers",
+          "point": -1.5,
+          "price": 105
+        },
+        {
+          "team": "Pirates",
+          "point": 1.5,
+          "price": -148
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 5.5,
+          "price": -103
+        },
+        {
+          "name": "Under",
+          "point": 5.5,
+          "price": -137
+        }
+      ]
+    },
+    "Colorado_Rockies_at_St._Louis_Cardinals": {
+      "moneyline": {
+        "Cardinals": -250,
+        "Rockies": 180
+      },
+      "runline": [
+        {
+          "team": "Cardinals",
+          "point": -1.5,
+          "price": 106
+        },
+        {
+          "team": "Rockies",
+          "point": 1.5,
+          "price": -143
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 6.5,
+          "price": -130
+        },
+        {
+          "name": "Under",
+          "point": 6.5,
+          "price": -108
+        }
+      ]
+    },
+    "Arizona_Diamondbacks_at_Texas_Rangers": {
+      "moneyline": {
+        "Rangers": -275,
+        "Diamondbacks": 185
+      },
+      "runline": [
+        {
+          "team": "Rangers",
+          "point": -1.5,
+          "price": -114
+        },
+        {
+          "team": "Diamondbacks",
+          "point": 1.5,
+          "price": -121
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 7.5,
+          "price": -125
+        },
+        {
+          "name": "Under",
+          "point": 7.5,
+          "price": -113
+        }
+      ]
+    },
+    "San_Diego_Padres_at_San_Francisco_Giants": {
+      "moneyline": {
+        "Giants": 126,
+        "Padres": -140
+      },
+      "runline": [
+        {
+          "team": "Giants",
+          "point": -1.5,
+          "price": -130
+        },
+        {
+          "team": "Padres",
+          "point": 1.5,
+          "price": 110
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.0,
+          "price": -105
+        },
+        {
+          "name": "Under",
+          "point": 8.0,
+          "price": -115
+        }
+      ]
+    },
+    "Philadelphia_Phillies_at_Cincinnati_Reds": {
+      "moneyline": {
+        "Reds": 102,
+        "Phillies": -122
+      },
+      "runline": [
+        {
+          "team": "Reds",
+          "point": -1.5,
+          "price": -165
+        },
+        {
+          "team": "Phillies",
+          "point": 1.5,
+          "price": 132
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.5,
+          "price": -107
+        },
+        {
+          "name": "Under",
+          "point": 8.5,
+          "price": -115
+        }
+      ]
+    },
+    "Seattle_Mariners_at_Baltimore_Orioles": {
+      "moneyline": {
+        "Orioles": 113,
+        "Mariners": -125
+      },
+      "runline": [
+        {
+          "team": "Orioles",
+          "point": -1.5,
+          "price": -140
+        },
+        {
+          "team": "Mariners",
+          "point": 1.5,
+          "price": 120
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.5,
+          "price": -105
+        },
+        {
+          "name": "Under",
+          "point": 9.5,
+          "price": -115
+        }
+      ]
+    },
+    "Miami_Marlins_at_Cleveland_Guardians": {
+      "moneyline": {
+        "Guardians": -123,
+        "Marlins": 112
+      },
+      "runline": [
+        {
+          "team": "Guardians",
+          "point": -1.5,
+          "price": 155
+        },
+        {
+          "team": "Marlins",
+          "point": 1.5,
+          "price": -190
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 7.5,
+          "price": -115
+        },
+        {
+          "name": "Under",
+          "point": 7.5,
+          "price": -105
+        }
+      ]
+    },
+    "Minnesota_Twins_at_New_York_Yankees": {
+      "moneyline": {
+        "Yankees": -152,
+        "Twins": 125
+      },
+      "runline": [
+        {
+          "team": "Yankees",
+          "point": -1.5,
+          "price": 132
+        },
+        {
+          "team": "Twins",
+          "point": 1.5,
+          "price": -165
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.5,
+          "price": -113
+        },
+        {
+          "name": "Under",
+          "point": 8.5,
+          "price": -108
+        }
+      ]
+    },
+    "Chicago_Cubs_at_Toronto_Blue_Jays": {
+      "moneyline": {
+        "Blue Jays": 100,
+        "Cubs": -110
+      },
+      "runline": [
+        {
+          "team": "Blue Jays",
+          "point": -1.5,
+          "price": -150
+        },
+        {
+          "team": "Cubs",
+          "point": 1.5,
+          "price": 130
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.5,
+          "price": -105
+        },
+        {
+          "name": "Under",
+          "point": 8.5,
+          "price": -115
+        }
+      ]
+    },
+    "Atlanta_Braves_at_New_York_Mets": {
+      "moneyline": {
+        "Mets": -185,
+        "Braves": 167
+      },
+      "runline": [
+        {
+          "team": "Mets",
+          "point": -1.5,
+          "price": -105
+        },
+        {
+          "team": "Braves",
+          "point": 1.5,
+          "price": -115
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.5,
+          "price": -110
+        },
+        {
+          "name": "Under",
+          "point": 8.5,
+          "price": -110
+        }
+      ]
+    },
+    "Boston_Red_Sox_at_Houston_Astros": {
+      "moneyline": {
+        "Astros": -175,
+        "Red Sox": 143
+      },
+      "runline": [
+        {
+          "team": "Astros",
+          "point": -1.5,
+          "price": 130
+        },
+        {
+          "team": "Red Sox",
+          "point": 1.5,
+          "price": -159
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 8.0,
+          "price": -113
+        },
+        {
+          "name": "Under",
+          "point": 8.0,
+          "price": -109
+        }
+      ]
+    },
+    "Los_Angeles_Dodgers_at_Los_Angeles_Angels": {
+      "moneyline": {
+        "Angels": 170,
+        "Dodgers": -210
+      },
+      "runline": [
+        {
+          "team": "Angels",
+          "point": -1.5,
+          "price": 106
+        },
+        {
+          "team": "Dodgers",
+          "point": 1.5,
+          "price": -130
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.5,
+          "price": -107
+        },
+        {
+          "name": "Under",
+          "point": 9.5,
+          "price": -114
+        }
+      ]
+    },
+    "Tampa_Bay_Rays_at_Oakland_Athletics": {
+      "moneyline": {
+        "Athletics": 114,
+        "Rays": -137
+      },
+      "runline": [
+        {
+          "team": "Athletics",
+          "point": -1.5,
+          "price": -137
+        },
+        {
+          "team": "Rays",
+          "point": 1.5,
+          "price": 110
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 9.5,
+          "price": -106
+        },
+        {
+          "name": "Under",
+          "point": 9.5,
+          "price": -117
+        }
+      ]
+    },
+    "Arizona_Diamondbacks_at_Colorado_Rockies": {
+      "moneyline": {
+        "Rockies": 155,
+        "Diamondbacks": -172
+      },
+      "runline": [
+        {
+          "team": "Rockies",
+          "point": -1.5,
+          "price": -105
+        },
+        {
+          "team": "Diamondbacks",
+          "point": 1.5,
+          "price": -115
+        }
+      ],
+      "total": [
+        {
+          "name": "Over",
+          "point": 11.5,
+          "price": -125
+        },
+        {
+          "name": "Under",
+          "point": 11.5,
+          "price": 105
+        }
+      ]
+    }
+  },
+  "2025-08-14": {
+    "odds_api_2025-08-14_776750": {
+      "game_id": "776750",
+      "away_team": "Seattle Mariners",
+      "home_team": "Baltimore Orioles",
+      "moneyline": {
+        "away": -127,
+        "home": 106
+      },
+      "spread": {
+        "away": {
+          "line": -1.5,
+          "odds": 120
+        },
+        "home": {
+          "line": 1.5,
+          "odds": -150
+        }
+      },
+      "total": {
+        "value": 9.5,
+        "over": -108,
+        "under": -114
+      },
+      "source": "OddsAPI",
+      "timestamp": "2025-08-14T10:11:24.270204"
+    },
+    "odds_api_2025-08-14_776747": {
+      "game_id": "776747",
+      "away_team": "Chicago Cubs",
+      "home_team": "Toronto Blue Jays",
+      "moneyline": {
+        "away": -112,
+        "home": -110
+      },
+      "spread": {
+        "away": {
+          "line": -1.5,
+          "odds": 150
+        },
+        "home": {
+          "line": 1.5,
+          "odds": -195
+        }
+      },
+      "total": {
+        "value": 8.0,
+        "over": -112,
+        "under": -109
+      },
+      "source": "OddsAPI",
+      "timestamp": "2025-08-14T10:11:24.270204"
+    },
+    "odds_api_2025-08-14_776745": {
+      "game_id": "776745",
+      "away_team": "Miami Marlins",
+      "home_team": "Cleveland Guardians",
+      "moneyline": {
+        "away": 107,
+        "home": -127
+      },
+      "spread": {
+        "away": {
+          "line": -1.5,
+          "odds": 170
+        },
+        "home": {
+          "line": 1.5,
+          "odds": -225
+        }
+      },
+      "total": {
+        "value": 7.5,
+        "over": -108,
+        "under": -114
+      },
+      "source": "OddsAPI",
+      "timestamp": "2025-08-14T10:11:24.273208"
+    },
+    "odds_api_2025-08-14_776743": {
+      "game_id": "776743",
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Washington Nationals",
+      "moneyline": {
+        "away": -200,
+        "home": 165
+      },
+      "spread": {
+        "away": {
+          "line": -1.5,
+          "odds": -125
+        },
+        "home": {
+          "line": 1.5,
+          "odds": 105
+        }
+      },
+      "total": {
+        "value": 9.0,
+        "over": 100,
+        "under": -120
+      },
+      "source": "OddsAPI",
+      "timestamp": "2025-08-14T10:11:24.273208"
+    },
+    "odds_api_2025-08-14_776748": {
+      "game_id": "776748",
+      "away_team": "Atlanta Braves",
+      "home_team": "New York Mets",
+      "moneyline": {
+        "away": 160,
+        "home": -195
+      },
+      "spread": {
+        "away": {
+          "line": 1.5,
+          "odds": -129
+        },
+        "home": {
+          "line": -1.5,
+          "odds": 104
+        }
+      },
+      "total": {
+        "value": 9.0,
+        "over": -104,
+        "under": -120
+      },
+      "source": "OddsAPI",
+      "timestamp": "2025-08-14T10:11:24.274584"
+    },
+    "odds_api_2025-08-14_776744": {
+      "game_id": "776744",
+      "away_team": "Detroit Tigers",
+      "home_team": "Minnesota Twins",
+      "moneyline": {
+        "away": -204,
+        "home": 167
+      },
+      "spread": {
+        "away": {
+          "line": -1.5,
+          "odds": -120
+        },
+        "home": {
+          "line": 1.5,
+          "odds": 100
+        }
+      },
+      "total": {
+        "value": 7.5,
+        "over": 100,
+        "under": -120
+      },
+      "source": "OddsAPI",
+      "timestamp": "2025-08-14T10:11:24.274584"
+    }
+  },
+  "2025-08-16": {
+    "776719": {
+      "away_team": "Pittsburgh Pirates",
+      "home_team": "Chicago Cubs",
+      "home_ml": -220,
+      "away_ml": 184,
+      "home_spread": -1.5,
+      "home_spread_odds": -110,
+      "away_spread": 1.5,
+      "away_spread_odds": -110,
+      "over": 8.5,
+      "over_odds": -118,
+      "under": 8.5,
+      "under_odds": -104,
+      "game_id": "776719"
+    },
+    "776723": {
+      "away_team": "Texas Rangers",
+      "home_team": "Toronto Blue Jays",
+      "away_ml": 134,
+      "home_ml": -158,
+      "away_spread": 1.5,
+      "away_spread_odds": -156,
+      "home_spread": -1.5,
+      "home_spread_odds": 130,
+      "over": 8.5,
+      "over_odds": -122,
+      "under": 8.5,
+      "under_odds": 100,
+      "game_id": "776723"
+    },
+    "776725": {
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Washington Nationals",
+      "away_ml": -142,
+      "home_ml": 120,
+      "away_spread": -1.5,
+      "away_spread_odds": 114,
+      "home_spread": 1.5,
+      "home_spread_odds": -137,
+      "over": 9.5,
+      "over_odds": -118,
+      "under": 9.5,
+      "under_odds": -104,
+      "game_id": "776725"
+    },
+    "776724": {
+      "away_team": "Miami Marlins",
+      "home_team": "Boston Red Sox",
+      "home_ml": -180,
+      "away_ml": 152,
+      "home_spread": -1.5,
+      "home_spread_odds": 112,
+      "away_spread": 1.5,
+      "away_spread_odds": -134,
+      "over": 9.0,
+      "over_odds": -112,
+      "under": 9.0,
+      "under_odds": -108,
+      "game_id": "776724"
+    },
+    "776726": {
+      "away_team": "Seattle Mariners",
+      "home_team": "New York Mets",
+      "home_ml": -104,
+      "away_ml": -112,
+      "home_spread": 1.5,
+      "home_spread_odds": -176,
+      "away_spread": -1.5,
+      "away_spread_odds": 146,
+      "over": 8.5,
+      "over_odds": -110,
+      "under": 8.5,
+      "under_odds": -110,
+      "game_id": "776726"
+    },
+    "776721": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Cincinnati Reds",
+      "home_ml": 108,
+      "away_ml": -126,
+      "home_spread": 1.5,
+      "home_spread_odds": -152,
+      "away_spread": -1.5,
+      "away_spread_odds": 126,
+      "over": 9.0,
+      "over_odds": -112,
+      "under": 9.0,
+      "under_odds": -108,
+      "game_id": "776721"
+    },
+    "776722": {
+      "away_team": "Baltimore Orioles",
+      "home_team": "Houston Astros",
+      "away_ml": 118,
+      "home_ml": -138,
+      "away_spread": 1.5,
+      "away_spread_odds": -188,
+      "home_spread": -1.5,
+      "home_spread_odds": 155,
+      "over": 8.5,
+      "over_odds": -118,
+      "under": 8.5,
+      "under_odds": -104,
+      "game_id": "776722"
+    },
+    "776720": {
+      "away_team": "Atlanta Braves",
+      "home_team": "Cleveland Guardians",
+      "away_ml": -104,
+      "home_ml": -112,
+      "away_spread": -1.5,
+      "away_spread_odds": 152,
+      "home_spread": 1.5,
+      "home_spread_odds": -184,
+      "over": 8.5,
+      "over_odds": -118,
+      "under": 8.5,
+      "under_odds": -104,
+      "game_id": "776720"
+    },
+    "776712": {
+      "away_team": "Chicago White Sox",
+      "home_team": "Kansas City Royals",
+      "away_ml": 122,
+      "home_ml": -144,
+      "away_spread": 1.5,
+      "away_spread_odds": -166,
+      "home_spread": -1.5,
+      "home_spread_odds": 138,
+      "over": 9.5,
+      "over_odds": -104,
+      "under": 9.5,
+      "under_odds": -118,
+      "game_id": "776712"
+    },
+    "776716": {
+      "away_team": "Detroit Tigers",
+      "home_team": "Minnesota Twins",
+      "away_ml": -108,
+      "home_ml": -108,
+      "away_spread": -1.5,
+      "away_spread_odds": 146,
+      "home_spread": 1.5,
+      "home_spread_odds": -178,
+      "over": 8.5,
+      "over_odds": -114,
+      "under": 8.5,
+      "under_odds": -106,
+      "game_id": "776716"
+    },
+    "776713": {
+      "away_team": "New York Yankees",
+      "home_team": "St. Louis Cardinals",
+      "away_ml": -146,
+      "home_ml": 124,
+      "away_spread": -1.5,
+      "away_spread_odds": 115,
+      "home_spread": 1.5,
+      "home_spread_odds": -138,
+      "over": 7.5,
+      "over_odds": -110,
+      "under": 7.5,
+      "under_odds": -110,
+      "game_id": "776713"
+    }
+  },
+  "2025-08-18": {
+    "776691": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Chicago Cubs",
+      "home_ml": -112,
+      "away_ml": -104,
+      "home_spread": 1.5,
+      "home_spread_odds": -192,
+      "away_spread": -1.5,
+      "away_spread_odds": 158,
+      "over": 8.5,
+      "over_odds": -118,
+      "under": 8.5,
+      "under_odds": -104
+    },
+    "776692": {
+      "away_team": "Houston Astros",
+      "home_team": "Detroit Tigers",
+      "home_ml": -136,
+      "away_ml": 106,
+      "home_spread": -1.5,
+      "home_spread_odds": 194,
+      "away_spread": 1.5,
+      "away_spread_odds": -270,
+      "over": 4.5,
+      "over_odds": -122,
+      "under": 4.5,
+      "under_odds": -108
+    },
+    "776688": {
+      "away_team": "St. Louis Cardinals",
+      "home_team": "Miami Marlins",
+      "home_ml": -280,
+      "away_ml": 210,
+      "home_spread": -1.5,
+      "home_spread_odds": 114,
+      "away_spread": 1.5,
+      "away_spread_odds": -152,
+      "over": 5.5,
+      "over_odds": 100,
+      "under": 5.5,
+      "under_odds": -132
+    },
+    "776694": {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Pittsburgh Pirates",
+      "home_ml": -111,
+      "away_ml": -115,
+      "home_spread": 1.5,
+      "home_spread_odds": -235,
+      "away_spread": -1.5,
+      "away_spread_odds": 172,
+      "over": 9.5,
+      "over_odds": 118,
+      "under": 9.5,
+      "under_odds": -158
+    },
+    "776689": {
+      "away_team": "Seattle Mariners",
+      "home_team": "Philadelphia Phillies",
+      "home_ml": -20000,
+      "away_ml": 2000,
+      "home_spread": -6.5,
+      "home_spread_odds": -128,
+      "away_spread": 6.5,
+      "away_spread_odds": -104,
+      "over": 11.5,
+      "over_odds": -114,
+      "under": 11.5,
+      "under_odds": -114
+    },
+    "776695": {
+      "away_team": "Baltimore Orioles",
+      "home_team": "Boston Red Sox",
+      "away_ml": 112,
+      "home_ml": -142,
+      "away_spread": 1.5,
+      "away_spread_odds": -245,
+      "home_spread": -1.5,
+      "home_spread_odds": 178,
+      "over": 5.5,
+      "over_odds": -136,
+      "under": 5.5,
+      "under_odds": 102
+    },
+    "776696": {
+      "away_team": "Chicago White Sox",
+      "home_team": "Atlanta Braves",
+      "home_ml": -206,
+      "away_ml": 185,
+      "home_spread": -1.5,
+      "home_spread_odds": -108,
+      "away_spread": 1.5,
+      "away_spread_odds": -112,
+      "over": 9.0,
+      "over_odds": -103,
+      "under": 9.0,
+      "under_odds": -117
+    },
+    "776690": {
+      "away_team": "Texas Rangers",
+      "home_team": "Kansas City Royals",
+      "home_ml": -121,
+      "away_ml": 110,
+      "home_spread": -1.5,
+      "home_spread_odds": 156,
+      "away_spread": 1.5,
+      "away_spread_odds": -178,
+      "over": 9.5,
+      "over_odds": 101,
+      "under": 9.5,
+      "under_odds": -121
+    },
+    "776693": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Colorado Rockies",
+      "home_ml": 238,
+      "away_ml": -268,
+      "home_spread": 1.5,
+      "home_spread_odds": 153,
+      "away_spread": -1.5,
+      "away_spread_odds": -175,
+      "over": 11.5,
+      "over_odds": -106,
+      "under": 11.5,
+      "under_odds": -114
+    },
+    "776681": {
+      "away_team": "Cincinnati Reds",
+      "home_team": "Los Angeles Angels",
+      "away_ml": -110,
+      "home_ml": 100,
+      "away_spread": -1.5,
+      "away_spread_odds": 138,
+      "home_spread": 1.5,
+      "home_spread_odds": -158,
+      "over": 9.5,
+      "over_odds": 101,
+      "under": 9.5,
+      "under_odds": -121
+    },
+    "776682": {
+      "away_team": "Cleveland Guardians",
+      "home_team": "Arizona Diamondbacks",
+      "home_ml": -120,
+      "away_ml": 102,
+      "home_spread": 1.5,
+      "home_spread_odds": -194,
+      "away_spread": -1.5,
+      "away_spread_odds": 160,
+      "over": 9.0,
+      "over_odds": -104,
+      "under": 9.0,
+      "under_odds": -118
+    },
+    "776683": {
+      "away_team": "San Francisco Giants",
+      "home_team": "San Diego Padres",
+      "home_ml": -142,
+      "away_ml": 120,
+      "home_spread": -1.5,
+      "home_spread_odds": 146,
+      "away_spread": 1.5,
+      "away_spread_odds": -176,
+      "over": 7.5,
+      "over_odds": -118,
+      "under": 7.5,
+      "under_odds": -104
+    }
+  },
+  "2025-08-19": {
+    "776676": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Chicago Cubs",
+      "home_ml": -103,
+      "away_ml": -107,
+      "home_spread": 1.5,
+      "home_spread_odds": -173,
+      "away_spread": -1.5,
+      "away_spread_odds": 152,
+      "over": 7.0,
+      "over_odds": -105,
+      "under": 7.0,
+      "under_odds": -115
+    },
+    "776685": {
+      "away_team": "Houston Astros",
+      "home_team": "Detroit Tigers",
+      "home_ml": -168,
+      "away_ml": 142,
+      "home_spread": -1.5,
+      "home_spread_odds": 132,
+      "away_spread": 1.5,
+      "away_spread_odds": -160,
+      "over": 7.0,
+      "over_odds": 100,
+      "under": 7.0,
+      "under_odds": -122
+    },
+    "776686": {
+      "away_team": "St. Louis Cardinals",
+      "home_team": "Miami Marlins",
+      "home_ml": -142,
+      "away_ml": 120,
+      "home_spread": -1.5,
+      "home_spread_odds": 150,
+      "away_spread": 1.5,
+      "away_spread_odds": -182,
+      "over": 8.0,
+      "over_odds": -105,
+      "under": 8.0,
+      "under_odds": -115
+    },
+    "776679": {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Pittsburgh Pirates",
+      "home_ml": 120,
+      "away_ml": -142,
+      "home_spread": 1.5,
+      "home_spread_odds": -138,
+      "away_spread": -1.5,
+      "away_spread_odds": 115,
+      "over": 8.5,
+      "over_odds": -102,
+      "under": 8.5,
+      "under_odds": -120
+    },
+    "776678": {
+      "away_team": "New York Mets",
+      "home_team": "Washington Nationals",
+      "away_ml": -205,
+      "home_ml": 172,
+      "away_spread": -1.5,
+      "away_spread_odds": -126,
+      "home_spread": 1.5,
+      "home_spread_odds": 105,
+      "over": 9.0,
+      "over_odds": -104,
+      "under": 9.0,
+      "under_odds": -118
+    },
+    "776680": {
+      "away_team": "Seattle Mariners",
+      "home_team": "Philadelphia Phillies",
+      "home_ml": -174,
+      "away_ml": 146,
+      "home_spread": -1.5,
+      "home_spread_odds": 116,
+      "away_spread": 1.5,
+      "away_spread_odds": -140,
+      "over": 8.0,
+      "over_odds": -110,
+      "under": 8.0,
+      "under_odds": -110
+    },
+    "776684": {
+      "away_team": "Baltimore Orioles",
+      "home_team": "Boston Red Sox",
+      "away_ml": 127,
+      "home_ml": -140,
+      "away_spread": 1.5,
+      "away_spread_odds": -165,
+      "home_spread": -1.5,
+      "home_spread_odds": 145,
+      "over": 9.5,
+      "over_odds": -115,
+      "under": 9.5,
+      "under_odds": -105
+    },
+    "776687": {
+      "away_team": "Chicago White Sox",
+      "home_team": "Atlanta Braves",
+      "home_ml": -165,
+      "away_ml": 149,
+      "home_spread": -1.5,
+      "home_spread_odds": 120,
+      "away_spread": 1.5,
+      "away_spread_odds": -140,
+      "over": 9.0,
+      "over_odds": -105,
+      "under": 9.0,
+      "under_odds": -115
+    },
+    "776677": {
+      "away_team": "New York Yankees",
+      "home_team": "Tampa Bay Rays",
+      "away_ml": -140,
+      "home_ml": 127,
+      "away_spread": -1.5,
+      "away_spread_odds": 120,
+      "home_spread": 1.5,
+      "home_spread_odds": -140,
+      "over": 8.5,
+      "over_odds": -105,
+      "under": 8.5,
+      "under_odds": -115
+    },
+    "776675": {
+      "away_team": "Texas Rangers",
+      "home_team": "Kansas City Royals",
+      "home_ml": -105,
+      "away_ml": -105,
+      "home_spread": -1.5,
+      "home_spread_odds": 185,
+      "away_spread": 1.5,
+      "away_spread_odds": -218,
+      "over": 8.5,
+      "over_odds": -120,
+      "under": 8.5,
+      "under_odds": 100
+    },
+    "776674": {
+      "away_team": "Oakland Athletics",
+      "home_team": "Minnesota Twins",
+      "home_ml": -139,
+      "away_ml": 126,
+      "home_spread": -1.5,
+      "home_spread_odds": 140,
+      "away_spread": 1.5,
+      "away_spread_odds": -160,
+      "over": 8.0,
+      "over_odds": -115,
+      "under": 8.0,
+      "under_odds": -105
+    },
+    "776671": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Colorado Rockies",
+      "home_ml": 231,
+      "away_ml": -260,
+      "home_spread": 1.5,
+      "home_spread_odds": 172,
+      "away_spread": -1.5,
+      "away_spread_odds": -197,
+      "over": 12.0,
+      "over_odds": -105,
+      "under": 12.0,
+      "under_odds": -115
+    },
+    "776668": {
+      "away_team": "Cincinnati Reds",
+      "home_team": "Los Angeles Angels",
+      "away_ml": -140,
+      "home_ml": 127,
+      "away_spread": -1.5,
+      "away_spread_odds": 115,
+      "home_spread": 1.5,
+      "home_spread_odds": -135,
+      "over": 9.0,
+      "over_odds": 105,
+      "under": 9.0,
+      "under_odds": -125
+    },
+    "776672": {
+      "away_team": "Cleveland Guardians",
+      "home_team": "Arizona Diamondbacks",
+      "home_ml": -110,
+      "away_ml": 100,
+      "home_spread": -1.5,
+      "home_spread_odds": 174,
+      "away_spread": 1.5,
+      "away_spread_odds": -200,
+      "over": 9.0,
+      "over_odds": -102,
+      "under": 9.0,
+      "under_odds": -118
+    },
+    "776667": {
+      "away_team": "San Francisco Giants",
+      "home_team": "San Diego Padres",
+      "home_ml": -233,
+      "away_ml": 208,
+      "home_spread": -1.5,
+      "home_spread_odds": -113,
+      "away_spread": 1.5,
+      "away_spread_odds": -107,
+      "over": 8.0,
+      "over_odds": -105,
+      "under": 8.0,
+      "under_odds": -115
+    },
+    "776691": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Chicago Cubs",
+      "home_ml": -142,
+      "away_ml": 120,
+      "home_spread": -1.5,
+      "home_spread_odds": 152,
+      "away_spread": 1.5,
+      "away_spread_odds": -184,
+      "over": 7.5,
+      "over_odds": 100,
+      "under": 7.5,
+      "under_odds": -122
+    }
+  }
+}

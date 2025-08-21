@@ -1,0 +1,69 @@
+{
+  "date": "2025-08-14",
+  "games": {
+    "today_1": {
+      "date": "2025-08-14",
+      "away_team": "CIN",
+      "home_team": "PIT",
+      "home_win_probability": 44.1,
+      "away_win_probability": 55.900000000000006,
+      "home_score": 3.2,
+      "away_score": 3.1,
+      "total_score": 6.3,
+      "confidence": 65.4,
+      "predicted_winner": "CIN"
+    },
+    "today_2": {
+      "date": "2025-08-14",
+      "away_team": "MIA",
+      "home_team": "ATL",
+      "home_win_probability": 43.2,
+      "away_win_probability": 56.8,
+      "home_score": 3.2,
+      "away_score": 3.0,
+      "total_score": 6.3,
+      "confidence": 64.9,
+      "predicted_winner": "MIA"
+    },
+    "today_3": {
+      "date": "2025-08-14",
+      "away_team": "CIN",
+      "home_team": "PIT",
+      "home_win_probability": 44.1,
+      "away_win_probability": 55.900000000000006,
+      "home_score": 3.2,
+      "away_score": 3.1,
+      "total_score": 6.3,
+      "confidence": 65.4,
+      "predicted_winner": "CIN"
+    },
+    "today_4": {
+      "date": "2025-08-14",
+      "away_team": "MIA",
+      "home_team": "ATL",
+      "home_win_probability": 43.2,
+      "away_win_probability": 56.8,
+      "home_score": 3.2,
+      "away_score": 3.0,
+      "total_score": 6.3,
+      "confidence": 64.9,
+      "predicted_winner": "MIA"
+    },
+    "today_5": {
+      "date": "2025-08-14",
+      "away_team": "CLE",
+      "home_team": "CWS",
+      "home_win_probability": 47.199999999999996,
+      "away_win_probability": 52.800000000000004,
+      "home_score": 3.6,
+      "away_score": 3.3,
+      "total_score": 6.8,
+      "confidence": 64.2,
+      "predicted_winner": "CLE"
+    }
+  },
+  "stats": {
+    "total_games": 5,
+    "premium_games": 5
+  }
+}

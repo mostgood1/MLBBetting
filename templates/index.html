@@ -692,25 +692,25 @@
         </div>
 
         <div id="summary-stats" class="stats-grid">
-            <a href="/historical?filter=all" class="stat-card clickable-stat">
+            <a href="/historical-analysis" class="stat-card clickable-stat">
                 <h3>{{ comprehensive_stats.total_games_analyzed or 0 }}</h3>
-                <p>Total Games Predicted</p>
-                <small>Since {{ comprehensive_stats.date_range.start or 'Aug 7' }}</small>
+                <p>Total Games Tracked</p>
+                <small>Since {{ comprehensive_stats.date_range.start or 'Aug 19' }} ({{ comprehensive_stats.date_range.days_of_data or 0 }} days)</small>
             </a>
-            <a href="/historical?filter=winners" class="stat-card clickable-stat">
-                <h3>{{ comprehensive_stats.betting_performance.winner_predictions_correct or 0 }}</h3>
-                <p>Predicted Winners</p>
-                <small>{{ comprehensive_stats.betting_performance.winner_accuracy_pct or 0 }}% accuracy ({{ comprehensive_stats.betting_performance.winner_predictions_correct or 0 }}/{{ comprehensive_stats.betting_performance.games_analyzed or 0 }} analyzed)</small>
+            <a href="/historical-analysis" class="stat-card clickable-stat">
+                <h3>{{ comprehensive_stats.betting_performance.winner_accuracy_pct or 0 }}%</h3>
+                <p>Winner Prediction Accuracy</p>
+                <small>{{ comprehensive_stats.betting_performance.winner_predictions_correct or 0 }}/{{ comprehensive_stats.betting_performance.games_analyzed or 0 }} correct predictions</small>
             </a>
-            <a href="/historical?filter=totals" class="stat-card clickable-stat">
-                <h3>{{ comprehensive_stats.betting_performance.total_predictions_correct or 0 }}</h3>
-                <p>Predicted Totals</p>
-                <small>{{ comprehensive_stats.betting_performance.total_accuracy_pct or 0 }}% correct on O/U ({{ comprehensive_stats.betting_performance.total_predictions_correct or 0 }}/{{ comprehensive_stats.betting_performance.games_analyzed or 0 }} analyzed)</small>
+            <a href="/historical-analysis" class="stat-card clickable-stat">
+                <h3>${{ comprehensive_stats.betting_performance.total_profit or 0 }}</h3>
+                <p>Total Profit (Since 8/19)</p>
+                <small>{{ comprehensive_stats.betting_performance.roi_percentage or 0 }}% ROI on {{ comprehensive_stats.betting_performance.total_bets_placed or 0 }} bets</small>
             </a>
-            <a href="/historical?filter=perfect" class="stat-card clickable-stat">
-                <h3>{{ comprehensive_stats.betting_performance.perfect_games or 0 }}</h3>
-                <p>Perfect Games</p>
-                <small>{{ comprehensive_stats.betting_performance.perfect_games_pct or 0 }}% both correct ({{ comprehensive_stats.betting_performance.perfect_games or 0 }}/{{ comprehensive_stats.betting_performance.games_analyzed or 0 }} analyzed)</small>
+            <a href="/historical-analysis" class="stat-card clickable-stat">
+                <h3>{{ comprehensive_stats.betting_performance.total_accuracy_pct or 0 }}%</h3>
+                <p>Betting Recommendations</p>
+                <small>{{ comprehensive_stats.betting_performance.total_predictions_correct or 0 }} winning bets of {{ comprehensive_stats.betting_performance.total_bets_placed or 0 }} placed</small>
             </a>
             <div class="stat-card" id="tbd-monitor-card">
                 <h3 id="tbd-status-indicator">🔍</h3>
@@ -795,7 +795,7 @@
 
         function goToHistoricalAnalysis() {
             // Navigate to historical analysis page
-            window.location.href = '/historical';
+            window.location.href = '/historical-analysis';
         }
 
         function loadToday() {

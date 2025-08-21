@@ -1,0 +1,187 @@
+{
+  "date": "2025-08-18",
+  "fetched_at": "2025-08-19T01:36:09.048546",
+  "source": "OddsAPI - Real Market Lines",
+  "lines": {
+    "Milwaukee Brewers @ Chicago Cubs": {
+      "moneyline": {
+        "away": "-104",
+        "home": "-112"
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": "-118",
+        "under": "-104"
+      },
+      "run_line": {
+        "away": "-1.5 (+158)",
+        "home": "+1.5 (-192)"
+      }
+    },
+    "Houston Astros @ Detroit Tigers": {
+      "moneyline": {
+        "away": "+106",
+        "home": "-136"
+      },
+      "total_runs": {
+        "line": 4.5,
+        "over": "-122",
+        "under": "-108"
+      },
+      "run_line": {
+        "away": "+1.5 (-270)",
+        "home": "-1.5 (+194)"
+      }
+    },
+    "St. Louis Cardinals @ Miami Marlins": {
+      "moneyline": {
+        "away": "+210",
+        "home": "-280"
+      },
+      "total_runs": {
+        "line": 5.5,
+        "over": "+100",
+        "under": "-132"
+      },
+      "run_line": {
+        "away": "+1.5 (-152)",
+        "home": "-1.5 (+114)"
+      }
+    },
+    "Toronto Blue Jays @ Pittsburgh Pirates": {
+      "moneyline": {
+        "away": "-115",
+        "home": "-111"
+      },
+      "total_runs": {
+        "line": 9.5,
+        "over": "+118",
+        "under": "-158"
+      },
+      "run_line": {
+        "away": "-1.5 (+172)",
+        "home": "+1.5 (-235)"
+      }
+    },
+    "Seattle Mariners @ Philadelphia Phillies": {
+      "moneyline": {
+        "away": "+2000",
+        "home": "-20000"
+      },
+      "total_runs": {
+        "line": 11.5,
+        "over": "-114",
+        "under": "-114"
+      },
+      "run_line": {
+        "away": "+6.5 (-104)",
+        "home": "-6.5 (-128)"
+      }
+    },
+    "Baltimore Orioles @ Boston Red Sox": {
+      "moneyline": {
+        "away": "+112",
+        "home": "-142"
+      },
+      "total_runs": {
+        "line": 5.5,
+        "over": "-136",
+        "under": "+102"
+      },
+      "run_line": {
+        "away": "+1.5 (-245)",
+        "home": "-1.5 (+178)"
+      }
+    },
+    "Chicago White Sox @ Atlanta Braves": {
+      "moneyline": {
+        "away": "+185",
+        "home": "-206"
+      },
+      "total_runs": {
+        "line": 9.0,
+        "over": "-103",
+        "under": "-117"
+      },
+      "run_line": {
+        "away": "+1.5 (-112)",
+        "home": "-1.5 (-108)"
+      }
+    },
+    "Texas Rangers @ Kansas City Royals": {
+      "moneyline": {
+        "away": "+110",
+        "home": "-121"
+      },
+      "total_runs": {
+        "line": 9.5,
+        "over": "+101",
+        "under": "-121"
+      },
+      "run_line": {
+        "away": "+1.5 (-178)",
+        "home": "-1.5 (+156)"
+      }
+    },
+    "Los Angeles Dodgers @ Colorado Rockies": {
+      "moneyline": {
+        "away": "-268",
+        "home": "+238"
+      },
+      "total_runs": {
+        "line": 11.5,
+        "over": "-106",
+        "under": "-114"
+      },
+      "run_line": {
+        "away": "-1.5 (-175)",
+        "home": "+1.5 (+153)"
+      }
+    },
+    "Cincinnati Reds @ Los Angeles Angels": {
+      "moneyline": {
+        "away": "-110",
+        "home": "+100"
+      },
+      "total_runs": {
+        "line": 9.5,
+        "over": "+101",
+        "under": "-121"
+      },
+      "run_line": {
+        "away": "-1.5 (+138)",
+        "home": "+1.5 (-158)"
+      }
+    },
+    "Cleveland Guardians @ Arizona Diamondbacks": {
+      "moneyline": {
+        "away": "+102",
+        "home": "-120"
+      },
+      "total_runs": {
+        "line": 9.0,
+        "over": "-104",
+        "under": "-118"
+      },
+      "run_line": {
+        "away": "-1.5 (+160)",
+        "home": "+1.5 (-194)"
+      }
+    },
+    "San Francisco Giants @ San Diego Padres": {
+      "moneyline": {
+        "away": "+120",
+        "home": "-142"
+      },
+      "total_runs": {
+        "line": 7.5,
+        "over": "-118",
+        "under": "-104"
+      },
+      "run_line": {
+        "away": "+1.5 (-176)",
+        "home": "-1.5 (+146)"
+      }
+    }
+  }
+}
