@@ -17,6 +17,7 @@ import logging
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from typing import Dict, List, Tuple, Optional
+from team_name_normalizer import normalize_team_name
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -32,29 +33,25 @@ class HistoricalAnalyzer:
         self.base_scores_path = 'data/final_scores_{date}.json'
         
     def normalize_team_name(self, team_name: str) -> str:
-        """Normalize team names for consistent matching"""
-        if not team_name:
-            return ''
-        return str(team_name).lower().replace('_', ' ').replace('-', ' ').strip()
+        return normalize_team_name(team_name)
     
     def load_predictions_for_date(self, target_date: str) -> Dict:
-        """Load predictions from unified cache for specific date"""
+        """Load predictions from unified_predictions_cache.json for specific date"""
         try:
             with open(self.predictions_cache_path, 'r') as f:
                 cache = json.load(f)
-            
-            predictions_by_date = cache.get('predictions_by_date', {})
-            date_data = predictions_by_date.get(target_date, {})
-            games = date_data.get('games', {})
-            
-            logger.info(f"Loaded {len(games)} games for {target_date}")
-            return games
-            
+            games = cache.get('predictions_by_date', {}).get(target_date, {}).get('games', {})
+            if isinstance(games, dict):
+                logger.info(f"Loaded {len(games)} games from unified predictions cache for {target_date}")
+                return games
+            else:
+                logger.warning(f"Games key in unified cache for {target_date} is not a dict.")
+                return {}
         except FileNotFoundError:
-            logger.error(f"Predictions cache not found: {self.predictions_cache_path}")
+            logger.error(f"Unified predictions cache not found: {self.predictions_cache_path}")
             return {}
         except Exception as e:
-            logger.error(f"Error loading predictions: {e}")
+            logger.error(f"Error loading unified predictions cache: {e}")
             return {}
     
     def load_final_scores_for_date(self, target_date: str) -> Dict:
@@ -92,8 +89,8 @@ class HistoricalAnalyzer:
         predictions = prediction_obj.get('predictions', prediction_obj)
         
         # Extract team names
-        away_team = prediction_obj.get('away_team', game_data.get('away_team', ''))
-        home_team = prediction_obj.get('home_team', game_data.get('home_team', ''))
+        away_team = self.normalize_team_name(prediction_obj.get('away_team', game_data.get('away_team', '')))
+        home_team = self.normalize_team_name(prediction_obj.get('home_team', game_data.get('home_team', '')))
         
         # Extract win probabilities with multiple fallback keys
         away_win_prob = None
@@ -161,21 +158,37 @@ class HistoricalAnalyzer:
             home_norm = self.normalize_team_name(pred_values['home_team'])
             score_key = f"{away_norm}_vs_{home_norm}"
             
+            logger.info(f"Trying to match: {score_key} (from prediction) against final scores keys: {list(final_scores.keys())}")
             final_score = final_scores.get(score_key)
             if not final_score:
-                continue
+                logger.warning(f"No match found for: {score_key}. Away: {pred_values['away_team']} -> {away_norm}, Home: {pred_values['home_team']} -> {home_norm}")
                 
             matched_games += 1
             
             # Winner Analysis
-            predicted_winner = (pred_values['away_team'] 
-                              if pred_values['away_win_probability'] > pred_values['home_win_probability'] 
-                              else pred_values['home_team'])
+            logger.info(f"Win probabilities for game {score_key}: away={pred_values['away_win_probability']} ({type(pred_values['away_win_probability'])}), home={pred_values['home_win_probability']} ({type(pred_values['home_win_probability'])})")
+            try:
+                away_prob_float = float(pred_values['away_win_probability'])
+                home_prob_float = float(pred_values['home_win_probability'])
+                predicted_winner = (
+                    pred_values['away_team'] if away_prob_float > home_prob_float else pred_values['home_team']
+                )
+            except (TypeError, ValueError):
+                logger.warning(f"Skipping game {score_key} due to invalid win probability values: away={pred_values['away_win_probability']}, home={pred_values['home_win_probability']}")
+                continue
             
             actual_away_score = final_score['away_score']
             actual_home_score = final_score['home_score']
+            # Diagnostic: log types and values
+            logger.info(f"Scores for game {score_key}: away={actual_away_score} ({type(actual_away_score)}), home={actual_home_score} ({type(actual_home_score)})")
+            try:
+                away_score_float = float(actual_away_score)
+                home_score_float = float(actual_home_score)
+            except (TypeError, ValueError):
+                logger.warning(f"Skipping game {score_key} due to invalid score values: away={actual_away_score}, home={actual_home_score}")
+                continue
             actual_winner = (pred_values['away_team'] 
-                           if actual_away_score > actual_home_score 
+                           if away_score_float > home_score_float 
                            else pred_values['home_team'])
             
             if self.normalize_team_name(predicted_winner) == self.normalize_team_name(actual_winner):
@@ -213,37 +226,42 @@ class HistoricalAnalyzer:
         
         for game_key, game_data in games.items():
             pred_values = self.extract_prediction_values(game_data)
-            
             # Skip if essential data missing
             if not all([pred_values['away_team'], pred_values['home_team']]):
                 continue
-            
-            # Find matching final score
+            # Find matching final score using robust normalization
             away_norm = self.normalize_team_name(pred_values['away_team'])
             home_norm = self.normalize_team_name(pred_values['home_team'])
-            score_key = f"{away_norm}_vs_{home_norm}"
-            
-            final_score = final_scores.get(score_key)
+            score_key_vs = f"{away_norm}_vs_{home_norm}"
+            score_key_at = f"{away_norm} @ {home_norm}"
+            final_score = final_scores.get(score_key_vs)
+            if not final_score:
+                final_score = final_scores.get(score_key_at)
+            if not final_score:
+                # Try reverse order
+                score_key_vs_rev = f"{home_norm}_vs_{away_norm}"
+                score_key_at_rev = f"{home_norm} @ {away_norm}"
+                final_score = final_scores.get(score_key_vs_rev)
+                if not final_score:
+                    final_score = final_scores.get(score_key_at_rev)
             if not final_score:
                 continue
-                
             matched_games += 1
             
             # Winner betting analysis (if we have win probabilities)
             if (pred_values['away_win_probability'] is not None and 
                 pred_values['home_win_probability'] is not None):
-                
                 total_bets += 1
+                away_prob = float(pred_values['away_win_probability'])
+                home_prob = float(pred_values['home_win_probability'])
                 predicted_winner = (pred_values['away_team'] 
-                                  if pred_values['away_win_probability'] > pred_values['home_win_probability'] 
+                                  if away_prob > home_prob 
                                   else pred_values['home_team'])
-                
                 actual_away_score = final_score['away_score']
                 actual_home_score = final_score['home_score']
                 actual_winner = (pred_values['away_team'] 
                                if actual_away_score > actual_home_score 
                                else pred_values['home_team'])
-                
                 if self.normalize_team_name(predicted_winner) == self.normalize_team_name(actual_winner):
                     winner_correct += 1
             
@@ -600,11 +618,13 @@ class HistoricalAnalyzer:
             if final_score:
                 # Winner prediction accuracy
                 if (pred_values['away_win_probability'] and pred_values['home_win_probability']):
+                    away_prob = float(pred_values['away_win_probability'])
+                    home_prob = float(pred_values['home_win_probability'])
                     predicted_winner = (pred_values['away_team'] 
-                                     if pred_values['away_win_probability'] > pred_values['home_win_probability'] 
+                                     if away_prob > home_prob 
                                      else pred_values['home_team'])
                     actual_winner = (pred_values['away_team'] 
-                                   if final_score['away_score'] > final_score['home_score'] 
+                                   if float(final_score['away_score']) > float(final_score['home_score']) 
                                    else pred_values['home_team'])
                     predictability['winner_correct'] = predicted_winner == actual_winner
                 
@@ -632,10 +652,10 @@ class HistoricalAnalyzer:
                 
                 # Assume standard 8.5 total line for betting analysis
                 if abs(pred_total - 8.5) > 0.5:
-                    betting_analysis['over_under_recommendation'] = 'Over' if pred_total > 8.5 else 'Under'
-                    if pred_total > 8.5 and actual_total > 8.5:
+                    betting_analysis['over_under_recommendation'] = 'Over' if float(pred_total) > 8.5 else 'Under'
+                    if float(pred_total) > 8.5 and float(actual_total) > 8.5:
                         betting_analysis['total_bet_correct'] = True
-                    elif pred_total < 8.5 and actual_total < 8.5:
+                    elif float(pred_total) < 8.5 and float(actual_total) < 8.5:
                         betting_analysis['total_bet_correct'] = True
                     else:
                         betting_analysis['total_bet_correct'] = False
@@ -730,17 +750,18 @@ class HistoricalAnalyzer:
     def perform_cumulative_analysis(self, start_date: str = None) -> Dict:
         """Perform cumulative analysis across all available dates since start_date"""
         available_dates = self.get_available_dates()
-        
+
         if not available_dates:
             return {
                 'error': 'No historical data available',
                 'available_dates': []
             }
-        
-        # Use provided start_date or default to earliest available
-        if start_date:
-            available_dates = [d for d in available_dates if d >= start_date]
-        
+
+        # Default start_date to 2025-08-15 if not provided
+        if start_date is None:
+            start_date = '2025-08-15'
+        available_dates = [d for d in available_dates if d >= start_date]
+
         if not available_dates:
             return {
                 'error': f'No data available since {start_date}',
@@ -911,26 +932,29 @@ class HistoricalAnalyzer:
         # Load data
         games = self.load_predictions_for_date(target_date)
         final_scores = self.load_final_scores_for_date(target_date)
-        
+
         if not games:
             return {
                 'error': f'No prediction data found for {target_date}',
                 'date': target_date
             }
-        
-        if not final_scores:
-            return {
-                'error': f'No final score data found for {target_date}',
-                'date': target_date
-            }
-        
-        # Perform all analyses
-        predictability = self.analyze_predictability(games, final_scores)
-        betting_lens = self.analyze_betting_lens(games, final_scores)
-        betting_recommendations = self.analyze_betting_recommendations(games, final_scores)
-        roi_analysis = self.calculate_roi(games, final_scores)
-        game_cards = self.analyze_individual_games(games, final_scores)
-        
+
+        # If final scores are missing, still return all prediction and recommendation data
+        scores_available = bool(final_scores)
+
+        # Perform all analyses (if scores available, else use empty scores for analysis)
+        predictability = self.analyze_predictability(games, final_scores if scores_available else {})
+        betting_lens = self.analyze_betting_lens(games, final_scores if scores_available else {})
+        betting_recommendations = self.analyze_betting_recommendations(games, final_scores if scores_available else {})
+        roi_analysis = self.calculate_roi(games, final_scores if scores_available else {})
+        game_cards = self.analyze_individual_games(games, final_scores if scores_available else {})
+
+        # Mark game cards as missing final scores if not available
+        if not scores_available:
+            for card in game_cards:
+                card['has_final_score'] = False
+                card['final_scores'] = {'away_score': None, 'home_score': None}
+
         # Compile comprehensive report
         report = {
             'date': target_date,
@@ -951,15 +975,16 @@ class HistoricalAnalyzer:
                 'recommendation_accuracy': betting_recommendations.get('overall_accuracy', 0.0),
                 'roi_percentage': roi_analysis.get('roi_percentage', 0.0),
                 'total_profit': roi_analysis.get('net_profit', 0.0)
-            }
+            },
+            'final_scores_missing': not scores_available
         }
-        
+
         logger.info(f"Historical analysis completed for {target_date}")
         logger.info(f"Found {len(games)} games, {len(final_scores)} final scores")
         logger.info(f"Model accuracy: {predictability.get('winner_accuracy', 0):.1%}")
         logger.info(f"Total recommendations: {betting_recommendations.get('total_recommendations', 0)}")
         logger.info(f"ROI: {roi_analysis.get('roi_percentage', 0):.2f}%")
-        
+
         return report
 
 # Initialize analyzer
@@ -967,13 +992,13 @@ analyzer = HistoricalAnalyzer()
 
 @historical_analysis_bp.route('/api/historical-analysis', methods=['GET'])
 def get_historical_analysis():
-    """API endpoint for historical analysis - defaults to cumulative since 8-19"""
+    """API endpoint for historical analysis - defaults to cumulative since 8-15"""
     try:
         # Get parameters from query
         target_date = request.args.get('date')
         analysis_type = request.args.get('type', 'cumulative')  # Default to cumulative
-        start_date = request.args.get('start_date', '2025-08-19')  # Default to 8-19
-        
+        start_date = request.args.get('start_date', '2025-08-15')  # Default to 8-15
+
         if analysis_type == 'cumulative':
             # Perform cumulative analysis
             analysis = analyzer.perform_cumulative_analysis(start_date)
@@ -983,7 +1008,7 @@ def get_historical_analysis():
                 # Default to yesterday if no date provided
                 yesterday = datetime.now() - timedelta(days=1)
                 target_date = yesterday.strftime('%Y-%m-%d')
-            
+
             # Validate date format
             try:
                 datetime.strptime(target_date, '%Y-%m-%d')
@@ -992,15 +1017,15 @@ def get_historical_analysis():
                     'error': 'Invalid date format. Use YYYY-MM-DD',
                     'example': '2025-08-20'
                 }), 400
-            
+
             # Perform single date analysis
             analysis = analyzer.perform_complete_analysis(target_date)
-        
+
         if 'error' in analysis:
             return jsonify(analysis), 404
-        
+
         return jsonify(analysis)
-        
+
     except Exception as e:
         logger.error(f"Error in historical analysis endpoint: {e}")
         return jsonify({
