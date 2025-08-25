@@ -1,0 +1,183 @@
+Today's MLB Betting Recommendations Summary
+Generated with Comprehensive Optimized Model
+===========================================
+
+Date: August 25, 2025
+Model: Comprehensive Optimized (v3.0 with Weather/Park/Betting Integration)
+Games Analyzed: 13
+Total Value Bets Found: 15
+
+================================================================================
+TODAY'S MLB BETTING RECOMMENDATIONS
+Generated with COMPREHENSIVE OPTIMIZED MODEL
+Weather/Park Factors + Actual Results Optimization
+================================================================================
+
+Boston Red Sox @ Baltimore Orioles
+   Pitchers: Brennan Bernardino vs Tomoyuki Sugano
+   Predicted Total: 9.5 runs
+   Win Probabilities: Boston Red Sox 61.4% | Baltimore Orioles 38.6%
+   VALUE BETS FOUND: 1
+      * BOSTON RED SOX ML
+         Type: moneyline
+         Expected Value: 0.271
+         Confidence: MEDIUM
+         Reasoning: Model projects 61.4% win probability vs 48.3% implied odds
+
+Tampa Bay Rays @ Cleveland Guardians
+   Pitchers: Ian Seymour vs Tanner Bibee
+   Predicted Total: 7.9 runs
+   Win Probabilities: Tampa Bay Rays 57.8% | Cleveland Guardians 42.2%
+   No value bets identified
+
+Atlanta Braves @ Miami Marlins
+   Pitchers: Spencer Strider vs Edward Cabrera
+   Predicted Total: 10.8 runs
+   Win Probabilities: Atlanta Braves 58.5% | Miami Marlins 41.5%
+   VALUE BETS FOUND: 2
+      * OVER 7.5 (HIGH CONFIDENCE)
+         Type: total
+         Expected Value: 0.578
+         Reasoning: Predicted 10.8 vs line 7.5
+      * ATLANTA BRAVES ML
+         Type: moneyline
+         Expected Value: 0.112
+         Confidence: LOW
+
+Washington Nationals @ New York Yankees
+   Pitchers: Brad Lord vs Cam Schlittler
+   Predicted Total: 8.3 runs
+   Win Probabilities: Washington Nationals 54.2% | New York Yankees 45.8%
+   No value bets identified
+
+Minnesota Twins @ Toronto Blue Jays
+   Pitchers: Joe Ryan vs Max Scherzer
+   Predicted Total: 9.6 runs
+   Win Probabilities: Minnesota Twins 55.9% | Toronto Blue Jays 44.1%
+   VALUE BETS FOUND: 2
+      * MINNESOTA TWINS ML
+         Expected Value: 0.403
+         Confidence: LOW
+      * OVER 8.5 (MEDIUM CONFIDENCE)
+         Expected Value: 0.197
+
+Philadelphia Phillies @ New York Mets
+   Pitchers: Cristopher Sanchez vs Kodai Senga
+   Predicted Total: 7.9 runs
+   Win Probabilities: Philadelphia Phillies 58.9% | New York Mets 41.1%
+   VALUE BETS FOUND: 2
+      * PHILADELPHIA PHILLIES ML
+         Expected Value: 0.155
+         Confidence: LOW
+      * UNDER 8.5
+         Expected Value: 0.083
+         Confidence: LOW
+
+Kansas City Royals @ Chicago White Sox
+   Pitchers: Noah Cameron vs Shane Smith
+   Predicted Total: 11.7 runs
+   Win Probabilities: Kansas City Royals 62.3% | Chicago White Sox 37.7%
+   VALUE BETS FOUND: 2
+      * OVER 8.5 (HIGH CONFIDENCE)
+         Expected Value: 0.546
+         Reasoning: Predicted 11.7 vs line 8.5
+      * KANSAS CITY ROYALS ML (MEDIUM CONFIDENCE)
+         Expected Value: 0.302
+
+Arizona Diamondbacks @ Milwaukee Brewers
+   Pitchers: Eduardo Rodriguez vs Brandon Woodruff
+   Predicted Total: 9.6 runs
+   Win Probabilities: Arizona Diamondbacks 53.5% | Milwaukee Brewers 46.5%
+   VALUE BETS FOUND: 1
+      * OVER 8.0 (MEDIUM CONFIDENCE)
+         Expected Value: 0.234
+
+Pittsburgh Pirates @ St. Louis Cardinals
+   Pitchers: Johan Oviedo vs Michael McGreevy
+   Predicted Total: 7.9 runs
+   Win Probabilities: Pittsburgh Pirates 54.9% | St. Louis Cardinals 45.1%
+   No value bets identified
+
+Los Angeles Angels @ Texas Rangers
+   Pitchers: Jose Soriano vs Jacob deGrom
+   Predicted Total: 9.5 runs
+   Win Probabilities: Los Angeles Angels 53.8% | Texas Rangers 46.2%
+   VALUE BETS FOUND: 1
+      * OVER 8.5
+         Expected Value: 0.171
+         Confidence: LOW
+
+San Diego Padres @ Seattle Mariners
+   Pitchers: JP Sears vs Bryce Miller
+   Predicted Total: 11.0 runs
+   Win Probabilities: San Diego Padres 60.4% | Seattle Mariners 39.6%
+   VALUE BETS FOUND: 2
+      * OVER 7.5 (HIGH CONFIDENCE)
+         Expected Value: 0.589
+         Reasoning: Predicted 11.0 vs line 7.5
+      * SAN DIEGO PADRES ML (MEDIUM CONFIDENCE)
+         Expected Value: 0.202
+
+Detroit Tigers @ Athletics
+   Pitchers: Tarik Skubal vs J.T. Ginn
+   Predicted Total: 10.7 runs
+   Win Probabilities: Detroit Tigers 64.1% | Athletics 35.9%
+   No value bets identified
+
+Cincinnati Reds @ Los Angeles Dodgers
+   Pitchers: Hunter Greene vs Emmet Sheehan
+   Predicted Total: 11.4 runs
+   Win Probabilities: Cincinnati Reds 57.2% | Los Angeles Dodgers 42.8%
+   VALUE BETS FOUND: 2
+      * OVER 8.5 (HIGH CONFIDENCE)
+         Expected Value: 0.477
+         Reasoning: Predicted 11.4 vs line 8.5
+      * CINCINNATI REDS ML
+         Expected Value: 0.476
+         Confidence: LOW
+
+================================================================================
+BETTING SUMMARY
+================================================================================
+Total Games Analyzed: 13
+Total Value Bets Found: 15
+High Confidence Bets: 4
+Medium Confidence Bets: 5
+
+HIGH CONFIDENCE RECOMMENDATIONS:
+   * Atlanta Braves @ Miami Marlins - OVER 7.5
+   * Kansas City Royals @ Chicago White Sox - OVER 8.5
+   * San Diego Padres @ Seattle Mariners - OVER 7.5
+   * Cincinnati Reds @ Los Angeles Dodgers - OVER 8.5
+
+MEDIUM CONFIDENCE RECOMMENDATIONS:
+   * Boston Red Sox ML
+   * Minnesota Twins @ Toronto Blue Jays - OVER 8.5
+   * Kansas City Royals ML
+   * Arizona Diamondbacks @ Milwaukee Brewers - OVER 8.0
+   * San Diego Padres ML
+
+================================================================================
+MODEL INFORMATION
+================================================================================
+✓ Comprehensive Optimized Configuration (v3.0)
+✓ Weather & Park Factors Integration
+✓ Real Betting Lines Integration
+✓ Actual Game Results Optimization
+✓ Bias Correction Applied
+
+Key Optimizations Applied:
+• Base Lambda: 4.62 (corrected under-scoring)
+• Total Scoring Adjustment: 1.05 (environment correction)
+• Run Environment: 0.8788 (park factor integration)
+• Park/Weather Impact: Enhanced multiplier 1.1
+
+Generated: 2025-08-25T17:08:14.407398
+Source: Unified Betting Engine v1.0
+
+PERFORMANCE NOTES:
+- Model was under-predicting by 1.44 runs, now corrected
+- Home team accuracy: 60% with minimal bias
+- Total runs MAE: 3.19 with RMSE of 4.17
+- Weather and park factors now properly integrated
+- All parameters optimized based on actual game results

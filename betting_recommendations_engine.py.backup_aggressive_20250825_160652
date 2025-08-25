@@ -49,33 +49,31 @@ class BettingRecommendationsEngine:
         else:
             self.current_date = date
         
-                        # ==========================================
-        # BALANCED MODEL PARAMETERS (v5.0)
-        # Applied: 2025-08-25 - Balanced bias correction
-        # Target: 48-52% home win rate with realistic scoring
+        # ==========================================
+        # OPTIMIZED MODEL PARAMETERS (v3.0)
+        # Applied: 2025-08-25 - Manual bias correction + bullpen integration
         # ==========================================
         
-        # Core prediction parameters (BALANCED corrections)
-        self.home_field_advantage = 0.06  # Moderate home advantage
-        self.away_field_boost = 0.04        # Moderate away team boost
-        self.base_runs_per_team = 3.9     # Balanced base scoring
-        self.base_lambda = 4.0            # Moderate variance
+        # Core prediction parameters (bias-corrected)
+        self.home_field_advantage = 0.10  # Reduced from 0.15 to address home bias
+        self.base_runs_per_team = 4.0     # Reduced from 4.3 to lower total scoring
+        self.base_lambda = 4.0            # Reduced from 4.2 to decrease variance
         
-        # Pitcher impact parameters (balanced for accuracy)
-        self.pitcher_era_weight = 0.78    # Good ERA impact
-        self.pitcher_whip_weight = 0.38   # Good WHIP impact
+        # Pitcher impact parameters (increased for better accuracy)
+        self.pitcher_era_weight = 0.75    # Increased from 0.70
+        self.pitcher_whip_weight = 0.35   # Increased from 0.30
         
         # Team and game parameters
-        self.team_strength_multiplier = 0.17  # Moderate team impact
-        self.game_chaos_variance = 0.38       # Moderate variance
+        self.team_strength_multiplier = 0.18  # Reduced from 0.20
+        self.game_chaos_variance = 0.38       # Reduced from 0.42
         
-        # Bullpen integration (maintained)
+        # NEW: Bullpen integration
         self.bullpen_weight = 0.15
         
-        # BALANCED scoring bias corrections
-        self.total_scoring_adjustment = 0.9  # Reduce total scoring by 10%
-        self.home_scoring_boost = 0.92       # Moderate home penalty
-        self.away_scoring_boost = 1.05       # Moderate away boost
+        # NEW: Scoring bias corrections
+        self.total_scoring_adjustment = 0.92  # Reduce total scoring by 8%
+        self.home_scoring_boost = 0.96       # Reduce home advantage
+        self.away_scoring_boost = 1.02       # Slight boost to away teams
         
         # Simulation parameters
         self.simulation_count = 2000
@@ -386,10 +384,8 @@ class BettingRecommendationsEngine:
         home_adjustment = 1.0 + (1.0/away_bullpen - 1.0) * self.bullpen_weight
         away_adjustment = 1.0 + (1.0/home_bullpen - 1.0) * self.bullpen_weight
         
-        # Apply scoring boosts and away field advantage
-        away_field_boost = getattr(self, 'away_field_boost', 0.0)
         adjusted_home = home_score * home_adjustment * self.home_scoring_boost
-        adjusted_away = away_score * away_adjustment * self.away_scoring_boost * (1.0 + away_field_boost)
+        adjusted_away = away_score * away_adjustment * self.away_scoring_boost
         
         return adjusted_home, adjusted_away
 

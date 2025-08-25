@@ -673,11 +673,20 @@
                    onmouseout="this.style.background='rgba(255, 215, 0, 0.2)'; this.style.transform='translateY(0)'">
                     🎯 Tuning Dashboard
                 </a>
-                <button id="run-automation-btn" onclick="runDailyAutomation()" style="padding: 8px 16px; background: rgba(79, 209, 199, 0.2); color: #4fd1c7; border: 1px solid #4fd1c7; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease;" 
-                        onmouseover="this.style.background='rgba(79, 209, 199, 0.3)'; this.style.transform='translateY(-2px)'" 
-                        onmouseout="this.style.background='rgba(79, 209, 199, 0.2)'; this.style.transform='translateY(0)'">
-                    🚀 Run Daily Update
-                </button>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <button id="run-automation-btn" onclick="runDailyAutomation()" style="padding: 8px 16px; background: rgba(79, 209, 199, 0.2); color: #4fd1c7; border: 1px solid #4fd1c7; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease;" 
+                            onmouseover="this.style.background='rgba(79, 209, 199, 0.3)'; this.style.transform='translateY(-2px)'" 
+                            onmouseout="this.style.background='rgba(79, 209, 199, 0.2)'; this.style.transform='translateY(0)'" 
+                            title="Complete daily automation: Updates data, fetches games, generates predictions & recommendations">
+                        🚀 Full Daily Update
+                    </button>
+                    <button id="run-data-updates-btn" onclick="runDataUpdates()" style="padding: 8px 16px; background: rgba(147, 51, 234, 0.2); color: #9333ea; border: 1px solid #9333ea; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease;" 
+                            onmouseover="this.style.background='rgba(147, 51, 234, 0.3)'; this.style.transform='translateY(-2px)'" 
+                            onmouseout="this.style.background='rgba(147, 51, 234, 0.2)'; this.style.transform='translateY(0)'" 
+                            title="Data updates only: Refreshes team strength, pitcher stats, and bullpen data">
+                        📊 Data Only
+                    </button>
+                </div>
                 <button id="refresh-stats-btn" onclick="refreshDashboardStats()" style="padding: 8px 16px; background: rgba(156, 163, 175, 0.2); color: #9ca3af; border: 1px solid #9ca3af; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; margin-left: 8px;" 
                         onmouseover="this.style.background='rgba(156, 163, 175, 0.3)'; this.style.transform='translateY(-2px)'" 
                         onmouseout="this.style.background='rgba(156, 163, 175, 0.2)'; this.style.transform='translateY(0)'">
@@ -1096,12 +1105,12 @@
                 
                 if (data.success) {
                     btn.textContent = '✅ Running...';
-                    alert('Daily automation started! This will update all data including betting recommendations for today. Check the console logs for progress. The page will refresh in 30 seconds.');
+                    alert('Daily automation started! This will:\n\n📊 Update core data (team strength, pitcher stats)\n🎯 Fetch today\'s games and starting pitchers\n💰 Get current betting lines\n🔮 Generate game predictions\n🎲 Create betting recommendations\n\nEstimated time: 3-8 minutes\nThe page will refresh in 45 seconds to show updated data.');
                     
-                    // Refresh the page after 30 seconds to show updated data
+                    // Refresh the page after 45 seconds to show updated data
                     setTimeout(() => {
                         window.location.reload();
-                    }, 30000);
+                    }, 45000);
                 } else {
                     btn.textContent = originalText;
                     btn.disabled = false;
@@ -1112,6 +1121,46 @@
                 btn.textContent = originalText;
                 btn.disabled = false;
                 alert('Error starting daily automation.');
+            }
+        }
+
+        // Data Updates Only Function
+        async function runDataUpdates() {
+            const btn = document.getElementById('run-data-updates-btn');
+            const originalText = btn.textContent;
+            
+            try {
+                btn.textContent = '🔄 Updating...';
+                btn.disabled = true;
+                
+                const response = await fetch('/api/run-data-updates', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.textContent = '✅ Running...';
+                    alert('Data updates started! This will:\n\n📊 Update team strength ratings (if scheduled)\n⚾ Update pitcher statistics (daily)\n🎯 Update bullpen quality factors\n\nThis is a focused update that only refreshes core prediction data.\nEstimated time: 1-5 minutes');
+                    
+                    // Reset button after 2 minutes
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }, 120000);
+                } else {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    alert('Error starting data updates: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error starting data updates:', error);
+                btn.textContent = originalText;
+                btn.disabled = false;
+                alert('Error starting data updates.');
             }
         }
 

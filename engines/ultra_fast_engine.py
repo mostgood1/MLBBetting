@@ -9,7 +9,11 @@ from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
 import json
 import os
+import logging
 from datetime import datetime, date
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 @dataclass
 class FastGameResult:
@@ -35,7 +39,7 @@ class UltraFastSimEngine:
             self.data_dir = data_dir
         
         # Load configuration or use defaults
-        self.config = config or self._get_default_config()
+        self.config = config or self._load_comprehensive_config()
         
         # Pre-compute probability distributions for maximum speed
         self.setup_fast_distributions()
@@ -108,16 +112,59 @@ class UltraFastSimEngine:
         
         # NO EMPTY FALLBACK ALLOWED - REAL DATA REQUIRED
     
+    def _load_comprehensive_config(self):
+        """Load comprehensive optimized configuration with all integrations"""
+        try:
+            # Try comprehensive optimized config first (highest priority)
+            comprehensive_config_file = os.path.join(self.data_dir, 'comprehensive_optimized_config.json')
+            if os.path.exists(comprehensive_config_file):
+                with open(comprehensive_config_file, 'r') as f:
+                    config = json.load(f)
+                    logger.info("✅ UltraFastSimEngine: Loaded comprehensive optimized configuration")
+                    print("✅ UltraFastSimEngine: Loaded comprehensive optimized configuration")
+                    return config
+            
+            # Try betting-integrated config second
+            betting_config_file = os.path.join(self.data_dir, 'betting_integrated_config.json')
+            if os.path.exists(betting_config_file):
+                with open(betting_config_file, 'r') as f:
+                    config = json.load(f)
+                    logger.info("✅ UltraFastSimEngine: Loaded betting-integrated configuration")
+                    print("✅ UltraFastSimEngine: Loaded betting-integrated configuration")
+                    return config
+            
+            # Fall back to other configs
+            for config_name in ['balanced_tuned_config.json', 'optimized_config.json']:
+                config_file = os.path.join(self.data_dir, config_name)
+                if os.path.exists(config_file):
+                    with open(config_file, 'r') as f:
+                        config = json.load(f)
+                        logger.info(f"✅ UltraFastSimEngine: Loaded fallback configuration: {config_name}")
+                        print(f"✅ UltraFastSimEngine: Loaded fallback configuration: {config_name}")
+                        return config
+        except Exception as e:
+            logger.debug(f"UltraFastSimEngine config loading error: {e}")
+            print(f"⚠️ UltraFastSimEngine config loading error: {e}")
+        
+        logger.info("🔧 UltraFastSimEngine: Using default configuration")
+        print("🔧 UltraFastSimEngine: Using default configuration")
+        return self._get_default_config()
+    
     def _get_default_config(self):
-        """Get default configuration parameters"""
+        """Get default configuration parameters - BALANCED BIAS CORRECTIONS"""
         return {
             "engine_parameters": {
-                "home_field_advantage": 0.15,
-                "base_lambda": 4.2,
-                "team_strength_multiplier": 0.20,
-                "pitcher_era_weight": 0.70,
-                "pitcher_whip_weight": 0.30,
-                "game_chaos_variance": 0.42
+                "home_field_advantage": 0.06,    # Moderate home advantage
+                "away_field_boost": 0.04,        # Moderate away boost  
+                "base_lambda": 4.0,              # Moderate variance
+                "team_strength_multiplier": 0.17, # Moderate team impact
+                "pitcher_era_weight": 0.78,      # Good ERA impact
+                "pitcher_whip_weight": 0.38,     # Good WHIP impact
+                "game_chaos_variance": 0.38,     # Moderate randomness
+                "total_scoring_adjustment": 0.9, # Reduce total by 10%
+                "home_scoring_boost": 0.92,      # Moderate home penalty
+                "away_scoring_boost": 1.05,      # Moderate away boost
+                "bullpen_weight": 0.15           # Bullpen integration
             },
             "betting_parameters": {
                 "min_edge": 0.03,
@@ -253,17 +300,22 @@ class UltraFastSimEngine:
         return None, None
     
     def _setup_speed_cache(self):
-        """Setup caching for maximum speed with configurable parameters"""
+        """Setup caching for maximum speed with balanced parameters"""
         engine_params = self.config.get('engine_parameters', {})
-        self.home_field_advantage = engine_params.get('home_field_advantage', 0.15)
-        self.base_runs_per_team = 4.3  # Keep as constant
-        self.base_lambda = engine_params.get('base_lambda', 4.2)
-        self.team_strength_multiplier = engine_params.get('team_strength_multiplier', 0.20)
-        self.game_chaos_variance = engine_params.get('game_chaos_variance', 0.42)
+        self.home_field_advantage = engine_params.get('home_field_advantage', 0.06)
+        self.away_field_boost = engine_params.get('away_field_boost', 0.04)
+        self.base_runs_per_team = 3.9  # Balanced from config
+        self.base_lambda = engine_params.get('base_lambda', 4.0)
+        self.team_strength_multiplier = engine_params.get('team_strength_multiplier', 0.17)
+        self.game_chaos_variance = engine_params.get('game_chaos_variance', 0.38)
+        self.total_scoring_adjustment = engine_params.get('total_scoring_adjustment', 0.9)
+        self.home_scoring_boost = engine_params.get('home_scoring_boost', 0.92)
+        self.away_scoring_boost = engine_params.get('away_scoring_boost', 1.05)
+        self.bullpen_weight = engine_params.get('bullpen_weight', 0.15)
     
     def get_team_multiplier_with_pitchers(self, away_team: str, home_team: str, game_date: str = None) -> Tuple[float, float]:
         """Get run multipliers for both teams including pitcher quality with configurable parameters"""
-        away_strength = self.team_strengths.get(away_team, 0.0)
+        away_strength = self.team_strengths.get(away_team, 0.0) + self.away_field_boost  # Apply away boost
         home_strength = self.team_strengths.get(home_team, 0.0) + self.home_field_advantage
         
         # Get projected starters
@@ -281,11 +333,77 @@ class UltraFastSimEngine:
         away_mult *= away_pitcher_factor
         home_mult *= home_pitcher_factor
         
+        # Apply park and weather factors
+        park_weather_factor = self._get_park_weather_factor(home_team, game_date)
+        away_mult *= park_weather_factor
+        home_mult *= park_weather_factor
+        
+        # Apply aggressive scoring bias corrections
+        away_mult *= self.away_scoring_boost
+        home_mult *= self.home_scoring_boost
+        
+        # Apply total scoring adjustment
+        away_mult *= self.total_scoring_adjustment
+        home_mult *= self.total_scoring_adjustment
+        
         # Bounds for realistic variance
         away_mult = max(0.6, min(1.4, away_mult))
         home_mult = max(0.6, min(1.4, home_mult))
         
         return away_mult, home_mult
+    
+    def _get_park_weather_factor(self, home_team: str, game_date: str = None) -> float:
+        """Get park and weather factor for run scoring"""
+        if game_date is None:
+            game_date = datetime.now().strftime('%Y-%m-%d')
+        
+        # Try to load daily park/weather data
+        date_formatted = game_date.replace('-', '_')
+        park_weather_file = os.path.join(self.data_dir, f'park_weather_factors_{date_formatted}.json')
+        
+        try:
+            if os.path.exists(park_weather_file):
+                with open(park_weather_file, 'r') as f:
+                    data = json.load(f)
+                    team_data = data.get('teams', {}).get(home_team, {})
+                    return team_data.get('total_factor', 1.0)
+        except Exception as e:
+            logger.debug(f"Could not load park/weather data: {e}")
+        
+        # Fallback to static park factors if weather data unavailable
+        static_park_factors = {
+            "Colorado Rockies": 1.12,      # High altitude
+            "Texas Rangers": 1.06,         # New hitter-friendly park
+            "Baltimore Orioles": 1.05,     # Camden Yards
+            "New York Yankees": 1.05,      # Short porch
+            "Philadelphia Phillies": 1.03,
+            "Boston Red Sox": 1.04,        # Green Monster
+            "Cincinnati Reds": 1.02,
+            "Chicago Cubs": 1.02,          # Wind dependent
+            "Minnesota Twins": 1.01,
+            "Atlanta Braves": 1.01,
+            "Washington Nationals": 1.01,
+            "Toronto Blue Jays": 1.02,
+            "Milwaukee Brewers": 1.00,
+            "Houston Astros": 1.00,
+            "St. Louis Cardinals": 1.00,
+            "Chicago White Sox": 1.00,
+            "Pittsburgh Pirates": 0.99,
+            "Kansas City Royals": 0.98,
+            "Cleveland Guardians": 0.98,
+            "Los Angeles Angels": 0.99,
+            "Tampa Bay Rays": 0.97,
+            "New York Mets": 0.97,
+            "Detroit Tigers": 0.97,
+            "Seattle Mariners": 0.96,
+            "Los Angeles Dodgers": 0.96,
+            "Miami Marlins": 0.95,
+            "San Diego Padres": 0.93,
+            "Oakland Athletics": 0.92,
+            "San Francisco Giants": 0.90
+        }
+        
+        return static_park_factors.get(home_team, 1.0)
     
     def simulate_game_vectorized(self, away_team: str, home_team: str, 
                                sim_count: int = 100, game_date: str = None,
@@ -510,13 +628,37 @@ class FastPredictionEngine:
         self._load_master_data()
     
     def _load_config(self):
-        """Load configuration from file"""
+        """Load configuration from file with comprehensive optimization priority"""
         try:
-            config_file = os.path.join(self.data_dir, 'optimized_config.json')
-            with open(config_file, 'r') as f:
-                return json.load(f)
-        except:
-            return self.sim_engine._get_default_config()
+            # Try comprehensive optimized config first (highest priority)
+            comprehensive_config_file = os.path.join(self.data_dir, 'comprehensive_optimized_config.json')
+            if os.path.exists(comprehensive_config_file):
+                with open(comprehensive_config_file, 'r') as f:
+                    config = json.load(f)
+                    logger.info("✅ Loaded comprehensive optimized configuration with weather/park/betting integration")
+                    return config
+            
+            # Try betting-integrated config second
+            betting_config_file = os.path.join(self.data_dir, 'betting_integrated_config.json')
+            if os.path.exists(betting_config_file):
+                with open(betting_config_file, 'r') as f:
+                    config = json.load(f)
+                    logger.info("✅ Loaded betting-integrated configuration")
+                    return config
+            
+            # Fall back to other configs
+            for config_name in ['balanced_tuned_config.json', 'optimized_config.json']:
+                config_file = os.path.join(self.data_dir, config_name)
+                if os.path.exists(config_file):
+                    with open(config_file, 'r') as f:
+                        config = json.load(f)
+                        logger.info(f"✅ Loaded fallback configuration: {config_name}")
+                        return config
+        except Exception as e:
+            logger.debug(f"Config loading error: {e}")
+        
+        logger.info("🔧 Using default configuration")
+        return self.sim_engine._get_default_config()
     
     def _load_master_data(self):
         """Load master data files"""
@@ -593,6 +735,13 @@ class FastPredictionEngine:
         
         # Get betting lines
         betting_lines = self._get_betting_lines(away_team, home_team, game_date, home_win_prob)
+        
+        # Apply betting lines integration if enabled
+        if self.config.get('betting_integration', {}).get('enabled', False):
+            home_win_prob, avg_total = self._apply_betting_integration(
+                home_win_prob, avg_total, betting_lines
+            )
+            away_win_prob = 1 - home_win_prob
         
         # Betting analysis
         ml_recs = self.betting_analyzer.analyze_moneyline_value(
@@ -714,6 +863,54 @@ class FastPredictionEngine:
             'under_odds': -110
         }
     
+    def _apply_betting_integration(self, home_win_prob: float, predicted_total: float, 
+                                 betting_lines: Dict) -> Tuple[float, float]:
+        """Apply betting lines integration to adjust predictions"""
+        betting_config = self.config.get('betting_integration', {})
+        
+        if not betting_config.get('enabled', False):
+            return home_win_prob, predicted_total
+        
+        betting_weight = betting_config.get('betting_weight', 0.25)
+        line_threshold = betting_config.get('line_confidence_threshold', 0.15)
+        
+        adjusted_home_prob = home_win_prob
+        adjusted_total = predicted_total
+        
+        # Adjust moneyline prediction
+        home_ml = betting_lines.get('home_ml')
+        if home_ml is not None:
+            lines_home_prob = self._moneyline_to_probability(home_ml)
+            if lines_home_prob is not None:
+                # Blend model prediction with lines probability
+                adjusted_home_prob = (
+                    (1 - betting_weight) * home_win_prob + 
+                    betting_weight * lines_home_prob
+                )
+        
+        # Adjust total prediction
+        total_line = betting_lines.get('total_line')
+        if total_line is not None:
+            total_diff = abs(predicted_total - total_line)
+            if total_diff > line_threshold:
+                # Blend model total with lines total
+                adjusted_total = (
+                    (1 - betting_weight) * predicted_total + 
+                    betting_weight * total_line
+                )
+        
+        return adjusted_home_prob, adjusted_total
+    
+    def _moneyline_to_probability(self, moneyline: int) -> Optional[float]:
+        """Convert American moneyline odds to implied probability"""
+        try:
+            if moneyline > 0:
+                return 100 / (moneyline + 100)
+            else:
+                return abs(moneyline) / (abs(moneyline) + 100)
+        except (TypeError, ZeroDivisionError):
+            return None
+    
     def get_todays_games(self, game_date: str = None) -> List[Tuple[str, str]]:
         """Get today's games from master schedule"""
         target_date = game_date or datetime.now().strftime('%Y-%m-%d')
@@ -724,6 +921,59 @@ class FastPredictionEngine:
                 games.append((game['away_team'], game['home_team']))
         
         return games
+    
+    def _get_park_weather_factor(self, home_team: str, game_date: str = None) -> float:
+        """Get park and weather factor for run scoring"""
+        if game_date is None:
+            game_date = datetime.now().strftime('%Y-%m-%d')
+        
+        # Try to load daily park/weather data
+        date_formatted = game_date.replace('-', '_')
+        park_weather_file = os.path.join(self.data_dir, f'park_weather_factors_{date_formatted}.json')
+        
+        try:
+            if os.path.exists(park_weather_file):
+                with open(park_weather_file, 'r') as f:
+                    data = json.load(f)
+                    team_data = data.get('teams', {}).get(home_team, {})
+                    return team_data.get('total_factor', 1.0)
+        except Exception as e:
+            logger.debug(f"Could not load park/weather data: {e}")
+        
+        # Fallback to static park factors if weather data unavailable
+        static_park_factors = {
+            "Colorado Rockies": 1.12,      # High altitude
+            "Texas Rangers": 1.06,         # New hitter-friendly park
+            "Baltimore Orioles": 1.05,     # Camden Yards
+            "New York Yankees": 1.05,      # Short porch
+            "Philadelphia Phillies": 1.03,
+            "Boston Red Sox": 1.04,        # Green Monster
+            "Cincinnati Reds": 1.02,
+            "Chicago Cubs": 1.02,          # Wind dependent
+            "Minnesota Twins": 1.01,
+            "Atlanta Braves": 1.01,
+            "Washington Nationals": 1.01,
+            "Toronto Blue Jays": 1.02,
+            "Milwaukee Brewers": 1.00,
+            "Houston Astros": 1.00,
+            "St. Louis Cardinals": 1.00,
+            "Chicago White Sox": 1.00,
+            "Pittsburgh Pirates": 0.99,
+            "Kansas City Royals": 0.98,
+            "Cleveland Guardians": 0.98,
+            "Los Angeles Angels": 0.99,
+            "Tampa Bay Rays": 0.97,
+            "New York Mets": 0.97,
+            "Detroit Tigers": 0.97,
+            "Seattle Mariners": 0.96,
+            "Los Angeles Dodgers": 0.96,
+            "Miami Marlins": 0.95,
+            "San Diego Padres": 0.93,
+            "Oakland Athletics": 0.92,
+            "San Francisco Giants": 0.90
+        }
+        
+        return static_park_factors.get(home_team, 1.0)
 
 if __name__ == "__main__":
     # Test the engine

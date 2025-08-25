@@ -1,6 +1,6 @@
 {
   "date": "2025-08-25",
-  "fetched_at": "2025-08-25T09:50:07.934027",
+  "fetched_at": "2025-08-25T17:08:13.717763",
   "source": "OddsAPI_live",
   "lines": {
     "Boston Red Sox @ Baltimore Orioles": {
@@ -9,9 +9,9 @@
         "home": -116
       },
       "total_runs": {
-        "line": 9.5,
-        "over": 104,
-        "under": -115
+        "line": 9.0,
+        "over": -104,
+        "under": -102
       },
       "run_line": {
         "line": 1.5,
@@ -21,120 +21,152 @@
     },
     "Atlanta Braves @ Miami Marlins": {
       "moneyline": {
-        "away": -104,
-        "home": -102
+        "away": -111,
+        "home": 100
       },
       "total_runs": {
         "line": 7.5,
-        "over": -110,
-        "under": -101
+        "over": -111,
+        "under": -103
       },
       "run_line": {
         "line": -1.5,
         "away": null,
-        "home": 159
+        "home": 153
       }
     },
     "Tampa Bay Rays @ Cleveland Guardians": {
       "moneyline": {
-        "away": -114,
-        "home": 106
+        "away": -118,
+        "home": 107
       },
       "total_runs": {
         "line": 7.5,
-        "over": -104,
-        "under": -108
+        "over": -110,
+        "under": 102
       },
       "run_line": {
         "line": -1.5,
         "away": null,
-        "home": 172
+        "home": 177
       }
     },
     "Washington Nationals @ New York Yankees": {
       "moneyline": {
-        "away": -222,
-        "home": 200
+        "away": -182,
+        "home": 158
       },
       "total_runs": {
         "line": 9.0,
-        "over": -106,
-        "under": -105
+        "over": 100,
+        "under": -122
       },
       "run_line": {
         "line": -1.5,
         "away": null,
-        "home": -109
+        "home": 108
       }
     },
     "Minnesota Twins @ Toronto Blue Jays": {
       "moneyline": {
-        "away": 127,
-        "home": -138
+        "away": 151,
+        "home": -168
       },
       "total_runs": {
-        "line": 7.5,
-        "over": -115,
-        "under": 100
+        "line": 8.5,
+        "over": -104,
+        "under": -103
       },
       "run_line": {
         "line": 1.5,
-        "away": -169,
+        "away": -138,
         "home": null
       }
     },
     "Philadelphia Phillies @ New York Mets": {
       "moneyline": {
-        "away": 115,
-        "home": -125
+        "away": -104,
+        "home": -106
       },
       "total_runs": {
-        "line": 8.0,
-        "over": 102,
-        "under": -115
+        "line": 8.5,
+        "over": -105,
+        "under": -107
       },
       "run_line": {
         "line": 1.5,
-        "away": -155,
+        "away": -177,
         "home": null
       }
     },
     "Arizona Diamondbacks @ Milwaukee Brewers": {
       "moneyline": {
-        "away": 155,
-        "home": -172
+        "away": 138,
+        "home": -150
       },
       "total_runs": {
         "line": 8.0,
-        "over": 100,
-        "under": -110
+        "over": -115,
+        "under": 101
       },
       "run_line": {
         "line": 1.5,
-        "away": -135,
+        "away": -154,
         "home": null
       }
     },
     "Kansas City Royals @ Chicago White Sox": {
       "moneyline": {
-        "away": 120,
-        "home": -125
+        "away": 109,
+        "home": -121
       },
       "total_runs": {
         "line": 8.5,
-        "over": 102,
-        "under": -114
+        "over": -113,
+        "under": -102
       },
       "run_line": {
         "line": 1.5,
-        "away": -140,
+        "away": -152,
         "home": null
       }
     },
     "Pittsburgh Pirates @ St. Louis Cardinals": {
       "moneyline": {
-        "away": 115,
-        "home": -124
+        "away": 112,
+        "home": -123
+      },
+      "total_runs": {
+        "line": 8.0,
+        "over": 100,
+        "under": -106
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -184,
+        "home": null
+      }
+    },
+    "Los Angeles Angels @ Texas Rangers": {
+      "moneyline": {
+        "away": -102,
+        "home": -116
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -105,
+        "under": -115
+      },
+      "run_line": {
+        "line": -1.5,
+        "away": null,
+        "home": 162
+      }
+    },
+    "San Diego Padres @ Seattle Mariners": {
+      "moneyline": {
+        "away": -101,
+        "home": -112
       },
       "total_runs": {
         "line": 7.5,
@@ -142,73 +174,73 @@
         "under": -102
       },
       "run_line": {
-        "line": 1.5,
-        "away": -189,
-        "home": null
-      }
-    },
-    "Los Angeles Angels @ Texas Rangers": {
-      "moneyline": {
-        "away": 155,
-        "home": -170
-      },
-      "total_runs": {
-        "line": 7.5,
-        "over": -101,
-        "under": -111
-      },
-      "run_line": {
-        "line": 1.5,
-        "away": -142,
-        "home": null
-      }
-    },
-    "San Diego Padres @ Seattle Mariners": {
-      "moneyline": {
-        "away": 113,
-        "home": -122
-      },
-      "total_runs": {
-        "line": 8.0,
-        "over": -115,
-        "under": -105
-      },
-      "run_line": {
-        "line": 1.5,
-        "away": -187,
-        "home": null
+        "line": -1.5,
+        "away": null,
+        "home": 162
       }
     },
     "Detroit Tigers @ Oakland Athletics": {
       "moneyline": {
-        "away": -180,
-        "home": 168
+        "away": -144,
+        "home": 122
       },
       "total_runs": {
-        "line": 9.0,
-        "over": 103,
-        "under": -110
+        "line": 11.0,
+        "over": -105,
+        "under": -115
       },
       "run_line": {
         "line": -1.5,
         "away": null,
-        "home": -115
+        "home": 102
       }
     },
     "Cincinnati Reds @ Los Angeles Dodgers": {
       "moneyline": {
-        "away": 124,
-        "home": -134
+        "away": 158,
+        "home": -174
       },
       "total_runs": {
-        "line": 8.0,
-        "over": -102,
-        "under": -110
+        "line": 8.5,
+        "over": -115,
+        "under": 100
       },
       "run_line": {
         "line": 1.5,
-        "away": -168,
+        "away": -130,
         "home": null
+      }
+    },
+    "Colorado Rockies @ Houston Astros": {
+      "moneyline": {
+        "away": 280,
+        "home": -330
+      },
+      "total_runs": {
+        "line": 8.0,
+        "over": -104,
+        "under": -115
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 132,
+        "home": null
+      }
+    },
+    "Chicago Cubs @ San Francisco Giants": {
+      "moneyline": {
+        "away": -128,
+        "home": 116
+      },
+      "total_runs": {
+        "line": 7.5,
+        "over": -115,
+        "under": 100
+      },
+      "run_line": {
+        "line": -1.5,
+        "away": null,
+        "home": 133
       }
     }
   }

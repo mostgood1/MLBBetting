@@ -249,10 +249,17 @@ def api_today_games(date):
             away_team_assets = get_team_assets(away_team)
             home_team_assets = get_team_assets(home_team)
             
-            # Extract win probabilities from predictions nested structure
+            # Extract win probabilities from predictions - handle both old and new formats
             predictions = prediction.get('predictions', {})
-            away_prob = predictions.get('away_win_prob', 0.5)
-            home_prob = predictions.get('home_win_prob', 0.5)
+            win_probabilities = prediction.get('win_probabilities', {})
+            
+            # Try new format first, then fall back to old format
+            if win_probabilities:
+                away_prob = win_probabilities.get('away_prob', 0.5)
+                home_prob = win_probabilities.get('home_prob', 0.5)
+            else:
+                away_prob = predictions.get('away_win_prob', 0.5)
+                home_prob = predictions.get('home_win_prob', 0.5)
             
             # Convert to percentages if needed
             if away_prob <= 1:
@@ -260,10 +267,15 @@ def api_today_games(date):
             if home_prob <= 1:
                 home_prob *= 100
             
-            predicted_total = predictions.get('predicted_total_runs', 0)
+            # Try new format first, then old format for total runs
+            predicted_total = prediction.get('predicted_total_runs', 0)
+            if not predicted_total:
+                predicted_total = predictions.get('predicted_total_runs', 0)
             
-            # Extract betting recommendations if available
-            value_bets = prediction.get('recommendations', [])
+            # Extract betting recommendations - handle both old and new formats
+            value_bets = prediction.get('value_bets', [])
+            if not value_bets:
+                value_bets = prediction.get('recommendations', [])
             
             # Extract pitcher names - try multiple sources for real names
             away_pitcher = prediction.get('away_pitcher', 'TBD')

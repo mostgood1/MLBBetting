@@ -49,33 +49,32 @@ class BettingRecommendationsEngine:
         else:
             self.current_date = date
         
-                        # ==========================================
-        # BALANCED MODEL PARAMETERS (v5.0)
-        # Applied: 2025-08-25 - Balanced bias correction
-        # Target: 48-52% home win rate with realistic scoring
+                # ==========================================
+        # AGGRESSIVE MODEL PARAMETERS (v4.0)
+        # Applied: 2025-08-25 - Aggressive bias elimination
         # ==========================================
         
-        # Core prediction parameters (BALANCED corrections)
-        self.home_field_advantage = 0.06  # Moderate home advantage
-        self.away_field_boost = 0.04        # Moderate away team boost
-        self.base_runs_per_team = 3.9     # Balanced base scoring
-        self.base_lambda = 4.0            # Moderate variance
+        # Core prediction parameters (AGGRESSIVE corrections)
+        self.home_field_advantage = 0.02  # Minimal home advantage
+        self.away_field_boost = 0.08        # NEW: Away team boost
+        self.base_runs_per_team = 3.8     # Further reduced scoring
+        self.base_lambda = 3.9            # Reduced variance
         
-        # Pitcher impact parameters (balanced for accuracy)
-        self.pitcher_era_weight = 0.78    # Good ERA impact
-        self.pitcher_whip_weight = 0.38   # Good WHIP impact
+        # Pitcher impact parameters (maximized for accuracy)
+        self.pitcher_era_weight = 0.85    # Maximized ERA impact
+        self.pitcher_whip_weight = 0.45   # Maximized WHIP impact
         
         # Team and game parameters
-        self.team_strength_multiplier = 0.17  # Moderate team impact
-        self.game_chaos_variance = 0.38       # Moderate variance
+        self.team_strength_multiplier = 0.15  # Minimized team impact
+        self.game_chaos_variance = 0.35       # Reduced variance
         
         # Bullpen integration (maintained)
         self.bullpen_weight = 0.15
         
-        # BALANCED scoring bias corrections
-        self.total_scoring_adjustment = 0.9  # Reduce total scoring by 10%
-        self.home_scoring_boost = 0.92       # Moderate home penalty
-        self.away_scoring_boost = 1.05       # Moderate away boost
+        # AGGRESSIVE scoring bias corrections
+        self.total_scoring_adjustment = 0.88  # Reduce total scoring by 12%
+        self.home_scoring_boost = 0.88       # Significant home penalty
+        self.away_scoring_boost = 1.08       # Significant away boost
         
         # Simulation parameters
         self.simulation_count = 2000

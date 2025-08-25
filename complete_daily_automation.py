@@ -111,6 +111,8 @@ def complete_daily_automation():
     # Pre-check: Verify which scripts are available
     logger.info("\n🔍 PRE-CHECK: Verifying Available Scripts")
     scripts_to_check = [
+        "data_update_scheduler.py",
+        "fast_pitcher_updater.py",
         "fetch_today_games.py",
         "enhanced_mlb_fetcher.py", 
         "fetch_todays_starters.py",
@@ -135,6 +137,24 @@ def complete_daily_automation():
         logger.warning("⚠️ Missing critical scripts - automation may fail")
     else:
         logger.info("✅ Sufficient scripts available for automation")
+    
+    # Step 0: Update Core Data (Scheduled Updates)
+    logger.info("\n🎯 STEP 0: Running Scheduled Data Updates")
+    data_scheduler_script = base_dir / "data_update_scheduler.py"
+
+    success0 = False
+    if data_scheduler_script.exists():
+        success0 = run_script(data_scheduler_script, "Scheduled Data Updates", logger, 1800)  # 30 min timeout
+    else:
+        logger.warning("⚠️ Data update scheduler not found - trying individual updates")
+        
+        # Fallback to individual fast pitcher update
+        pitcher_update_script = base_dir / "fast_pitcher_updater.py"
+        if pitcher_update_script.exists():
+            success0 = run_script(pitcher_update_script, "Fast Pitcher Stats Update", logger, 600)
+
+    if not success0:
+        logger.warning("⚠️ Core data not updated - using existing data")
     
     # Step 1: Fetch Today's Games & Schedule 
     logger.info("\n🎯 STEP 1: Fetching Today's MLB Games & Schedule")
