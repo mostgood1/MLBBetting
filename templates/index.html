@@ -789,9 +789,98 @@
             // Initialize TBD monitoring
             updateTBDStatus();
             
+            // Initialize live dashboard stats
+            loadLiveDashboardStats();
+            
             // Update TBD status every 5 minutes
             setInterval(updateTBDStatus, 300000);
+            
+            // Update dashboard stats every 2 minutes
+            setInterval(loadLiveDashboardStats, 120000);
         });
+
+        // 🔥 LIVE DASHBOARD STATS WIDGET
+        async function loadLiveDashboardStats() {
+            try {
+                console.log('🔄 Loading live dashboard stats from historical analysis API...');
+                
+                const response = await fetch('http://localhost:5001/api/cumulative');
+                if (!response.ok) {
+                    console.warn('❌ Historical analysis API not available, keeping server-side stats');
+                    return;
+                }
+                
+                const apiData = await response.json();
+                if (!apiData.success || !apiData.data) {
+                    console.warn('❌ Historical analysis API returned error:', apiData.message);
+                    return;
+                }
+                
+                const data = apiData.data;
+                const betting = data.betting_performance || {};
+                const analysis = data.analysis_period || '2025-08-15 to 2025-08-25';
+                
+                console.log('✅ Live dashboard data loaded:', {
+                    totalRecommendations: betting.total_recommendations,
+                    accuracy: betting.overall_accuracy,
+                    roi: betting.roi_percentage
+                });
+                
+                // Update the dashboard stats with live data
+                updateDashboardStat(0, {
+                    value: betting.total_recommendations || 0,
+                    subtitle: `Since ${analysis.split(' to ')[0]} (${data.total_dates_analyzed || 0} days)`
+                });
+                
+                updateDashboardStat(1, {
+                    value: `${(betting.overall_accuracy || 0).toFixed(2)}%`,
+                    subtitle: `${betting.correct_recommendations || 0}/${betting.total_recommendations || 0} correct predictions`
+                });
+                
+                updateDashboardStat(2, {
+                    value: `$${(betting.net_profit || 0).toFixed(2)}`,
+                    subtitle: `${(betting.roi_percentage || 0).toFixed(2)}% ROI on ${betting.total_recommendations || 0} bets`
+                });
+                
+                updateDashboardStat(3, {
+                    value: `${(betting.overall_accuracy || 0).toFixed(2)}%`,
+                    subtitle: `${betting.correct_recommendations || 0} winning bets of ${betting.total_recommendations || 0} placed`
+                });
+                
+                // Add visual indicator that data is live
+                const header = document.querySelector('.header p');
+                if (header && !header.textContent.includes('🔴 LIVE')) {
+                    header.innerHTML = header.innerHTML.replace('📊 Comprehensive Analysis', '🔴 LIVE Analysis');
+                }
+                
+                console.log('✅ Dashboard stats updated with live data');
+                
+            } catch (error) {
+                console.warn('⚠️ Could not load live dashboard stats:', error);
+                // Keep server-side stats if API fails
+            }
+        }
+        
+        function updateDashboardStat(index, data) {
+            const statCards = document.querySelectorAll('#summary-stats .stat-card h3');
+            const subtitleCards = document.querySelectorAll('#summary-stats .stat-card small');
+            
+            if (statCards[index]) {
+                statCards[index].textContent = data.value;
+                // Add a subtle animation to show the update
+                statCards[index].style.transition = 'all 0.3s ease';
+                statCards[index].style.transform = 'scale(1.05)';
+                statCards[index].style.color = '#4fd1c7';
+                setTimeout(() => {
+                    statCards[index].style.transform = 'scale(1)';
+                    statCards[index].style.color = '';
+                }, 300);
+            }
+            
+            if (subtitleCards[index] && data.subtitle) {
+                subtitleCards[index].textContent = data.subtitle;
+            }
+        }
 
         function goToHistoricalAnalysis() {
             // Navigate to historical analysis page
@@ -1225,7 +1314,7 @@
                     document.getElementById('total-games').textContent = summary.total_games;
                     document.getElementById('completed-games').textContent = summary.completed_games;
                     document.getElementById('prediction-accuracy').textContent = 
-                        (summary.prediction_accuracy * 100).toFixed(1) + '%';
+                        (summary.prediction_accuracy * 100).toFixed(2) + '%';
                     document.getElementById('avg-error').textContent = 
                         summary.avg_score_error.toFixed(2);
                 }
@@ -1596,7 +1685,7 @@
                     <div class="label">${game.home_team.split(' ').pop()}</div>
                 </div>
                 <div class="prediction-item">
-                    <div class="value">${homeWinProb.toFixed(0)}%</div>
+                    <div class="value">${homeWinProb.toFixed(2)}%</div>
                     <div class="label">Home Win</div>
                 </div>
             `;
@@ -1758,7 +1847,7 @@
                             <strong>Winner:</strong> ${winnerCorrect ? '✅ Correct' : '❌ Incorrect'}
                         </div>
                         <div class="analysis-item">
-                            <strong>Score Error:</strong> ±${avgScoreDiff.toFixed(1)} runs
+                            <strong>Score Error:</strong> ±${avgScoreDiff.toFixed(2)} runs
                         </div>
                         <div class="analysis-item">
                             <strong>Total Runs:</strong> ${actualTotalRuns} (predicted ${predictedTotalRuns})
@@ -1797,7 +1886,7 @@
                                 <div class="label">${homeTeam.split(' ').pop()}</div>
                             </div>
                             <div class="prediction-item">
-                                <div class="value">${pred.home_win_probability.toFixed(0)}%</div>
+                                <div class="value">${pred.home_win_probability.toFixed(2)}%</div>
                                 <div class="label">Home Win</div>
                             </div>
                         `;
@@ -1908,15 +1997,15 @@
                     
                     // Display the recommendation with enhanced formatting
                     const recommendation = bet.recommendation || `${bet.direction?.toUpperCase()} ${bet.line}`;
-                    const edgeText = typeof bet.edge === 'number' ? `${bet.edge.toFixed(1)}% edge` : 
+                    const edgeText = typeof bet.edge === 'number' ? `${bet.edge.toFixed(2)}% edge` : 
                                     bet.edge ? bet.edge : 
                                     bet.confidence ? `${bet.confidence} CONFIDENCE` : 'Value Bet';
                     
-                    // Format Expected Value display
+                    // Format Expected Value display - LIMITED TO 2 DECIMAL PLACES MAX
                     let evDisplay = '';
                     let evBadge = '';
                     if (bet.expected_value !== undefined && bet.expected_value !== null) {
-                        const evPercent = (bet.expected_value * 100).toFixed(1);
+                        const evPercent = (bet.expected_value * 100).toFixed(2);
                         const evColor = bet.expected_value > 0 ? '#4fd1c7' : '#ff6b6b';
                         const evSign = bet.expected_value > 0 ? '+' : '';
                         evDisplay = `<span style="color: ${evColor}; font-weight: bold;">EV: ${evSign}${evPercent}%</span>`;
@@ -2073,7 +2162,7 @@
                             <div class="label">Total Runs</div>
                         </div>
                         <div class="prediction-item">
-                            <div class="value">${pred.home_win_probability.toFixed(1)}%</div>
+                            <div class="value">${pred.home_win_probability.toFixed(2)}%</div>
                             <div class="label">Home Win Prob</div>
                         </div>
                     </div>
@@ -2143,10 +2232,10 @@
                         const icon = bet.edge_rating || (bet.confidence === 'HIGH' ? '🔥' : 
                                    bet.confidence === 'MEDIUM' ? '⚡' : '💡');
                         
-                        // Format Expected Value for modal
+                        // Format Expected Value for modal - LIMITED TO 2 DECIMAL PLACES MAX
                         let evModalDisplay = '';
                         if (bet.expected_value !== undefined && bet.expected_value !== null) {
-                            const evPercent = (bet.expected_value * 100).toFixed(1);
+                            const evPercent = (bet.expected_value * 100).toFixed(2);
                             const evColor = bet.expected_value > 0 ? '#4fd1c7' : '#ff6b6b';
                             const evSign = bet.expected_value > 0 ? '+' : '';
                             evModalDisplay = `<div style="color: ${evColor}; font-weight: bold; font-size: 0.95em;">EV: ${evSign}${evPercent}%</div>`;
@@ -2157,7 +2246,7 @@
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                     <strong style="color: ${confidenceColor}; font-size: 1.1em;">${icon} ${bet.recommendation || bet.bet}</strong>
                                     <div style="text-align: right; font-size: 0.9em;">
-                                        <div style="color: #4fd1c7; font-weight: bold;">${typeof bet.edge === 'number' ? bet.edge.toFixed(1) + '% edge' : bet.edge ? bet.edge : bet.confidence ? bet.confidence + ' CONFIDENCE' : 'Value Bet'}</div>
+                                        <div style="color: #4fd1c7; font-weight: bold;">${typeof bet.edge === 'number' ? bet.edge.toFixed(2) + '% edge' : bet.edge ? bet.edge : bet.confidence ? bet.confidence + ' CONFIDENCE' : 'Value Bet'}</div>
                                         ${evModalDisplay}
                                         ${bet.estimated_odds && bet.estimated_odds !== 'N/A' ? `<div style="color: #888;">${bet.estimated_odds}</div>` : ''}
                                     </div>
@@ -2193,7 +2282,7 @@
             
             html += `
                 <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
-                    ${meta.execution_time_ms > 0 ? `Execution Time: ${meta.execution_time_ms.toFixed(1)}ms | ` : ''}
+                    ${meta.execution_time_ms > 0 ? `Execution Time: ${meta.execution_time_ms.toFixed(2)}ms | ` : ''}
                     Simulations: ${(meta.simulations_run || 5000).toLocaleString()} |
                     Data Source: ${meta.data_source || 'comprehensive_engine'}
                 </div>

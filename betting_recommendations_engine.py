@@ -48,6 +48,62 @@ class BettingRecommendationsEngine:
             self.current_date = datetime.now().strftime('%Y-%m-%d')
         else:
             self.current_date = date
+    def normalize_team_name(self, team_name):
+        """Normalize team names for consistent matching"""
+        if not team_name:
+            return ""
+        
+        # Standard team name mappings
+        name_mappings = {
+            "Oakland Athletics": "Athletics",
+            "Oakland A's": "Athletics",
+            "A's": "Athletics",
+            "Los Angeles Angels of Anaheim": "Los Angeles Angels",
+            "LAA": "Los Angeles Angels",
+            "LAD": "Los Angeles Dodgers",
+            "SD": "San Diego Padres",
+            "SF": "San Francisco Giants",
+            "WSN": "Washington Nationals",
+            "WSH": "Washington Nationals",
+            "NYY": "New York Yankees",
+            "NYM": "New York Mets",
+            "TB": "Tampa Bay Rays",
+            "TOR": "Toronto Blue Jays",
+            "BAL": "Baltimore Orioles",
+            "BOS": "Boston Red Sox",
+            "CLE": "Cleveland Guardians",
+            "Cleveland Indians": "Cleveland Guardians",
+            "DET": "Detroit Tigers",
+            "KC": "Kansas City Royals",
+            "MIN": "Minnesota Twins",
+            "CWS": "Chicago White Sox",
+            "CHW": "Chicago White Sox",
+            "HOU": "Houston Astros",
+            "SEA": "Seattle Mariners",
+            "TEX": "Texas Rangers",
+            "ATL": "Atlanta Braves",
+            "MIA": "Miami Marlins",
+            "NYM": "New York Mets",
+            "PHI": "Philadelphia Phillies",
+            "WSN": "Washington Nationals",
+            "CHC": "Chicago Cubs",
+            "MIL": "Milwaukee Brewers",
+            "PIT": "Pittsburgh Pirates",
+            "STL": "St. Louis Cardinals",
+            "CIN": "Cincinnati Reds",
+            "ARI": "Arizona Diamondbacks",
+            "COL": "Colorado Rockies",
+            "LAD": "Los Angeles Dodgers",
+            "SD": "San Diego Padres",
+            "SF": "San Francisco Giants"
+        }
+        
+        # Check for direct mapping
+        if team_name in name_mappings:
+            return name_mappings[team_name]
+        
+        return team_name
+
     def load_pitcher_info(self, date):
         import os
         date_underscore = date.replace('-', '_')
@@ -190,6 +246,13 @@ class BettingRecommendationsEngine:
 
         # Load pitcher info for the date
         pitcher_lookup = self.load_pitcher_info(self.current_date)
+        logger.info(f"🏆 Loaded pitcher lookup for {self.current_date}: {len(pitcher_lookup)} games found")
+        if pitcher_lookup:
+            sample_key = next(iter(pitcher_lookup))
+            sample_pitcher = pitcher_lookup[sample_key]
+            logger.info(f"🏆 Sample pitcher data: {sample_key} -> {sample_pitcher}")
+        else:
+            logger.warning(f"⚠️ No pitcher data found for {self.current_date}")
 
         # Get betting lines
         lines = self.fetch_current_betting_lines()
@@ -220,6 +283,16 @@ class BettingRecommendationsEngine:
             rec_game['away_team'] = game_data.get('away_team')
             rec_game['home_team'] = game_data.get('home_team')
             rec_game['game_date'] = game_data.get('game_date')
+            
+            # Add pitcher info from lookup
+            pitcher_info = pitcher_lookup.get(game_key, {})
+            rec_game['away_pitcher'] = pitcher_info.get('away_pitcher')
+            rec_game['home_pitcher'] = pitcher_info.get('home_pitcher')
+            
+            if not pitcher_info:
+                logger.warning(f"⚠️ No pitcher info found for game key: {game_key}")
+            else:
+                logger.info(f"🏆 Added pitchers for {game_key}: {pitcher_info['away_pitcher']} vs {pitcher_info['home_pitcher']}")
             
             # Copy ONLY the predictions data (not the entire game_data structure)
             predictions = game_data.get('predictions', {})
