@@ -65,5 +65,5 @@ echo "🔍 Checking Gunicorn installation..."
 gunicorn --version || exit 1
 
 # Start the application with Gunicorn
-echo "🌐 Starting Gunicorn server on port $PORT..."
-exec gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 120 --max-requests 1000 --preload app:app
+echo "🌐 Starting Historical Analysis App on port $PORT..."
+exec gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 120 --max-requests 1000 --preload historical_analysis_app:app

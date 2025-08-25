@@ -610,8 +610,8 @@ if __name__ == '__main__':
     else:
         logger.error("❌ Historical analyzer not initialized - some endpoints will fail")
     
-    # Use different port from main app to avoid conflicts
-    port = int(os.environ.get('HISTORICAL_PORT', 5001))
+    # Use PORT environment variable for Render deployment, fallback for local development
+    port = int(os.environ.get('PORT', os.environ.get('HISTORICAL_PORT', 5001)))
     debug_mode = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info(f"🚀 Starting Historical Analysis App on port {port} (debug: {debug_mode})")
