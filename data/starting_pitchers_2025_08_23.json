@@ -1,0 +1,104 @@
+{
+  "date": "2025-08-23",
+  "fetched_at": "2025-08-23T15:47:11.304900",
+  "games": [
+    {
+      "away_team": "Boston Red Sox",
+      "home_team": "New York Yankees",
+      "away_pitcher": "Garrett Crochet",
+      "home_pitcher": "Will Warren",
+      "game_key": "Boston Red Sox @ New York Yankees"
+    },
+    {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Miami Marlins",
+      "away_pitcher": "Jos\u00e9 Berr\u00edos",
+      "home_pitcher": "Janson Junk",
+      "game_key": "Toronto Blue Jays @ Miami Marlins"
+    },
+    {
+      "away_team": "Washington Nationals",
+      "home_team": "Philadelphia Phillies",
+      "away_pitcher": "Mitchell Parker",
+      "home_pitcher": "Aaron Nola",
+      "game_key": "Washington Nationals @ Philadelphia Phillies"
+    },
+    {
+      "away_team": "Kansas City Royals",
+      "home_team": "Detroit Tigers",
+      "away_pitcher": "Michael Wacha",
+      "home_pitcher": "Chris Paddack",
+      "game_key": "Kansas City Royals @ Detroit Tigers"
+    },
+    {
+      "away_team": "Colorado Rockies",
+      "home_team": "Pittsburgh Pirates",
+      "away_pitcher": "Kyle Freeland",
+      "home_pitcher": "Mike Burrows",
+      "game_key": "Colorado Rockies @ Pittsburgh Pirates"
+    },
+    {
+      "away_team": "Houston Astros",
+      "home_team": "Baltimore Orioles",
+      "away_pitcher": "Cristian Javier",
+      "home_pitcher": "Dean Kremer",
+      "game_key": "Houston Astros @ Baltimore Orioles"
+    },
+    {
+      "away_team": "Cleveland Guardians",
+      "home_team": "Texas Rangers",
+      "away_pitcher": "Logan Allen",
+      "home_pitcher": "Jack Leiter",
+      "game_key": "Cleveland Guardians @ Texas Rangers"
+    },
+    {
+      "away_team": "Minnesota Twins",
+      "home_team": "Chicago White Sox",
+      "away_pitcher": "Mick Abel",
+      "home_pitcher": "Davis Martin",
+      "game_key": "Minnesota Twins @ Chicago White Sox"
+    },
+    {
+      "away_team": "San Francisco Giants",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": "Logan Webb",
+      "home_pitcher": "Freddy Peralta",
+      "game_key": "San Francisco Giants @ Milwaukee Brewers"
+    },
+    {
+      "away_team": "New York Mets",
+      "home_team": "Atlanta Braves",
+      "away_pitcher": "Clay Holmes",
+      "home_pitcher": "Cal Quantrill",
+      "game_key": "New York Mets @ Atlanta Braves"
+    },
+    {
+      "away_team": "Cincinnati Reds",
+      "home_team": "Arizona Diamondbacks",
+      "away_pitcher": "Andrew Abbott",
+      "home_pitcher": "Jalen Beeks",
+      "game_key": "Cincinnati Reds @ Arizona Diamondbacks"
+    },
+    {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "San Diego Padres",
+      "away_pitcher": "Tyler Glasnow",
+      "home_pitcher": "Nestor Cortes",
+      "game_key": "Los Angeles Dodgers @ San Diego Padres"
+    },
+    {
+      "away_team": "Chicago Cubs",
+      "home_team": "Los Angeles Angels",
+      "away_pitcher": "Cade Horton",
+      "home_pitcher": "Victor Mederos",
+      "game_key": "Chicago Cubs @ Los Angeles Angels"
+    },
+    {
+      "away_team": "Athletics",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "Jeffrey Springs",
+      "home_pitcher": "George Kirby",
+      "game_key": "Athletics @ Seattle Mariners"
+    }
+  ]
+}

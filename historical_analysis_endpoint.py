@@ -27,6 +27,47 @@ historical_analysis_bp = Blueprint('historical_analysis', __name__)
 
 class HistoricalAnalyzer:
     """Comprehensive historical analysis for MLB predictions and betting performance"""
+    def log_normalized_keys(self, games: Dict, final_scores: Dict):
+        logger.info("--- Normalized Keys Comparison ---")
+        logger.info("Betting Recommendations Keys:")
+        for game_key, game_data in games.items():
+            away = self.normalize_team_name(game_data.get('away_team', ''))
+            home = self.normalize_team_name(game_data.get('home_team', ''))
+            key = f"{away}_vs_{home}"
+            logger.info(f"  {key}")
+        logger.info("Final Scores Keys:")
+        for score_key in final_scores.keys():
+            logger.info(f"  {score_key}")
+        logger.info("--- End Comparison ---")
+"""
+Historical Analysis Endpoint - Comprehensive Model & Betting Performance Analysis
+=============================================================================
+This module provides detailed analysis of model predictability, betting accuracy, and ROI
+for any historical date with complete predictions and final scores.
+
+Analysis Components:
+1. Predictability - Model accuracy on winners and score predictions
+2. Betting Lens - Performance from a betting perspective (winners + totals)
+3. Betting Recommendations - Analysis of recommendation accuracy and types
+4. ROI Analysis - Financial performance assuming $100 unit bets
+"""
+
+import json
+import os
+import logging
+from datetime import datetime, timedelta
+from flask import Blueprint, jsonify, request
+from typing import Dict, List, Tuple, Optional
+from team_name_normalizer import normalize_team_name
+
+# Setup logging
+logger = logging.getLogger(__name__)
+
+# Create Blueprint
+historical_analysis_bp = Blueprint('historical_analysis', __name__)
+
+class HistoricalAnalyzer:
+    """Comprehensive historical analysis for MLB predictions and betting performance"""
     
     def __init__(self):
         self.predictions_cache_path = 'data/unified_predictions_cache.json'
@@ -35,23 +76,39 @@ class HistoricalAnalyzer:
     def normalize_team_name(self, team_name: str) -> str:
         return normalize_team_name(team_name)
     
+    def log_normalized_keys(self, games: Dict, final_scores: Dict):
+        logger.info("--- Normalized Keys Comparison ---")
+        logger.info("Betting Recommendations Keys:")
+        for game_key, game_data in games.items():
+            away = self.normalize_team_name(game_data.get('away_team', ''))
+            home = self.normalize_team_name(game_data.get('home_team', ''))
+            key = f"{away}_vs_{home}"
+            logger.info(f"  {key}")
+        logger.info("Final Scores Keys:")
+        for score_key in final_scores.keys():
+            logger.info(f"  {score_key}")
+        logger.info("--- End Comparison ---")
+    
     def load_predictions_for_date(self, target_date: str) -> Dict:
-        """Load predictions from unified_predictions_cache.json for specific date"""
+        """Load games from betting_recommendations JSON for specific date"""
+        import os
+        date_formatted = target_date.replace('-', '_')
+        rec_path = os.path.join('data', f'betting_recommendations_{date_formatted}.json')
         try:
-            with open(self.predictions_cache_path, 'r') as f:
-                cache = json.load(f)
-            games = cache.get('predictions_by_date', {}).get(target_date, {}).get('games', {})
+            with open(rec_path, 'r') as f:
+                rec_data = json.load(f)
+            games = rec_data.get('games', {})
             if isinstance(games, dict):
-                logger.info(f"Loaded {len(games)} games from unified predictions cache for {target_date}")
+                logger.info(f"Loaded {len(games)} games from betting recommendations for {target_date}")
                 return games
             else:
-                logger.warning(f"Games key in unified cache for {target_date} is not a dict.")
+                logger.warning(f"Games key in betting recommendations for {target_date} is not a dict.")
                 return {}
         except FileNotFoundError:
-            logger.error(f"Unified predictions cache not found: {self.predictions_cache_path}")
+            logger.error(f"Betting recommendations file not found: {rec_path}")
             return {}
         except Exception as e:
-            logger.error(f"Error loading unified predictions cache: {e}")
+            logger.error(f"Error loading betting recommendations: {e}")
             return {}
     
     def load_final_scores_for_date(self, target_date: str) -> Dict:
@@ -96,6 +153,7 @@ class HistoricalAnalyzer:
         away_win_prob = None
         home_win_prob = None
         
+        # First try the old structure
         for key in ['away_win_probability', 'away_win_prob', 'away_win']:
             if away_win_prob is None:
                 away_win_prob = predictions.get(key)
@@ -104,10 +162,18 @@ class HistoricalAnalyzer:
             if home_win_prob is None:
                 home_win_prob = predictions.get(key)
         
+        # NEW: Try the unified betting engine structure (win_probabilities object)
+        if away_win_prob is None or home_win_prob is None:
+            win_probs = game_data.get('win_probabilities', {})
+            if win_probs:
+                away_win_prob = win_probs.get('away_prob', away_win_prob)
+                home_win_prob = win_probs.get('home_prob', home_win_prob)
+        
         # Extract predicted scores with fallback keys
         predicted_away = None
         predicted_home = None
         
+        # First try the old structure
         for key in ['predicted_away_score', 'away_score', 'away_runs']:
             if predicted_away is None:
                 predicted_away = predictions.get(key)
@@ -116,9 +182,21 @@ class HistoricalAnalyzer:
             if predicted_home is None:
                 predicted_home = predictions.get(key)
         
+        # NEW: Try parsing the unified betting engine's "predicted_score" string format
+        if predicted_away is None or predicted_home is None:
+            predicted_score_str = game_data.get('predicted_score', '')
+            if predicted_score_str and '-' in predicted_score_str:
+                try:
+                    parts = predicted_score_str.split('-')
+                    if len(parts) == 2:
+                        predicted_away = float(parts[0])
+                        predicted_home = float(parts[1])
+                except (ValueError, IndexError):
+                    pass
+        
         # Extract pitchers
-        away_pitcher = predictions.get('away_pitcher', 'TBD')
-        home_pitcher = predictions.get('home_pitcher', 'TBD')
+        away_pitcher = predictions.get('away_pitcher', game_data.get('away_pitcher', 'TBD'))
+        home_pitcher = predictions.get('home_pitcher', game_data.get('home_pitcher', 'TBD'))
         
         return {
             'away_team': away_team,
@@ -132,19 +210,23 @@ class HistoricalAnalyzer:
         }
     
     def analyze_predictability(self, games: Dict, final_scores: Dict) -> Dict:
+        self.log_normalized_keys(games, final_scores)
         """Analyze model predictability - winner accuracy and score accuracy"""
         total_games = len(games)
         winner_correct = 0
         team_score_errors = []
         total_score_errors = []
         matched_games = 0
-        
+
+        logger.info(f"Prediction keys: {list(games.keys())}")
+        logger.info(f"Final score keys: {list(final_scores.keys())}")
+
         for game_key, game_data in games.items():
             pred_values = self.extract_prediction_values(game_data)
-            
+
             # Skip if essential prediction data is missing
             if not all([
-                pred_values['away_team'], 
+                pred_values['away_team'],
                 pred_values['home_team'],
                 pred_values['away_win_probability'] is not None,
                 pred_values['home_win_probability'] is not None,
@@ -152,19 +234,20 @@ class HistoricalAnalyzer:
                 pred_values['predicted_home_score'] is not None
             ]):
                 continue
-            
+
             # Find matching final score
             away_norm = self.normalize_team_name(pred_values['away_team'])
             home_norm = self.normalize_team_name(pred_values['home_team'])
             score_key = f"{away_norm}_vs_{home_norm}"
-            
+
             logger.info(f"Trying to match: {score_key} (from prediction) against final scores keys: {list(final_scores.keys())}")
             final_score = final_scores.get(score_key)
             if not final_score:
                 logger.warning(f"No match found for: {score_key}. Away: {pred_values['away_team']} -> {away_norm}, Home: {pred_values['home_team']} -> {home_norm}")
-                
+                continue
+
             matched_games += 1
-            
+
             # Winner Analysis
             logger.info(f"Win probabilities for game {score_key}: away={pred_values['away_win_probability']} ({type(pred_values['away_win_probability'])}), home={pred_values['home_win_probability']} ({type(pred_values['home_win_probability'])})")
             try:
@@ -176,7 +259,7 @@ class HistoricalAnalyzer:
             except (TypeError, ValueError):
                 logger.warning(f"Skipping game {score_key} due to invalid win probability values: away={pred_values['away_win_probability']}, home={pred_values['home_win_probability']}")
                 continue
-            
+
             actual_away_score = final_score['away_score']
             actual_home_score = final_score['home_score']
             # Diagnostic: log types and values
@@ -187,26 +270,26 @@ class HistoricalAnalyzer:
             except (TypeError, ValueError):
                 logger.warning(f"Skipping game {score_key} due to invalid score values: away={actual_away_score}, home={actual_home_score}")
                 continue
-            actual_winner = (pred_values['away_team'] 
-                           if away_score_float > home_score_float 
+            actual_winner = (pred_values['away_team']
+                           if away_score_float > home_score_float
                            else pred_values['home_team'])
-            
+
             if self.normalize_team_name(predicted_winner) == self.normalize_team_name(actual_winner):
                 winner_correct += 1
-            
+
             # Score Analysis
             pred_away = float(pred_values['predicted_away_score'])
             pred_home = float(pred_values['predicted_home_score'])
-            
+
             # Individual team score errors
             team_score_errors.append(abs(pred_away - actual_away_score))
             team_score_errors.append(abs(pred_home - actual_home_score))
-            
+
             # Total game score error
             pred_total = pred_away + pred_home
             actual_total = actual_away_score + actual_home_score
             total_score_errors.append(abs(pred_total - actual_total))
-        
+
         return {
             'total_games': total_games,
             'matched_games': matched_games,
@@ -1022,15 +1105,19 @@ def get_historical_analysis():
             analysis = analyzer.perform_complete_analysis(target_date)
 
         if 'error' in analysis:
+            logger.error(f"Analysis error: {analysis.get('error')}, details: {analysis}")
             return jsonify(analysis), 404
 
         return jsonify(analysis)
 
     except Exception as e:
-        logger.error(f"Error in historical analysis endpoint: {e}")
+        import traceback
+        tb = traceback.format_exc()
+        logger.error(f"Error in historical analysis endpoint: {e}\nTraceback:\n{tb}")
         return jsonify({
             'error': 'Internal server error',
-            'message': str(e)
+            'message': str(e),
+            'traceback': tb
         }), 500
 
 # Test endpoint for development

@@ -474,7 +474,7 @@
         </div>
 
         <div class="date-selector">
-            <button onclick="loadCumulativeAnalysis()" style="background: linear-gradient(45deg, #28a745, #20c997);">📊 Cumulative Analysis (Since 8/19)</button>
+            <button onclick="loadCumulativeAnalysis()" style="background: linear-gradient(45deg, #28a745, #20c997);">📊 Cumulative Analysis (Since 8/15)</button>
             <button onclick="toggleGameCards()" id="toggle-cards-btn" style="background: linear-gradient(45deg, #6f42c1, #e83e8c); display: none;">🎮 Show Game Cards</button>
             <label for="analysis-date">Single Date:</label>
             <input type="date" id="analysis-date" name="analysis-date">
@@ -645,7 +645,7 @@
         function loadCumulativeAnalysis() {
             showLoading();
             
-            fetch('/api/historical-analysis?type=cumulative&start_date=2025-08-19')
+            fetch('/api/historical-analysis?type=cumulative&start_date=2025-08-15')
                 .then(response => response.json())
                 .then(data => {
                     hideLoading();

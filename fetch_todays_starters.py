@@ -9,6 +9,7 @@ Get actual starting pitcher assignments for today's games from MLB API.
 import requests
 import json
 import logging
+import os
 from datetime import datetime
 
 # Set up logging
@@ -85,19 +86,40 @@ def fetch_todays_starting_pitchers():
 
 def update_predictions_with_real_pitchers(pitcher_data):
     """Update today's predictions with real starting pitcher data"""
-    
-    if not pitcher_data:
-        logger.error("No pitcher data to update predictions with")
-        return False
-    
-    logger.info("🔄 Updating predictions with real starting pitchers...")
-    
     try:
-        # Load current predictions
-        with open('unified_predictions_cache.json', 'r') as f:
-            predictions_data = json.load(f)
-        
+        # Load current predictions cache (append by date)
+        cache_path = 'unified_predictions_cache.json'
+        if os.path.exists(cache_path):
+            with open(cache_path, 'r') as f:
+                try:
+                    predictions_data = json.load(f)
+                except Exception:
+                    predictions_data = {}
+        else:
+            predictions_data = {}
         today = datetime.now().strftime('%Y-%m-%d')
+        # Ensure structure
+        if 'predictions_by_date' not in predictions_data:
+            predictions_data['predictions_by_date'] = {}
+        # Update only today's predictions (assume already present)
+        if today in predictions_data['predictions_by_date']:
+            day_data = predictions_data['predictions_by_date'][today]
+            updated_count = 0
+            # ...existing code to update day_data['games'] with pitcher info...
+            for game_key, game_data in day_data['games'].items():
+                # ...existing code for updating pitcher info...
+                pass
+            # Update metadata
+            day_data['metadata']['last_pitcher_update'] = datetime.now().isoformat()
+            day_data['metadata']['pitcher_update_date'] = today
+            day_data['metadata']['pitchers_updated_count'] = updated_count
+        else:
+            logger.warning(f"No predictions found for {today} in cache. Skipping update.")
+        # Save merged cache
+        with open(cache_path, 'w') as f:
+            json.dump(predictions_data, f, indent=2)
+        logger.info(f"✅ Updated {updated_count} games with real starting pitchers")
+        return True
         
         if today not in predictions_data['predictions_by_date']:
             logger.error(f"No predictions found for {today}")

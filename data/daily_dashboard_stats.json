@@ -1,36 +1,36 @@
 {
-  "total_games_analyzed": 9,
-  "total_dates_covered": 1,
+  "total_games_analyzed": 53,
+  "total_dates_covered": 4,
   "date_range": {
-    "start": "2025-08-07",
-    "end": "2025-08-21",
-    "days_of_data": 1
+    "start": "2025-08-19",
+    "end": "2025-08-22",
+    "days_of_data": 4
   },
   "betting_performance": {
-    "winner_predictions_correct": 4,
-    "total_predictions_correct": 4,
-    "perfect_games": 1,
-    "games_analyzed": 9,
-    "winner_accuracy_pct": 48.8,
-    "total_accuracy_pct": 50.4,
-    "perfect_games_pct": 19.8,
-    "using_real_data": true
+    "winner_predictions_correct": 26,
+    "total_predictions_correct": 0,
+    "perfect_games": 0,
+    "games_analyzed": 53,
+    "winner_accuracy_pct": 49.1,
+    "total_accuracy_pct": 0.0,
+    "perfect_games_pct": 0.0,
+    "using_real_data": true,
+    "total_profit": 0.0,
+    "roi_percentage": 0.0,
+    "total_bets_placed": 0
   },
   "score_analysis": {
-    "avg_total_runs": 0,
-    "min_total_runs": 0,
-    "max_total_runs": 0,
-    "games_with_scores": 0
+    "avg_total_runs": 8.5,
+    "avg_team_score_error": 2.45,
+    "avg_total_score_error": 3.57,
+    "games_with_scores": 53
   },
   "data_sources": {
-    "total_teams": 0,
-    "unique_pitchers": 18,
-    "sources": {
-      "unknown": 9
-    }
+    "total_teams": 30,
+    "analysis_type": "cumulative_since_8_19"
   },
   "data_freshness": {
-    "last_update": "2025-08-21 09:43:24",
-    "most_recent_date": "2025-08-21"
+    "last_update": "2025-08-25 09:50:08",
+    "most_recent_date": "2025-08-22"
   }
 }

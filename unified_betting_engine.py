@@ -117,6 +117,11 @@ class UnifiedBettingEngine:
             logger.error(f"❌ Error loading betting lines: {e}")
             return {}
     
+    def get_betting_line_key(self, prediction_key: str) -> str:
+        """Convert prediction key format to betting line key format"""
+        # Convert "Boston Red Sox_vs_New York Yankees" to "Boston Red Sox @ New York Yankees"
+        return prediction_key.replace("_vs_", " @ ")
+    
     def american_to_decimal(self, american_odds: str) -> Optional[float]:
         """Convert American odds to decimal probability"""
         try:
@@ -129,30 +134,31 @@ class UnifiedBettingEngine:
             return None
     
     def calculate_expected_value(self, win_probability: float, american_odds: str) -> Optional[float]:
-        """Calculate Expected Value: EV = (probability × payout) - 1"""
+        """Calculate Expected Value: EV = (win_prob * profit) - (lose_prob * stake)"""
         try:
             odds = int(american_odds.replace('+', ''))
             
             if odds > 0:
-                # Positive odds: payout = odds/100 + 1
-                payout = (odds / 100) + 1
+                # Positive odds: profit on $1 bet = odds/100
+                profit = odds / 100
             else:
-                # Negative odds: payout = (100/abs(odds)) + 1  
-                payout = (100 / abs(odds)) + 1
+                # Negative odds: profit on $1 bet = 100/abs(odds)
+                profit = 100 / abs(odds)
             
-            ev = (win_probability * payout) - 1
+            # Standard EV formula: (win_prob * profit) - (lose_prob * stake)
+            ev = (win_probability * profit) - ((1 - win_probability) * 1)
             return ev
             
         except:
             return None
     
     def get_confidence_level(self, ev: float, win_prob: float) -> str:
-        """Determine confidence level based on EV and win probability"""
-        if ev > 0.15 and win_prob > 0.6:
+        """Determine confidence level based on EV and win probability - MORE SELECTIVE"""
+        if ev > 0.25 and win_prob > 0.65:
             return "HIGH"
-        elif ev > 0.05 and win_prob > 0.55:
+        elif ev > 0.15 and win_prob > 0.6:
             return "MEDIUM"
-        elif ev > 0.02:
+        elif ev > 0.08 and win_prob > 0.55:
             return "LOW"
         else:
             return "NONE"
@@ -161,18 +167,20 @@ class UnifiedBettingEngine:
         """Analyze moneyline betting opportunities"""
         recommendations = []
         
-        # Get predictions (handle different field name formats)
-        away_prob = predictions.get('away_win_probability', 0)
-        home_prob = predictions.get('home_win_probability', 0)
+        # Get predictions (handle different field name formats) - FIXED STRUCTURE
+        prediction_data = predictions.get('predictions', {})
+        away_prob = prediction_data.get('away_win_prob', 0)
+        home_prob = prediction_data.get('home_win_prob', 0)
         away_team = predictions.get('away_team', '')
         home_team = predictions.get('home_team', '')
         
         # Get real betting lines
-        if game_key not in betting_lines or 'moneyline' not in betting_lines[game_key]:
-            logger.debug(f"⚠️ No moneyline data for {game_key}")
+        betting_line_key = self.get_betting_line_key(game_key)
+        if betting_line_key not in betting_lines or 'moneyline' not in betting_lines[betting_line_key]:
+            logger.debug(f"⚠️ No moneyline data for {game_key} (betting key: {betting_line_key})")
             return recommendations
         
-        ml_lines = betting_lines[game_key]['moneyline']
+        ml_lines = betting_lines[betting_line_key]['moneyline']
         away_odds = ml_lines.get('away')
         home_odds = ml_lines.get('home')
         
@@ -180,9 +188,9 @@ class UnifiedBettingEngine:
             logger.debug(f"⚠️ Incomplete moneyline data for {game_key}")
             return recommendations
         
-        # Analyze away team ML
-        away_ev = self.calculate_expected_value(away_prob, away_odds)
-        if away_ev and away_ev > 0:
+        # Analyze away team ML - only recommend if significant edge
+        away_ev = self.calculate_expected_value(away_prob, str(away_odds))
+        if away_ev and away_ev > 0.05:  # Require at least 5% edge
             confidence = self.get_confidence_level(away_ev, away_prob)
             if confidence != "NONE":
                 recommendations.append({
@@ -190,14 +198,14 @@ class UnifiedBettingEngine:
                     'recommendation': f"{away_team} ML",
                     'expected_value': away_ev,
                     'win_probability': away_prob,
-                    'american_odds': away_odds,
+                    'american_odds': str(away_odds),
                     'confidence': confidence.lower(),
-                    'reasoning': f"Model projects {away_prob:.1%} win probability vs {self.american_to_decimal(away_odds):.1%} implied odds"
+                    'reasoning': f"Model projects {away_prob:.1%} win probability vs {self.american_to_decimal(str(away_odds)):.1%} implied odds"
                 })
         
-        # Analyze home team ML
-        home_ev = self.calculate_expected_value(home_prob, home_odds)
-        if home_ev and home_ev > 0:
+        # Analyze home team ML - only recommend if significant edge
+        home_ev = self.calculate_expected_value(home_prob, str(home_odds))
+        if home_ev and home_ev > 0.05:  # Require at least 5% edge
             confidence = self.get_confidence_level(home_ev, home_prob)
             if confidence != "NONE":
                 recommendations.append({
@@ -205,9 +213,9 @@ class UnifiedBettingEngine:
                     'recommendation': f"{home_team} ML",
                     'expected_value': home_ev,
                     'win_probability': home_prob,
-                    'american_odds': home_odds,
+                    'american_odds': str(home_odds),
                     'confidence': confidence.lower(),
-                    'reasoning': f"Model projects {home_prob:.1%} win probability vs {self.american_to_decimal(home_odds):.1%} implied odds"
+                    'reasoning': f"Model projects {home_prob:.1%} win probability vs {self.american_to_decimal(str(home_odds)):.1%} implied odds"
                 })
         
         return recommendations
@@ -216,69 +224,122 @@ class UnifiedBettingEngine:
         """Analyze over/under betting opportunities"""
         recommendations = []
         
-        # Get predictions (handle different field name formats)
-        predicted_total = predictions.get('predicted_total_runs', 0)
+        # Get predictions (handle different field name formats) - FIXED STRUCTURE
+        prediction_data = predictions.get('predictions', {})
+        predicted_total = prediction_data.get('predicted_total_runs', 0)
         
         if not predicted_total:
             logger.debug(f"⚠️ No predicted total for {game_key}")
             return recommendations
         
         # Get real betting lines
-        if game_key not in betting_lines or 'total_runs' not in betting_lines[game_key]:
-            logger.debug(f"⚠️ No totals data for {game_key}")
+        betting_line_key = self.get_betting_line_key(game_key)
+        if betting_line_key not in betting_lines:
+            logger.debug(f"⚠️ No betting lines for {game_key} (betting key: {betting_line_key})")
             return recommendations
-        
-        total_data = betting_lines[game_key]['total_runs']
-        total_line = total_data.get('line')
-        over_odds = total_data.get('over', '-110')
-        under_odds = total_data.get('under', '-110')
-        
-        if not total_line:
-            logger.debug(f"⚠️ No total line for {game_key}")
-            return recommendations
-        
-        # Calculate win probabilities
-        diff = abs(predicted_total - total_line)
-        
-        if predicted_total > total_line:
-            # Model favors Over
-            over_prob = 0.5 + min(diff * 0.1, 0.4)  # Max 90% confidence
-            over_ev = self.calculate_expected_value(over_prob, over_odds)
             
-            if over_ev and over_ev > 0:
-                confidence = self.get_confidence_level(over_ev, over_prob)
-                if confidence != "NONE":
-                    recommendations.append({
-                        'type': 'total',
-                        'recommendation': f"Over {total_line}",
-                        'expected_value': over_ev,
-                        'win_probability': over_prob,
-                        'american_odds': over_odds,
-                        'confidence': confidence.lower(),
-                        'predicted_total': predicted_total,
-                        'betting_line': total_line,
-                        'reasoning': f"Predicted {predicted_total} vs line {total_line}"
+        game_lines = betting_lines[betting_line_key]
+        
+        # Extract totals from markets array (real betting lines structure)
+        totals_options = []
+        
+        # Check markets array for totals - collect all available lines
+        for market in game_lines.get('markets', []):
+            if market.get('key') == 'totals':
+                over_outcome = None
+                under_outcome = None
+                for outcome in market.get('outcomes', []):
+                    if 'Over' in outcome.get('name', ''):
+                        over_outcome = outcome
+                    elif 'Under' in outcome.get('name', ''):
+                        under_outcome = outcome
+                
+                # If we have both Over and Under for this line
+                if over_outcome and under_outcome:
+                    totals_options.append({
+                        'line': over_outcome.get('point'),
+                        'over_odds': over_outcome.get('price'),
+                        'under_odds': under_outcome.get('price')
                     })
         
-        elif predicted_total < total_line:
-            # Model favors Under
-            under_prob = 0.5 + min(diff * 0.1, 0.4)  # Max 90% confidence
-            under_ev = self.calculate_expected_value(under_prob, under_odds)
+        # Fallback: Check for total_runs structure if markets array not found
+        if not totals_options and 'total_runs' in game_lines:
+            total_runs = game_lines['total_runs']
+            if all(k in total_runs for k in ['line', 'over', 'under']):
+                totals_options.append({
+                    'line': total_runs['line'],
+                    'over_odds': total_runs['over'],
+                    'under_odds': total_runs['under']
+                })
+                logger.debug(f"✅ Using total_runs structure for {game_key}: line {total_runs['line']}")
+        
+        if not totals_options:
+            logger.debug(f"⚠️ No total lines found for {game_key}")
+            return recommendations
+        
+        # Analyze each totals option
+        for totals_option in totals_options:
+            total_line = totals_option['line']
+            over_odds = totals_option['over_odds']
+            under_odds = totals_option['under_odds']
+        
+        # Analyze each totals option and keep only the best one
+        best_recommendation = None
+        best_ev = 0
+        
+        for totals_option in totals_options:
+            total_line = totals_option['line']
+            over_odds = totals_option['over_odds']
+            under_odds = totals_option['under_odds']
             
-            if under_ev and under_ev > 0:
-                confidence = self.get_confidence_level(under_ev, under_prob)
-                if confidence != "NONE":
-                    recommendations.append({
-                        'type': 'total',
-                        'recommendation': f"Under {total_line}",
-                        'expected_value': under_ev,
-                        'win_probability': under_prob,
-                        'american_odds': under_odds,
-                        'confidence': confidence.lower(),
-                        'predicted_total': predicted_total,
-                        'betting_line': total_line,
-                        'reasoning': f"Predicted {predicted_total} vs line {total_line}"
-                    })
+            # Calculate win probabilities
+            diff = abs(predicted_total - total_line)
+            
+            if predicted_total > total_line:
+                # Model favors Over
+                over_prob = 0.5 + min(diff * 0.1, 0.4)  # Max 90% confidence
+                over_ev = self.calculate_expected_value(over_prob, str(over_odds))
+                
+                if over_ev and over_ev > best_ev:
+                    confidence = self.get_confidence_level(over_ev, over_prob)
+                    if confidence != "NONE":
+                        best_recommendation = {
+                            'type': 'total',
+                            'recommendation': f"Over {total_line}",
+                            'expected_value': over_ev,
+                            'win_probability': over_prob,
+                            'american_odds': str(over_odds),
+                            'confidence': confidence.lower(),
+                            'predicted_total': predicted_total,
+                            'betting_line': total_line,
+                            'reasoning': f"Predicted {predicted_total} vs line {total_line}"
+                        }
+                        best_ev = over_ev
+            
+            elif predicted_total < total_line:
+                # Model favors Under
+                under_prob = 0.5 + min(diff * 0.1, 0.4)  # Max 90% confidence
+                under_ev = self.calculate_expected_value(under_prob, str(under_odds))
+                
+                if under_ev and under_ev > best_ev:
+                    confidence = self.get_confidence_level(under_ev, under_prob)
+                    if confidence != "NONE":
+                        best_recommendation = {
+                            'type': 'total',
+                            'recommendation': f"Under {total_line}",
+                            'expected_value': under_ev,
+                            'win_probability': under_prob,
+                            'american_odds': str(under_odds),
+                            'confidence': confidence.lower(),
+                            'predicted_total': predicted_total,
+                            'betting_line': total_line,
+                            'reasoning': f"Predicted {predicted_total} vs line {total_line}"
+                        }
+                        best_ev = under_ev
+        
+        # Only add the best recommendation
+        if best_recommendation:
+            recommendations.append(best_recommendation)
         
         return recommendations
     
@@ -286,58 +347,75 @@ class UnifiedBettingEngine:
         """Analyze run line (-1.5/+1.5) betting opportunities"""
         recommendations = []
         
-        # Get predictions
-        away_prob = predictions.get('away_win_probability', 0)
-        home_prob = predictions.get('home_win_probability', 0)
+        # Get predictions (handle different field name formats) - FIXED STRUCTURE
+        prediction_data = predictions.get('predictions', {})
+        away_prob = prediction_data.get('away_win_prob', 0)
+        home_prob = prediction_data.get('home_win_prob', 0)
         away_team = predictions.get('away_team', '')
         home_team = predictions.get('home_team', '')
-        predicted_total = predictions.get('predicted_total_runs', 0)
         
-        # Only proceed if we have strong confidence in a team (60%+)
+        # Only proceed if we have reasonable confidence in a team (55%+)
         favorite_prob = max(away_prob, home_prob)
-        if favorite_prob < 0.6:
+        if favorite_prob < 0.55:
             return recommendations
         
         favorite_team = away_team if away_prob > home_prob else home_team
+        underdog_team = home_team if away_prob > home_prob else away_team
         
-        # Check if betting lines have run line data
-        if game_key not in betting_lines:
+        # Get real betting lines
+        betting_line_key = self.get_betting_line_key(game_key)
+        if betting_line_key not in betting_lines:
+            logger.debug(f"⚠️ No betting lines for {game_key} (betting key: {betting_line_key})")
             return recommendations
-        
-        # Look for run line odds (may be named differently)
-        run_line_odds = None
-        for key in ['run_line_odds', 'spread_odds', 'handicap_odds']:
-            if key in betting_lines[game_key]:
-                run_line_odds = betting_lines[game_key][key]
-                break
-        
-        if not run_line_odds:
-            # No real run line data available
-            return recommendations
-        
-        # Estimate run line cover probability based on win probability and predicted margin
-        if predicted_total > 0:
-            # Very rough estimation: higher win prob + higher total = better run line cover chance
-            base_cover_prob = (favorite_prob - 0.5) * 1.5  # Scale 60% win -> 15% base cover
-            total_factor = min(predicted_total / 9.0, 1.2)  # Higher totals slightly favor favorites
-            run_line_cover_prob = base_cover_prob * total_factor
-            run_line_cover_prob = min(run_line_cover_prob, 0.7)  # Cap at 70%
             
-            if run_line_cover_prob > 0.3:  # Only recommend if >30% cover chance
-                run_line_ev = self.calculate_expected_value(run_line_cover_prob, run_line_odds)
-                
-                if run_line_ev and run_line_ev > 0:
-                    confidence = self.get_confidence_level(run_line_ev, run_line_cover_prob)
-                    if confidence != "NONE":
-                        recommendations.append({
-                            'type': 'run_line',
-                            'recommendation': f"{favorite_team} -1.5",
-                            'expected_value': run_line_ev,
-                            'win_probability': run_line_cover_prob,
-                            'american_odds': run_line_odds,
-                            'confidence': confidence.lower(),
-                            'reasoning': f"Strong favorite ({favorite_prob:.1%}) with {run_line_cover_prob:.1%} estimated cover probability"
-                        })
+        game_lines = betting_lines[betting_line_key]
+        
+        # Extract run lines from markets array
+        for market in game_lines.get('markets', []):
+            if market.get('key') == 'spreads':
+                for outcome in market.get('outcomes', []):
+                    team_name = outcome.get('name', '')
+                    spread = outcome.get('point', 0)
+                    odds = outcome.get('price')
+                    
+                    # Check if this is the favorite getting runs (-1.5) or underdog giving runs (+1.5)
+                    if favorite_team in team_name and spread < 0:
+                        # Favorite giving runs (e.g., Yankees -1.5)
+                        # Calculate probability of winning by 2+ runs
+                        cover_prob = favorite_prob * 0.7  # Estimate based on win probability
+                        rl_ev = self.calculate_expected_value(cover_prob, str(odds))
+                        
+                        if rl_ev and rl_ev > 0.1:  # Require at least 10% edge for run lines
+                            confidence = self.get_confidence_level(rl_ev, cover_prob)
+                            if confidence != "NONE":
+                                recommendations.append({
+                                    'type': 'run_line',
+                                    'recommendation': f"{favorite_team} {spread}",
+                                    'expected_value': rl_ev,
+                                    'win_probability': cover_prob,
+                                    'american_odds': str(odds),
+                                    'confidence': confidence.lower(),
+                                    'reasoning': f"Strong favorite {favorite_team} ({favorite_prob:.1%}) to cover run line"
+                                })
+                    
+                    elif underdog_team in team_name and spread > 0:
+                        # Underdog getting runs (e.g., Red Sox +1.5)
+                        # Calculate probability of losing by 1 or winning outright
+                        cover_prob = (1 - favorite_prob) + (favorite_prob * 0.3)  # Win outright + lose by 1
+                        rl_ev = self.calculate_expected_value(cover_prob, str(odds))
+                        
+                        if rl_ev and rl_ev > 0.1:  # Require at least 10% edge for run lines
+                            confidence = self.get_confidence_level(rl_ev, cover_prob)
+                            if confidence != "NONE":
+                                recommendations.append({
+                                    'type': 'run_line',
+                                    'recommendation': f"{underdog_team} +{spread}",
+                                    'expected_value': rl_ev,
+                                    'win_probability': cover_prob,
+                                    'american_odds': str(odds),
+                                    'confidence': confidence.lower(),
+                                    'reasoning': f"Underdog {underdog_team} value on run line"
+                                })
         
         return recommendations
     
@@ -369,16 +447,29 @@ class UnifiedBettingEngine:
         for game_key, game_predictions in predictions.items():
             logger.debug(f"🎯 Analyzing {game_key}")
             
+            # Extract pitcher info from the correct location
+            pitcher_info = game_predictions.get('pitcher_info', {})
+            away_pitcher = pitcher_info.get('away_pitcher_name', game_predictions.get('away_pitcher', 'TBD'))
+            home_pitcher = pitcher_info.get('home_pitcher_name', game_predictions.get('home_pitcher', 'TBD'))
+            
+            # Debug pitcher extraction
+            if away_pitcher != 'TBD' or home_pitcher != 'TBD':
+                logger.info(f"🎯 PITCHER INFO: {game_key} - {away_pitcher} vs {home_pitcher}")
+            else:
+                logger.debug(f"⚠️ No pitcher info found for {game_key}")
+                logger.debug(f"   pitcher_info structure: {pitcher_info}")
+                logger.debug(f"   game_predictions keys: {list(game_predictions.keys())}")
+            
             game_recommendations = {
                 'away_team': game_predictions.get('away_team', ''),
                 'home_team': game_predictions.get('home_team', ''),
-                'away_pitcher': game_predictions.get('away_pitcher', 'TBD'),
-                'home_pitcher': game_predictions.get('home_pitcher', 'TBD'),
-                'predicted_score': f"{game_predictions.get('predicted_away_score', 0):.1f}-{game_predictions.get('predicted_home_score', 0):.1f}",
-                'predicted_total_runs': game_predictions.get('predicted_total_runs', 0),
+                'away_pitcher': away_pitcher,
+                'home_pitcher': home_pitcher,
+                'predicted_score': f"{game_predictions.get('predictions', {}).get('predicted_away_score', 0):.1f}-{game_predictions.get('predictions', {}).get('predicted_home_score', 0):.1f}",
+                'predicted_total_runs': game_predictions.get('predictions', {}).get('predicted_total_runs', 0),
                 'win_probabilities': {
-                    'away_prob': game_predictions.get('away_win_probability', 0),
-                    'home_prob': game_predictions.get('home_win_probability', 0)
+                    'away_prob': game_predictions.get('predictions', {}).get('away_win_prob', 0),
+                    'home_prob': game_predictions.get('predictions', {}).get('home_win_prob', 0)
                 },
                 'value_bets': []
             }

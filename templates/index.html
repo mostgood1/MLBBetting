@@ -695,7 +695,7 @@
             <a href="/historical-analysis" class="stat-card clickable-stat">
                 <h3>{{ comprehensive_stats.total_games_analyzed or 0 }}</h3>
                 <p>Total Games Tracked</p>
-                <small>Since {{ comprehensive_stats.date_range.start or 'Aug 19' }} ({{ comprehensive_stats.date_range.days_of_data or 0 }} days)</small>
+                <small>Since {{ comprehensive_stats.date_range.start or 'Aug 15' }} ({{ comprehensive_stats.date_range.days_of_data or 0 }} days)</small>
             </a>
             <a href="/historical-analysis" class="stat-card clickable-stat">
                 <h3>{{ comprehensive_stats.betting_performance.winner_accuracy_pct or 0 }}%</h3>
@@ -704,7 +704,7 @@
             </a>
             <a href="/historical-analysis" class="stat-card clickable-stat">
                 <h3>${{ comprehensive_stats.betting_performance.total_profit or 0 }}</h3>
-                <p>Total Profit (Since 8/19)</p>
+                <p>Total Profit (Since 8/15)</p>
                 <small>{{ comprehensive_stats.betting_performance.roi_percentage or 0 }}% ROI on {{ comprehensive_stats.betting_performance.total_bets_placed or 0 }} bets</small>
             </a>
             <a href="/historical-analysis" class="stat-card clickable-stat">

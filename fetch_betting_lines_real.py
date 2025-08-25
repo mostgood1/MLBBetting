@@ -20,7 +20,7 @@ def get_recent_real_betting_lines():
     betting_files = list(data_dir.glob(pattern))
     
     if not betting_files:
-        print("❌ No existing real betting lines files found")
+        print("ERROR No existing real betting lines files found")
         return None, None
     
     # Sort by date (most recent first)
@@ -34,18 +34,18 @@ def get_recent_real_betting_lines():
             # Skip if this was sample/fake data
             source = data.get('source', '')
             if 'sample' in source.lower() or 'generated' in source.lower() or 'fake' in source.lower():
-                print(f"⚠️ Skipping {betting_file.name} - contains sample data")
+                print(f"WARNING Skipping {betting_file.name} - contains sample data")
                 continue
             
             lines = data.get('lines', {})
             if lines and len(lines) > 0:
-                print(f"✅ Found recent real betting lines: {betting_file.name} ({len(lines)} games)")
+                print(f"SUCCESS Found recent real betting lines: {betting_file.name} ({len(lines)} games)")
                 return betting_file, data
         except Exception as e:
-            print(f"⚠️ Error reading {betting_file.name}: {e}")
+            print(f"WARNING Error reading {betting_file.name}: {e}")
             continue
     
-    print("❌ No valid recent real betting lines found")
+    print("ERROR No valid recent real betting lines found")
     return None, None
 
 def copy_and_adapt_recent_lines():
@@ -56,7 +56,7 @@ def copy_and_adapt_recent_lines():
     # Load today's games
     games_file = Path(f"data/games_{today}.json")
     if not games_file.exists():
-        print(f"❌ Games file not found: {games_file}")
+        print(f"ERROR Games file not found: {games_file}")
         return False
     
     try:
@@ -66,7 +66,7 @@ def copy_and_adapt_recent_lines():
         # Get recent real betting lines
         recent_file, recent_data = get_recent_real_betting_lines()
         if not recent_data:
-            print("❌ Cannot proceed - no real betting lines available to copy from")
+            print("ERROR Cannot proceed - no real betting lines available to copy from")
             return False
         
         # Adapt lines for today's games - EXACT MATCHES ONLY
@@ -82,7 +82,7 @@ def copy_and_adapt_recent_lines():
             # Only accept exact matchup matches
             if matchup_key in recent_lines:
                 adapted_lines[matchup_key] = recent_lines[matchup_key]
-                print(f"✅ Exact match found: {matchup_key}")
+                print(f"SUCCESS Exact match found: {matchup_key}")
             else:
                 # Check for reverse matchup (home @ away)
                 reverse_key = f"{home_team} @ {away_team}"
@@ -101,18 +101,18 @@ def copy_and_adapt_recent_lines():
                         }
                     }
                     adapted_lines[matchup_key] = flipped_line
-                    print(f"✅ Reverse match found and flipped: {matchup_key}")
+                    print(f"SUCCESS Reverse match found and flipped: {matchup_key}")
                 else:
                     # No acceptable match found
                     missing_games.append(matchup_key)
-                    print(f"❌ No exact match found for: {matchup_key}")
+                    print(f"ERROR No exact match found for: {matchup_key}")
         
         # If we're missing games, we cannot proceed with real data
         if missing_games:
-            print(f"❌ Cannot create betting lines - missing exact matches for {len(missing_games)} games:")
+            print(f"ERROR Cannot create betting lines - missing exact matches for {len(missing_games)} games:")
             for game in missing_games:
                 print(f"   - {game}")
-            print("❌ Will not create incomplete or fake betting lines")
+            print("ERROR Will not create incomplete or fake betting lines")
             return False
         
         # Create output data structure
@@ -129,13 +129,13 @@ def copy_and_adapt_recent_lines():
         with open(output_file, 'w') as f:
             json.dump(output_data, f, indent=2)
         
-        print(f"✅ Created adapted real betting lines file: {output_file}")
-        print(f"📊 Adapted lines for {len(adapted_lines)} games from real data")
+        print(f"SUCCESS Created adapted real betting lines file: {output_file}")
+        print(f"STATS Adapted lines for {len(adapted_lines)} games from real data")
         
         return True
         
     except Exception as e:
-        print(f"❌ Error creating betting lines: {e}")
+        print(f"ERROR Error creating betting lines: {e}")
         return False
 
 def try_odds_api():
@@ -143,7 +143,7 @@ def try_odds_api():
     try:
         from integrated_closing_lines import IntegratedClosingLinesManager
         
-        print("🔄 Trying OddsAPI via integrated closing lines manager...")
+        print("Trying OddsAPI via integrated closing lines manager...")
         manager = IntegratedClosingLinesManager()
         
         today = datetime.now().strftime('%Y-%m-%d')
@@ -152,7 +152,7 @@ def try_odds_api():
         odds_data = manager.fetch_live_odds(today)
         
         if odds_data and len(odds_data) > 0:
-            print(f"✅ Found {len(odds_data)} games from OddsAPI")
+            print(f"Found {len(odds_data)} games from OddsAPI")
             
             # Parse the odds data
             parsed_lines = manager.parse_odds_data(odds_data, today)
@@ -162,10 +162,31 @@ def try_odds_api():
                 lines = {}
                 for line in parsed_lines:
                     matchup_key = f"{line.get('away_team', '')} @ {line.get('home_team', '')}"
+                    
+                    # Convert the total data structure properly
+                    total_data = line.get('total', {})
+                    total_runs = {}
+                    if total_data.get('line') is not None:
+                        total_runs = {
+                            "line": total_data.get('line'),
+                            "over": total_data.get('over'),
+                            "under": total_data.get('under')
+                        }
+                    
+                    # Convert the spread data structure properly  
+                    spread_data = line.get('spread', {})
+                    run_line = {}
+                    if spread_data.get('line') is not None:
+                        run_line = {
+                            "line": spread_data.get('line'),
+                            "away": spread_data.get('away'),
+                            "home": spread_data.get('home')
+                        }
+                    
                     lines[matchup_key] = {
                         "moneyline": line.get('moneyline', {}),
-                        "total_runs": line.get('total_runs', {}),
-                        "run_line": line.get('run_line', {})
+                        "total_runs": total_runs,
+                        "run_line": run_line
                     }
                 
                 today_underscore = today.replace('-', '_')
@@ -181,14 +202,14 @@ def try_odds_api():
                 with open(output_file, 'w') as f:
                     json.dump(output_data, f, indent=2)
                 
-                print(f"✅ Created fresh OddsAPI betting lines file: {output_file}")
+                print(f"Created fresh OddsAPI betting lines file: {output_file}")
                 return True
         
-        print("⚠️ No fresh odds available from OddsAPI")
+        print("No fresh odds available from OddsAPI")
         return False
         
     except Exception as e:
-        print(f"⚠️ OddsAPI fetch failed: {e}")
+        print(f"OddsAPI fetch failed: {e}")
         return False
 
 def main():

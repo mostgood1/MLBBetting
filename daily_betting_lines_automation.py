@@ -84,10 +84,10 @@ def validate_betting_lines(logger):
         today = datetime.now().strftime('%Y-%m-%d')
         today_underscore = datetime.now().strftime('%Y_%m_%d')
         
-        # Check for both date formats
+        # Check for both date formats in the local data directory
         possible_files = [
-            f'MLB-Betting/data/real_betting_lines_{today}.json',
-            f'MLB-Betting/data/real_betting_lines_{today_underscore}.json'
+            f'data/real_betting_lines_{today}.json',
+            f'data/real_betting_lines_{today_underscore}.json'
         ]
         
         for file_path in possible_files:
