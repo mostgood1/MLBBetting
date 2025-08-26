@@ -821,20 +821,23 @@ def load_betting_recommendations():
         if parent_dir not in sys.path:
             sys.path.append(parent_dir)
         
-        from app_betting_integration import get_app_betting_recommendations
+        from betting_recommendations_engine import BettingRecommendationsEngine
         
         logger.info("🎯 Loading betting recommendations from Unified Engine v1.0")
         
         # Get unified recommendations
-        logger.info("DEBUG: About to call get_app_betting_recommendations()")
+        logger.info("DEBUG: About to call betting recommendations engine()")
         try:
-            result = get_app_betting_recommendations()
+            engine = BettingRecommendationsEngine()
+            result = engine.generate_betting_recommendations()
             logger.info(f"DEBUG: Got result type: {type(result)}")
-            logger.info(f"DEBUG: Got result length: {len(result)}")
-            raw_recommendations, frontend_recommendations = result
-            logger.info(f"DEBUG: Unpacked successfully - raw: {type(raw_recommendations)}, frontend: {type(frontend_recommendations)}")
+            
+            # The engine returns a different format, so we need to adapt
+            raw_recommendations = result
+            frontend_recommendations = result
+            logger.info(f"DEBUG: Adapted result - raw: {type(raw_recommendations)}, frontend: {type(frontend_recommendations)}")
         except Exception as unpack_error:
-            logger.error(f"DEBUG: Error during unpacking: {unpack_error}")
+            logger.error(f"DEBUG: Error during engine call: {unpack_error}")
             raise
         
         logger.info(f"DEBUG: Got raw_recommendations type: {type(raw_recommendations)}")
@@ -2221,9 +2224,9 @@ def home():
         unified_betting_recommendations = {}
         try:
             logger.info("🎯 Loading unified betting recommendations for home page...")
-            from app_betting_integration import get_app_betting_recommendations
-            raw_unified_recs, _ = get_app_betting_recommendations()
-            unified_betting_recommendations = raw_unified_recs
+            from betting_recommendations_engine import BettingRecommendationsEngine
+            engine = BettingRecommendationsEngine()
+            unified_betting_recommendations = engine.generate_betting_recommendations()
             logger.info(f"✅ Loaded {len(unified_betting_recommendations)} games with unified engine")
         except ImportError as e:
             logger.error(f"❌ Failed to import unified engine for home page: {e}")
@@ -3453,16 +3456,17 @@ def api_today_games():
         unified_betting_recommendations = {}
         try:
             logger.info("🎯 Loading unified betting recommendations for API...")
-            from app_betting_integration import get_app_betting_recommendations
+            from betting_recommendations_engine import BettingRecommendationsEngine
             try:
-                raw_unified_recs, _ = get_app_betting_recommendations()
-                logger.info(f"DEBUG: get_app_betting_recommendations returned type: {type(raw_unified_recs)}")
-                logger.info(f"DEBUG: get_app_betting_recommendations keys: {list(raw_unified_recs.keys())}")
-                print("DEBUG: get_app_betting_recommendations output:", raw_unified_recs)
+                engine = BettingRecommendationsEngine(date=date_param)
+                raw_unified_recs = engine.generate_betting_recommendations()
+                logger.info(f"DEBUG: betting engine returned type: {type(raw_unified_recs)}")
+                logger.info(f"DEBUG: betting engine keys: {list(raw_unified_recs.keys())}")
+                print("DEBUG: betting engine output:", raw_unified_recs)
             except Exception as inner_e:
-                logger.error(f"❌ Error inside get_app_betting_recommendations: {inner_e}")
+                logger.error(f"❌ Error inside betting engine: {inner_e}")
                 logger.error(f"❌ Traceback: {traceback.format_exc()}")
-                print("DEBUG: get_app_betting_recommendations error:", inner_e)
+                print("DEBUG: betting engine error:", inner_e)
                 raw_unified_recs = {}
             unified_betting_recommendations = raw_unified_recs
             logger.info(f"🔍 UNIFIED BETTING RECOMMENDATIONS LOADED: type={type(unified_betting_recommendations)}, length={len(unified_betting_recommendations) if hasattr(unified_betting_recommendations, 'keys') else 'N/A'}")
@@ -4909,10 +4913,11 @@ def refresh_betting_lines():
         if parent_dir not in sys.path:
             sys.path.append(parent_dir)
 
-        from app_betting_integration import get_unified_betting_recommendations
+        from betting_recommendations_engine import BettingRecommendationsEngine
 
         try:
-            recommendations_result = get_unified_betting_recommendations()
+            engine = BettingRecommendationsEngine()
+            recommendations_result = engine.generate_betting_recommendations()
             if not recommendations_result:
                 logger.warning("⚠️ No value bets found by unified engine")
                 # Don't fail the entire request - lines were still updated
