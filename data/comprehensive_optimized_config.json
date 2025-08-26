@@ -1,0 +1,64 @@
+{
+  "home_field_advantage": 0.06,
+  "away_field_boost": 0.04,
+  "bullpen_weight": 0.15,
+  "pitcher_weight": 0.35,
+  "team_strength_weight": 0.3,
+  "run_environment": 0.8788,
+  "variance_factor": 0.88,
+  "engine_parameters": {
+    "home_field_advantage": 0.06,
+    "base_lambda": 4.62,
+    "team_strength_multiplier": 0.20,
+    "pitcher_era_weight": 0.70,
+    "pitcher_whip_weight": 0.30,
+    "game_chaos_variance": 0.42,
+    "total_scoring_adjustment": 1.05,
+    "run_environment": 0.8788
+  },
+  "park_weather_parameters": {
+    "enabled": true,
+    "impact_multiplier": 1.1,
+    "weather_weight": 0.3,
+    "park_factor_weight": 0.7
+  },
+  "betting_integration": {
+    "enabled": true,
+    "betting_weight": 0.25,
+    "line_confidence_threshold": 0.15,
+    "moneyline_bias_correction": -0.0003382647636228309,
+    "scoring_bias_correction": -0.17799999999999996
+  },
+  "analysis_stats": {
+    "total_games_analyzed": 15,
+    "moneyline_analysis": {
+      "avg_difference": 0.0006765295272456618,
+      "std_difference": 0.0008142441198466505,
+      "model_favors_home_more_pct": 0.0,
+      "model_favors_away_more_pct": 0.0
+    },
+    "total_analysis": {
+      "avg_difference": 0.5933333333333333,
+      "std_difference": 1.9695781515944208,
+      "model_higher_totals_pct": 40.0,
+      "model_lower_totals_pct": 40.0
+    },
+    "bias_indicators": {
+      "home_team_bias": 0.0006765295272456618,
+      "scoring_bias": 0.5933333333333333
+    }
+  },
+  "config_type": "betting_integrated",
+  "created_date": "2025-08-25T16:42:18.184747",
+  "optimization_metadata": {
+    "optimization_date": "2025-08-25T17:04:44.831758",
+    "games_analyzed": 15,
+    "performance_metrics": {
+      "home_accuracy": 0.6,
+      "total_runs_mae": 3.1866666666666665,
+      "scoring_bias": -1.4400000000000013,
+      "home_bias": 0.0037333333333332552
+    },
+    "optimization_version": "3.0_comprehensive_with_integrations"
+  }
+}
