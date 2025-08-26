@@ -1,6 +1,12 @@
-# MLB Betting System PowerShell Launcher
+# MLB Betting System PowerShell Launcher - Clean Version
 param(
-    [switch]$NoWait,
+    [switch]$N    Write-Host "🚀 Starting Historical Analysis App (port 5001)..." -ForegroundColor Green
+    $historicalApp = Start-Process -FilePath "python" -ArgumentList "historical_analysis_app.py" -PassThru -WindowStyle Minimized
+    
+    # Wait for both services to be ready
+    Write-Host ""
+    $mainReady = Wait-ForService -Port 5000 -ServiceName "Main Prediction App" -MaxAttempts 30
+    $historicalReady = Wait-ForService -Port 5001 -ServiceName "Historical Analysis App" -MaxAttempts 30
     [switch]$Verbose
 )
 
@@ -49,7 +55,8 @@ if (Test-Path ".venv\Scripts\Activate.ps1") {
     Write-Host "Activating virtual environment..." -ForegroundColor Yellow
     & .venv\Scripts\Activate.ps1
 } else {
-    Write-Host "No virtual environment found - using system Python" -ForegroundColor Yellow
+    Write-Host "❌ Virtual environment not found - please run 'python -m venv .venv' first" -ForegroundColor Red
+    exit 1
 }
 
 Write-Host ""
@@ -63,30 +70,34 @@ foreach ($file in $requiredFiles) {
     }
 }
 
+# Kill any existing Python processes to avoid conflicts
+Write-Host "🧹 Cleaning up any existing Python processes..." -ForegroundColor Yellow
+Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Start-Sleep -Seconds 2
+
 try {
     # Start main prediction app
     Write-Host "🚀 Starting Main Prediction App (port 5000)..." -ForegroundColor Green
     $mainApp = Start-Process -FilePath "python" -ArgumentList "app.py" -PassThru -WindowStyle Minimized
     
     # Wait a moment for main app to initialize
-    Start-Sleep -Seconds 3
+    Start-Sleep -Seconds 5
     
     # Start historical analysis app
-    Write-Host "🚀 Starting Historical Analysis App (port 5001)..." -ForegroundColor Green  
+    Write-Host "🚀 Starting Historical Analysis App (port 5002)..." -ForegroundColor Green  
     $historicalApp = Start-Process -FilePath "python" -ArgumentList "historical_analysis_app.py" -PassThru -WindowStyle Minimized
     
     # Wait for both services to be ready
     Write-Host ""
-    $mainReady = Wait-ForService -Port 5000 -ServiceName "Main Prediction App" -MaxAttempts 30
-    $historicalReady = Wait-ForService -Port 5001 -ServiceName "Historical Analysis App" -MaxAttempts 30
+    $mainReady = Wait-ForService -Port 5000 -ServiceName "Main Prediction App" -MaxAttempts 45
+    $historicalReady = Wait-ForService -Port 5002 -ServiceName "Historical Analysis App" -MaxAttempts 30
     
     if ($mainReady -and $historicalReady) {
         Write-Host ""
         Write-Host "🎉 MLB Betting System Started Successfully!" -ForegroundColor Green
         Write-Host "================================================" -ForegroundColor Cyan
         Write-Host "📍 Main Prediction App:    http://localhost:5000" -ForegroundColor White
-        Write-Host "📍 Historical Analysis:    http://localhost:5001" -ForegroundColor White
-        Write-Host "📊 Complete System:        http://localhost:5000/historical-analysis" -ForegroundColor White
+        Write-Host "📊 Historical Analysis:    http://localhost:5002" -ForegroundColor White
         Write-Host "================================================" -ForegroundColor Cyan
         Write-Host ""
         Write-Host "Process IDs:" -ForegroundColor Yellow
@@ -95,7 +106,7 @@ try {
         Write-Host ""
         
         if (-not $NoWait) {
-            Write-Host "💡 Press any key to stop both services..." -ForegroundColor Yellow
+            Write-Host "💡 System is ready! Press any key to stop both services..." -ForegroundColor Yellow
             $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             
             Write-Host ""
@@ -114,10 +125,16 @@ try {
             Write-Host "🏁 All services stopped" -ForegroundColor Green
         } else {
             Write-Host "Running in background mode. Use 'Get-Process python' to monitor." -ForegroundColor Yellow
+            Write-Host "To stop services later: Get-Process python | Stop-Process -Force" -ForegroundColor Yellow
         }
         
     } else {
         Write-Host "❌ One or more services failed to start" -ForegroundColor Red
+        Write-Host ""
+        Write-Host "Troubleshooting tips:" -ForegroundColor Yellow
+        Write-Host "1. Check if virtual environment is activated" -ForegroundColor Gray
+        Write-Host "2. Verify all dependencies are installed: pip install -r requirements.txt" -ForegroundColor Gray
+        Write-Host "3. Check for port conflicts: netstat -ano | findstr :5000" -ForegroundColor Gray
         
         # Cleanup failed processes
         if ($mainApp -and -not $mainApp.HasExited) { $mainApp.Kill() }
@@ -126,7 +143,17 @@ try {
         exit 1
     }
     
-    } catch {
-        Write-Host "❌ Error starting MLB Betting System: $($_.Exception.Message)" -ForegroundColor Red
-        exit 1
-    }
+} catch {
+    Write-Host "❌ Error starting MLB Betting System: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Common solutions:" -ForegroundColor Yellow
+    Write-Host "- Ensure Python and pip are installed" -ForegroundColor Gray
+    Write-Host "- Run: pip install -r requirements.txt" -ForegroundColor Gray
+    Write-Host "- Check if ports 5000 and 5002 are available" -ForegroundColor Gray
+    
+    # Cleanup any processes that might have started
+    if ($mainApp -and -not $mainApp.HasExited) { $mainApp.Kill() }
+    if ($historicalApp -and -not $historicalApp.HasExited) { $historicalApp.Kill() }
+    
+    exit 1
+}

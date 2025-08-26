@@ -1,6 +1,12 @@
 # MLB Betting System PowerShell Launcher - Clean Version
 param(
-    [switch]$NoWait,
+    [switch]$N    Write-Host "🚀 Starting Historical Analysis App (port 5001)..." -ForegroundColor Green
+    $historicalApp = Start-Process -FilePath "python" -ArgumentList "historical_analysis_app.py" -PassThru -WindowStyle Minimized
+    
+    # Wait for both services to be ready
+    Write-Host ""
+    $mainReady = Wait-ForService -Port 5000 -ServiceName "Main Prediction App" -MaxAttempts 30
+    $historicalReady = Wait-ForService -Port 5001 -ServiceName "Historical Analysis App" -MaxAttempts 30
     [switch]$Verbose
 )
 
@@ -56,7 +62,7 @@ if (Test-Path ".venv\Scripts\Activate.ps1") {
 Write-Host ""
 
 # Check if required files exist
-$requiredFiles = @("app.py", "start_historical_analysis.py")
+$requiredFiles = @("app.py", "historical_analysis_app.py")
 foreach ($file in $requiredFiles) {
     if (-not (Test-Path $file)) {
         Write-Host "❌ Required file not found: $file" -ForegroundColor Red
@@ -79,7 +85,7 @@ try {
     
     # Start historical analysis app
     Write-Host "🚀 Starting Historical Analysis App (port 5002)..." -ForegroundColor Green  
-    $historicalApp = Start-Process -FilePath "python" -ArgumentList "start_historical_analysis.py" -PassThru -WindowStyle Minimized
+    $historicalApp = Start-Process -FilePath "python" -ArgumentList "historical_analysis_app.py" -PassThru -WindowStyle Minimized
     
     # Wait for both services to be ready
     Write-Host ""

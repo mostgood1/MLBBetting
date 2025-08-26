@@ -152,6 +152,15 @@ def test_route():
         'timestamp': datetime.now().isoformat()
     })
 
+@app.route('/test-frontend')
+def test_frontend():
+    """Test page for debugging frontend issues"""
+    try:
+        with open('test_frontend.html', 'r') as f:
+            return f.read()
+    except Exception as e:
+        return f"Error loading test page: {str(e)}"
+
 @app.route('/health')
 def health_check():
     """Health check endpoint for Render"""
@@ -264,14 +273,83 @@ def get_business_date():
     return business_date.strftime('%Y-%m-%d')
 
 def get_live_status_with_timeout(away_team, home_team, date_param, timeout_seconds=3):
-    """Get live status with timeout - now using real MLB API"""
+    """Get live status with timeout - now using real MLB API with intelligent time validation"""
     try:
         from live_mlb_data import get_live_game_status
+        from datetime import datetime, time, timedelta
+        import re
         
         # Get real live status from MLB API
         live_status = get_live_game_status(away_team, home_team, date_param)
         
         if live_status and 'status' in live_status:
+            # INTELLIGENT SAFEGUARD: Check if this is today and validate against actual game time
+            today = datetime.now().strftime('%Y-%m-%d')
+            if date_param == today:  # Only apply safeguard for today's games
+                current_time = datetime.now()
+                
+                # Try to parse the actual game time from the live status
+                game_time_str = live_status.get('game_time', '')
+                game_start_time = None
+                
+                # Parse various game time formats
+                if game_time_str and game_time_str != 'TBD':
+                    try:
+                        # Handle formats like "06:10 PM CT", "7:10 PM", "1:05 PM CT", etc.
+                        time_match = re.search(r'(\d{1,2}):(\d{2})\s*(AM|PM)', game_time_str.upper())
+                        if time_match:
+                            hour = int(time_match.group(1))
+                            minute = int(time_match.group(2))
+                            am_pm = time_match.group(3)
+                            
+                            # Convert to 24-hour format
+                            if am_pm == 'PM' and hour != 12:
+                                hour += 12
+                            elif am_pm == 'AM' and hour == 12:
+                                hour = 0
+                                
+                            game_start_time = current_time.replace(hour=hour, minute=minute, second=0, microsecond=0)
+                            
+                    except Exception as parse_error:
+                        logger.debug(f"Could not parse game time '{game_time_str}': {parse_error}")
+                
+                # Apply intelligent validation
+                if live_status.get('is_final', False):
+                    should_override = False
+                    reason = ""
+                    
+                    if game_start_time:
+                        # Check if enough time has passed for a game to actually finish
+                        # MLB games typically take 2.5-4 hours
+                        min_game_duration_hours = 2.5
+                        earliest_finish_time = game_start_time + timedelta(hours=min_game_duration_hours)
+                        
+                        if current_time < earliest_finish_time:
+                            should_override = True
+                            time_diff = earliest_finish_time - current_time
+                            reason = f"Game started at {game_start_time.strftime('%I:%M %p')}, too early to finish (needs {time_diff.total_seconds()/3600:.1f} more hours)"
+                    else:
+                        # Fallback: if no game time available, use conservative approach
+                        # Don't show games as final before 12:00 PM (for early day games)
+                        earliest_possible_finish = time(12, 0)  # 12:00 PM
+                        if current_time.time() < earliest_possible_finish:
+                            should_override = True
+                            reason = f"No game time available and it's only {current_time.strftime('%I:%M %p')} - too early for any game to finish"
+                    
+                    if should_override:
+                        logger.warning(f"🚨 SMART OVERRIDE: Game {away_team} @ {home_team} showing as final but {reason}")
+                        return {
+                            'status': 'Scheduled',
+                            'badge_class': 'scheduled', 
+                            'game_time': live_status.get('game_time', 'TBD'),
+                            'away_score': None,
+                            'home_score': None,
+                            'is_final': False,
+                            'is_live': False,
+                            'inning': '',
+                            'inning_state': ''
+                        }
+            
             logger.info(f"✅ Live status for {away_team} @ {home_team}: {live_status.get('status', 'Unknown')}")
             return live_status
         else:
@@ -809,9 +887,41 @@ def load_real_betting_lines():
 # Removed create_sample_betting_lines() function - NO FAKE DATA ALLOWED
 
 def load_betting_recommendations():
-    """Load betting recommendations from UNIFIED ENGINE ONLY (no hardcoded values)"""
+    """Load betting recommendations from file first, then fallback to engine"""
     logger.info("🚀 STARTING load_betting_recommendations function")
     try:
+        # First, try to load from today's betting recommendations file
+        from datetime import datetime
+        today = datetime.now().strftime('%Y_%m_%d')
+        today_dash = datetime.now().strftime('%Y-%m-%d')
+        
+        file_paths = [
+            f'data/betting_recommendations_{today_dash}.json',
+            f'data/betting_recommendations_{today}.json'
+        ]
+        
+        for file_path in file_paths:
+            try:
+                logger.info(f"🔍 Trying to load betting recommendations from {file_path}")
+                with open(file_path, 'r') as f:
+                    file_data = json.load(f)
+                    
+                if 'games' in file_data and file_data['games']:
+                    logger.info(f"✅ Successfully loaded {len(file_data['games'])} games from {file_path}")
+                    return file_data
+                else:
+                    logger.warning(f"⚠️ File {file_path} loaded but has no games")
+                    
+            except FileNotFoundError:
+                logger.info(f"� File {file_path} not found, trying next...")
+                continue
+            except json.JSONDecodeError as e:
+                logger.warning(f"⚠️ JSON decode error in {file_path}: {e}")
+                continue
+        
+        # Fallback to engine if file loading fails
+        logger.info("📁 No betting recommendations file found, falling back to engine...")
+        
         # Import our unified betting system
         import sys
         import os
@@ -1764,30 +1874,31 @@ def calculate_expected_value(win_probability, odds_american):
 
 def convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines=None, current_predicted_total=None):
     """Convert betting recommendations to format expected by frontend template"""
-    if not game_recommendations or 'betting_recommendations' not in game_recommendations:
+    if not game_recommendations:
         return None
     
-    betting_recs = game_recommendations['betting_recommendations']
-    
-    # FIRST: Check if we already have value_bets array (new format from betting engine)
-    if 'value_bets' in betting_recs and betting_recs['value_bets']:
-        logger.info(f"✅ Using existing value_bets array with {len(betting_recs['value_bets'])} recommendations")
+    # Check if we already have value_bets array (new format from betting engine)
+    if isinstance(game_recommendations, dict) and 'betting_recommendations' in game_recommendations:
+        betting_recs = game_recommendations['betting_recommendations']
         
-        # Process existing value_bets and ensure they have the correct format
-        processed_value_bets = []
-        for bet in betting_recs['value_bets']:
-            processed_bet = bet.copy()  # Start with existing bet
+        if 'value_bets' in betting_recs and betting_recs['value_bets']:
+            logger.info(f"✅ Using existing value_bets array with {len(betting_recs['value_bets'])} recommendations")
             
-            # Standardize type names for frontend
-            if processed_bet.get('type') == 'total':
-                processed_bet['type'] = 'Total Runs'
-            elif processed_bet.get('type') == 'moneyline':
-                processed_bet['type'] = 'Moneyline'
-            
-            # Add edge_rating if missing
-            if 'edge_rating' not in processed_bet:
-                confidence = processed_bet.get('confidence', 'medium')
-                processed_bet['edge_rating'] = '🔥' if confidence == 'high' else '⚡' if confidence == 'medium' else '💡'
+            # Process existing value_bets and ensure they have the correct format
+            processed_value_bets = []
+            for bet in betting_recs['value_bets']:
+                processed_bet = bet.copy()  # Start with existing bet
+                
+                # Standardize type names for frontend
+                if processed_bet.get('type') == 'total':
+                    processed_bet['type'] = 'Total Runs'
+                elif processed_bet.get('type') == 'moneyline':
+                    processed_bet['type'] = 'Moneyline'
+                
+                # Add edge_rating if missing
+                if 'edge_rating' not in processed_bet:
+                    confidence = processed_bet.get('confidence', 'medium')
+                    processed_bet['edge_rating'] = '🔥' if confidence == 'high' else '⚡' if confidence == 'medium' else '💡'
             
             # Add reasoning if missing
             if 'reasoning' not in processed_bet:
@@ -1811,6 +1922,66 @@ def convert_betting_recommendations_to_frontend_format(game_recommendations, rea
             'summary': f"{high_confidence_count} high-confidence, {medium_confidence_count} medium-confidence opportunities",
             'total_opportunities': len([bet for bet in processed_value_bets if bet.get('confidence') in ['high', 'medium']])
         }
+    
+    # Check for OLD FORMAT: direct recommendations array
+    if isinstance(game_recommendations, dict) and 'recommendations' in game_recommendations:
+        old_recommendations = game_recommendations['recommendations']
+        logger.info(f"🔍 Found old format recommendations array with {len(old_recommendations)} items")
+        
+        # Convert old format recommendations to new value_bets format
+        value_bets = []
+        for rec in old_recommendations:
+            if isinstance(rec, dict) and rec.get('recommendation') != 'No recommendations':
+                # Convert old format to new format
+                bet_type = rec.get('type', 'unknown')
+                side = rec.get('side', '')
+                line = rec.get('line', '')
+                confidence = rec.get('confidence', 'MEDIUM').upper()
+                
+                # Create recommendation text
+                if bet_type == 'total':
+                    recommendation = f"{side.upper()} {line}"
+                else:
+                    recommendation = f"{bet_type.title()} {side} {line}"
+                
+                # Calculate edge rating
+                edge_rating = '🔥' if confidence == 'HIGH' else '⚡' if confidence == 'MEDIUM' else '💡'
+                
+                # Create reasoning
+                model_total = rec.get('model_total', 'N/A')
+                reasoning = rec.get('reasoning', f"Model: {model_total} vs Line: {line}")
+                
+                value_bet = {
+                    'recommendation': recommendation,
+                    'type': 'Total Runs' if bet_type == 'total' else bet_type.title(),
+                    'confidence': confidence,
+                    'edge_rating': edge_rating,
+                    'expected_value': rec.get('expected_value', 0),
+                    'estimated_odds': rec.get('odds', 'N/A'),
+                    'reasoning': reasoning,
+                    'win_probability': rec.get('win_probability', 0.5)
+                }
+                
+                value_bets.append(value_bet)
+                logger.info(f"✅ Converted old format recommendation: {recommendation}")
+        
+        # Calculate summary stats (even if empty)
+        high_confidence_count = sum(1 for bet in value_bets if bet.get('confidence') == 'HIGH')
+        medium_confidence_count = sum(1 for bet in value_bets if bet.get('confidence') == 'MEDIUM')
+        
+        return {
+            'value_bets': value_bets,
+            'total_bets': len(value_bets),
+            'summary': f"{high_confidence_count} high-confidence, {medium_confidence_count} medium-confidence opportunities" if value_bets else "No value betting opportunities found",
+            'total_opportunities': len(value_bets)
+        }
+    
+    # Check if we have betting_recommendations key (intermediate format)
+    if isinstance(game_recommendations, dict) and 'betting_recommendations' in game_recommendations:
+        betting_recs = game_recommendations['betting_recommendations']
+    else:
+        # No valid format found
+        return None
     
     # FALLBACK: Convert from old object format if no value_bets array
     value_bets = []
@@ -3677,11 +3848,12 @@ def api_today_games():
             ]
             
             # First try unified betting engine recommendations with multiple key formats
-            if unified_betting_recommendations:
+            if unified_betting_recommendations and 'games' in unified_betting_recommendations:
+                unified_games = unified_betting_recommendations['games']
                 logger.info(f"🔍 KEY MATCHING: Trying to find recommendations for {betting_game_key}")
-                logger.info(f"🔍 Available unified keys: {list(unified_betting_recommendations.keys())[:5]}...")
+                logger.info(f"🔍 Available unified games: {list(unified_games.keys())[:5]}...")
                 for key_format in unified_key_formats:
-                    game_recommendations = unified_betting_recommendations.get(key_format, None)
+                    game_recommendations = unified_games.get(key_format, None)
                     if game_recommendations:
                         logger.info(f"✅ Using unified betting recommendations for {betting_game_key} (found with key: {key_format})")
                         break
@@ -4072,12 +4244,31 @@ def api_live_status():
             'error': str(e)
         })
 
+@app.route('/api/debug-betting-keys')
+def debug_betting_keys():
+    """Debug endpoint to check betting recommendation keys"""
+    betting_recommendations = load_betting_recommendations()
+    if betting_recommendations and 'games' in betting_recommendations:
+        game_keys = list(betting_recommendations['games'].keys())
+        return jsonify({
+            'total_games': len(game_keys),
+            'first_10_keys': game_keys[:10],
+            'sample_game_data': betting_recommendations['games'].get(game_keys[0], {}) if game_keys else {}
+        })
+    else:
+        return jsonify({
+            'error': 'No betting recommendations found',
+            'betting_recommendations_type': type(betting_recommendations),
+            'has_games_key': 'games' in betting_recommendations if betting_recommendations else False
+        })
+
 @app.route('/api/prediction/<away_team>/<home_team>')
 def api_single_prediction(away_team, home_team):
     """API endpoint for single game prediction - powers the modal popups"""
     try:
         date_param = request.args.get('date', get_business_date())
-        logger.info(f"Getting prediction for {away_team} @ {home_team} on {date_param}")
+        logger.info(f"🚀 PREDICTION API CALLED: {away_team} @ {home_team} on {date_param}")
+        logger.info(f"🚀 PREDICTION API: Starting route execution")
         
         # Load unified cache (hardcoded daily predictions)
         unified_cache = load_unified_cache()
@@ -4205,19 +4396,32 @@ def api_single_prediction(away_team, home_team):
                 logger.warning(f"🔍 MODAL BETTING LINES: Direct file load failed: {e}")
         
         # Get betting recommendations using the same logic as main API
+        logger.info(f"🚀 PREDICTION API: About to load betting recommendations")
         betting_recommendations = load_betting_recommendations()
+        logger.info(f"🚀 PREDICTION API: Loaded betting recommendations: {betting_recommendations is not None}")
         
-        # Build game key for betting lines lookup (same as main API)
-        game_key = f"{away_team} @ {home_team}"
-        logger.info(f"Looking for betting recommendations with game_key: '{game_key}'")
+        # Build game key for betting recommendations lookup - IMPORTANT: use _vs_ format like in the file
+        betting_game_key = f"{away_team}_vs_{home_team}"
+        logger.info(f"🚀 PREDICTION API: Looking for betting recommendations with betting_game_key: '{betting_game_key}'")
         
         # Get betting recommendations for this game
         game_recommendations = None
         if betting_recommendations and 'games' in betting_recommendations:
             available_keys = list(betting_recommendations['games'].keys())
-            logger.info(f"Available betting recommendation keys: {available_keys}")
-            game_recommendations = betting_recommendations['games'].get(game_key, None)
+            logger.info(f"Available betting recommendation keys: {available_keys[:5]}...")  # Show first 5
+            game_recommendations = betting_recommendations['games'].get(betting_game_key, None)
             logger.info(f"Found betting recommendation: {game_recommendations is not None}")
+            if game_recommendations:
+                logger.info(f"Betting recommendations type: {type(game_recommendations)}")
+                if isinstance(game_recommendations, dict):
+                    logger.info(f"Betting recommendations keys: {list(game_recommendations.keys())}")
+            else:
+                # Debug: try to find a similar key
+                logger.warning(f"Exact key '{betting_game_key}' not found. Checking for similar keys...")
+                for key in available_keys:
+                    if away_team in key and home_team in key:
+                        logger.warning(f"Found similar key: '{key}'")
+                        break
         else:
             logger.warning("No betting recommendations loaded or 'games' key missing")
         
@@ -4250,14 +4454,43 @@ def api_single_prediction(away_team, home_team):
                 'confidence_intervals': total_runs_prediction.get('confidence_intervals', {}),
                 'most_likely_range': total_runs_prediction.get('most_likely_range', 'Unknown'),
                 'over_under_analysis': total_runs_prediction.get('over_under_analysis', {})
-            },
-            'betting_recommendations': convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines, predicted_total_runs) if game_recommendations else create_basic_betting_recommendations(
+            }
+        }
+        
+        # Handle betting recommendations with proper fallback logic
+        logger.info(f"🚀 PREDICTION API: About to handle betting recommendations")
+        logger.info(f"🚀 PREDICTION API: game_recommendations is not None: {game_recommendations is not None}")
+        converted_recs = None
+        if game_recommendations:
+            logger.info(f"🚀 PREDICTION API: Converting recommendations...")
+            converted_recs = convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines, predicted_total_runs)
+            logger.info(f"Converted recommendations result: {converted_recs is not None}")
+            if converted_recs:
+                logger.info(f"Successfully converted recommendations: {len(converted_recs.get('value_bets', []))} bets")
+            else:
+                logger.warning(f"Conversion returned None for {away_team} @ {home_team}")
+        else:
+            logger.info(f"🚀 PREDICTION API: No game_recommendations found, will use basic fallback")
+        
+        logger.info(f"🚀 PREDICTION API: Check if converted_recs has value_bets: {converted_recs and converted_recs.get('value_bets')}")
+        if converted_recs and converted_recs.get('value_bets'):
+            logger.info(f"🚀 PREDICTION API: Using converted recommendations")
+            prediction_response['betting_recommendations'] = converted_recs
+        else:
+            # Fallback to basic recommendations
+            logger.info(f"🚀 PREDICTION API: Using basic betting recommendations fallback for {away_team} @ {home_team}")
+            logger.info(f"Fallback params: away_win_prob={away_win_prob}, home_win_prob={home_win_prob}, predicted_total={predicted_total_runs}, real_total={real_over_under_total}")
+            basic_recs = create_basic_betting_recommendations(
                 away_team, home_team, away_win_prob, home_win_prob, predicted_total_runs, 
                 real_over_under_total
-            ),
-            'real_betting_lines': real_lines,
-            'debug_real_over_under_total': real_over_under_total  # Debug field
-        }
+            )
+            logger.info(f"Basic recommendations result: {basic_recs is not None}")
+            if basic_recs:
+                logger.info(f"Basic recommendations: {len(basic_recs.get('value_bets', []))} bets")
+            prediction_response['betting_recommendations'] = basic_recs
+        
+        prediction_response['real_betting_lines'] = real_lines
+        prediction_response['debug_real_over_under_total'] = real_over_under_total  # Debug field
         
         logger.info(f"Successfully found prediction for {away_team} @ {home_team}")
         return jsonify(prediction_response)

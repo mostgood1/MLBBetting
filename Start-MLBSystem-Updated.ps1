@@ -91,7 +91,7 @@ try {
     
     # Start historical analysis app (using stable startup script)
     Write-Host "🚀 Starting Historical Analysis App (port 5002)..." -ForegroundColor Green  
-    $historicalApp = Start-Process -FilePath "python" -ArgumentList "start_historical_analysis.py" -PassThru -WindowStyle Minimized
+    $historicalApp = Start-Process -FilePath "python" -ArgumentList "historical_analysis_app.py" -PassThru -WindowStyle Minimized
     
     # Wait for both services to be ready
     Write-Host ""
