@@ -377,7 +377,7 @@
             document.getElementById('games-content').innerHTML = '';
 
             try {
-                const response = await fetch(`http://localhost:5001/api/today-games/${todaysDate}`);
+                const response = await fetch(`http://localhost:5000/api/today-games`);
                 const data = await response.json();
                 
                 if (data.games && data.games.length > 0) {
@@ -395,6 +395,48 @@
 
         function displaySimpleTodaysGames(data) {
             const content = document.getElementById('games-content');
+            
+            console.log('📊 displaySimpleTodaysGames called with data:', data);
+            console.log('📊 Number of games:', data.games?.length || 0);
+
+            // Transform the data from main app format to expected format
+            const transformedGames = data.games.map(game => {
+                console.log('🔧 Transforming game:', game.away_team, 'vs', game.home_team);
+                console.log('🔧 Original betting_recommendations:', game.betting_recommendations);
+                console.log('🔧 Team assets - away:', game.away_team_assets);
+                console.log('🔧 Team assets - home:', game.home_team_assets);
+                console.log('🔧 Live status:', game.live_status);
+                
+                const transformed = {
+                    ...game,
+                    // Map status fields
+                    game_status: game.live_status?.status || game.status || 'Scheduled',
+                    // Map logo fields
+                    away_logo: game.away_team_assets?.logo_url || game.away_logo || '/static/default_team_logo.png',
+                    home_logo: game.home_team_assets?.logo_url || game.home_logo || '/static/default_team_logo.png',
+                    // Map live status fields
+                    is_final: game.live_status?.is_final || game.is_final || false,
+                    is_live: game.live_status?.is_live || game.is_live || false,
+                    away_score: game.live_status?.away_score || game.away_score || null,
+                    home_score: game.live_status?.home_score || game.home_score || null,
+                    actual_total: game.live_status && game.live_status.away_score !== null && game.live_status.home_score !== null ? 
+                        (game.live_status.away_score + game.live_status.home_score) : null,
+                    // Map betting recommendations - correct structure
+                    has_betting_recommendations: !!(game.betting_recommendations?.value_bets?.length),
+                    betting_recommendations: game.betting_recommendations?.value_bets || [],
+                    value_bets_count: game.betting_recommendations?.value_bets?.length || 0
+                };
+                
+                console.log('✅ Transformed game:', {
+                    game_status: transformed.game_status,
+                    away_logo: transformed.away_logo,
+                    home_logo: transformed.home_logo,
+                    has_betting_recommendations: transformed.has_betting_recommendations,
+                    value_bets_count: transformed.value_bets_count
+                });
+                
+                return transformed;
+            });
 
             content.innerHTML = `
                 <div class="analysis-summary">
@@ -403,7 +445,7 @@
                 </div>
 
                 <div class="games-grid">
-                    ${data.games.map(game => `
+                    ${transformedGames.map(game => `
                         <div class="game-card" style="border: 2px solid ${game.is_final ? '#28a745' : '#007bff'}; border-radius: 8px; padding: 15px; margin: 10px 0;">
                             <div class="game-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                 <div style="display: flex; align-items: center; gap: 15px;">

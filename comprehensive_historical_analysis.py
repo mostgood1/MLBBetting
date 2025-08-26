@@ -212,7 +212,36 @@ class ComprehensiveHistoricalAnalyzer:
                 continue
             
             final_score = final_scores[normalized_key]
+            
+            # Handle both old and new betting recommendation formats
             value_bets = prediction.get('value_bets', [])
+            if not value_bets:
+                # Fallback to old format with 'recommendations' array
+                old_recommendations = prediction.get('recommendations', [])
+                
+                # Check if there are nested predictions with their own recommendations (deeper old format)
+                if 'predictions' in prediction and 'recommendations' in prediction['predictions']:
+                    nested_recommendations = prediction['predictions']['recommendations']
+                    if nested_recommendations:  # Prefer nested recommendations if they exist
+                        old_recommendations = nested_recommendations
+                
+                # Convert old format to new format structure
+                value_bets = []
+                for rec in old_recommendations:
+                    # Skip "Market Analysis" type recommendations with no actual bets
+                    if rec.get('type') == 'Market Analysis' and 'No Strong Value' in rec.get('bet', ''):
+                        continue
+                        
+                    value_bets.append({
+                        'type': rec.get('type', 'unknown'),
+                        'recommendation': f"{rec.get('side', 'unknown').upper()} {rec.get('line', 'N/A')}",
+                        'american_odds': rec.get('odds', '+100'),
+                        'expected_value': rec.get('expected_value', 0),
+                        'confidence': rec.get('confidence', 'medium').lower(),
+                        'win_probability': rec.get('win_probability', 0.5),
+                        'reasoning': rec.get('reasoning', ''),
+                        'betting_line': rec.get('line', 0)  # Important: preserve the betting line for evaluation
+                    })
             
             for bet in value_bets:
                 stats['total_recommendations'] += 1
@@ -234,19 +263,33 @@ class ComprehensiveHistoricalAnalyzer:
                 else:
                     winnings = 0
                 
-                # Track by bet type
-                if 'moneyline' in recommendation.lower() or bet_type == 'moneyline':
+                # Track by bet type with improved categorization
+                bet_categorized = False
+                
+                if 'moneyline' in recommendation.lower() or bet_type.lower() == 'moneyline' or 'ml' in recommendation.lower():
                     stats['moneyline_stats']['total'] += 1
                     if bet_won:
                         stats['moneyline_stats']['correct'] += 1
-                elif 'total' in recommendation.lower() or 'over' in recommendation.lower() or 'under' in recommendation.lower() or bet_type == 'total':
+                    bet_categorized = True
+                elif ('total' in recommendation.lower() or 'over' in recommendation.lower() or 'under' in recommendation.lower() or 
+                      bet_type.lower() == 'total' or 'o/u' in recommendation.lower()):
                     stats['total_stats']['total'] += 1
                     if bet_won:
                         stats['total_stats']['correct'] += 1
-                elif 'run' in recommendation.lower() or bet_type == 'runline':
+                    bet_categorized = True
+                elif ('run' in recommendation.lower() or bet_type.lower() == 'runline' or 'rl' in recommendation.lower() or
+                      'spread' in recommendation.lower()):
                     stats['runline_stats']['total'] += 1
                     if bet_won:
                         stats['runline_stats']['correct'] += 1
+                    bet_categorized = True
+                
+                # If not categorized, default to total type (most common)
+                if not bet_categorized:
+                    logger.warning(f"Uncategorized bet: type='{bet_type}', recommendation='{recommendation}'")
+                    stats['total_stats']['total'] += 1
+                    if bet_won:
+                        stats['total_stats']['correct'] += 1
                 
                 # Store detailed bet info
                 stats['detailed_bets'].append({
