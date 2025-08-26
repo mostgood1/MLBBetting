@@ -7,8 +7,8 @@
     "team_strength_weight": 0.3,
     "run_environment": 0.8075,
     "variance_factor": 0.88,
-    "home_scoring_boost": 1.00,
-    "away_scoring_boost": 1.00,
+    "home_scoring_boost": 1.0,
+    "away_scoring_boost": 1.0,
     "total_scoring_adjustment": 0.9,
     "base_lambda": 4.0,
     "team_strength_multiplier": 0.17,
@@ -48,12 +48,19 @@
     "reason": "BALANCED FINAL: Neutralized scoring boosts and balanced field advantages",
     "previous_result": "80% home wins - still too high",
     "corrected_values": {
-      "home_scoring_boost": 1.00,
-      "away_scoring_boost": 1.00,
+      "home_scoring_boost": 1.0,
+      "away_scoring_boost": 1.0,
       "home_field_advantage": 0.035,
       "away_field_boost": 0.015,
       "net_home_advantage": "2% home advantage (realistic for MLB)"
     },
     "target_home_win_rate": "50-55% (realistic MLB range)"
+  },
+  "betting_parameters": {
+    "min_edge": 0.03,
+    "kelly_fraction": 0.25,
+    "high_confidence_ev": 0.1,
+    "medium_confidence_ev": 0.05,
+    "probability_scaling_factor": 0.08
   }
 }

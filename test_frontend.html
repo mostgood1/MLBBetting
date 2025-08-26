@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Frontend Issue</title>
+</head>
+<body>
+    <h1>Testing Frontend Connection</h1>
+    <div id="result"></div>
+    
+    <script>
+        // Test direct API call from browser
+        fetch('/api/today-games')
+            .then(response => response.json())
+            .then(data => {
+                console.log('API Response:', data);
+                
+                const gamesWithBetting = data.games.filter(g => 
+                    g.betting_recommendations && g.betting_recommendations.value_bets
+                );
+                
+                document.getElementById('result').innerHTML = `
+                    <p>Total games: ${data.games.length}</p>
+                    <p>Games with betting recommendations: ${gamesWithBetting.length}</p>
+                    ${gamesWithBetting.length > 0 ? `
+                        <h3>Games with betting recommendations:</h3>
+                        ${gamesWithBetting.map(g => `
+                            <div>
+                                <strong>${g.away_team} @ ${g.home_team}</strong><br>
+                                Value bets: ${g.betting_recommendations.value_bets.length}<br>
+                                ${g.betting_recommendations.value_bets.map(bet => `
+                                    - ${bet.recommendation} (${bet.confidence})
+                                `).join('<br>')}
+                            </div>
+                        `).join('<br><br>')}
+                    ` : '<p>No games with betting recommendations found</p>'}
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            });
+    </script>
+</body>
+</html>

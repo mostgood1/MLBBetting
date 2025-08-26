@@ -231,6 +231,13 @@ class ComprehensiveHistoricalAnalyzer:
                     # Skip "Market Analysis" type recommendations with no actual bets
                     if rec.get('type') == 'Market Analysis' and 'No Strong Value' in rec.get('bet', ''):
                         continue
+                    
+                    # CRITICAL FIX: Skip "No recommendations" entries (same logic as convert_betting_recommendations_to_frontend_format)
+                    if (rec.get('type') == 'none' or 
+                        rec.get('recommendation') == 'No recommendations' or
+                        'No recommendations' in str(rec.get('recommendation', '')) or
+                        rec.get('bet') == 'No Strong Value Bets Today'):
+                        continue
                         
                     value_bets.append({
                         'type': rec.get('type', 'unknown'),

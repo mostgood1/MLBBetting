@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Betting Recommendations Debug</title>
+</head>
+<body>
+    <h1>Testing Betting Recommendations</h1>
+    <div id="output"></div>
+    
+    <script>
+        // Simulate the game data from our API
+        const testGame = {
+            "away_team": "Colorado Rockies",
+            "home_team": "Houston Astros",
+            "game_id": "Colorado Rockies_vs_Houston Astros",
+            "betting_recommendations": {
+                "best_bet": {
+                    "confidence": "MEDIUM",
+                    "edge_rating": "⭐",
+                    "estimated_odds": "-120",
+                    "expected_value": 0.069,
+                    "reasoning": "Model gives Houston Astros 58.3 percent chance to win",
+                    "recommendation": "Houston Astros ML (58.3 percent)",
+                    "type": "Moneyline",
+                    "win_probability": 0.583
+                },
+                "summary": "2 betting opportunities identified",
+                "total_opportunities": 2,
+                "value_bets": [
+                    {
+                        "confidence": "MEDIUM",
+                        "edge_rating": "⭐",
+                        "estimated_odds": "-120",
+                        "expected_value": 0.069,
+                        "reasoning": "Model gives Houston Astros 58.3 percent chance to win",
+                        "recommendation": "Houston Astros ML (58.3 percent)",
+                        "type": "Moneyline",
+                        "win_probability": 0.583
+                    },
+                    {
+                        "confidence": "MEDIUM",
+                        "edge_rating": "⭐",
+                        "estimated_odds": "+120",
+                        "expected_value": -0.038,
+                        "reasoning": "Model favors Houston Astros with 58.3 percent win probability and 1.2 run margin",
+                        "recommendation": "Houston Astros -1.5 (1.2 margin expected)",
+                        "type": "Run Line",
+                        "win_probability": 0.437
+                    }
+                ]
+            }
+        };
+        
+        console.log('Testing betting recommendations...');
+        console.log('Game:', testGame);
+        
+        // Check if betting recommendations exist
+        console.log('Has betting_recommendations?', !!testGame.betting_recommendations);
+        console.log('Has value_bets?', !!testGame.betting_recommendations.value_bets);
+        console.log('Value bets length:', testGame.betting_recommendations.value_bets.length);
+        
+        // Test the condition from the HTML
+        const condition = testGame.betting_recommendations && (testGame.betting_recommendations.value_bets || testGame.betting_recommendations.recommendations);
+        console.log('Condition result:', condition);
+        
+        // Display results
+        document.getElementById('output').innerHTML = 
+            '<p>Has betting recommendations: ' + !!testGame.betting_recommendations + '</p>' +
+            '<p>Has value bets: ' + !!testGame.betting_recommendations.value_bets + '</p>' +
+            '<p>Number of value bets: ' + testGame.betting_recommendations.value_bets.length + '</p>' +
+            '<p>Condition passes: ' + condition + '</p>';
+    </script>
+</body>
+</html>

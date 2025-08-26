@@ -4319,6 +4319,51 @@ def api_single_prediction(away_team, home_team):
         winner_prediction = comprehensive_details.get('winner_prediction', {})
         total_runs_prediction = comprehensive_details.get('total_runs_prediction', {})
         
+        # Load additional factor data for modal display
+        park_weather_factors = {}
+        bullpen_factors = {}
+        team_strength = {}
+        
+        try:
+            # Load park/weather factors for today
+            today_formatted = date_param.replace('-', '_')
+            park_weather_file = f'data/park_weather_factors_{today_formatted}.json'
+            if os.path.exists(park_weather_file):
+                with open(park_weather_file, 'r') as f:
+                    park_weather_data = json.load(f)
+                    park_weather_factors = park_weather_data.get('teams', {})
+                    
+            # Load bullpen stats
+            bullpen_file = 'data/bullpen_stats.json'
+            if os.path.exists(bullpen_file):
+                with open(bullpen_file, 'r') as f:
+                    bullpen_factors = json.load(f)
+                    
+            # Load team strength
+            team_strength_file = 'data/master_team_strength.json'
+            if os.path.exists(team_strength_file):
+                with open(team_strength_file, 'r') as f:
+                    team_strength = json.load(f)
+                    
+        except Exception as e:
+            logger.warning(f"Could not load factor data: {e}")
+        
+        # Build comprehensive factors for modal
+        away_factors = {
+            'team_strength': team_strength.get(away_team, 0.0),
+            'bullpen_quality': bullpen_factors.get(away_team, {}).get('quality_factor', 1.0),
+            'bullpen_era': bullpen_factors.get(away_team, {}).get('weighted_era', 4.0),
+            'pitcher_factor': pitcher_info.get('away_pitcher_factor', 1.0)
+        }
+        
+        home_factors = {
+            'team_strength': team_strength.get(home_team, 0.0),
+            'bullpen_quality': bullpen_factors.get(home_team, {}).get('quality_factor', 1.0),
+            'bullpen_era': bullpen_factors.get(home_team, {}).get('weighted_era', 4.0),
+            'pitcher_factor': pitcher_info.get('home_pitcher_factor', 1.0),
+            'park_weather': park_weather_factors.get(home_team, {})
+        }
+        
         # Build game key for betting lines lookup
         game_key = f"{away_team} @ {home_team}"
         logger.info(f"Looking for betting recommendations with game_key: '{game_key}'")
@@ -4438,7 +4483,11 @@ def api_single_prediction(away_team, home_team):
                 
                 # Add pitcher quality factors from prediction engine
                 'away_pitcher_factor': pitcher_info.get('away_pitcher_factor', 1.0),
-                'home_pitcher_factor': pitcher_info.get('home_pitcher_factor', 1.0)
+                'home_pitcher_factor': pitcher_info.get('home_pitcher_factor', 1.0),
+                
+                # Add comprehensive model factors for modal display
+                'away_factors': away_factors,
+                'home_factors': home_factors
             },
             'prediction': {
                 'predicted_away_score': round(predicted_away_score, 1),

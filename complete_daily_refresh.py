@@ -1,246 +1,341 @@
 #!/usr/bin/env python3
 """
-Complete Daily Refresh Script
-===============================
-Runs ALL necessary data updates in the correct order for daily MLB predictions:
+Complete Daily Refresh Automation
+====================================
+This script orchestrates the complete daily automation workflow for the MLB betting system.
+It runs all necessary data collection, analysis, and prediction generation in the correct sequence.
 
-1. Fetch today's games
-2. Update team strength data  
-3. Update pitcher stats
-4. Fetch starting pitchers
-5. Fetch real betting lines
-6. Generate predictions
-7. Generate betting recommendations
-8. Update unified cache
+CRITICAL TIMING:
+- Weather/Park factors MUST be generated BEFORE predictions
+- All data collection happens first, then processing, then predictions
 
-This ensures everything is fresh and in the right order.
+Sequence:
+1. Data Collection (betting lines, schedules, etc.)
+2. Factor Generation (team strength, bullpen stats)
+2.5. Weather/Park Factor Generation (BEFORE predictions)
+3. Prediction Generation (all engines)
+4. Cleanup and validation
 """
 
-import subprocess
-import sys
 import os
-import json
+import sys
 import logging
-from datetime import datetime, date
-from pathlib import Path
+import traceback
+from datetime import datetime, timedelta
+import subprocess
+import json
+import time
 
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Add current directory to path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(name)s %(message)s',
+    handlers=[
+        logging.FileHandler(f'complete_daily_automation_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger(__name__)
 
 class CompleteDailyRefresh:
-    def __init__(self, target_date=None):
-        self.target_date = target_date or datetime.now().strftime('%Y-%m-%d')
-        self.data_dir = Path("data")
-        self.data_dir.mkdir(exist_ok=True)
-        
-        logger.info(f"🚀 Complete Daily Refresh for {self.target_date}")
+    """Complete daily automation orchestrator"""
     
-    def run_script(self, script_name, description, args=None):
-        """Run a Python script and handle errors"""
-        logger.info(f"📝 {description}...")
+    def __init__(self):
+        self.start_time = datetime.now()
+        self.results = {}
+        self.errors = []
         
-        cmd = [sys.executable, script_name]
-        if args:
-            cmd.extend(args)
-            
+    def log_step(self, step_name, status="STARTING"):
+        """Log automation step"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        logger.info(f"[{timestamp}] {status}: {step_name}")
+        
+    def run_script(self, script_name, description, timeout=300):
+        """Run a Python script with error handling"""
+        self.log_step(description)
+        
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            # Check if script exists
+            if not os.path.exists(script_name):
+                raise FileNotFoundError(f"Script not found: {script_name}")
+            
+            # Run the script
+            result = subprocess.run(
+                [sys.executable, script_name],
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                cwd=os.path.dirname(os.path.abspath(__file__))
+            )
+            
             if result.returncode == 0:
-                logger.info(f"✅ {description} completed successfully")
-                if result.stdout.strip():
-                    logger.info(f"   Output: {result.stdout.strip()[:200]}...")
+                self.log_step(description, "SUCCESS")
+                self.results[script_name] = {"status": "success", "output": result.stdout}
                 return True
             else:
-                logger.error(f"❌ {description} failed with code {result.returncode}")
-                if result.stderr:
-                    logger.error(f"   Error: {result.stderr.strip()}")
-                return False
-        except subprocess.TimeoutExpired:
-            logger.error(f"❌ {description} timed out after 300 seconds")
-            return False
-        except Exception as e:
-            logger.error(f"❌ {description} failed with exception: {e}")
-            return False
-    
-    def check_file_exists(self, filename, description):
-        """Check if a required file exists"""
-        if self.data_dir.joinpath(filename).exists():
-            logger.info(f"✅ {description} exists")
-            return True
-        else:
-            logger.warning(f"❌ {description} missing")
-            return False
-    
-    def run_complete_refresh(self):
-        """Run the complete daily refresh sequence"""
-        logger.info("🎯 Starting Complete Daily Refresh Sequence")
-        
-        success_count = 0
-        total_steps = 9  # Updated total
-        
-        # Step 1: Fetch today's games
-        if self.run_script("fetch_today_games.py", "Fetching today's games"):
-            success_count += 1
-            self.check_file_exists(f"games_{self.target_date}.json", "Games data")
-        
-        # Step 2: Update core team data
-        if self.run_script("daily_data_updater.py", "Updating team strength and pitcher stats"):
-            success_count += 1
-            self.check_file_exists("master_team_strength.json", "Team strength data")
-            self.check_file_exists("master_pitcher_stats.json", "Pitcher stats data")
-        
-        # Step 3: Fetch starting pitchers
-        if self.run_script("fetch_todays_starters.py", "Fetching starting pitchers"):
-            success_count += 1
-            expected_starter_file = f"starting_pitchers_{self.target_date.replace('-', '_')}.json"
-            self.check_file_exists(expected_starter_file, "Starting pitchers data")
-        
-        # Step 4: Fetch real betting lines
-        if self.run_script("fetch_betting_lines_real.py", "Fetching real betting lines"):
-            success_count += 1
-            expected_lines_file = f"real_betting_lines_{self.target_date.replace('-', '_')}.json"
-            self.check_file_exists(expected_lines_file, "Real betting lines data")
-        
-        # Step 5: Generate predictions
-        if self.run_script("daily_ultrafastengine_predictions.py", "Generating predictions", ["--date", self.target_date]):
-            success_count += 1
-        
-        # Step 6: Generate betting recommendations  
-        if self.run_script("betting_recommendations_engine.py", "Generating betting recommendations"):
-            success_count += 1
-            expected_recs_file = f"betting_recommendations_{self.target_date.replace('-', '_')}.json"
-            self.check_file_exists(expected_recs_file, "Betting recommendations")
-        
-        # Step 7: Update unified cache
-        if self.update_unified_cache():
-            success_count += 1
-        
-        # Step 8: Fetch yesterday's final scores for historical analysis
-        if self.fetch_yesterday_final_scores():
-            success_count += 1
-        
-        # Step 9: Final verification
-        if self.verify_all_data():
-            success_count += 1
-        
-        # Summary
-        total_steps = 9  # Updated total
-        logger.info(f"📊 Daily Refresh Summary: {success_count}/{total_steps} steps completed")
-        
-        if success_count == total_steps:
-            logger.info("🎉 Complete Daily Refresh SUCCESSFUL! All data is ready.")
-            return True
-        else:
-            logger.warning(f"⚠️ Daily Refresh PARTIAL: {total_steps - success_count} steps failed")
-            return False
-    
-    def update_unified_cache(self):
-        """Update the unified predictions cache"""
-        logger.info("📝 Updating unified predictions cache...")
-        
-        try:
-            # Load predictions if they exist
-            prediction_file = self.data_dir / f"predictions_{self.target_date.replace('-', '_')}.json"
-            if not prediction_file.exists():
-                logger.warning(f"No predictions file found at {prediction_file}")
-                return False
-            
-            with open(prediction_file, 'r') as f:
-                predictions = json.load(f)
-            
-            # Load existing cache or create new
-            cache_file = self.data_dir / "unified_predictions_cache.json"
-            if cache_file.exists():
-                with open(cache_file, 'r') as f:
-                    cache = json.load(f)
-            else:
-                cache = {"predictions_by_date": {}}
-            
-            # Update cache with today's predictions
-            cache["predictions_by_date"][self.target_date] = predictions
-            
-            # Save updated cache
-            with open(cache_file, 'w') as f:
-                json.dump(cache, f, indent=2)
-            
-            logger.info("✅ Unified cache updated successfully")
-            return True
-            
-        except Exception as e:
-            logger.error(f"❌ Failed to update unified cache: {e}")
-            return False
-    
-    def fetch_yesterday_final_scores(self):
-        """Fetch final scores for yesterday's games for historical analysis"""
-        logger.info("📝 Fetching yesterday's final scores for historical analysis...")
-        
-        try:
-            from datetime import datetime, timedelta
-            yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-            
-            # Check if final scores already exist for yesterday
-            scores_file = self.data_dir / f"final_scores_{yesterday.replace('-', '_')}.json"
-            if scores_file.exists():
-                logger.info(f"✅ Final scores for {yesterday} already exist")
-                return True
-            
-            # Run the final scores fetcher
-            if self.run_script("tools/fetch_final_scores.py", f"Fetching final scores for {yesterday}", [yesterday]):
-                logger.info(f"✅ Final scores fetched for {yesterday}")
-                return True
-            else:
-                logger.warning(f"⚠️ Failed to fetch final scores for {yesterday}")
+                error_msg = f"Script failed with return code {result.returncode}: {result.stderr}"
+                logger.error(error_msg)
+                self.errors.append(f"{script_name}: {error_msg}")
+                self.results[script_name] = {"status": "error", "error": error_msg}
                 return False
                 
+        except subprocess.TimeoutExpired:
+            error_msg = f"Script timed out after {timeout} seconds"
+            logger.error(error_msg)
+            self.errors.append(f"{script_name}: {error_msg}")
+            self.results[script_name] = {"status": "timeout", "error": error_msg}
+            return False
+            
         except Exception as e:
-            logger.error(f"❌ Failed to fetch yesterday's final scores: {e}")
+            error_msg = f"Unexpected error: {str(e)}"
+            logger.error(error_msg)
+            logger.error(traceback.format_exc())
+            self.errors.append(f"{script_name}: {error_msg}")
+            self.results[script_name] = {"status": "exception", "error": error_msg}
             return False
     
-    def verify_all_data(self):
-        """Verify all required data files exist and are recent"""
-        logger.info("📝 Verifying all data files...")
+    def step_1_data_collection(self):
+        """Step 1: Collect all external data"""
+        logger.info("=" * 80)
+        logger.info("STEP 1: DATA COLLECTION")
+        logger.info("=" * 80)
         
-        required_files = [
-            f"games_{self.target_date}.json",
-            f"starting_pitchers_{self.target_date.replace('-', '_')}.json", 
-            f"real_betting_lines_{self.target_date.replace('-', '_')}.json",
-            f"predictions_{self.target_date.replace('-', '_')}.json",
-            f"betting_recommendations_{self.target_date.replace('-', '_')}.json",
-            "master_team_strength.json",
-            "master_pitcher_stats.json",
-            "unified_predictions_cache.json"
+        scripts = [
+            ("daily_betting_lines_automation.py", "Fetch daily betting lines"),
+            ("fetch_today_games.py", "Fetch today's game schedule"),
+            ("fetch_todays_starters.py", "Fetch starting pitcher information"),
         ]
         
-        missing_files = []
-        for filename in required_files:
-            if not self.data_dir.joinpath(filename).exists():
-                missing_files.append(filename)
+        success_count = 0
+        for script, description in scripts:
+            if self.run_script(script, description):
+                success_count += 1
         
-        if missing_files:
-            logger.error(f"❌ Missing files: {missing_files}")
-            return False
+        logger.info(f"Step 1 Complete: {success_count}/{len(scripts)} data collection tasks successful")
+        return success_count == len(scripts)
+    
+    def step_2_factor_generation(self):
+        """Step 2: Generate team and player factors"""
+        logger.info("=" * 80)
+        logger.info("STEP 2: FACTOR GENERATION")
+        logger.info("=" * 80)
+        
+        scripts = [
+            ("enhanced_mlb_fetcher.py", "Generate team strength factors"),
+            ("comprehensive_betting_performance_tracker.py", "Generate bullpen statistics"),
+        ]
+        
+        success_count = 0
+        for script, description in scripts:
+            if self.run_script(script, description):
+                success_count += 1
+        
+        logger.info(f"Step 2 Complete: {success_count}/{len(scripts)} factor generation tasks successful")
+        return success_count == len(scripts)
+    
+    def step_2_5_weather_park_factors(self):
+        """Step 2.5: Generate weather and park factors (CRITICAL: BEFORE predictions)"""
+        logger.info("=" * 80)
+        logger.info("STEP 2.5: WEATHER & PARK FACTORS (PRE-PREDICTION)")
+        logger.info("=" * 80)
+        logger.info("🌤️ CRITICAL: Weather/Park factors must be generated BEFORE predictions!")
+        
+        # Run weather/park integration
+        success = self.run_script(
+            "weather_park_integration.py", 
+            "Generate daily weather and park factors",
+            timeout=600  # Allow more time for API calls
+        )
+        
+        if success:
+            logger.info("✅ Weather/Park factors generated successfully - Ready for predictions")
         else:
-            logger.info("✅ All required data files exist")
-            return True
+            logger.error("❌ Weather/Park factor generation failed - Predictions may use stale data")
+        
+        return success
+    
+    def step_3_predictions(self):
+        """Step 3: Generate all predictions"""
+        logger.info("=" * 80)
+        logger.info("STEP 3: PREDICTION GENERATION")
+        logger.info("=" * 80)
+        
+        scripts = [
+            ("daily_ultrafastengine_predictions.py", "Generate Ultra Fast Engine predictions"),
+            ("betting_recommendations_engine.py", "Generate betting recommendations"),
+        ]
+        
+        success_count = 0
+        for script, description in scripts:
+            if self.run_script(script, description, timeout=600):  # Allow more time for predictions
+                success_count += 1
+        
+        logger.info(f"Step 3 Complete: {success_count}/{len(scripts)} prediction tasks successful")
+        return success_count == len(scripts)
+    
+    def step_4_cleanup_validation(self):
+        """Step 4: Cleanup and validation"""
+        logger.info("=" * 80)
+        logger.info("STEP 4: CLEANUP & VALIDATION")
+        logger.info("=" * 80)
+        
+        # Validate critical files exist
+        critical_files = [
+            "data/unified_predictions_cache.json",
+            "data/master_team_strength.json",
+            "data/bullpen_stats.json"
+        ]
+        
+        # Check for today's weather/park factors
+        today_str = datetime.now().strftime("%Y_%m_%d")
+        weather_file = f"data/park_weather_factors_{today_str}.json"
+        critical_files.append(weather_file)
+        
+        validation_results = {}
+        for file_path in critical_files:
+            if os.path.exists(file_path):
+                try:
+                    # Try to load JSON files to verify they're valid
+                    if file_path.endswith('.json'):
+                        with open(file_path, 'r') as f:
+                            data = json.load(f)
+                            validation_results[file_path] = {
+                                "exists": True, 
+                                "valid_json": True,
+                                "size": len(data) if isinstance(data, (dict, list)) else "unknown"
+                            }
+                    else:
+                        validation_results[file_path] = {"exists": True, "valid_json": "N/A"}
+                except Exception as e:
+                    validation_results[file_path] = {
+                        "exists": True, 
+                        "valid_json": False, 
+                        "error": str(e)
+                    }
+            else:
+                validation_results[file_path] = {"exists": False}
+        
+        # Log validation results
+        for file_path, result in validation_results.items():
+            if result["exists"]:
+                if result.get("valid_json", True):
+                    logger.info(f"✅ {file_path}: Valid (size: {result.get('size', 'unknown')})")
+                else:
+                    logger.error(f"❌ {file_path}: Invalid JSON - {result.get('error', 'unknown error')}")
+            else:
+                logger.error(f"❌ {file_path}: Missing")
+        
+        return all(result["exists"] for result in validation_results.values())
+    
+    def generate_summary(self):
+        """Generate automation summary"""
+        end_time = datetime.now()
+        duration = end_time - self.start_time
+        
+        logger.info("=" * 80)
+        logger.info("DAILY AUTOMATION SUMMARY")
+        logger.info("=" * 80)
+        logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"End Time: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"Total Duration: {duration}")
+        
+        # Count successes and failures
+        total_scripts = len(self.results)
+        successful_scripts = sum(1 for result in self.results.values() if result["status"] == "success")
+        
+        logger.info(f"Scripts Executed: {total_scripts}")
+        logger.info(f"Successful: {successful_scripts}")
+        logger.info(f"Failed: {total_scripts - successful_scripts}")
+        
+        if self.errors:
+            logger.info("\nERRORS:")
+            for error in self.errors:
+                logger.error(f"  - {error}")
+        
+        # Overall status
+        if not self.errors:
+            logger.info("🎉 DAILY AUTOMATION: COMPLETE SUCCESS")
+        elif successful_scripts > total_scripts / 2:
+            logger.info("⚠️ DAILY AUTOMATION: PARTIAL SUCCESS")
+        else:
+            logger.info("❌ DAILY AUTOMATION: FAILED")
+        
+        return {
+            "start_time": self.start_time.isoformat(),
+            "end_time": end_time.isoformat(),
+            "duration_seconds": duration.total_seconds(),
+            "total_scripts": total_scripts,
+            "successful_scripts": successful_scripts,
+            "errors": self.errors,
+            "results": self.results
+        }
+    
+    def run_complete_refresh(self):
+        """Run the complete daily refresh automation"""
+        logger.info("🚀 Starting Complete Daily Refresh Automation")
+        logger.info(f"Timestamp: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        try:
+            # Step 1: Data Collection
+            step1_success = self.step_1_data_collection()
+            
+            # Step 2: Factor Generation  
+            step2_success = self.step_2_factor_generation()
+            
+            # Step 2.5: Weather/Park Factors (CRITICAL: Before predictions)
+            step2_5_success = self.step_2_5_weather_park_factors()
+            
+            # Step 3: Predictions (only if previous steps succeeded)
+            if step1_success and step2_success and step2_5_success:
+                step3_success = self.step_3_predictions()
+            else:
+                logger.warning("Skipping predictions due to previous step failures")
+                step3_success = False
+            
+            # Step 4: Cleanup and Validation
+            step4_success = self.step_4_cleanup_validation()
+            
+            # Generate summary
+            summary = self.generate_summary()
+            
+            # Save summary to file
+            summary_file = f"automation_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            with open(summary_file, 'w') as f:
+                json.dump(summary, f, indent=2)
+            
+            logger.info(f"Summary saved to: {summary_file}")
+            
+            return summary
+            
+        except Exception as e:
+            logger.error(f"Critical error in automation: {str(e)}")
+            logger.error(traceback.format_exc())
+            raise
 
 def main():
-    """Main function"""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Complete Daily MLB Data Refresh")
-    parser.add_argument('--date', type=str, help='Target date (YYYY-MM-DD)', default=None)
-    args = parser.parse_args()
-    
-    refresher = CompleteDailyRefresh(target_date=args.date)
-    success = refresher.run_complete_refresh()
-    
-    if success:
-        print("\n🎉 DAILY REFRESH COMPLETE! Your MLB system is ready for today.")
-        sys.exit(0)
-    else:
-        print("\n⚠️ DAILY REFRESH INCOMPLETE. Check logs for issues.")
-        sys.exit(1)
+    """Main automation entry point"""
+    try:
+        # Create and run automation
+        automation = CompleteDailyRefresh()
+        summary = automation.run_complete_refresh()
+        
+        # Exit with appropriate code
+        if summary["successful_scripts"] == summary["total_scripts"]:
+            sys.exit(0)  # Complete success
+        elif summary["successful_scripts"] > 0:
+            sys.exit(1)  # Partial success
+        else:
+            sys.exit(2)  # Complete failure
+            
+    except KeyboardInterrupt:
+        logger.info("Automation interrupted by user")
+        sys.exit(130)
+    except Exception as e:
+        logger.error(f"Fatal error: {str(e)}")
+        sys.exit(3)
 
 if __name__ == "__main__":
     main()

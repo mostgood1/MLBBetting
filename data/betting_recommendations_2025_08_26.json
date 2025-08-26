@@ -1,6 +1,6 @@
 {
   "date": "2025-08-26",
-  "generated_at": "2025-08-26T10:34:34.397683",
+  "generated_at": "2025-08-26T13:45:03.418062",
   "betting_lines": {
     "date": "2025-08-26",
     "fetched_at": "2025-08-26T08:57:11.197933",
@@ -256,24 +256,24 @@
       "away_pitcher": "Lucas Giolito",
       "home_pitcher": "Kyle Bradish",
       "predictions": {
-        "home_win_prob": 0.457,
-        "away_win_prob": 0.543,
-        "predicted_home_score": 4.1,
-        "predicted_away_score": 4.3,
-        "predicted_total_runs": 8.4,
+        "home_win_prob": 0.486,
+        "away_win_prob": 0.514,
+        "predicted_home_score": 3.0,
+        "predicted_away_score": 3.1,
+        "predicted_total_runs": 6.6,
         "home_score_range": [
           1.0,
-          7.0
+          5.0
         ],
         "away_score_range": [
-          2.0,
-          7.0
+          1.0,
+          5.0
         ],
         "total_runs_range": [
-          5.0,
-          13.0
+          3.0,
+          9.0
         ],
-        "confidence": 59.7
+        "confidence": 64.0
       },
       "betting_lines": {
         "home_ml": -103,
@@ -286,8 +286,16 @@
       },
       "recommendations": [
         {
-          "type": "none",
-          "recommendation": "No recommendations"
+          "type": "total",
+          "side": "under",
+          "line": 8.5,
+          "odds": -110,
+          "model_total": 6.6,
+          "edge": 1.9,
+          "expected_value": 0.238,
+          "kelly_bet_size": 15.4,
+          "confidence": "HIGH",
+          "reasoning": "Model: 6.6 vs Line: 8.5"
         }
       ],
       "pitcher_info": {
@@ -304,24 +312,24 @@
       "away_pitcher": "Shane Baz",
       "home_pitcher": "Parker Messick",
       "predictions": {
-        "home_win_prob": 0.483,
-        "away_win_prob": 0.517,
-        "predicted_home_score": 4.0,
-        "predicted_away_score": 4.1,
-        "predicted_total_runs": 8.3,
+        "home_win_prob": 0.492,
+        "away_win_prob": 0.508,
+        "predicted_home_score": 3.8,
+        "predicted_away_score": 3.9,
+        "predicted_total_runs": 7.9,
         "home_score_range": [
-          2.0,
+          1.0,
           7.0
         ],
         "away_score_range": [
-          2.0,
-          7.0
+          1.0,
+          6.1
         ],
         "total_runs_range": [
-          5.0,
-          12.0
+          4.0,
+          11.0
         ],
-        "confidence": 60.9
+        "confidence": 61.0
       },
       "betting_lines": {
         "home_ml": 105,
@@ -352,24 +360,24 @@
       "away_pitcher": "Hurston Waldrep",
       "home_pitcher": "Sandy Alcantara",
       "predictions": {
-        "home_win_prob": 0.511,
-        "away_win_prob": 0.489,
-        "predicted_home_score": 3.6,
-        "predicted_away_score": 3.6,
-        "predicted_total_runs": 7.6,
+        "home_win_prob": 0.518,
+        "away_win_prob": 0.482,
+        "predicted_home_score": 2.8,
+        "predicted_away_score": 2.7,
+        "predicted_total_runs": 6.3,
         "home_score_range": [
           1.0,
-          6.0
+          5.0
         ],
         "away_score_range": [
           1.0,
-          6.0
+          5.0
         ],
         "total_runs_range": [
-          4.0,
-          11.0
+          3.0,
+          9.0
         ],
-        "confidence": 62.3
+        "confidence": 65.2
       },
       "betting_lines": {
         "home_ml": 115,
@@ -382,8 +390,16 @@
       },
       "recommendations": [
         {
-          "type": "none",
-          "recommendation": "No recommendations"
+          "type": "total",
+          "side": "under",
+          "line": 8.5,
+          "odds": -110,
+          "model_total": 6.3,
+          "edge": 2.2,
+          "expected_value": 0.295,
+          "kelly_bet_size": 20.0,
+          "confidence": "HIGH",
+          "reasoning": "Model: 6.3 vs Line: 8.5"
         }
       ],
       "pitcher_info": {
@@ -400,24 +416,24 @@
       "away_pitcher": "MacKenzie Gore",
       "home_pitcher": "Luis Gil",
       "predictions": {
-        "home_win_prob": 0.526,
-        "away_win_prob": 0.474,
-        "predicted_home_score": 4.5,
-        "predicted_away_score": 4.2,
-        "predicted_total_runs": 8.7,
+        "home_win_prob": 0.546,
+        "away_win_prob": 0.454,
+        "predicted_home_score": 4.3,
+        "predicted_away_score": 3.9,
+        "predicted_total_runs": 8.2,
         "home_score_range": [
           2.0,
           7.0
         ],
         "away_score_range": [
-          2.0,
+          1.0,
           7.0
         ],
         "total_runs_range": [
           5.0,
-          13.0
+          12.0
         ],
-        "confidence": 59.3
+        "confidence": 60.5
       },
       "betting_lines": {
         "home_ml": 157,
@@ -448,24 +464,24 @@
       "away_pitcher": "Bailey Ober",
       "home_pitcher": "Chris Bassitt",
       "predictions": {
-        "home_win_prob": 0.523,
-        "away_win_prob": 0.477,
-        "predicted_home_score": 4.3,
-        "predicted_away_score": 4.1,
-        "predicted_total_runs": 8.4,
+        "home_win_prob": 0.533,
+        "away_win_prob": 0.467,
+        "predicted_home_score": 4.9,
+        "predicted_away_score": 4.7,
+        "predicted_total_runs": 9.3,
         "home_score_range": [
           2.0,
-          7.0
+          8.0
         ],
         "away_score_range": [
           2.0,
-          7.0
+          8.0
         ],
         "total_runs_range": [
-          5.0,
-          12.0
+          6.0,
+          13.0
         ],
-        "confidence": 60.2
+        "confidence": 58.8
       },
       "betting_lines": {
         "home_ml": -155,
@@ -478,8 +494,16 @@
       },
       "recommendations": [
         {
-          "type": "none",
-          "recommendation": "No recommendations"
+          "type": "total",
+          "side": "over",
+          "line": 8.5,
+          "odds": -110,
+          "model_total": 9.3,
+          "edge": 0.8,
+          "expected_value": 0.072,
+          "kelly_bet_size": 4.0,
+          "confidence": "MEDIUM",
+          "reasoning": "Model: 9.3 vs Line: 8.5"
         }
       ],
       "pitcher_info": {
@@ -496,24 +520,24 @@
       "away_pitcher": "Jes\u00fas Luzardo",
       "home_pitcher": "Sean Manaea",
       "predictions": {
-        "home_win_prob": 0.491,
-        "away_win_prob": 0.509,
-        "predicted_home_score": 2.8,
-        "predicted_away_score": 2.9,
-        "predicted_total_runs": 6.5,
+        "home_win_prob": 0.494,
+        "away_win_prob": 0.506,
+        "predicted_home_score": 3.1,
+        "predicted_away_score": 3.2,
+        "predicted_total_runs": 6.8,
         "home_score_range": [
           1.0,
-          5.0
+          6.0
         ],
         "away_score_range": [
           1.0,
-          5.0
+          6.0
         ],
         "total_runs_range": [
           3.0,
-          9.0
+          10.0
         ],
-        "confidence": 65.1
+        "confidence": 64.1
       },
       "betting_lines": {
         "home_ml": -107,
@@ -530,12 +554,12 @@
           "side": "under",
           "line": 8.5,
           "odds": -110,
-          "model_total": 6.5,
-          "edge": 2.0,
-          "expected_value": 0.15,
-          "kelly_bet_size": 9.0,
+          "model_total": 6.8,
+          "edge": 1.7,
+          "expected_value": 0.207,
+          "kelly_bet_size": 13.1,
           "confidence": "HIGH",
-          "reasoning": "Model: 6.5 vs Line: 8.5"
+          "reasoning": "Model: 6.8 vs Line: 8.5"
         }
       ],
       "pitcher_info": {
@@ -552,24 +576,24 @@
       "away_pitcher": "Michael Lorenzen",
       "home_pitcher": "Mart\u00edn P\u00e9rez",
       "predictions": {
-        "home_win_prob": 0.497,
-        "away_win_prob": 0.503,
-        "predicted_home_score": 3.7,
-        "predicted_away_score": 3.7,
-        "predicted_total_runs": 7.7,
+        "home_win_prob": 0.493,
+        "away_win_prob": 0.507,
+        "predicted_home_score": 4.6,
+        "predicted_away_score": 4.7,
+        "predicted_total_runs": 9.1,
         "home_score_range": [
-          1.0,
-          6.0
+          2.0,
+          7.0
         ],
         "away_score_range": [
-          1.0,
-          6.0
+          2.0,
+          8.0
         ],
         "total_runs_range": [
-          4.0,
-          11.0
+          5.0,
+          13.0
         ],
-        "confidence": 61.0
+        "confidence": 57.6
       },
       "betting_lines": {
         "home_ml": -111,
@@ -600,24 +624,24 @@
       "away_pitcher": "Brandon Pfaadt",
       "home_pitcher": "Jacob Misiorowski",
       "predictions": {
-        "home_win_prob": 0.517,
-        "away_win_prob": 0.483,
-        "predicted_home_score": 3.0,
-        "predicted_away_score": 2.9,
-        "predicted_total_runs": 6.5,
+        "home_win_prob": 0.54,
+        "away_win_prob": 0.46,
+        "predicted_home_score": 4.6,
+        "predicted_away_score": 4.4,
+        "predicted_total_runs": 8.9,
         "home_score_range": [
-          1.0,
-          5.0
+          2.0,
+          7.0
         ],
         "away_score_range": [
-          1.0,
-          5.0
+          2.0,
+          7.0
         ],
         "total_runs_range": [
-          3.0,
-          9.0
+          5.0,
+          13.0
         ],
-        "confidence": 65.0
+        "confidence": 58.9
       },
       "betting_lines": {
         "home_ml": -148,
@@ -630,16 +654,8 @@
       },
       "recommendations": [
         {
-          "type": "total",
-          "side": "under",
-          "line": 8.5,
-          "odds": -110,
-          "model_total": 6.5,
-          "edge": 2.0,
-          "expected_value": 0.147,
-          "kelly_bet_size": 8.8,
-          "confidence": "HIGH",
-          "reasoning": "Model: 6.5 vs Line: 8.5"
+          "type": "none",
+          "recommendation": "No recommendations"
         }
       ],
       "pitcher_info": {
@@ -656,24 +672,24 @@
       "away_pitcher": "Mitch Keller",
       "home_pitcher": "Andre Pallante",
       "predictions": {
-        "home_win_prob": 0.5,
-        "away_win_prob": 0.5,
-        "predicted_home_score": 4.1,
-        "predicted_away_score": 4.0,
-        "predicted_total_runs": 8.2,
+        "home_win_prob": 0.51,
+        "away_win_prob": 0.49,
+        "predicted_home_score": 3.5,
+        "predicted_away_score": 3.5,
+        "predicted_total_runs": 7.4,
         "home_score_range": [
           1.0,
-          7.0
+          6.0
         ],
         "away_score_range": [
-          2.0,
-          7.0
+          1.0,
+          6.0
         ],
         "total_runs_range": [
-          5.0,
-          12.0
+          4.0,
+          11.0
         ],
-        "confidence": 60.8
+        "confidence": 62.4
       },
       "betting_lines": {
         "home_ml": -125,
@@ -686,8 +702,16 @@
       },
       "recommendations": [
         {
-          "type": "none",
-          "recommendation": "No recommendations"
+          "type": "total",
+          "side": "under",
+          "line": 8.5,
+          "odds": -110,
+          "model_total": 7.4,
+          "edge": 1.1,
+          "expected_value": 0.128,
+          "kelly_bet_size": 7.5,
+          "confidence": "HIGH",
+          "reasoning": "Model: 7.4 vs Line: 8.5"
         }
       ],
       "pitcher_info": {
@@ -704,24 +728,24 @@
       "away_pitcher": "Yusei Kikuchi",
       "home_pitcher": "Patrick Corbin",
       "predictions": {
-        "home_win_prob": 0.524,
-        "away_win_prob": 0.476,
-        "predicted_home_score": 3.2,
-        "predicted_away_score": 3.0,
-        "predicted_total_runs": 6.8,
+        "home_win_prob": 0.53,
+        "away_win_prob": 0.47,
+        "predicted_home_score": 4.8,
+        "predicted_away_score": 4.6,
+        "predicted_total_runs": 9.2,
         "home_score_range": [
-          1.0,
-          6.0
+          2.0,
+          8.0
         ],
         "away_score_range": [
-          1.0,
-          5.0
+          2.0,
+          7.0
         ],
         "total_runs_range": [
-          3.0,
-          9.0
+          5.0,
+          13.0
         ],
-        "confidence": 64.3
+        "confidence": 58.8
       },
       "betting_lines": {
         "home_ml": 103,
@@ -734,16 +758,8 @@
       },
       "recommendations": [
         {
-          "type": "total",
-          "side": "under",
-          "line": 8.5,
-          "odds": -110,
-          "model_total": 6.8,
-          "edge": 1.7,
-          "expected_value": 0.12,
-          "kelly_bet_size": 7.1,
-          "confidence": "HIGH",
-          "reasoning": "Model: 6.8 vs Line: 8.5"
+          "type": "none",
+          "recommendation": "No recommendations"
         }
       ],
       "pitcher_info": {
@@ -760,9 +776,9 @@
       "away_pitcher": "Tanner Gordon",
       "home_pitcher": "Hunter Brown",
       "predictions": {
-        "home_win_prob": 0.586,
-        "away_win_prob": 0.414,
-        "predicted_home_score": 5.0,
+        "home_win_prob": 0.583,
+        "away_win_prob": 0.417,
+        "predicted_home_score": 4.9,
         "predicted_away_score": 4.3,
         "predicted_total_runs": 9.1,
         "home_score_range": [
@@ -777,7 +793,7 @@
           5.0,
           13.0
         ],
-        "confidence": 58.3
+        "confidence": 58.8
       },
       "betting_lines": {
         "home_ml": -325,
@@ -808,24 +824,24 @@
       "away_pitcher": "Dylan Cease",
       "home_pitcher": "Luis Castillo",
       "predictions": {
-        "home_win_prob": 0.49,
-        "away_win_prob": 0.51,
-        "predicted_home_score": 3.6,
-        "predicted_away_score": 3.6,
-        "predicted_total_runs": 7.5,
+        "home_win_prob": 0.499,
+        "away_win_prob": 0.501,
+        "predicted_home_score": 4.0,
+        "predicted_away_score": 4.1,
+        "predicted_total_runs": 8.2,
         "home_score_range": [
           1.0,
-          6.0
+          7.0
         ],
         "away_score_range": [
           1.0,
-          6.0
+          7.0
         ],
         "total_runs_range": [
-          4.0,
-          11.0
+          5.0,
+          12.0
         ],
-        "confidence": 61.3
+        "confidence": 59.5
       },
       "betting_lines": {
         "home_ml": -112,
@@ -856,24 +872,24 @@
       "away_pitcher": "Matthew Boyd",
       "home_pitcher": "Justin Verlander",
       "predictions": {
-        "home_win_prob": 0.468,
-        "away_win_prob": 0.532,
-        "predicted_home_score": 3.9,
-        "predicted_away_score": 4.1,
-        "predicted_total_runs": 8.1,
+        "home_win_prob": 0.5,
+        "away_win_prob": 0.5,
+        "predicted_home_score": 3.0,
+        "predicted_away_score": 3.1,
+        "predicted_total_runs": 6.7,
         "home_score_range": [
-          2.0,
-          6.0
+          1.0,
+          5.0
         ],
         "away_score_range": [
-          2.0,
-          7.0
+          1.0,
+          5.0
         ],
         "total_runs_range": [
-          5.0,
-          12.0
+          3.0,
+          9.0
         ],
-        "confidence": 61.4
+        "confidence": 63.6
       },
       "betting_lines": {
         "home_ml": 120,
@@ -886,8 +902,16 @@
       },
       "recommendations": [
         {
-          "type": "none",
-          "recommendation": "No recommendations"
+          "type": "total",
+          "side": "under",
+          "line": 8.5,
+          "odds": -110,
+          "model_total": 6.7,
+          "edge": 1.8,
+          "expected_value": 0.231,
+          "kelly_bet_size": 14.9,
+          "confidence": "HIGH",
+          "reasoning": "Model: 6.7 vs Line: 8.5"
         }
       ],
       "pitcher_info": {
@@ -904,24 +928,24 @@
       "away_pitcher": "Charlie Morton",
       "home_pitcher": "Osvaldo Bido",
       "predictions": {
-        "home_win_prob": 0.456,
-        "away_win_prob": 0.544,
-        "predicted_home_score": 4.5,
-        "predicted_away_score": 4.9,
-        "predicted_total_runs": 9.2,
+        "home_win_prob": 0.461,
+        "away_win_prob": 0.539,
+        "predicted_home_score": 4.3,
+        "predicted_away_score": 4.6,
+        "predicted_total_runs": 8.8,
         "home_score_range": [
           2.0,
           7.0
         ],
         "away_score_range": [
           2.0,
-          8.0
+          7.0
         ],
         "total_runs_range": [
           5.0,
           13.0
         ],
-        "confidence": 58.0
+        "confidence": 58.7
       },
       "betting_lines": {
         "home_ml": null,
@@ -952,24 +976,24 @@
       "away_pitcher": "Nick Martinez",
       "home_pitcher": "Clayton Kershaw",
       "predictions": {
-        "home_win_prob": 0.527,
-        "away_win_prob": 0.473,
-        "predicted_home_score": 4.2,
-        "predicted_away_score": 4.0,
-        "predicted_total_runs": 8.2,
+        "home_win_prob": 0.526,
+        "away_win_prob": 0.474,
+        "predicted_home_score": 4.6,
+        "predicted_away_score": 4.4,
+        "predicted_total_runs": 8.9,
         "home_score_range": [
           2.0,
           7.0
         ],
         "away_score_range": [
-          1.0,
+          2.0,
           7.0
         ],
         "total_runs_range": [
           5.0,
-          12.0
+          13.0
         ],
-        "confidence": 60.5
+        "confidence": 58.6
       },
       "betting_lines": {
         "home_ml": -173,

@@ -2224,6 +2224,121 @@
                             <em>Factor < 1.0 = Better pitcher (allows fewer runs), Factor > 1.0 = Weaker pitcher</em>
                         </div>
                     </div>
+                    
+                    <!-- Model Factors Section -->
+                    <div style="margin-top: 20px;">
+                        <h3>🔬 Model Factors</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px;">
+                            <!-- Away Team Factors -->
+                            <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 3px solid ${awayAssets.primary_color || '#ff6b6b'};">
+                                <h4 style="margin: 0 0 12px 0; color: ${awayAssets.primary_color || '#ff6b6b'}; font-size: 1.1em;">${awayTeam}</h4>
+                                <div style="display: grid; gap: 8px; font-size: 0.9em;">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #ccc;">Team Strength:</span>
+                                        <span style="font-weight: bold; color: ${(game.away_factors?.team_strength || 0) > 0 ? '#4fd1c7' : '#ff6b6b'};">
+                                            ${(game.away_factors?.team_strength || 0) > 0 ? '+' : ''}${((game.away_factors?.team_strength || 0) * 100).toFixed(1)}%
+                                        </span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #ccc;">Bullpen Quality:</span>
+                                        <span style="font-weight: bold; color: ${(game.away_factors?.bullpen_quality || 1.0) > 1.0 ? '#4fd1c7' : '#ff6b6b'};">
+                                            ${(game.away_factors?.bullpen_quality || 1.0).toFixed(2)}
+                                        </span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #ccc;">Bullpen ERA:</span>
+                                        <span style="font-weight: bold; color: ${(game.away_factors?.bullpen_era || 4.0) < 4.0 ? '#4fd1c7' : '#ff6b6b'};">
+                                            ${(game.away_factors?.bullpen_era || 4.0).toFixed(2)}
+                                        </span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #ccc;">Pitcher Quality:</span>
+                                        <span style="font-weight: bold; color: ${(game.away_factors?.pitcher_factor || 1.0) < 1.0 ? '#4fd1c7' : '#ff6b6b'};">
+                                            ${(game.away_factors?.pitcher_factor || 1.0).toFixed(2)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Home Team Factors -->
+                            <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 3px solid ${homeAssets.primary_color || '#4ecdc4'};">
+                                <h4 style="margin: 0 0 12px 0; color: ${homeAssets.primary_color || '#4ecdc4'}; font-size: 1.1em;">${homeTeam}</h4>
+                                <div style="display: grid; gap: 8px; font-size: 0.9em;">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #ccc;">Team Strength:</span>
+                                        <span style="font-weight: bold; color: ${(game.home_factors?.team_strength || 0) > 0 ? '#4fd1c7' : '#ff6b6b'};">
+                                            ${(game.home_factors?.team_strength || 0) > 0 ? '+' : ''}${((game.home_factors?.team_strength || 0) * 100).toFixed(1)}%
+                                        </span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #ccc;">Bullpen Quality:</span>
+                                        <span style="font-weight: bold; color: ${(game.home_factors?.bullpen_quality || 1.0) > 1.0 ? '#4fd1c7' : '#ff6b6b'};">
+                                            ${(game.home_factors?.bullpen_quality || 1.0).toFixed(2)}
+                                        </span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #ccc;">Bullpen ERA:</span>
+                                        <span style="font-weight: bold; color: ${(game.home_factors?.bullpen_era || 4.0) < 4.0 ? '#4fd1c7' : '#ff6b6b'};">
+                                            ${(game.home_factors?.bullpen_era || 4.0).toFixed(2)}
+                                        </span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #ccc;">Pitcher Quality:</span>
+                                        <span style="font-weight: bold; color: ${(game.home_factors?.pitcher_factor || 1.0) < 1.0 ? '#4fd1c7' : '#ff6b6b'};">
+                                            ${(game.home_factors?.pitcher_factor || 1.0).toFixed(2)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Park & Weather Factors -->
+                        ${game.home_factors?.park_weather ? `
+                            <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                <h4 style="margin: 0 0 12px 0; color: #ffa726; font-size: 1em;">🏟️ ${game.home_factors.park_weather.stadium_name || homeTeam + ' Ballpark'}</h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; font-size: 0.9em;">
+                                    <div>
+                                        <div style="color: #ccc; margin-bottom: 5px;">Park Factor:</div>
+                                        <div style="font-weight: bold; color: ${(game.home_factors.park_weather.park_factor || 1.0) > 1.0 ? '#4fd1c7' : '#ff6b6b'};">
+                                            ${(game.home_factors.park_weather.park_factor || 1.0).toFixed(2)}
+                                        </div>
+                                        <div style="color: #888; font-size: 0.8em;">
+                                            ${(game.home_factors.park_weather.park_factor || 1.0) > 1.0 ? 'Hitter Friendly' : 'Pitcher Friendly'}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="color: #ccc; margin-bottom: 5px;">Weather:</div>
+                                        <div style="font-weight: bold;">
+                                            ${game.home_factors.park_weather.weather?.temperature || 75}°F
+                                        </div>
+                                        <div style="color: #888; font-size: 0.8em;">
+                                            ${game.home_factors.park_weather.weather?.conditions || 'Clear'}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="color: #ccc; margin-bottom: 5px;">Total Factor:</div>
+                                        <div style="font-weight: bold; color: ${(game.home_factors.park_weather.total_factor || 1.0) > 1.0 ? '#4fd1c7' : '#ff6b6b'};">
+                                            ${(game.home_factors.park_weather.total_factor || 1.0).toFixed(2)}
+                                        </div>
+                                        <div style="color: #888; font-size: 0.8em;">
+                                            ${(game.home_factors.park_weather.total_factor || 1.0) > 1.0 ? 'More Runs' : 'Fewer Runs'}
+                                        </div>
+                                    </div>
+                                </div>
+                                ${game.home_factors.park_weather.weather?.wind_speed ? `
+                                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85em; color: #ccc;">
+                                        Wind: ${game.home_factors.park_weather.weather.wind_speed} mph | 
+                                        Humidity: ${game.home_factors.park_weather.weather.humidity || 50}% | 
+                                        ${game.home_factors.park_weather.park_info?.dome ? 'Dome Stadium' : 'Open Stadium'}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                        
+                        <div style="font-size: 0.85em; color: #888; margin-top: 10px; font-style: italic;">
+                            💡 Model factors are updated daily and integrated into all predictions
+                        </div>
+                    </div>
             `;
             
             // Add betting lines section if available
