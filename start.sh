@@ -88,17 +88,41 @@ if [ -f "data/games_${TODAY_HYPHEN}.json" ]; then
     
     # Try to populate the unified cache with today's games
     echo "🔄 Populating unified predictions cache..."
-    python3 -c "
+    
+    # Try both python3 and python commands
+    PYTHON_CMD=""
+    if command -v python3 &> /dev/null; then
+        PYTHON_CMD="python3"
+    elif command -v python &> /dev/null; then
+        PYTHON_CMD="python"
+    else
+        echo "❌ No Python found!"
+        exit 1
+    fi
+    
+    echo "Using Python command: $PYTHON_CMD"
+    
+    # Create cache population script and run it with error visibility
+    cat > /tmp/populate_cache.py << 'EOF'
 import json
 import os
+import sys
 from datetime import datetime
 
 try:
-    # Load today's games
-    today = '${TODAY_HYPHEN}'
+    # Get today's date from environment
+    today = os.environ.get('TODAY_HYPHEN', '2025-08-27')
+    print(f'Looking for games on: {today}')
+    
     games_file = f'data/games_{today}.json'
+    cache_file = 'data/unified_predictions_cache.json'
+    
+    print(f'Games file path: {games_file}')
+    print(f'Cache file path: {cache_file}')
+    print(f'Current working directory: {os.getcwd()}')
     
     if os.path.exists(games_file):
+        print(f'✅ Games file exists')
         with open(games_file, 'r') as f:
             games = json.load(f)
         
@@ -117,7 +141,7 @@ try:
         }
         
         # Add each game to the cache
-        for game in games:
+        for i, game in enumerate(games):
             away_team = game.get('away_team', '')
             home_team = game.get('home_team', '')
             game_key = away_team.replace(' ', '_') + '_vs_' + home_team.replace(' ', '_')
@@ -130,18 +154,40 @@ try:
                 'home_pitcher': game.get('home_pitcher', 'TBD'),
                 'game_date': today
             }
+            
+            if i < 3:  # Show first 3 games
+                print(f'  Game {i+1}: {away_team} @ {home_team} -> {game_key}')
         
         # Write to unified cache
-        with open('data/unified_predictions_cache.json', 'w') as f:
+        with open(cache_file, 'w') as f:
             json.dump(cache_data, f, indent=2)
         
-        print(f'✅ Populated unified cache with {len(games)} games')
+        # Verify cache was written
+        if os.path.exists(cache_file):
+            cache_size = os.path.getsize(cache_file)
+            print(f'✅ Populated unified cache with {len(games)} games ({cache_size} bytes)')
+        else:
+            print(f'❌ Cache file was not created')
+            sys.exit(1)
     else:
         print(f'❌ No games file found: {games_file}')
+        # List available files for debugging
+        if os.path.exists('data'):
+            files = os.listdir('data')
+            games_files = [f for f in files if f.startswith('games_')]
+            print(f'Available games files: {games_files}')
+        sys.exit(1)
         
 except Exception as e:
     print(f'❌ Error populating cache: {e}')
-    " 2>/dev/null || echo "⚠️ Cache population failed"
+    import traceback
+    traceback.print_exc()
+    sys.exit(1)
+EOF
+
+    # Set environment variable and run the script
+    export TODAY_HYPHEN="${TODAY_HYPHEN}"
+    $PYTHON_CMD /tmp/populate_cache.py
     
 else
     echo "❌ No games data - app may show no games until data is loaded"
