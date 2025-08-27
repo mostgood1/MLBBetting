@@ -9,7 +9,8 @@ mkdir -p logs
 mkdir -p monitoring_data
 
 # Create essential data files if they don't exist
-echo '{}' > data/unified_predictions_cache.json 2>/dev/null || true
+# Only create empty cache if it doesn't already exist (preserve existing data)
+[ ! -f data/unified_predictions_cache.json ] && echo '{}' > data/unified_predictions_cache.json 2>/dev/null || true
 echo '{}' > data/betting_accuracy_analysis.json 2>/dev/null || true
 echo '{}' > data/daily_dashboard_stats.json 2>/dev/null || true
 
