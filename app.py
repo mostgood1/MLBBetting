@@ -5328,19 +5328,52 @@ def force_cache_population():
         
         cache_file = "data/unified_predictions_cache.json"
         current_date = datetime.now().strftime('%Y-%m-%d')
-        current_date_underscore = datetime.now().strftime('%Y_%m_%d')
         
         # Check current cache status
         cache_size = 0
+        cache_has_predictions = False
+        
         if os.path.exists(cache_file):
             cache_size = os.path.getsize(cache_file)
+            
+            # Check if cache has real prediction data
+            try:
+                with open(cache_file, 'r') as f:
+                    cache_data = json.load(f)
+                
+                today_data = cache_data.get('predictions_by_date', {}).get(current_date, {})
+                games = today_data.get('games', {})
+                
+                # Check if games have prediction data beyond basic info
+                for game_key, game_data in games.items():
+                    if ('prediction' in game_data or 
+                        'betting_recommendations' in game_data or
+                        game_data.get('away_pitcher', 'TBD') != 'TBD'):
+                        cache_has_predictions = True
+                        break
+                        
+            except (json.JSONDecodeError, Exception):
+                cache_has_predictions = False
         
         result = {
             'cache_file': cache_file,
             'current_date': current_date,
             'initial_cache_size': cache_size,
+            'cache_has_predictions': cache_has_predictions,
             'steps': []
         }
+        
+        # Don't overwrite cache that already has prediction data
+        if cache_size > 1000 and cache_has_predictions:
+            result['steps'].append(f"✅ Cache already contains prediction data ({cache_size} bytes)")
+            result['steps'].append("ℹ️ No action needed - cache appears to be properly populated")
+            result['final_cache_size'] = cache_size
+            result['success'] = True
+            result['action'] = 'no_overwrite_needed'
+            return jsonify(result)
+        
+        # Only populate if cache is truly empty or missing prediction data
+        result['steps'].append(f"📊 Cache needs population (size: {cache_size}, has_predictions: {cache_has_predictions})")
         
         # Try to find games file
         games_file = f"data/games_{current_date}.json"
@@ -5368,7 +5401,7 @@ def force_cache_population():
         
         result['steps'].append(f"📅 Loaded {len(games)} games from {games_file}")
         
-        # Create unified cache structure
+        # Create BASIC cache structure only - don't overwrite complex prediction data
         cache_data = {
             'predictions_by_date': {
                 current_date: {
@@ -5376,14 +5409,14 @@ def force_cache_population():
                     'timestamp': datetime.now().isoformat(),
                     'total_games': len(games),
                     'source_file': games_file,
-                    'forced_population': True
+                    'note': 'Basic cache created by force endpoint - replace with full predictions when available'
                 }
             },
             'last_updated': datetime.now().isoformat(),
-            'population_method': 'force_api_endpoint'
+            'population_method': 'force_api_basic'
         }
         
-        # Add each game to the cache
+        # Add each game to the cache with basic info
         for i, game in enumerate(games):
             away_team = game.get('away_team', '')
             home_team = game.get('home_team', '')
@@ -5395,10 +5428,12 @@ def force_cache_population():
                 'game_time': game.get('game_time', ''),
                 'away_pitcher': game.get('away_pitcher', 'TBD'),
                 'home_pitcher': game.get('home_pitcher', 'TBD'),
-                'game_date': current_date
+                'game_date': current_date,
+                'note': 'Basic game info only - predictions need to be generated'
             }
         
-        result['steps'].append(f"🔧 Created cache structure with {len(games)} games")
+        result['steps'].append(f"🔧 Created basic cache structure with {len(games)} games")
+        result['steps'].append("⚠️ Note: This creates basic cache only. For full predictions, run your local daily automation.")
         
         # Write populated cache
         with open(cache_file, 'w') as f:
@@ -5407,9 +5442,10 @@ def force_cache_population():
         # Verify it worked
         if os.path.exists(cache_file):
             new_size = os.path.getsize(cache_file)
-            result['steps'].append(f"✅ Cache written successfully: {new_size} bytes")
+            result['steps'].append(f"✅ Basic cache written: {new_size} bytes")
             result['final_cache_size'] = new_size
             result['success'] = True
+            result['action'] = 'basic_cache_created'
         else:
             result['steps'].append("❌ Failed to write cache file")
             result['success'] = False

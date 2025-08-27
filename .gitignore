@@ -48,6 +48,7 @@ logs/
 # Runtime data files (too large for Git)
 data/*.json
 !data/team_assets.json
+!data/unified_predictions_cache.json
 # Include essential data files for production deployment
 !data/games_*.json
 !data/real_betting_lines_*.json
