@@ -90,25 +90,45 @@ class HistoricalAnalyzer:
         logger.info("--- End Comparison ---")
     
     def load_predictions_for_date(self, target_date: str) -> Dict:
-        """Load games from betting_recommendations JSON for specific date"""
-        import os
-        date_formatted = target_date.replace('-', '_')
-        rec_path = os.path.join('data', f'betting_recommendations_{date_formatted}.json')
+        """Load games from unified_predictions_cache.json for specific date"""
         try:
-            with open(rec_path, 'r') as f:
-                rec_data = json.load(f)
-            games = rec_data.get('games', {})
+            with open(self.predictions_cache_path, 'r') as f:
+                cache = json.load(f)
+            
+            predictions_by_date = cache.get('predictions_by_date', {})
+            date_data = predictions_by_date.get(target_date, {})
+            games = date_data.get('games', {})
+            
             if isinstance(games, dict):
-                logger.info(f"Loaded {len(games)} games from betting recommendations for {target_date}")
+                logger.info(f"Loaded {len(games)} games from unified cache for {target_date}")
                 return games
             else:
-                logger.warning(f"Games key in betting recommendations for {target_date} is not a dict.")
+                logger.warning(f"Games data for {target_date} is not a dict in unified cache.")
                 return {}
+                
         except FileNotFoundError:
-            logger.error(f"Betting recommendations file not found: {rec_path}")
-            return {}
+            logger.error(f"Unified predictions cache not found: {self.predictions_cache_path}")
+            # Fallback to old format
+            date_formatted = target_date.replace('-', '_')
+            rec_path = os.path.join('data', f'betting_recommendations_{date_formatted}.json')
+            try:
+                with open(rec_path, 'r') as f:
+                    rec_data = json.load(f)
+                games = rec_data.get('games', {})
+                if isinstance(games, dict):
+                    logger.info(f"Loaded {len(games)} games from betting recommendations fallback for {target_date}")
+                    return games
+                else:
+                    logger.warning(f"Games key in betting recommendations for {target_date} is not a dict.")
+                    return {}
+            except FileNotFoundError:
+                logger.error(f"Betting recommendations file not found: {rec_path}")
+                return {}
+            except Exception as e:
+                logger.error(f"Error loading betting recommendations fallback: {e}")
+                return {}
         except Exception as e:
-            logger.error(f"Error loading betting recommendations: {e}")
+            logger.error(f"Error loading unified predictions cache: {e}")
             return {}
     
     def load_final_scores_for_date(self, target_date: str) -> Dict:
@@ -809,7 +829,7 @@ class HistoricalAnalyzer:
         
         return game_cards
     def get_available_dates(self) -> List[str]:
-        """Get list of available dates with both predictions and final scores"""
+        """Get list of available dates with predictions from unified cache"""
         available_dates = []
         
         # Check predictions cache for available dates
@@ -820,10 +840,15 @@ class HistoricalAnalyzer:
             predictions_by_date = cache.get('predictions_by_date', {})
             
             for date_str in predictions_by_date.keys():
-                # Check if corresponding final scores exist
+                # Always include dates with predictions, even without final scores
+                available_dates.append(date_str)
+                
+                # Log if final scores are available for this date
                 scores_file = self.base_scores_path.format(date=date_str.replace('-', '_'))
                 if os.path.exists(scores_file):
-                    available_dates.append(date_str)
+                    logger.debug(f"Final scores available for {date_str}")
+                else:
+                    logger.debug(f"Final scores not available for {date_str} (predictions only)")
             
         except Exception as e:
             logger.error(f"Error getting available dates: {e}")

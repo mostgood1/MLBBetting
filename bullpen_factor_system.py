@@ -286,12 +286,12 @@ class BullpenFactorSystem:
             'team': team_name,
             'rating': rating,
             'quality_factor': quality,
-            'era': stats.get('era', 0),
-            'whip': stats.get('whip', 0),
-            'save_rate': stats.get('save_rate', 0),
+            'era': stats.get('weighted_era', stats.get('era', 4.0)),
+            'whip': stats.get('weighted_whip', stats.get('whip', 1.3)),
+            'save_rate': stats.get('save_rate', 0.75),
             'saves': stats.get('saves', 0),
             'blown_saves': stats.get('blown_saves', 0),
-            'innings_pitched': stats.get('innings_pitched', 0),
+            'innings_pitched': stats.get('total_innings', stats.get('innings_pitched', 0)),
             'tier': stats.get('tier', 'unknown'),
             'estimated': stats.get('estimated', False)
         }

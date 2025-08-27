@@ -30,33 +30,75 @@ class ComprehensiveHistoricalAnalyzer:
         self.data_dir = "data"
         
     def get_available_dates(self) -> List[str]:
-        """Get all available dates with both predictions and final scores"""
+        """Get list of available analysis dates from unified cache and betting files"""
+        available_dates = set()
+        
+        # First, check unified cache
+        cache_path = f"{self.data_dir}/unified_predictions_cache.json"
+        try:
+            with open(cache_path, 'r') as f:
+                cache = json.load(f)
+            
+            predictions_by_date = cache.get('predictions_by_date', {})
+            available_dates.update(predictions_by_date.keys())
+            logger.info(f"Found {len(predictions_by_date)} dates in unified cache")
+            
+        except FileNotFoundError:
+            logger.warning("Unified cache not found, using file-based approach")
+        except Exception as e:
+            logger.error(f"Error reading unified cache: {e}")
+        
+        # Also check for betting recommendation files as fallback
         betting_files = glob.glob(f"{self.data_dir}/betting_recommendations_2025_08_*.json")
         games_files = glob.glob(f"{self.data_dir}/games_2025-08-*.json")
         
-        # Extract dates from filenames
+        # Extract dates from betting files
         betting_dates = set()
         for file in betting_files:
             date_part = os.path.basename(file).replace('betting_recommendations_', '').replace('.json', '')
             betting_dates.add(date_part.replace('_', '-'))
         
+        # Extract dates from games files
         games_dates = set()
         for file in games_files:
             date_part = os.path.basename(file).replace('games_', '').replace('.json', '')
             games_dates.add(date_part)
         
-        # Find common dates (where we have both predictions and games data)
-        common_dates = list(betting_dates & games_dates)
-        common_dates.sort()
+        # Add dates that have either predictions or games data
+        available_dates.update(betting_dates)
+        available_dates.update(games_dates)
         
         # Filter to start from our analysis start date
-        filtered_dates = [d for d in common_dates if d >= self.start_date]
+        filtered_dates = [d for d in available_dates if d >= self.start_date]
+        filtered_dates.sort()
         
         logger.info(f"Found {len(filtered_dates)} dates with complete data since {self.start_date}")
         return filtered_dates
     
     def load_predictions_for_date(self, date: str) -> Dict:
-        """Load betting recommendations for a specific date"""
+        """Load predictions for a specific date from unified cache"""
+        cache_path = f"{self.data_dir}/unified_predictions_cache.json"
+        
+        try:
+            with open(cache_path, 'r') as f:
+                cache = json.load(f)
+            
+            predictions_by_date = cache.get('predictions_by_date', {})
+            date_data = predictions_by_date.get(date, {})
+            games = date_data.get('games', {})
+            
+            if games:
+                logger.info(f"Loaded {len(games)} games from unified cache for {date}")
+                return games
+            else:
+                logger.warning(f"No games found in unified cache for {date}")
+                
+        except FileNotFoundError:
+            logger.warning(f"Unified cache not found, trying fallback for {date}")
+        except Exception as e:
+            logger.error(f"Error loading from unified cache for {date}: {e}")
+        
+        # Fallback to old format
         date_formatted = date.replace('-', '_')
         file_path = f"{self.data_dir}/betting_recommendations_{date_formatted}.json"
         
@@ -449,18 +491,43 @@ class ComprehensiveHistoricalAnalyzer:
         if not predictions:
             return {'error': f'No predictions found for {date}'}
         
+        # If no final scores, return predictions only (for current/future dates)
         if not final_scores:
-            return {'error': f'No final scores found for {date}'}
+            logger.info(f"No final scores found for {date}, returning predictions only")
+            return {
+                'date': date,
+                'prediction_analysis': {
+                    'total_games': len(predictions),
+                    'games': predictions,
+                    'note': 'Final scores not available - predictions only'
+                },
+                'betting_performance': {
+                    'total_recommendations': 0,
+                    'correct_recommendations': 0,
+                    'overall_accuracy': 0,
+                    'roi_percentage': 0,
+                    'net_profit': 0,
+                    'total_bet_amount': 0,
+                    'detailed_bets': [],
+                    'moneyline_stats': {'total': 0, 'correct': 0, 'accuracy': 0},
+                    'runline_stats': {'total': 0, 'correct': 0, 'accuracy': 0},
+                    'total_stats': {'total': 0, 'correct': 0, 'accuracy': 0}
+                },
+                'predictions': predictions,
+                'final_scores': {},
+                'has_final_scores': False
+            }
         
         model_perf = self.analyze_model_performance(predictions, final_scores)
         betting_perf = self.analyze_betting_recommendations(predictions, final_scores)
         
         return {
             'date': date,
-            'model_performance': model_perf,
+            'prediction_analysis': model_perf,
             'betting_performance': betting_perf,
             'predictions': predictions,
-            'final_scores': final_scores
+            'final_scores': final_scores,
+            'has_final_scores': True
         }
 
 # Global analyzer instance

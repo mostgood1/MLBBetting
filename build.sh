@@ -34,4 +34,19 @@ python -c "import schedule; print(f'Schedule installed')"
 python -c "import requests; print(f'Requests installed')"
 python -c "import numpy; print(f'Numpy installed')"
 
+# Create necessary directories and files for Render deployment
+echo "📁 Setting up data directories and files..."
+mkdir -p data
+mkdir -p logs
+mkdir -p monitoring_data
+mkdir -p static
+mkdir -p templates
+
+# Create essential data files if they don't exist
+echo '{}' > data/unified_predictions_cache.json
+echo '{}' > data/betting_accuracy_analysis.json
+echo '{}' > data/daily_dashboard_stats.json
+echo '{}' > data/historical_betting_lines_cache.json
+echo '{}' > data/system_status.json
+
 echo "🎯 Build completed successfully!"

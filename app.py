@@ -624,10 +624,11 @@ def extract_real_total_line(real_lines, game_key="Unknown"):
                     logger.warning(f"⚠️ Could not cast total_point '{total_point}' to float for {game_key}: {e}")
                     found_point = total_point
                     break
-        if found_point is None:
+        if found_point is not None:
+            logger.info(f"🔍 [extract_real_total_line] FINAL RETURN for {game_key}: {found_point} (type: {type(found_point)})")
+            return found_point
+        else:
             logger.warning(f"❌ No valid total point found in outcomes for {game_key}")
-    logger.info(f"🔍 [extract_real_total_line] FINAL RETURN for {game_key}: {found_point} (type: {type(found_point)})")
-    return found_point
     # Method 1: Historical betting lines structure (array format)
     if 'total' in real_lines and isinstance(real_lines['total'], list) and real_lines['total']:
         total_point = real_lines['total'][0].get('point')
@@ -3982,10 +3983,78 @@ def api_single_prediction(away_team, home_team):
         away_pitcher = pitcher_info.get('away_pitcher_name', matching_game.get('away_pitcher', 'TBD'))
         home_pitcher = pitcher_info.get('home_pitcher_name', matching_game.get('home_pitcher', 'TBD'))
         
-        # Extract comprehensive prediction details
+        # Extract comprehensive prediction details from unified cache structure
         comprehensive_details = matching_game.get('comprehensive_details', {})
         winner_prediction = comprehensive_details.get('winner_prediction', {})
         total_runs_prediction = comprehensive_details.get('total_runs_prediction', {})
+        
+        # ENHANCED: Extract prediction factors from unified cache structure
+        meta_info = matching_game.get('meta', {})
+        simulation_count = meta_info.get('simulations_run', 5000)
+        execution_time = meta_info.get('execution_time_ms', 0)
+        data_source = meta_info.get('data_source', 'comprehensive_engine')
+        
+        # Extract score ranges for confidence intervals
+        home_score_range = predictions.get('home_score_range', [0, 10])
+        away_score_range = predictions.get('away_score_range', [0, 10]) 
+        total_runs_range = predictions.get('total_runs_range', [0, 20])
+        confidence_percentage = predictions.get('confidence', 50)
+        
+        # ENHANCED: Load additional factor systems for comprehensive modal display
+        try:
+            # Load team strength factors from JSON file
+            import json
+            with open('data/master_team_strength.json', 'r') as f:
+                team_strengths = json.load(f)
+            away_team_strength = team_strengths.get(away_team, 0.0)
+            home_team_strength = team_strengths.get(home_team, 0.0)
+        except Exception as e:
+            logger.error(f"Failed to load team strengths: {e}")
+            away_team_strength = 0.0
+            home_team_strength = 0.0
+        
+        try:
+            # Load bullpen factors
+            from bullpen_factor_system import BullpenFactorSystem
+            bullpen_system = BullpenFactorSystem()
+            away_bullpen_summary = bullpen_system.get_team_bullpen_summary(away_team)
+            home_bullpen_summary = bullpen_system.get_team_bullpen_summary(home_team)
+        except:
+            away_bullpen_summary = {'rating': 'Average', 'quality_factor': 1.0, 'era': 4.0, 'save_rate': 0.75}
+            home_bullpen_summary = {'rating': 'Average', 'quality_factor': 1.0, 'era': 4.0, 'save_rate': 0.75}
+        
+        try:
+            # Load weather and park factors
+            from weather_park_integration import WeatherParkFactorEngine
+            weather_engine = WeatherParkFactorEngine()
+            park_weather_data = weather_engine.get_total_park_weather_factor(home_team, date_param)
+        except Exception as e:
+            logger.error(f"Failed to load weather/park factors: {e}")
+            park_weather_data = {
+                'park_factor': 1.0,
+                'weather_factor': 1.0,
+                'combined_factor': 1.0,
+                'total_factor': 1.0,
+                'park_info': {'name': 'Unknown', 'park_factor': 1.0, 'altitude': 0, 'dome': False},
+                'weather': {'temperature': 75, 'humidity': 50, 'wind_speed': 5, 'wind_direction': 'Calm'}
+            }
+        
+        try:
+            # Load comprehensive config for additional factors
+            import json
+            with open('data/comprehensive_optimized_config.json', 'r') as f:
+                config = json.load(f)
+                home_field_advantage = config.get('home_field_advantage', 0.08)
+                away_field_boost = config.get('away_field_boost', 0.02)
+                bullpen_weight = config.get('bullpen_weight', 0.15)
+                pitcher_weight = config.get('pitcher_weight', 0.35)
+                team_strength_weight = config.get('team_strength_weight', 0.3)
+        except:
+            home_field_advantage = 0.08
+            away_field_boost = 0.02
+            bullpen_weight = 0.15
+            pitcher_weight = 0.35
+            team_strength_weight = 0.3
         
         # Build game key for betting lines lookup
         game_key = f"{away_team} @ {home_team}"
@@ -4103,12 +4172,65 @@ def api_single_prediction(away_team, home_team):
                 'home_win_probability': round(home_win_prob * 100, 1) if home_win_prob < 1 else round(home_win_prob, 1),
                 'confidence_level': winner_prediction.get('confidence', 'MEDIUM'),
                 'moneyline_recommendation': winner_prediction.get('moneyline_recommendation', 'NEUTRAL'),
-                'simulation_count': matching_game.get('simulation_count', 5000),
-                'model_version': matching_game.get('model_version', 'comprehensive_engine'),
+                'simulation_count': simulation_count,
+                'model_version': data_source,
                 'prediction_time': matching_game.get('prediction_time', ''),
                 'confidence_intervals': total_runs_prediction.get('confidence_intervals', {}),
                 'most_likely_range': total_runs_prediction.get('most_likely_range', 'Unknown'),
-                'over_under_analysis': total_runs_prediction.get('over_under_analysis', {})
+                'over_under_analysis': total_runs_prediction.get('over_under_analysis', {}),
+                
+                # ENHANCED: Add all prediction factors from unified cache
+                'execution_time_ms': execution_time,
+                'confidence_percentage': confidence_percentage,
+                'score_ranges': {
+                    'away_score_range': away_score_range,
+                    'home_score_range': home_score_range,
+                    'total_runs_range': total_runs_range
+                },
+                'pitcher_factors': {
+                    'away_pitcher_factor': pitcher_info.get('away_pitcher_factor', 1.0),
+                    'home_pitcher_factor': pitcher_info.get('home_pitcher_factor', 1.0)
+                },
+                'team_assets': {
+                    'away_team_assets': get_team_assets(away_team),
+                    'home_team_assets': get_team_assets(home_team)
+                },
+                'recommendations_in_cache': len(matching_game.get('recommendations', [])),
+                'meta': meta_info,
+                
+                # ENHANCED: Comprehensive factor analysis for modal display
+                'team_strength_factors': {
+                    'away_team_strength': away_team_strength,
+                    'home_team_strength': home_team_strength,
+                    'strength_advantage': home_team_strength - away_team_strength,
+                    'team_strength_weight': team_strength_weight
+                },
+                'bullpen_analysis': {
+                    'away_bullpen': away_bullpen_summary,
+                    'home_bullpen': home_bullpen_summary,
+                    'bullpen_advantage': home_bullpen_summary['quality_factor'] - away_bullpen_summary['quality_factor'],
+                    'bullpen_weight': bullpen_weight
+                },
+                'park_weather_factors': {
+                    'park_info': park_weather_data.get('park_info', {}),
+                    'weather_info': park_weather_data.get('weather', {}),  # Use 'weather' field from weather engine
+                    'park_factor': park_weather_data.get('park_factor', 1.0),
+                    'weather_factor': park_weather_data.get('weather_factor', 1.0),
+                    'combined_factor': park_weather_data.get('total_factor', park_weather_data.get('combined_factor', 1.0)),
+                    'run_environment_impact': (park_weather_data.get('total_factor', park_weather_data.get('combined_factor', 1.0)) - 1.0) * 100
+                },
+                'field_advantages': {
+                    'home_field_advantage': home_field_advantage,
+                    'away_field_boost': away_field_boost,
+                    'home_advantage_percentage': home_field_advantage * 100,
+                    'estimated_home_boost': f"+{(home_field_advantage * 100):.1f}% win probability"
+                },
+                'model_weights': {
+                    'pitcher_weight': pitcher_weight,
+                    'team_strength_weight': team_strength_weight,
+                    'bullpen_weight': bullpen_weight,
+                    'factors_explanation': 'Weights show relative importance in prediction model'
+                }
             },
             'betting_recommendations': convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines, predicted_total_runs) if game_recommendations else create_basic_betting_recommendations(
                 away_team, home_team, away_win_prob, home_win_prob, predicted_total_runs, 

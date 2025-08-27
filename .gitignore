@@ -43,7 +43,7 @@ logs/
 
 # Render deployment
 .render/
-render.yaml
+# Keep render.yaml for deployment configuration
 
 # Runtime data files (too large for Git)
 data/*.json
