@@ -85,6 +85,64 @@ echo '{}' > data/historical_betting_lines_cache.json 2>/dev/null || true
 echo "🔄 Ensuring data is populated for startup..."
 if [ -f "data/games_${TODAY_HYPHEN}.json" ]; then
     echo "✅ Games data available"
+    
+    # Try to populate the unified cache with today's games
+    echo "🔄 Populating unified predictions cache..."
+    python3 -c "
+import json
+import os
+from datetime import datetime
+
+try:
+    # Load today's games
+    today = '${TODAY_HYPHEN}'
+    games_file = f'data/games_{today}.json'
+    
+    if os.path.exists(games_file):
+        with open(games_file, 'r') as f:
+            games = json.load(f)
+        
+        print(f'Found {len(games)} games for {today}')
+        
+        # Create unified cache structure
+        cache_data = {
+            'predictions_by_date': {
+                today: {
+                    'games': {},
+                    'timestamp': datetime.now().isoformat(),
+                    'total_games': len(games)
+                }
+            },
+            'last_updated': datetime.now().isoformat()
+        }
+        
+        # Add each game to the cache
+        for game in games:
+            away_team = game.get('away_team', '')
+            home_team = game.get('home_team', '')
+            game_key = away_team.replace(' ', '_') + '_vs_' + home_team.replace(' ', '_')
+            
+            cache_data['predictions_by_date'][today]['games'][game_key] = {
+                'away_team': away_team,
+                'home_team': home_team,
+                'game_time': game.get('game_time', ''),
+                'away_pitcher': game.get('away_pitcher', 'TBD'),
+                'home_pitcher': game.get('home_pitcher', 'TBD'),
+                'game_date': today
+            }
+        
+        # Write to unified cache
+        with open('data/unified_predictions_cache.json', 'w') as f:
+            json.dump(cache_data, f, indent=2)
+        
+        print(f'✅ Populated unified cache with {len(games)} games')
+    else:
+        print(f'❌ No games file found: {games_file}')
+        
+except Exception as e:
+    print(f'❌ Error populating cache: {e}')
+    " 2>/dev/null || echo "⚠️ Cache population failed"
+    
 else
     echo "❌ No games data - app may show no games until data is loaded"
 fi
