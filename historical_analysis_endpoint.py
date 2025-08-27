@@ -421,32 +421,16 @@ class HistoricalAnalyzer:
                 
                 recommendations = value_bets
             
-            # Count valid recommendations (excluding "No recommendations" entries)
-            valid_recommendations = []
-            for rec in recommendations:
-                if not (rec.get('type') == 'none' or 
-                       rec.get('recommendation') == 'No recommendations' or
-                       'No recommendations' in str(rec.get('recommendation', '')) or
-                       rec.get('bet') == 'No Strong Value Bets Today'):
-                    valid_recommendations.append(rec)
-            
             game_analysis = {
                 'game_key': game_key,
                 'away_team': pred_values['away_team'],
                 'home_team': pred_values['home_team'],
                 'recommendations': [],
                 'total_correct': 0,
-                'total_recommendations': len(valid_recommendations)  # Use valid count
+                'total_recommendations': len(recommendations)
             }
             
             for rec in recommendations:
-                # CRITICAL FIX: Skip "No recommendations" entries (same logic as convert_betting_recommendations_to_frontend_format)
-                if (rec.get('type') == 'none' or 
-                    rec.get('recommendation') == 'No recommendations' or
-                    'No recommendations' in str(rec.get('recommendation', '')) or
-                    rec.get('bet') == 'No Strong Value Bets Today'):
-                    continue
-                
                 total_recommendations += 1
                 rec_type = rec.get('type', 'other').lower()
                 

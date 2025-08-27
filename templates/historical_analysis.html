@@ -253,7 +253,7 @@
 
         <div class="nav-buttons">
             <button class="nav-btn active" onclick="showSection('cumulative')">📊 Cumulative Performance</button>
-            <button class="nav-btn" onclick="showSection('daily')">📅 Historical Analysis</button>
+            <button class="nav-btn" onclick="showSection('daily')">📅 Daily Analysis</button>
             <button class="nav-btn" onclick="showSection('games')">🎮 Today's Games</button>
             <a href="/" class="nav-btn">🏠 Back to Dashboard</a>
         </div>
@@ -289,10 +289,10 @@
             </div>
         </div>
 
-        <!-- Historical Analysis Section -->
+        <!-- Daily Analysis Section -->
         <div id="daily-section" class="section">
             <div class="date-selector">
-                <label for="analysis-date">Select Historical Date:</label>
+                <label for="analysis-date">Select Date:</label>
                 <select id="analysis-date" class="date-input">
                     <option value="">Loading dates...</option>
                 </select>
@@ -304,18 +304,26 @@
             </div>
 
             <div id="daily-content">
-                <p style="text-align: center; color: #666; font-style: italic;">Select a historical date to view detailed performance analysis and game results</p>
+                <p style="text-align: center; color: #666; font-style: italic;">Select a date to view detailed analysis</p>
             </div>
         </div>
 
         <!-- Today's Games Section -->
         <div id="games-section" class="section">
+            <div class="date-selector">
+                <label for="games-date">Select Date:</label>
+                <select id="games-date" class="date-input">
+                    <option value="">Loading dates...</option>
+                </select>
+                <button class="nav-btn" onclick="loadTodaysGames()">🎮 Load Games</button>
+            </div>
+
             <div id="games-loading" class="loading" style="display: none;">
-                <p>🔄 Loading today's games...</p>
+                <p>🔄 Loading games...</p>
             </div>
 
             <div id="games-content">
-                <p style="text-align: center; color: #666; font-style: italic;">Loading today's games...</p>
+                <p style="text-align: center; color: #666; font-style: italic;">Select a date to view games with predictions</p>
             </div>
         </div>
     </div>
@@ -346,185 +354,15 @@
 
             // Add active class to clicked button
             event.target.classList.add('active');
-
-            // Auto-load today's games when games section is selected
-            if (sectionName === 'games') {
-                loadTodaysGamesAuto();
-            }
-            
-            // Load available dates when daily section is selected
-            if (sectionName === 'daily') {
-                // Check if dates are already loaded
-                const analysisDateSelect = document.getElementById('analysis-date');
-                if (analysisDateSelect && analysisDateSelect.options.length <= 1) {
-                    loadAvailableDates();
-                }
-            }
-        }
-
-        function getTodaysDate() {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        async function loadTodaysGamesAuto() {
-            const todaysDate = getTodaysDate();
-            
-            showLoading('games-loading');
-            document.getElementById('games-content').innerHTML = '';
-
-            try {
-                const response = await fetch(`http://localhost:5000/api/today-games`);
-                const data = await response.json();
-                
-                if (data.games && data.games.length > 0) {
-                    displaySimpleTodaysGames(data);
-                } else {
-                    document.getElementById('games-content').innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">No games available for today.</p>';
-                }
-            } catch (error) {
-                console.error('Error loading today\'s games:', error);
-                document.getElementById('games-content').innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">Unable to load today\'s games.</p>';
-            } finally {
-                hideLoading('games-loading');
-            }
-        }
-
-        function displaySimpleTodaysGames(data) {
-            const content = document.getElementById('games-content');
-            
-            console.log('📊 displaySimpleTodaysGames called with data:', data);
-            console.log('📊 Number of games:', data.games?.length || 0);
-
-            // Transform the data from main app format to expected format
-            const transformedGames = data.games.map(game => {
-                console.log('🔧 Transforming game:', game.away_team, 'vs', game.home_team);
-                console.log('🔧 Original betting_recommendations:', game.betting_recommendations);
-                console.log('🔧 Team assets - away:', game.away_team_assets);
-                console.log('🔧 Team assets - home:', game.home_team_assets);
-                console.log('🔧 Live status:', game.live_status);
-                
-                const transformed = {
-                    ...game,
-                    // Map status fields
-                    game_status: game.live_status?.status || game.status || 'Scheduled',
-                    // Map logo fields
-                    away_logo: game.away_team_assets?.logo_url || game.away_logo || '/static/default_team_logo.png',
-                    home_logo: game.home_team_assets?.logo_url || game.home_logo || '/static/default_team_logo.png',
-                    // Map live status fields
-                    is_final: game.live_status?.is_final || game.is_final || false,
-                    is_live: game.live_status?.is_live || game.is_live || false,
-                    away_score: game.live_status?.away_score || game.away_score || null,
-                    home_score: game.live_status?.home_score || game.home_score || null,
-                    actual_total: game.live_status && game.live_status.away_score !== null && game.live_status.home_score !== null ? 
-                        (game.live_status.away_score + game.live_status.home_score) : null,
-                    // Map betting recommendations - correct structure
-                    has_betting_recommendations: !!(game.betting_recommendations?.value_bets?.length),
-                    betting_recommendations: game.betting_recommendations?.value_bets || [],
-                    value_bets_count: game.betting_recommendations?.value_bets?.length || 0
-                };
-                
-                console.log('✅ Transformed game:', {
-                    game_status: transformed.game_status,
-                    away_logo: transformed.away_logo,
-                    home_logo: transformed.home_logo,
-                    has_betting_recommendations: transformed.has_betting_recommendations,
-                    value_bets_count: transformed.value_bets_count
-                });
-                
-                return transformed;
-            });
-
-            content.innerHTML = `
-                <div class="analysis-summary">
-                    <h3>🎮 Today's Games - ${data.date}</h3>
-                    <p>${data.count} games scheduled for today</p>
-                </div>
-
-                <div class="games-grid">
-                    ${transformedGames.map(game => `
-                        <div class="game-card" style="border: 2px solid ${game.is_final ? '#28a745' : '#007bff'}; border-radius: 8px; padding: 15px; margin: 10px 0;">
-                            <div class="game-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <div style="display: flex; align-items: center; gap: 15px;">
-                                    <div class="team-info" style="display: flex; align-items: center; gap: 8px;">
-                                        <img src="${game.away_logo}" alt="${game.away_team}" class="team-logo" 
-                                             style="width: 32px; height: 32px; object-fit: contain;" 
-                                             onerror="this.src='/static/default_team_logo.png'">
-                                        <div>
-                                            <strong style="font-size: 1.1em;">${game.away_team}</strong>
-                                            ${game.is_final && game.away_score !== null ? 
-                                                `<div style="color: #666; font-size: 0.9em;">Score: ${game.away_score}</div>` : ''}
-                                        </div>
-                                    </div>
-                                    <div style="font-size: 1.2em; color: #666; font-weight: bold;">@</div>
-                                    <div class="team-info" style="display: flex; align-items: center; gap: 8px;">
-                                        <div style="text-align: right;">
-                                            <strong style="font-size: 1.1em;">${game.home_team}</strong>
-                                            ${game.is_final && game.home_score !== null ? 
-                                                `<div style="color: #666; font-size: 0.9em;">Score: ${game.home_score}</div>` : ''}
-                                        </div>
-                                        <img src="${game.home_logo}" alt="${game.home_team}" class="team-logo" 
-                                             style="width: 32px; height: 32px; object-fit: contain;" 
-                                             onerror="this.src='/static/default_team_logo.png'">
-                                    </div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div style="background: ${game.is_final ? '#28a745' : '#007bff'}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold;">
-                                        ${game.game_status}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                                <div>
-                                    <p><strong>Pitching:</strong> ${game.away_pitcher} vs ${game.home_pitcher}</p>
-                                    <p><strong>Prediction:</strong> ${game.predicted_winner} (${formatPercentage(game.confidence)}% confidence)</p>
-                                </div>
-                                <div>
-                                    <p><strong>Predicted Total:</strong> ${formatNumber(game.predicted_total_runs)} runs</p>
-                                    ${game.is_final && game.actual_total !== null ? 
-                                        `<p><strong>Actual Total:</strong> ${game.actual_total} runs</p>` : ''}
-                                </div>
-                            </div>
-
-                            ${game.has_betting_recommendations && game.betting_recommendations && game.betting_recommendations.length > 0 ? 
-                                `<div style="background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745; padding: 10px; border-radius: 4px;">
-                                    <div style="color: #28a745; font-weight: bold; margin-bottom: 8px;">
-                                        ✅ ${game.value_bets_count} Betting Recommendations
-                                    </div>
-                                    ${game.betting_recommendations.slice(0, 2).map(bet => `
-                                        <div style="margin: 5px 0; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 4px;">
-                                            <div style="font-weight: bold; color: #155724;">
-                                                📊 ${bet.recommendation || bet.bet || bet.type}
-                                            </div>
-                                            <div style="font-size: 0.9em; color: #666; margin-top: 2px;">
-                                                ${bet.confidence ? `${bet.confidence.toUpperCase()} confidence` : ''}
-                                                ${bet.expected_value ? ` | EV: ${formatPercentage(bet.expected_value * 100)}%` : ''}
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>` : 
-                                '<div style="background: rgba(108, 117, 125, 0.1); border-left: 4px solid #6c757d; padding: 10px; color: #6c757d; border-radius: 4px;">No betting recommendations available</div>'
-                            }
-                        </div>
-                    `).join('')}
-                </div>
-            `;
         }
 
         async function loadAvailableDates() {
             try {
-                console.log('Loading available dates...');
                 const response = await fetch('http://localhost:5001/api/available-dates');
                 const data = await response.json();
-                console.log('Available dates response:', data);
 
                 if (data.success) {
                     availableDates = data.dates;
-                    console.log('Available dates loaded:', availableDates);
                     populateDateSelectors();
                 } else {
                     console.error('Failed to load available dates:', data.error);
@@ -535,25 +373,21 @@
         }
 
         function populateDateSelectors() {
-            console.log('Populating date selectors...');
             const analysisDateSelect = document.getElementById('analysis-date');
-            console.log('Analysis date select element:', analysisDateSelect);
+            const gamesDateSelect = document.getElementById('games-date');
 
-            // Clear existing options for analysis date selector
-            if (analysisDateSelect) {
-                analysisDateSelect.innerHTML = '<option value="">Select a date...</option>';
+            // Clear existing options
+            analysisDateSelect.innerHTML = '<option value="">Select a date...</option>';
+            gamesDateSelect.innerHTML = '<option value="">Select a date...</option>';
 
-                // Add dates (most recent first)
-                const sortedDates = [...availableDates].reverse();
-                console.log('Sorted dates:', sortedDates);
-                sortedDates.forEach(date => {
-                    const option = new Option(date, date);
-                    analysisDateSelect.add(option);
-                });
-                console.log('Date selectors populated successfully');
-            } else {
-                console.error('Analysis date select element not found');
-            }
+            // Add dates (most recent first)
+            const sortedDates = [...availableDates].reverse();
+            sortedDates.forEach(date => {
+                const option1 = new Option(date, date);
+                const option2 = new Option(date, date);
+                analysisDateSelect.add(option1);
+                gamesDateSelect.add(option2);
+            });
         }
 
         async function loadCumulativeData() {
@@ -667,13 +501,13 @@
             document.getElementById('daily-content').innerHTML = '';
 
             try {
-                const response = await fetch(`http://localhost:5001/api/today-games/${selectedDate}`);
+                const response = await fetch(`http://localhost:5001/api/date/${selectedDate}`);
                 const data = await response.json();
 
-                if (data.success !== false && data.games) {
-                    displayTodaysGames(data, 'daily-content');
+                if (data.success) {
+                    displayDateAnalysis(data.data);
                 } else {
-                    showError('daily-content', data.error || 'No data available for this date');
+                    showError('daily-content', data.error);
                 }
             } catch (error) {
                 showError('daily-content', 'Failed to load date analysis: ' + error.message);
@@ -771,44 +605,36 @@
             `;
         }
 
+        async function loadTodaysGames() {
+            const selectedDate = document.getElementById('games-date').value;
+            if (!selectedDate) {
+                alert('Please select a date');
+                return;
+            }
 
+            showLoading('games-loading');
+            document.getElementById('games-content').innerHTML = '';
 
-        function displayTodaysGames(data, targetContainer = 'games-content') {
-            const content = document.getElementById(targetContainer);
-            const summary = data.daily_summary || {};
+            try {
+                const response = await fetch(`http://localhost:5001/api/today-games/${selectedDate}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayTodaysGames(data);
+                } else {
+                    showError('games-content', data.error);
+                }
+            } catch (error) {
+                showError('games-content', 'Failed to load games: ' + error.message);
+            } finally {
+                hideLoading('games-loading');
+            }
+        }
+
+        function displayTodaysGames(data) {
+            const content = document.getElementById('games-content');
 
             content.innerHTML = `
-                <!-- Daily Performance Dashboard -->
-                <div class="daily-dashboard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                    <h3 style="margin: 0 0 15px 0; text-align: center;">📊 Daily Performance Dashboard - ${data.date}</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <div class="metric-card" style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 1.8em; font-weight: bold;">${summary.final_games || 0}/${summary.total_games || 0}</div>
-                            <div style="font-size: 0.9em; opacity: 0.9;">Games Completed</div>
-                        </div>
-                        <div class="metric-card" style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 1.8em; font-weight: bold; color: ${(summary.winner_accuracy || 0) >= 60 ? '#28a745' : (summary.winner_accuracy || 0) >= 50 ? '#ffc107' : '#dc3545'};">${summary.winner_accuracy || 0}%</div>
-                            <div style="font-size: 0.9em; opacity: 0.9;">Win Prediction Accuracy</div>
-                        </div>
-                        <div class="metric-card" style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 1.8em; font-weight: bold; color: ${(summary.betting_accuracy || 0) >= 60 ? '#28a745' : (summary.betting_accuracy || 0) >= 50 ? '#ffc107' : '#dc3545'};">${summary.betting_accuracy || 0}%</div>
-                            <div style="font-size: 0.9em; opacity: 0.9;">Betting Accuracy</div>
-                        </div>
-                        <div class="metric-card" style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 1.8em; font-weight: bold;">${summary.correct_bets || 0}/${summary.total_bets || 0}</div>
-                            <div style="font-size: 0.9em; opacity: 0.9;">Betting Recommendations</div>
-                        </div>
-                        <div class="metric-card" style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 1.8em; font-weight: bold;">${summary.avg_total_diff || 0}</div>
-                            <div style="font-size: 0.9em; opacity: 0.9;">Avg Total Difference</div>
-                        </div>
-                        <div class="metric-card" style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 1.8em; font-weight: bold; color: ${summary.performance_grade === 'A' ? '#28a745' : summary.performance_grade === 'B' ? '#17a2b8' : summary.performance_grade === 'C' ? '#ffc107' : '#dc3545'};">${summary.performance_grade || 'N/A'}</div>
-                            <div style="font-size: 0.9em; opacity: 0.9;">Performance Grade</div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="analysis-summary">
                     <h3>🎮 Games for ${data.date}</h3>
                     <p>${data.count} games with predictions and recommendations</p>
@@ -870,32 +696,18 @@
                             
                             ${game.has_betting_recommendations && game.betting_recommendations && game.betting_recommendations.length > 0 ? 
                                 `<div style="background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745; padding: 10px; border-radius: 4px;">
-                                    <div style="color: #28a745; font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                                        <span>✅ ${game.value_bets_count} Betting Recommendations</span>
-                                        ${game.betting_accuracy !== null ? 
-                                            `<span style="background: ${game.betting_accuracy >= 50 ? '#28a745' : '#dc3545'}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">
-                                                ${game.correct_bets}/${game.total_bets} Correct (${game.betting_accuracy}%)
-                                            </span>` : ''
-                                        }
+                                    <div style="color: #28a745; font-weight: bold; margin-bottom: 8px;">
+                                        ✅ ${game.value_bets_count} Betting Recommendations
                                     </div>
                                     ${game.betting_recommendations.slice(0, 3).map(bet => `
-                                        <div style="margin: 5px 0; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 4px; border-left: 3px solid ${bet.result_status === 'won' ? '#28a745' : bet.result_status === 'lost' ? '#dc3545' : '#6c757d'};">
-                                            <div style="display: flex; justify-content: between; align-items: center;">
-                                                <div style="font-weight: bold; color: #155724; flex-grow: 1;">
-                                                    📊 ${bet.recommendation || bet.bet || bet.type}
-                                                </div>
-                                                ${bet.result_status !== 'pending' ? 
-                                                    `<div style="color: ${bet.result_status === 'won' ? '#28a745' : '#dc3545'}; font-weight: bold; font-size: 0.9em;">
-                                                        ${bet.result_status === 'won' ? '✅ WON' : '❌ LOST'}
-                                                    </div>` : 
-                                                    `<div style="color: #6c757d; font-weight: bold; font-size: 0.9em;">⏳ PENDING</div>`
-                                                }
+                                        <div style="margin: 5px 0; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 4px; border-left: 3px solid #28a745;">
+                                            <div style="font-weight: bold; color: #155724;">
+                                                📊 ${bet.recommendation || bet.bet || bet.type}
                                             </div>
                                             <div style="font-size: 0.9em; color: #666; margin-top: 2px;">
                                                 ${bet.american_odds ? `Odds: ${bet.american_odds}` : ''}
                                                 ${bet.confidence ? ` | ${bet.confidence.toUpperCase()} confidence` : ''}
                                                 ${bet.expected_value ? ` | EV: ${formatPercentage(bet.expected_value * 100)}%` : ''}
-                                                ${bet.win_probability ? ` | Win Prob: ${formatPercentage(bet.win_probability * 100)}%` : ''}
                                             </div>
                                             ${bet.reasoning ? `<div style="font-size: 0.8em; color: #666; font-style: italic; margin-top: 2px;">${bet.reasoning}</div>` : ''}
                                         </div>

@@ -30,7 +30,7 @@
     {
       "date": "2025-08-15",
       "away_team": "Los Angeles Angels",
-      "home_team": "Oakland Athletics",
+      "home_team": "Athletics",
       "actual_score": "3.0-10.0",
       "actual_total": 13.0,
       "moneyline_correct": true,
@@ -200,7 +200,7 @@
     {
       "date": "2025-08-16",
       "away_team": "Los Angeles Angels",
-      "home_team": "Oakland Athletics",
+      "home_team": "Athletics",
       "actual_score": "2.0-7.0",
       "actual_total": 9.0,
       "moneyline_correct": true,

@@ -495,7 +495,6 @@ class SmartBettingAnalyzer:
         self.kelly_fraction = betting_params.get('kelly_fraction', 0.25)  # Conservative Kelly sizing
         self.high_confidence_ev = betting_params.get('high_confidence_ev', 0.10)
         self.medium_confidence_ev = betting_params.get('medium_confidence_ev', 0.05)
-        self.probability_scaling_factor = betting_params.get('probability_scaling_factor', 0.08)  # How much 1 run edge affects probability
         
     def analyze_moneyline_value(self, home_win_prob: float, away_win_prob: float,
                               home_odds: int, away_odds: int) -> List[Dict]:
@@ -550,7 +549,7 @@ class SmartBettingAnalyzer:
         """Fast total runs value analysis"""
         recommendations = []
         
-        over_prob = 0.5 + (predicted_total - total_line) * self.probability_scaling_factor
+        over_prob = 0.5 + (predicted_total - total_line) * 0.05
         under_prob = 1 - over_prob
         
         over_implied = self._odds_to_prob(over_odds)

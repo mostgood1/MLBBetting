@@ -5199,7 +5199,8 @@ def get_cumulative_analysis():
             logger.error(f"❌ Failed to start monitoring: {e}")
     
     # Enhanced monitoring system start (removed backup route that was causing 404 conflicts)
-    
+
+if __name__ == "__main__":
     # Use Render's PORT environment variable or default to 5000 for local development
     port = int(os.environ.get('PORT', 5000))
     debug_mode = os.environ.get('FLASK_ENV') != 'production'

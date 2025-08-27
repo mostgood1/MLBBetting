@@ -128,42 +128,6 @@ def api_cumulative_analysis():
             'message': 'Failed to generate cumulative historical analysis'
         })
 
-def load_starting_pitchers_for_date(date: str) -> dict:
-    """Load starting pitchers data for a specific date"""
-    try:
-        # Format date for filename (replace hyphens with underscores)
-        date_formatted = date.replace('-', '_')
-        file_path = f"{DATA_DIR}/starting_pitchers_{date_formatted}.json"
-        
-        if not os.path.exists(file_path):
-            logger.warning(f"No starting pitchers file found for {date}: {file_path}")
-            return {}
-            
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-            
-        # Convert to dictionary keyed by game_key for easy lookup
-        pitchers_dict = {}
-        for game in data.get('games', []):
-            game_key = game.get('game_key', '')
-            if game_key:
-                pitchers_dict[game_key] = {
-                    'away_pitcher': game.get('away_pitcher', 'TBD'),
-                    'home_pitcher': game.get('home_pitcher', 'TBD'),
-                    'away_team': game.get('away_team', ''),
-                    'home_team': game.get('home_team', '')
-                }
-                
-        logger.info(f"Loaded starting pitchers for {date}: {len(pitchers_dict)} games")
-        return pitchers_dict
-        
-    except Exception as e:
-        logger.error(f"Error loading starting pitchers for {date}: {e}")
-        return {}
-
-# Data directory path
-DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
-
 @app.route('/api/date/<date>')
 def api_date_analysis(date):
     """API endpoint for historical analysis of a specific date"""
@@ -226,10 +190,6 @@ def api_today_games(date):
                 'count': 0
             })
         
-        # Load starting pitchers data for the date
-        starting_pitchers = load_starting_pitchers_for_date(date)
-        logger.info(f"Loaded starting pitchers data: {len(starting_pitchers)} games")
-        
         # Convert predictions to game card format with enhanced data
         games = []
         
@@ -249,17 +209,10 @@ def api_today_games(date):
             away_team_assets = get_team_assets(away_team)
             home_team_assets = get_team_assets(home_team)
             
-            # Extract win probabilities from predictions - handle both old and new formats
-            predictions = prediction.get('predictions', {})
-            win_probabilities = prediction.get('win_probabilities', {})
-            
-            # Try new format first, then fall back to old format
-            if win_probabilities:
-                away_prob = win_probabilities.get('away_prob', 0.5)
-                home_prob = win_probabilities.get('home_prob', 0.5)
-            else:
-                away_prob = predictions.get('away_win_prob', 0.5)
-                home_prob = predictions.get('home_win_prob', 0.5)
+            # Extract win probabilities
+            win_probs = prediction.get('win_probabilities', {})
+            away_prob = win_probs.get('away_prob', 0.5)
+            home_prob = win_probs.get('home_prob', 0.5)
             
             # Convert to percentages if needed
             if away_prob <= 1:
@@ -267,15 +220,11 @@ def api_today_games(date):
             if home_prob <= 1:
                 home_prob *= 100
             
-            # Try new format first, then old format for total runs
             predicted_total = prediction.get('predicted_total_runs', 0)
-            if not predicted_total:
-                predicted_total = predictions.get('predicted_total_runs', 0)
             
-            # Extract betting recommendations - handle both old and new formats
-            value_bets = prediction.get('value_bets', [])
-            if not value_bets:
-                value_bets = prediction.get('recommendations', [])
+            # Extract betting recommendations if available
+            betting_recs = prediction.get('betting_recommendations', {})
+            value_bets = betting_recs.get('value_bets', [])
             
             # Extract pitcher names - try multiple sources for real names
             away_pitcher = prediction.get('away_pitcher', 'TBD')
@@ -295,27 +244,6 @@ def api_today_games(date):
                 if home_pitcher_from_info and home_pitcher_from_info not in ['TBD', 'None', '']:
                     home_pitcher = home_pitcher_from_info
                     logger.info(f"DEBUG: Updated home pitcher from pitcher_info: {home_pitcher}")
-            
-            # Try to get pitcher names from starting pitchers data if still TBD
-            if (away_pitcher in ['TBD', 'None', '', None] or home_pitcher in ['TBD', 'None', '', None]) and starting_pitchers:
-                # Try multiple game key formats
-                possible_keys = [
-                    game_key,
-                    f"{away_team} @ {home_team}",
-                    f"{away_team}_vs_{home_team}",
-                    f"{away_team} vs {home_team}"
-                ]
-                
-                for key in possible_keys:
-                    if key in starting_pitchers:
-                        pitcher_data = starting_pitchers[key]
-                        if away_pitcher in ['TBD', 'None', '', None] and pitcher_data.get('away_pitcher'):
-                            away_pitcher = pitcher_data['away_pitcher']
-                            logger.info(f"DEBUG: Updated away pitcher from starting_pitchers: {away_pitcher}")
-                        if home_pitcher in ['TBD', 'None', '', None] and pitcher_data.get('home_pitcher'):
-                            home_pitcher = pitcher_data['home_pitcher']
-                            logger.info(f"DEBUG: Updated home pitcher from starting_pitchers: {home_pitcher}")
-                        break
             
             # Clean up pitcher names - remove null/None values
             if away_pitcher in ['TBD', 'None', '', None]:
@@ -349,44 +277,6 @@ def api_today_games(date):
                 if actual_total and predicted_total:
                     total_diff = abs(predicted_total - actual_total)
             
-            # Evaluate betting recommendation correctness
-            evaluated_bets = []
-            correct_bets = 0
-            total_bets = len(value_bets)
-            
-            for bet in value_bets:
-                bet_copy = bet.copy()
-                bet_copy['is_correct'] = None
-                bet_copy['result_status'] = 'pending'
-                
-                if is_final:
-                    if bet['type'] == 'total':
-                        betting_line = bet.get('betting_line', 0)
-                        if 'over' in bet['recommendation'].lower():
-                            bet_copy['is_correct'] = actual_total > betting_line
-                        elif 'under' in bet['recommendation'].lower():
-                            bet_copy['is_correct'] = actual_total < betting_line
-                    elif bet['type'] == 'moneyline':
-                        if away_team.lower() in bet['recommendation'].lower():
-                            bet_copy['is_correct'] = actual_winner == 'away'
-                        elif home_team.lower() in bet['recommendation'].lower():
-                            bet_copy['is_correct'] = actual_winner == 'home'
-                    elif bet['type'] == 'spread':
-                        # Handle spread betting (if we have spread data)
-                        # This would need spread line information
-                        pass
-                    
-                    # Set result status
-                    if bet_copy['is_correct'] is True:
-                        bet_copy['result_status'] = 'won'
-                        correct_bets += 1
-                    elif bet_copy['is_correct'] is False:
-                        bet_copy['result_status'] = 'lost'
-                    else:
-                        bet_copy['result_status'] = 'pending'
-                
-                evaluated_bets.append(bet_copy)
-            
             game_obj = {
                 'game_id': game_key,
                 'away_team': away_team,
@@ -404,10 +294,7 @@ def api_today_games(date):
                 'confidence': round(max(away_prob, home_prob), 2),
                 'value_bets_count': len(value_bets),
                 'has_betting_recommendations': len(value_bets) > 0,
-                'betting_recommendations': evaluated_bets,  # Use evaluated bets with correctness
-                'correct_bets': correct_bets,
-                'total_bets': total_bets,
-                'betting_accuracy': round((correct_bets / total_bets * 100), 2) if total_bets > 0 else None,
+                'betting_recommendations': value_bets,  # Include full betting recommendations
                 'date': date,
                 
                 # Final score information
@@ -426,41 +313,6 @@ def api_today_games(date):
             
             games.append(game_obj)
         
-        # Calculate daily summary statistics
-        total_games = len(games)
-        final_games = sum(1 for game in games if game['is_final'])
-        
-        # Win prediction accuracy
-        correct_winners = sum(1 for game in games if game.get('winner_correct') is True)
-        winner_accuracy = round((correct_winners / final_games * 100), 2) if final_games > 0 else 0
-        
-        # Betting recommendations summary
-        total_bets_all_games = sum(game['total_bets'] for game in games)
-        correct_bets_all_games = sum(game['correct_bets'] for game in games)
-        overall_betting_accuracy = round((correct_bets_all_games / total_bets_all_games * 100), 2) if total_bets_all_games > 0 else 0
-        
-        # Total accuracy (average total prediction difference)
-        total_diffs = [game.get('total_diff') for game in games if game.get('total_diff') is not None]
-        avg_total_diff = round(sum(total_diffs) / len(total_diffs), 2) if total_diffs else 0
-        
-        # Games with betting recommendations
-        games_with_bets = sum(1 for game in games if game['has_betting_recommendations'])
-        
-        daily_summary = {
-            'date': date,
-            'total_games': total_games,
-            'final_games': final_games,
-            'pending_games': total_games - final_games,
-            'winner_accuracy': winner_accuracy,
-            'correct_winners': correct_winners,
-            'total_bets': total_bets_all_games,
-            'correct_bets': correct_bets_all_games,
-            'betting_accuracy': overall_betting_accuracy,
-            'games_with_bets': games_with_bets,
-            'avg_total_diff': avg_total_diff,
-            'performance_grade': 'A' if overall_betting_accuracy >= 70 else 'B' if overall_betting_accuracy >= 60 else 'C' if overall_betting_accuracy >= 50 else 'D'
-        }
-        
         logger.info(f"Today games for {date}: {len(games)} games found")
         
         return jsonify({
@@ -468,7 +320,6 @@ def api_today_games(date):
             'games': games,
             'count': len(games),
             'date': date,
-            'daily_summary': daily_summary,
             'message': f'Found {len(games)} games for {date}'
         })
         
@@ -622,8 +473,8 @@ if __name__ == '__main__':
     else:
         logger.error("❌ Historical analyzer not initialized - some endpoints will fail")
     
-    # Use PORT environment variable for Render deployment, fallback for local development
-    port = int(os.environ.get('PORT', os.environ.get('HISTORICAL_PORT', 5001)))
+    # Use different port from main app to avoid conflicts
+    port = int(os.environ.get('HISTORICAL_PORT', 5001))
     debug_mode = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info(f"🚀 Starting Historical Analysis App on port {port} (debug: {debug_mode})")

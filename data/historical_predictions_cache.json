@@ -121,8 +121,8 @@
           "home_pitcher_factor": 1.0
         }
       },
-      "Oakland Athletics @ Orioles": {
-        "away_team": "Oakland Athletics",
+      "Athletics @ Orioles": {
+        "away_team": "Athletics",
         "home_team": "Orioles",
         "predicted_away_score": 4.0,
         "predicted_home_score": 4.0,
@@ -962,7 +962,7 @@
         "home_starter": "Braxton Ashcraft",
         "betting_lines": {}
       },
-      "Oakland Athletics @ Baltimore Orioles": {
+      "Athletics @ Baltimore Orioles": {
         "actual_away_score": 11,
         "actual_home_score": 3,
         "actual_total_score": 14,
@@ -1142,7 +1142,7 @@
     },
     "backfill_2025-08-09_776811": {
       "game_id": "776811",
-      "away_team": "Oakland Athletics",
+      "away_team": "Athletics",
       "home_team": "Baltimore Orioles",
       "away_win_pct": 0.476,
       "home_win_pct": 0.524,
@@ -1597,7 +1597,7 @@
           "under_odds": -110
         }
       },
-      "Oakland Athletics @ Washington Nationals": {
+      "Athletics @ Washington Nationals": {
         "actual_away_score": 6,
         "actual_home_score": 0,
         "actual_total_score": 6,
@@ -1666,7 +1666,7 @@
     "backfilled": true,
     "backfill_2025-08-07_776837": {
       "game_id": "776837",
-      "away_team": "Oakland Athletics",
+      "away_team": "Athletics",
       "home_team": "Washington Nationals",
       "away_win_pct": 0.476,
       "home_win_pct": 0.524,
@@ -2977,7 +2977,7 @@
         "home_starter": "Braxton Ashcraft",
         "betting_lines": {}
       },
-      "Oakland Athletics @ Baltimore Orioles": {
+      "Athletics @ Baltimore Orioles": {
         "actual_away_score": 2,
         "actual_home_score": 3,
         "actual_total_score": 5,
@@ -3260,7 +3260,7 @@
     },
     "backfill_2025-08-08_776831": {
       "game_id": "776831",
-      "away_team": "Oakland Athletics",
+      "away_team": "Athletics",
       "home_team": "Baltimore Orioles",
       "away_win_pct": 0.476,
       "home_win_pct": 0.524,
@@ -3509,7 +3509,7 @@
         "prediction_error_total": 2.0999999999999996,
         "winner_predicted_correctly": false
       },
-      "Oakland Athletics @ Baltimore Orioles": {
+      "Athletics @ Baltimore Orioles": {
         "actual_away_score": 3,
         "actual_home_score": 2,
         "actual_total_score": 5,
@@ -3605,7 +3605,7 @@
     },
     "backfill_2025-08-10_776804": {
       "game_id": "776804",
-      "away_team": "Oakland Athletics",
+      "away_team": "Athletics",
       "home_team": "Baltimore Orioles",
       "away_win_pct": 0.476,
       "home_win_pct": 0.524,
@@ -4579,7 +4579,7 @@
       },
       "Rays @ Athletics": {
         "away_team": "Rays",
-        "home_team": "Oakland Athletics",
+        "home_team": "Athletics",
         "predictions": {
           "home_win_prob": 0.473,
           "away_win_prob": 0.527,
@@ -4790,7 +4790,7 @@
     "backfill_2025-08-11_776787": {
       "game_id": "776787",
       "away_team": "Tampa Bay Rays",
-      "home_team": "Oakland Athletics",
+      "home_team": "Athletics",
       "away_win_pct": 0.476,
       "home_win_pct": 0.524,
       "away_pitcher": "Ryan Pepiot",
@@ -4974,7 +4974,7 @@
     "backfill_2025-08-12_776762": {
       "game_id": "776762",
       "away_team": "Tampa Bay Rays",
-      "home_team": "Oakland Athletics",
+      "home_team": "Athletics",
       "away_win_pct": 0.476,
       "home_win_pct": 0.524,
       "away_pitcher": "Shane Baz",
@@ -5158,7 +5158,7 @@
     "backfill_2025-08-13_776751": {
       "game_id": "776751",
       "away_team": "Tampa Bay Rays",
-      "home_team": "Oakland Athletics",
+      "home_team": "Athletics",
       "away_win_pct": 0.476,
       "home_win_pct": 0.524,
       "away_pitcher": "Drew Rasmussen",
@@ -5402,7 +5402,7 @@
     "backfill_2025-08-15_776734": {
       "game_id": "776734",
       "away_team": "Los Angeles Angels",
-      "home_team": "Oakland Athletics",
+      "home_team": "Athletics",
       "away_win_pct": 0.476,
       "home_win_pct": 0.524,
       "away_pitcher": "Yusei Kikuchi",
@@ -5608,7 +5608,7 @@
     "backfill_2025-08-16_776718": {
       "game_id": "776718",
       "away_team": "Los Angeles Angels",
-      "home_team": "Oakland Athletics",
+      "home_team": "Athletics",
       "away_win_pct": 0.476,
       "home_win_pct": 0.524,
       "away_pitcher": "Tyler Anderson",

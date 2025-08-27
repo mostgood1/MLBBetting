@@ -3,8 +3,8 @@
   "generated_at": "2025-08-24T12:02:55.175230",
   "source": "Unified Betting Engine v1.0",
   "games": {
-    "Oakland Athletics_vs_Minnesota Twins": {
-      "away_team": "Oakland Athletics",
+    "Athletics_vs_Minnesota Twins": {
+      "away_team": "Athletics",
       "home_team": "Minnesota Twins",
       "away_pitcher": "Jack Perkins",
       "home_pitcher": "Jos\u00e9 Ure\u00f1a",

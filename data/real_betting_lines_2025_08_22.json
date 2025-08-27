@@ -1501,7 +1501,7 @@
         }
       ]
     },
-    "Oakland Athletics @ Seattle Mariners": {
+    "Athletics @ Seattle Mariners": {
       "moneyline": {
         "away": 164,
         "home": -196
@@ -1514,7 +1514,7 @@
           "last_update": "2025-08-22T20:43:00Z",
           "outcomes": [
             {
-              "name": "Oakland Athletics",
+              "name": "Athletics",
               "price": 164
             },
             {
@@ -1528,7 +1528,7 @@
           "last_update": "2025-08-22T20:43:00Z",
           "outcomes": [
             {
-              "name": "Oakland Athletics",
+              "name": "Athletics",
               "price": -126,
               "point": 1.5
             },

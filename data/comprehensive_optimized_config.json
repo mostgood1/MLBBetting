@@ -1,21 +1,11 @@
 {
-  "engine_parameters": {
-    "home_field_advantage": 0.035,
-    "away_field_boost": 0.015,
-    "bullpen_weight": 0.15,
-    "pitcher_weight": 0.35,
-    "team_strength_weight": 0.3,
-    "run_environment": 0.8075,
-    "variance_factor": 0.88,
-    "home_scoring_boost": 1.0,
-    "away_scoring_boost": 1.0,
-    "total_scoring_adjustment": 0.9,
-    "base_lambda": 4.0,
-    "team_strength_multiplier": 0.17,
-    "pitcher_era_weight": 0.78,
-    "pitcher_whip_weight": 0.38,
-    "game_chaos_variance": 0.38
-  },
+  "home_field_advantage": 0.08,
+  "away_field_boost": 0.02,
+  "bullpen_weight": 0.15,
+  "pitcher_weight": 0.35,
+  "team_strength_weight": 0.3,
+  "run_environment": 0.8075,
+  "variance_factor": 0.88,
   "betting_integration": {
     "enabled": true,
     "betting_weight": 0.25,
@@ -38,29 +28,30 @@
       "model_lower_totals_pct": 40.0
     },
     "bias_indicators": {
-      "high_model_vs_line_home_bias": false,
-      "high_model_vs_line_away_bias": false,
-      "high_total_bias": false
+      "home_team_bias": 0.0006765295272456618,
+      "scoring_bias": 0.5933333333333333
     }
   },
-  "bias_correction": {
-    "applied_date": "2025-08-26",
-    "reason": "BALANCED FINAL: Neutralized scoring boosts and balanced field advantages",
-    "previous_result": "80% home wins - still too high",
-    "corrected_values": {
-      "home_scoring_boost": 1.0,
-      "away_scoring_boost": 1.0,
-      "home_field_advantage": 0.035,
-      "away_field_boost": 0.015,
-      "net_home_advantage": "2% home advantage (realistic for MLB)"
+  "config_type": "balanced_road_correction",
+  "created_date": "2025-08-25T20:16:11.739007",
+  "optimization_metadata": {
+    "optimization_date": "2025-08-25T20:15:11.679628",
+    "games_analyzed": 15,
+    "performance_metrics": {
+      "home_accuracy": 0.6,
+      "total_runs_mae": 3.1866666666666665,
+      "scoring_bias": -1.4400000000000013,
+      "home_bias": 0.0037333333333332552
     },
-    "target_home_win_rate": "50-55% (realistic MLB range)"
-  },
-  "betting_parameters": {
-    "min_edge": 0.03,
-    "kelly_fraction": 0.25,
-    "high_confidence_ev": 0.1,
-    "medium_confidence_ev": 0.05,
-    "probability_scaling_factor": 0.08
+    "optimization_version": "3.0_comprehensive_with_integrations",
+    "balance_correction": {
+      "correction_date": "2025-08-25T20:16:11.739007",
+      "reason": "Reduce road team over-favoritism",
+      "changes": {
+        "home_field_advantage": "0.060 \u2192 0.080",
+        "away_field_boost": "0.040 \u2192 0.020",
+        "base_lambda": "4.620 \u2192 4.550"
+      }
+    }
   }
 }
