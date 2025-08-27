@@ -5320,6 +5320,111 @@ def get_cumulative_analysis():
         except Exception as e:
             logger.error(f"❌ Failed to start monitoring: {e}")
     
+@app.route('/api/force-cache-population')
+def force_cache_population():
+    """Force population of unified cache - debug endpoint"""
+    try:
+        logger.info("🔄 Force cache population requested")
+        
+        cache_file = "data/unified_predictions_cache.json"
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_date_underscore = datetime.now().strftime('%Y_%m_%d')
+        
+        # Check current cache status
+        cache_size = 0
+        if os.path.exists(cache_file):
+            cache_size = os.path.getsize(cache_file)
+        
+        result = {
+            'cache_file': cache_file,
+            'current_date': current_date,
+            'initial_cache_size': cache_size,
+            'steps': []
+        }
+        
+        # Try to find games file
+        games_file = f"data/games_{current_date}.json"
+        if os.path.exists(games_file):
+            result['steps'].append(f"✅ Found today's games file: {games_file}")
+        else:
+            # Try to find any games file
+            import glob
+            available_games = glob.glob("data/games_*.json")
+            if available_games:
+                available_games.sort(reverse=True)
+                games_file = available_games[0]
+                result['steps'].append(f"⚠️ Using most recent games file: {games_file}")
+            else:
+                result['steps'].append("❌ No games files found")
+                return jsonify({
+                    'success': False,
+                    'error': 'No games files available',
+                    'result': result
+                }), 500
+        
+        # Load games data
+        with open(games_file, 'r') as f:
+            games = json.load(f)
+        
+        result['steps'].append(f"📅 Loaded {len(games)} games from {games_file}")
+        
+        # Create unified cache structure
+        cache_data = {
+            'predictions_by_date': {
+                current_date: {
+                    'games': {},
+                    'timestamp': datetime.now().isoformat(),
+                    'total_games': len(games),
+                    'source_file': games_file,
+                    'forced_population': True
+                }
+            },
+            'last_updated': datetime.now().isoformat(),
+            'population_method': 'force_api_endpoint'
+        }
+        
+        # Add each game to the cache
+        for i, game in enumerate(games):
+            away_team = game.get('away_team', '')
+            home_team = game.get('home_team', '')
+            game_key = away_team.replace(' ', '_') + '_vs_' + home_team.replace(' ', '_')
+            
+            cache_data['predictions_by_date'][current_date]['games'][game_key] = {
+                'away_team': away_team,
+                'home_team': home_team,
+                'game_time': game.get('game_time', ''),
+                'away_pitcher': game.get('away_pitcher', 'TBD'),
+                'home_pitcher': game.get('home_pitcher', 'TBD'),
+                'game_date': current_date
+            }
+        
+        result['steps'].append(f"🔧 Created cache structure with {len(games)} games")
+        
+        # Write populated cache
+        with open(cache_file, 'w') as f:
+            json.dump(cache_data, f, indent=2)
+        
+        # Verify it worked
+        if os.path.exists(cache_file):
+            new_size = os.path.getsize(cache_file)
+            result['steps'].append(f"✅ Cache written successfully: {new_size} bytes")
+            result['final_cache_size'] = new_size
+            result['success'] = True
+        else:
+            result['steps'].append("❌ Failed to write cache file")
+            result['success'] = False
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"❌ Error in force cache population: {e}")
+        import traceback
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }), 500
+
 @app.route('/api/debug/data-status')
 def debug_data_status():
     """Debug endpoint to check what data files are available"""
@@ -5380,53 +5485,110 @@ if __name__ == "__main__":
     
     logger.info(f"🚀 Starting MLB Betting App on port {port} (debug: {debug_mode})")
     
-    # Force data loading on startup for production/Render environment
-    if os.environ.get('FLASK_ENV') == 'production' or os.environ.get('FORCE_DATA_REFRESH'):
-        logger.info("🔄 Production startup - ensuring data is loaded...")
-        try:
-            # Check and populate unified cache if needed
-            cache_file = "data/unified_predictions_cache.json"
-            cache_needs_population = False
-            
-            if os.path.exists(cache_file):
-                cache_size = os.path.getsize(cache_file)
-                logger.info(f"📊 Cache file exists: {cache_size} bytes")
-                if cache_size <= 10:  # Empty or nearly empty
-                    cache_needs_population = True
-                    logger.warning("⚠️ Cache is empty, needs population")
-                else:
-                    logger.info("✅ Cache appears populated")
-            else:
+    # Force data loading on startup - always run to ensure cache is populated
+    logger.info("🔄 Startup cache check...")
+    try:
+        # Check and populate unified cache if needed
+        cache_file = "data/unified_predictions_cache.json"
+        cache_needs_population = False
+        
+        if os.path.exists(cache_file):
+            cache_size = os.path.getsize(cache_file)
+            logger.info(f"📊 Cache file exists: {cache_size} bytes")
+            if cache_size <= 10:  # Empty or nearly empty
                 cache_needs_population = True
-                logger.warning("⚠️ Cache file missing, needs creation")
+                logger.warning("⚠️ Cache is empty, needs population")
+            else:
+                logger.info("✅ Cache appears populated")
+        else:
+            cache_needs_population = True
+            logger.warning("⚠️ Cache file missing, needs creation")
+        
+        if cache_needs_population:
+            logger.info("🔄 Populating unified cache on startup...")
+            current_date = datetime.now().strftime('%Y-%m-%d')
+            games_file = f"data/games_{current_date}.json"
             
-            if cache_needs_population:
-                logger.info("🔄 Populating unified cache...")
-                current_date = datetime.now().strftime('%Y-%m-%d')
-                games_file = f"data/games_{current_date}.json"
+            if os.path.exists(games_file):
+                logger.info(f"✅ Found today's games file: {games_file}")
                 
-                if os.path.exists(games_file):
-                    logger.info(f"✅ Found today's games file: {games_file}")
+                # Load and populate cache
+                with open(games_file, 'r') as f:
+                    games = json.load(f)
+                
+                logger.info(f"📅 Found {len(games)} games for {current_date}")
+                
+                # Create unified cache structure
+                cache_data = {
+                    'predictions_by_date': {
+                        current_date: {
+                            'games': {},
+                            'timestamp': datetime.now().isoformat(),
+                            'total_games': len(games),
+                            'populated_on_startup': True
+                        }
+                    },
+                    'last_updated': datetime.now().isoformat(),
+                    'population_method': 'startup_automatic'
+                }
+                
+                # Add each game to the cache
+                for game in games:
+                    away_team = game.get('away_team', '')
+                    home_team = game.get('home_team', '')
+                    game_key = away_team.replace(' ', '_') + '_vs_' + home_team.replace(' ', '_')
                     
-                    # Load and populate cache
-                    with open(games_file, 'r') as f:
+                    cache_data['predictions_by_date'][current_date]['games'][game_key] = {
+                        'away_team': away_team,
+                        'home_team': home_team,
+                        'game_time': game.get('game_time', ''),
+                        'away_pitcher': game.get('away_pitcher', 'TBD'),
+                        'home_pitcher': game.get('home_pitcher', 'TBD'),
+                        'game_date': current_date
+                    }
+                
+                # Write populated cache
+                with open(cache_file, 'w') as f:
+                    json.dump(cache_data, f, indent=2)
+                
+                # Verify it worked
+                if os.path.exists(cache_file):
+                    new_size = os.path.getsize(cache_file)
+                    logger.info(f"✅ Successfully populated cache on startup: {new_size} bytes, {len(games)} games")
+                else:
+                    logger.error("❌ Failed to create cache file on startup")
+                    
+            else:
+                logger.warning(f"⚠️ No games file for today ({current_date})")
+                # List available games files
+                import glob
+                available_games = glob.glob("data/games_*.json")
+                logger.info(f"Available games files: {available_games}")
+                
+                # Try to use the most recent games file
+                if available_games:
+                    available_games.sort(reverse=True)  # Most recent first
+                    recent_file = available_games[0]
+                    logger.info(f"🔄 Using most recent games file: {recent_file}")
+                    
+                    with open(recent_file, 'r') as f:
                         games = json.load(f)
                     
-                    logger.info(f"📅 Found {len(games)} games for {current_date}")
-                    
-                    # Create unified cache structure
+                    # Use today's date but with recent games data
                     cache_data = {
                         'predictions_by_date': {
                             current_date: {
                                 'games': {},
                                 'timestamp': datetime.now().isoformat(),
-                                'total_games': len(games)
+                                'total_games': len(games),
+                                'source_file': recent_file,
+                                'populated_on_startup': True
                             }
                         },
-                        'last_updated': datetime.now().isoformat()
+                        'last_updated': datetime.now().isoformat(),
+                        'population_method': 'startup_fallback'
                     }
                     
-                    # Add each game to the cache
                     for game in games:
                         away_team = game.get('away_team', '')
                         home_team = game.get('home_team', '')
@@ -5441,69 +5603,17 @@ if __name__ == "__main__":
                             'game_date': current_date
                         }
                     
-                    # Write populated cache
                     with open(cache_file, 'w') as f:
                         json.dump(cache_data, f, indent=2)
                     
-                    # Verify it worked
-                    if os.path.exists(cache_file):
-                        new_size = os.path.getsize(cache_file)
-                        logger.info(f"✅ Successfully populated cache: {new_size} bytes, {len(games)} games")
-                    else:
-                        logger.error("❌ Failed to create cache file")
-                        
-                else:
-                    logger.warning(f"⚠️ No games file for today ({current_date})")
-                    # List available games files
-                    import glob
-                    available_games = glob.glob("data/games_*.json")
-                    logger.info(f"Available games files: {available_games}")
-                    
-                    # Try to use the most recent games file
-                    if available_games:
-                        available_games.sort(reverse=True)  # Most recent first
-                        recent_file = available_games[0]
-                        logger.info(f"🔄 Using most recent games file: {recent_file}")
-                        
-                        with open(recent_file, 'r') as f:
-                            games = json.load(f)
-                        
-                        # Use today's date but with recent games data
-                        cache_data = {
-                            'predictions_by_date': {
-                                current_date: {
-                                    'games': {},
-                                    'timestamp': datetime.now().isoformat(),
-                                    'total_games': len(games),
-                                    'source_file': recent_file
-                                }
-                            },
-                            'last_updated': datetime.now().isoformat()
-                        }
-                        
-                        for game in games:
-                            away_team = game.get('away_team', '')
-                            home_team = game.get('home_team', '')
-                            game_key = away_team.replace(' ', '_') + '_vs_' + home_team.replace(' ', '_')
-                            
-                            cache_data['predictions_by_date'][current_date]['games'][game_key] = {
-                                'away_team': away_team,
-                                'home_team': home_team,
-                                'game_time': game.get('game_time', ''),
-                                'away_pitcher': game.get('away_pitcher', 'TBD'),
-                                'home_pitcher': game.get('home_pitcher', 'TBD'),
-                                'game_date': current_date
-                            }
-                        
-                        with open(cache_file, 'w') as f:
-                            json.dump(cache_data, f, indent=2)
-                        
-                        new_size = os.path.getsize(cache_file)
-                        logger.info(f"✅ Populated cache with recent data: {new_size} bytes, {len(games)} games")
-                
-        except Exception as e:
-            logger.error(f"❌ Error during startup data population: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
+                    new_size = os.path.getsize(cache_file)
+                    logger.info(f"✅ Populated cache with recent data on startup: {new_size} bytes, {len(games)} games")
+        else:
+            logger.info("✅ Cache already populated, skipping startup population")
+            
+    except Exception as e:
+        logger.error(f"❌ Error during startup cache population: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
     
     app.run(debug=debug_mode, host='0.0.0.0', port=port)
