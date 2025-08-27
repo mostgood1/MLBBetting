@@ -5320,7 +5320,58 @@ def get_cumulative_analysis():
         except Exception as e:
             logger.error(f"❌ Failed to start monitoring: {e}")
     
-    # Enhanced monitoring system start (removed backup route that was causing 404 conflicts)
+@app.route('/api/debug/data-status')
+def debug_data_status():
+    """Debug endpoint to check what data files are available"""
+    try:
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_date_underscore = datetime.now().strftime('%Y_%m_%d')
+        
+        data_status = {
+            'current_date': current_date,
+            'current_date_underscore': current_date_underscore,
+            'data_directory_exists': os.path.exists('data'),
+            'files': {}
+        }
+        
+        # Check for today's files
+        files_to_check = [
+            f'games_{current_date}.json',
+            f'real_betting_lines_{current_date_underscore}.json',
+            f'starting_pitchers_{current_date_underscore}.json',
+            'unified_predictions_cache.json',
+            'master_team_strength.json',
+            'master_pitcher_stats.json',
+            'comprehensive_optimized_config.json'
+        ]
+        
+        for filename in files_to_check:
+            filepath = f'data/{filename}'
+            exists = os.path.exists(filepath)
+            size = os.path.getsize(filepath) if exists else 0
+            data_status['files'][filename] = {
+                'exists': exists,
+                'size_bytes': size,
+                'path': filepath
+            }
+        
+        # List all available games files
+        import glob
+        games_files = glob.glob('data/games_*.json')
+        data_status['available_games_files'] = [os.path.basename(f) for f in games_files]
+        
+        betting_files = glob.glob('data/real_betting_lines_*.json')
+        data_status['available_betting_files'] = [os.path.basename(f) for f in betting_files]
+        
+        return jsonify(data_status)
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }), 500
+
+# Enhanced monitoring system start (removed backup route that was causing 404 conflicts)
 
 if __name__ == "__main__":
     # Use Render's PORT environment variable or default to 5000 for local development
@@ -5328,4 +5379,25 @@ if __name__ == "__main__":
     debug_mode = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info(f"🚀 Starting MLB Betting App on port {port} (debug: {debug_mode})")
+    
+    # Force data loading on startup for production/Render environment
+    if os.environ.get('FLASK_ENV') == 'production' or os.environ.get('FORCE_DATA_REFRESH'):
+        logger.info("🔄 Production startup - ensuring data is loaded...")
+        try:
+            # Try to ensure we have today's data
+            current_date = datetime.now().strftime('%Y-%m-%d')
+            games_file = f"data/games_{current_date}.json"
+            
+            if os.path.exists(games_file):
+                logger.info(f"✅ Found today's games file: {games_file}")
+            else:
+                logger.warning(f"⚠️ No games file for today ({current_date})")
+                # List available games files
+                import glob
+                available_games = glob.glob("data/games_*.json")
+                logger.info(f"Available games files: {available_games}")
+                
+        except Exception as e:
+            logger.error(f"❌ Error during startup data check: {e}")
+    
     app.run(debug=debug_mode, host='0.0.0.0', port=port)
