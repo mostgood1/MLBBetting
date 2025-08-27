@@ -1,36 +1,115 @@
 {
-  "total_games_analyzed": 53,
-  "total_dates_covered": 4,
+  "total_games_analyzed": 152,
   "date_range": {
-    "start": "2025-08-19",
-    "end": "2025-08-22",
-    "days_of_data": 4
+    "start": "2025-08-15",
+    "end": "2025-08-27",
+    "days_of_data": 13
   },
   "betting_performance": {
-    "winner_predictions_correct": 26,
-    "total_predictions_correct": 0,
-    "perfect_games": 0,
-    "games_analyzed": 53,
-    "winner_accuracy_pct": 49.1,
-    "total_accuracy_pct": 0.0,
-    "perfect_games_pct": 0.0,
-    "using_real_data": true,
-    "total_profit": 0.0,
-    "roi_percentage": 0.0,
-    "total_bets_placed": 0
+    "winner_predictions_correct": 96,
+    "total_predictions_correct": 91,
+    "games_analyzed": 152,
+    "winner_accuracy_pct": 63.2,
+    "total_accuracy_pct": 59.9,
+    "total_bets_placed": 55,
+    "total_profit": -863.64,
+    "roi_percentage": -15.7,
+    "total_bet_amount": 5500,
+    "total_winnings": 4636.36
   },
-  "score_analysis": {
-    "avg_total_runs": 8.5,
-    "avg_team_score_error": 2.45,
-    "avg_total_score_error": 3.57,
-    "games_with_scores": 53
+  "daily_breakdown": {
+    "2025-08-15": {
+      "games_analyzed": 0,
+      "winners_correct": 0,
+      "totals_correct": 0,
+      "recommendations": 0,
+      "bet_profit": 0
+    },
+    "2025-08-16": {
+      "games_analyzed": 0,
+      "winners_correct": 0,
+      "totals_correct": 0,
+      "recommendations": 0,
+      "bet_profit": 0
+    },
+    "2025-08-17": {
+      "games_analyzed": 15,
+      "winners_correct": 15,
+      "totals_correct": 15,
+      "recommendations": 11,
+      "bet_profit": 999.9999999999998
+    },
+    "2025-08-18": {
+      "games_analyzed": 12,
+      "winners_correct": 12,
+      "totals_correct": 12,
+      "recommendations": 0,
+      "bet_profit": 0
+    },
+    "2025-08-19": {
+      "games_analyzed": 15,
+      "winners_correct": 15,
+      "totals_correct": 15,
+      "recommendations": 0,
+      "bet_profit": 0
+    },
+    "2025-08-20": {
+      "games_analyzed": 14,
+      "winners_correct": 14,
+      "totals_correct": 11,
+      "recommendations": 0,
+      "bet_profit": 0
+    },
+    "2025-08-21": {
+      "games_analyzed": 9,
+      "winners_correct": 2,
+      "totals_correct": 0,
+      "recommendations": 0,
+      "bet_profit": 0
+    },
+    "2025-08-22": {
+      "games_analyzed": 15,
+      "winners_correct": 0,
+      "totals_correct": 0,
+      "recommendations": 15,
+      "bet_profit": 1363.6363636363637
+    },
+    "2025-08-23": {
+      "games_analyzed": 14,
+      "winners_correct": 0,
+      "totals_correct": 0,
+      "recommendations": 14,
+      "bet_profit": 1272.7272727272727
+    },
+    "2025-08-24": {
+      "games_analyzed": 15,
+      "winners_correct": 10,
+      "totals_correct": 10,
+      "recommendations": 0,
+      "bet_profit": 0
+    },
+    "2025-08-25": {
+      "games_analyzed": 13,
+      "winners_correct": 13,
+      "totals_correct": 13,
+      "recommendations": 0,
+      "bet_profit": 0
+    },
+    "2025-08-26": {
+      "games_analyzed": 15,
+      "winners_correct": 15,
+      "totals_correct": 15,
+      "recommendations": 15,
+      "bet_profit": 999.9999999999998
+    },
+    "2025-08-27": {
+      "games_analyzed": 15,
+      "winners_correct": 0,
+      "totals_correct": 0,
+      "recommendations": 0,
+      "bet_profit": 0
+    }
   },
-  "data_sources": {
-    "total_teams": 30,
-    "analysis_type": "cumulative_since_8_19"
-  },
-  "data_freshness": {
-    "last_update": "2025-08-25 14:20:07",
-    "most_recent_date": "2025-08-22"
-  }
+  "generated_at": "2025-08-27T17:26:26.548989",
+  "data_source": "unified_predictions_cache_analysis"
 }

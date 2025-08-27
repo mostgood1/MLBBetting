@@ -965,8 +965,21 @@ def calculate_performance_stats(predictions):
     }
 
 def generate_comprehensive_dashboard_insights(unified_cache):
-    """Simple dashboard insights - frontend will fetch live data from historical analysis API"""
-    # Just return basic insights, frontend will handle live data
+    """Load real dashboard insights from calculated stats file, fallback to dynamic calculation"""
+    
+    # Try to load pre-calculated dashboard stats
+    dashboard_stats_file = 'data/daily_dashboard_stats.json'
+    if os.path.exists(dashboard_stats_file):
+        try:
+            with open(dashboard_stats_file, 'r') as f:
+                stats = json.load(f)
+            logger.info(f"✅ Loaded pre-calculated dashboard stats: {stats['total_games_analyzed']} games")
+            return stats
+        except Exception as e:
+            logger.error(f"❌ Error loading dashboard stats file: {e}")
+    
+    # Fallback to dynamic calculation
+    logger.info("🔄 Generating dashboard insights dynamically...")
     return generate_original_dashboard_insights(unified_cache)
 
 def generate_original_dashboard_insights(unified_cache):

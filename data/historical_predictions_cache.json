@@ -5617,5 +5617,3319 @@
       "model_version": "backfill-1.0",
       "source": "backfill"
     }
+  },
+  "2025-08-17": {
+    "cached_predictions": {
+      "Philadelphia Phillies @ Washington Nationals": {
+        "away_team": "Philadelphia Phillies",
+        "home_team": "Washington Nationals",
+        "predicted_away_score": 5.7,
+        "predicted_home_score": 5.7,
+        "predicted_total_runs": 11.4,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": 100,
+          "away_ml": -100,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 11.4,
+            "edge": 2.9,
+            "expected_value": 0.233,
+            "kelly_bet_size": 15.0,
+            "confidence": "HIGH",
+            "reasoning": "Model: 11.4 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Aaron Nola",
+          "home_pitcher_name": "Mitchell Parker",
+          "away_pitcher_factor": 1.0,
+          "home_pitcher_factor": 1.4224999999999999
+        }
+      },
+      "Miami Marlins @ Boston Red Sox": {
+        "away_team": "Miami Marlins",
+        "home_team": "Boston Red Sox",
+        "predicted_away_score": 4.0,
+        "predicted_home_score": 4.3,
+        "predicted_total_runs": 8.3,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -121,
+          "away_ml": 121,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [],
+        "pitcher_quality": {
+          "away_pitcher_name": "Janson Junk",
+          "home_pitcher_name": "Garrett Crochet",
+          "away_pitcher_factor": 1.062,
+          "home_pitcher_factor": 0.865
+        }
+      },
+      "Texas Rangers @ Toronto Blue Jays": {
+        "away_team": "Texas Rangers",
+        "home_team": "Toronto Blue Jays",
+        "predicted_away_score": 3.6,
+        "predicted_home_score": 4.0,
+        "predicted_total_runs": 7.6,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -124,
+          "away_ml": 124,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [],
+        "pitcher_quality": {
+          "away_pitcher_name": "Nathan Eovaldi",
+          "home_pitcher_name": "Jos\u00e9 Berr\u00edos",
+          "away_pitcher_factor": 0.75,
+          "home_pitcher_factor": 1.0985
+        }
+      },
+      "Atlanta Braves @ Cleveland Guardians": {
+        "away_team": "Atlanta Braves",
+        "home_team": "Cleveland Guardians",
+        "predicted_away_score": 3.4,
+        "predicted_home_score": 3.7,
+        "predicted_total_runs": 7.1,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -117,
+          "away_ml": 117,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.1,
+            "edge": 1.4,
+            "expected_value": 0.091,
+            "kelly_bet_size": 5.2,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.1 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Erick Fedde",
+          "home_pitcher_name": "Logan Allen",
+          "away_pitcher_factor": 1.4224999999999999,
+          "home_pitcher_factor": 1.1315
+        }
+      },
+      "Milwaukee Brewers @ Cincinnati Reds": {
+        "away_team": "Milwaukee Brewers",
+        "home_team": "Cincinnati Reds",
+        "predicted_away_score": 5.6,
+        "predicted_home_score": 5.9,
+        "predicted_total_runs": 11.5,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -110,
+          "away_ml": 110,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 11.5,
+            "edge": 3.0,
+            "expected_value": 0.243,
+            "kelly_bet_size": 15.8,
+            "confidence": "HIGH",
+            "reasoning": "Model: 11.5 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Jose Quintana",
+          "home_pitcher_name": "Andrew Abbott",
+          "away_pitcher_factor": 1.0372,
+          "home_pitcher_factor": 0.865
+        }
+      },
+      "Baltimore Orioles @ Houston Astros": {
+        "away_team": "Baltimore Orioles",
+        "home_team": "Houston Astros",
+        "predicted_away_score": 5.0,
+        "predicted_home_score": 5.5,
+        "predicted_total_runs": 10.5,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -138,
+          "away_ml": 138,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 10.5,
+            "edge": 2.0,
+            "expected_value": 0.149,
+            "kelly_bet_size": 9.0,
+            "confidence": "HIGH",
+            "reasoning": "Model: 10.5 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Dean Kremer",
+          "home_pitcher_name": "Cristian Javier",
+          "away_pitcher_factor": 1.0985,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Detroit Tigers @ Minnesota Twins": {
+        "away_team": "Detroit Tigers",
+        "home_team": "Minnesota Twins",
+        "predicted_away_score": 3.5,
+        "predicted_home_score": 3.6,
+        "predicted_total_runs": 7.1,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -110,
+          "away_ml": 110,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.1,
+            "edge": 1.4,
+            "expected_value": 0.089,
+            "kelly_bet_size": 5.1,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.1 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Chris Paddack",
+          "home_pitcher_name": "Thomas Hatch",
+          "away_pitcher_factor": 1.2685,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Chicago White Sox @ Kansas City Royals": {
+        "away_team": "Chicago White Sox",
+        "home_team": "Kansas City Royals",
+        "predicted_away_score": 5.5,
+        "predicted_home_score": 6.0,
+        "predicted_total_runs": 11.5,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -127,
+          "away_ml": 127,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 11.5,
+            "edge": 3.0,
+            "expected_value": 0.239,
+            "kelly_bet_size": 15.5,
+            "confidence": "HIGH",
+            "reasoning": "Model: 11.5 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Davis Martin",
+          "home_pitcher_name": "Ryan Bergert",
+          "away_pitcher_factor": 1.1315,
+          "home_pitcher_factor": 0.99625
+        }
+      },
+      "New York Yankees @ St. Louis Cardinals": {
+        "away_team": "New York Yankees",
+        "home_team": "St. Louis Cardinals",
+        "predicted_away_score": 5.6,
+        "predicted_home_score": 5.9,
+        "predicted_total_runs": 11.6,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -117,
+          "away_ml": 117,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 11.6,
+            "edge": 3.1,
+            "expected_value": 0.246,
+            "kelly_bet_size": 16.0,
+            "confidence": "HIGH",
+            "reasoning": "Model: 11.6 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Will Warren",
+          "home_pitcher_name": "Miles Mikolas",
+          "away_pitcher_factor": 1.3014999999999999,
+          "home_pitcher_factor": 1.2685
+        }
+      },
+      "Pittsburgh Pirates @ Chicago Cubs": {
+        "away_team": "Pittsburgh Pirates",
+        "home_team": "Chicago Cubs",
+        "predicted_away_score": 3.4,
+        "predicted_home_score": 3.7,
+        "predicted_total_runs": 7.2,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -122,
+          "away_ml": 122,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.2,
+            "edge": 1.3,
+            "expected_value": 0.082,
+            "kelly_bet_size": 4.6,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.2 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Carmen Mlodzinski",
+          "home_pitcher_name": "Javier Assad",
+          "away_pitcher_factor": 1.1052,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Arizona Diamondbacks @ Colorado Rockies": {
+        "away_team": "Arizona Diamondbacks",
+        "home_team": "Colorado Rockies",
+        "predicted_away_score": 3.6,
+        "predicted_home_score": 3.7,
+        "predicted_total_runs": 7.3,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -101,
+          "away_ml": 101,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.3,
+            "edge": 1.2,
+            "expected_value": 0.071,
+            "kelly_bet_size": 4.0,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.3 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Nabil Crismatt",
+          "home_pitcher_name": "Antonio Senzatela",
+          "away_pitcher_factor": 1.0,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Los Angeles Angels @ Athletics": {
+        "away_team": "Los Angeles Angels",
+        "home_team": "Athletics",
+        "predicted_away_score": 4.1,
+        "predicted_home_score": 4.3,
+        "predicted_total_runs": 8.4,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -112,
+          "away_ml": 112,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [],
+        "pitcher_quality": {
+          "away_pitcher_name": "Jos\u00e9 Soriano",
+          "home_pitcher_name": "Jeffrey Springs",
+          "away_pitcher_factor": 1.1315,
+          "home_pitcher_factor": 1.0985
+        }
+      },
+      "Tampa Bay Rays @ San Francisco Giants": {
+        "away_team": "Tampa Bay Rays",
+        "home_team": "San Francisco Giants",
+        "predicted_away_score": 3.4,
+        "predicted_home_score": 3.6,
+        "predicted_total_runs": 7.1,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -109,
+          "away_ml": 109,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.1,
+            "edge": 1.4,
+            "expected_value": 0.088,
+            "kelly_bet_size": 5.0,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.1 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Ryan Pepiot",
+          "home_pitcher_name": "Logan Webb",
+          "away_pitcher_factor": 1.0985,
+          "home_pitcher_factor": 1.0134999999999998
+        }
+      },
+      "San Diego Padres @ Los Angeles Dodgers": {
+        "away_team": "San Diego Padres",
+        "home_team": "Los Angeles Dodgers",
+        "predicted_away_score": 5.6,
+        "predicted_home_score": 6.0,
+        "predicted_total_runs": 11.6,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -123,
+          "away_ml": 123,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 11.6,
+            "edge": 3.2,
+            "expected_value": 0.255,
+            "kelly_bet_size": 16.8,
+            "confidence": "HIGH",
+            "reasoning": "Model: 11.7 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Yu Darvish",
+          "home_pitcher_name": "Tyler Glasnow",
+          "away_pitcher_factor": 1.17675,
+          "home_pitcher_factor": 0.994
+        }
+      },
+      "Seattle Mariners @ New York Mets": {
+        "away_team": "Seattle Mariners",
+        "home_team": "New York Mets",
+        "predicted_away_score": 4.0,
+        "predicted_home_score": 4.1,
+        "predicted_total_runs": 8.2,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -111,
+          "away_ml": 111,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [],
+        "pitcher_quality": {
+          "away_pitcher_name": "George Kirby",
+          "home_pitcher_name": "Clay Holmes",
+          "away_pitcher_factor": 1.062,
+          "home_pitcher_factor": 1.1315
+        }
+      }
+    },
+    "timestamp": "2025-08-27T17:21:49.183285",
+    "total_games": 15,
+    "source": "unified_cache_backfill"
+  },
+  "2025-08-18": {
+    "cached_predictions": {
+      "Milwaukee Brewers @ Chicago Cubs": {
+        "away_team": "Milwaukee Brewers",
+        "home_team": "Chicago Cubs",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Houston Astros @ Detroit Tigers": {
+        "away_team": "Houston Astros",
+        "home_team": "Detroit Tigers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Toronto Blue Jays @ Pittsburgh Pirates": {
+        "away_team": "Toronto Blue Jays",
+        "home_team": "Pittsburgh Pirates",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "St. Louis Cardinals @ Miami Marlins": {
+        "away_team": "St. Louis Cardinals",
+        "home_team": "Miami Marlins",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Seattle Mariners @ Philadelphia Phillies": {
+        "away_team": "Seattle Mariners",
+        "home_team": "Philadelphia Phillies",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Baltimore Orioles @ Boston Red Sox": {
+        "away_team": "Baltimore Orioles",
+        "home_team": "Boston Red Sox",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Chicago White Sox @ Atlanta Braves": {
+        "away_team": "Chicago White Sox",
+        "home_team": "Atlanta Braves",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Texas Rangers @ Kansas City Royals": {
+        "away_team": "Texas Rangers",
+        "home_team": "Kansas City Royals",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Los Angeles Dodgers @ Colorado Rockies": {
+        "away_team": "Los Angeles Dodgers",
+        "home_team": "Colorado Rockies",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Cincinnati Reds @ Los Angeles Angels": {
+        "away_team": "Cincinnati Reds",
+        "home_team": "Los Angeles Angels",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Cleveland Guardians @ Arizona Diamondbacks": {
+        "away_team": "Cleveland Guardians",
+        "home_team": "Arizona Diamondbacks",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "San Francisco Giants @ San Diego Padres": {
+        "away_team": "San Francisco Giants",
+        "home_team": "San Diego Padres",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      }
+    },
+    "timestamp": "2025-08-27T17:21:49.184392",
+    "total_games": 12,
+    "source": "unified_cache_backfill"
+  },
+  "2025-08-19": {
+    "cached_predictions": {
+      "Milwaukee Brewers @ Chicago Cubs": {
+        "away_team": "Milwaukee Brewers",
+        "home_team": "Chicago Cubs",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Houston Astros @ Detroit Tigers": {
+        "away_team": "Houston Astros",
+        "home_team": "Detroit Tigers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Toronto Blue Jays @ Pittsburgh Pirates": {
+        "away_team": "Toronto Blue Jays",
+        "home_team": "Pittsburgh Pirates",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "St. Louis Cardinals @ Miami Marlins": {
+        "away_team": "St. Louis Cardinals",
+        "home_team": "Miami Marlins",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "New York Mets @ Washington Nationals": {
+        "away_team": "New York Mets",
+        "home_team": "Washington Nationals",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Seattle Mariners @ Philadelphia Phillies": {
+        "away_team": "Seattle Mariners",
+        "home_team": "Philadelphia Phillies",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Baltimore Orioles @ Boston Red Sox": {
+        "away_team": "Baltimore Orioles",
+        "home_team": "Boston Red Sox",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Chicago White Sox @ Atlanta Braves": {
+        "away_team": "Chicago White Sox",
+        "home_team": "Atlanta Braves",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "New York Yankees @ Tampa Bay Rays": {
+        "away_team": "New York Yankees",
+        "home_team": "Tampa Bay Rays",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Texas Rangers @ Kansas City Royals": {
+        "away_team": "Texas Rangers",
+        "home_team": "Kansas City Royals",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Athletics @ Minnesota Twins": {
+        "away_team": "Athletics",
+        "home_team": "Minnesota Twins",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Los Angeles Dodgers @ Colorado Rockies": {
+        "away_team": "Los Angeles Dodgers",
+        "home_team": "Colorado Rockies",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Cincinnati Reds @ Los Angeles Angels": {
+        "away_team": "Cincinnati Reds",
+        "home_team": "Los Angeles Angels",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Cleveland Guardians @ Arizona Diamondbacks": {
+        "away_team": "Cleveland Guardians",
+        "home_team": "Arizona Diamondbacks",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "San Francisco Giants @ San Diego Padres": {
+        "away_team": "San Francisco Giants",
+        "home_team": "San Diego Padres",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      }
+    },
+    "timestamp": "2025-08-27T17:21:49.188760",
+    "total_games": 15,
+    "source": "unified_cache_backfill"
+  },
+  "2025-08-20": {
+    "cached_predictions": {
+      "Toronto Blue Jays @ Pittsburgh Pirates": {
+        "away_team": "Toronto Blue Jays",
+        "home_team": "Pittsburgh Pirates",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Seattle Mariners @ Philadelphia Phillies": {
+        "away_team": "Seattle Mariners",
+        "home_team": "Philadelphia Phillies",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Houston Astros @ Detroit Tigers": {
+        "away_team": "Houston Astros",
+        "home_team": "Detroit Tigers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Cleveland Guardians @ Arizona Diamondbacks": {
+        "away_team": "Cleveland Guardians",
+        "home_team": "Arizona Diamondbacks",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "St. Louis Cardinals @ Miami Marlins": {
+        "away_team": "St. Louis Cardinals",
+        "home_team": "Miami Marlins",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "New York Mets @ Washington Nationals": {
+        "away_team": "New York Mets",
+        "home_team": "Washington Nationals",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Chicago White Sox @ Atlanta Braves": {
+        "away_team": "Chicago White Sox",
+        "home_team": "Atlanta Braves",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "New York Yankees @ Tampa Bay Rays": {
+        "away_team": "New York Yankees",
+        "home_team": "Tampa Bay Rays",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Texas Rangers @ Kansas City Royals": {
+        "away_team": "Texas Rangers",
+        "home_team": "Kansas City Royals",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Athletics @ Minnesota Twins": {
+        "away_team": "Athletics",
+        "home_team": "Minnesota Twins",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Milwaukee Brewers @ Chicago Cubs": {
+        "away_team": "Milwaukee Brewers",
+        "home_team": "Chicago Cubs",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Los Angeles Dodgers @ Colorado Rockies": {
+        "away_team": "Los Angeles Dodgers",
+        "home_team": "Colorado Rockies",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Cincinnati Reds @ Los Angeles Angels": {
+        "away_team": "Cincinnati Reds",
+        "home_team": "Los Angeles Angels",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "San Francisco Giants @ San Diego Padres": {
+        "away_team": "San Francisco Giants",
+        "home_team": "San Diego Padres",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      }
+    },
+    "timestamp": "2025-08-27T17:21:49.189799",
+    "total_games": 14,
+    "source": "unified_cache_backfill"
+  },
+  "2025-08-21": {
+    "cached_predictions": {
+      "Athletics @ Minnesota Twins": {
+        "away_team": "Athletics",
+        "home_team": "Minnesota Twins",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Texas Rangers @ Kansas City Royals": {
+        "away_team": "Texas Rangers",
+        "home_team": "Kansas City Royals",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Milwaukee Brewers @ Chicago Cubs": {
+        "away_team": "Milwaukee Brewers",
+        "home_team": "Chicago Cubs",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Los Angeles Dodgers @ Colorado Rockies": {
+        "away_team": "Los Angeles Dodgers",
+        "home_team": "Colorado Rockies",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "New York Mets @ Washington Nationals": {
+        "away_team": "New York Mets",
+        "home_team": "Washington Nationals",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "San Francisco Giants @ San Diego Padres": {
+        "away_team": "San Francisco Giants",
+        "home_team": "San Diego Padres",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Houston Astros @ Baltimore Orioles": {
+        "away_team": "Houston Astros",
+        "home_team": "Baltimore Orioles",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Boston Red Sox @ New York Yankees": {
+        "away_team": "Boston Red Sox",
+        "home_team": "New York Yankees",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "St. Louis Cardinals @ Tampa Bay Rays": {
+        "away_team": "St. Louis Cardinals",
+        "home_team": "Tampa Bay Rays",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      }
+    },
+    "timestamp": "2025-08-27T17:21:49.191736",
+    "total_games": 9,
+    "source": "unified_cache_backfill"
+  },
+  "2025-08-22": {
+    "cached_predictions": {
+      "Colorado Rockies @ Pittsburgh Pirates": {
+        "away_team": "Colorado Rockies",
+        "home_team": "Pittsburgh Pirates",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Washington Nationals @ Philadelphia Phillies": {
+        "away_team": "Washington Nationals",
+        "home_team": "Philadelphia Phillies",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Houston Astros @ Baltimore Orioles": {
+        "away_team": "Houston Astros",
+        "home_team": "Baltimore Orioles",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Boston Red Sox @ New York Yankees": {
+        "away_team": "Boston Red Sox",
+        "home_team": "New York Yankees",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Kansas City Royals @ Detroit Tigers": {
+        "away_team": "Kansas City Royals",
+        "home_team": "Detroit Tigers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Toronto Blue Jays @ Miami Marlins": {
+        "away_team": "Toronto Blue Jays",
+        "home_team": "Miami Marlins",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "New York Mets @ Atlanta Braves": {
+        "away_team": "New York Mets",
+        "home_team": "Atlanta Braves",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "St. Louis Cardinals @ Tampa Bay Rays": {
+        "away_team": "St. Louis Cardinals",
+        "home_team": "Tampa Bay Rays",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Minnesota Twins @ Chicago White Sox": {
+        "away_team": "Minnesota Twins",
+        "home_team": "Chicago White Sox",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Cleveland Guardians @ Texas Rangers": {
+        "away_team": "Cleveland Guardians",
+        "home_team": "Texas Rangers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "San Francisco Giants @ Milwaukee Brewers": {
+        "away_team": "San Francisco Giants",
+        "home_team": "Milwaukee Brewers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Chicago Cubs @ Los Angeles Angels": {
+        "away_team": "Chicago Cubs",
+        "home_team": "Los Angeles Angels",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Cincinnati Reds @ Arizona Diamondbacks": {
+        "away_team": "Cincinnati Reds",
+        "home_team": "Arizona Diamondbacks",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Los Angeles Dodgers @ San Diego Padres": {
+        "away_team": "Los Angeles Dodgers",
+        "home_team": "San Diego Padres",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Athletics @ Seattle Mariners": {
+        "away_team": "Athletics",
+        "home_team": "Seattle Mariners",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      }
+    },
+    "timestamp": "2025-08-27T17:21:49.192874",
+    "total_games": 15,
+    "source": "unified_cache_backfill"
+  },
+  "2025-08-23": {
+    "cached_predictions": {
+      "Boston Red Sox @ New York Yankees": {
+        "away_team": "Boston Red Sox",
+        "home_team": "New York Yankees",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Toronto Blue Jays @ Miami Marlins": {
+        "away_team": "Toronto Blue Jays",
+        "home_team": "Miami Marlins",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Washington Nationals @ Philadelphia Phillies": {
+        "away_team": "Washington Nationals",
+        "home_team": "Philadelphia Phillies",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Kansas City Royals @ Detroit Tigers": {
+        "away_team": "Kansas City Royals",
+        "home_team": "Detroit Tigers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Colorado Rockies @ Pittsburgh Pirates": {
+        "away_team": "Colorado Rockies",
+        "home_team": "Pittsburgh Pirates",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Houston Astros @ Baltimore Orioles": {
+        "away_team": "Houston Astros",
+        "home_team": "Baltimore Orioles",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Cleveland Guardians @ Texas Rangers": {
+        "away_team": "Cleveland Guardians",
+        "home_team": "Texas Rangers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Minnesota Twins @ Chicago White Sox": {
+        "away_team": "Minnesota Twins",
+        "home_team": "Chicago White Sox",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "San Francisco Giants @ Milwaukee Brewers": {
+        "away_team": "San Francisco Giants",
+        "home_team": "Milwaukee Brewers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "New York Mets @ Atlanta Braves": {
+        "away_team": "New York Mets",
+        "home_team": "Atlanta Braves",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Cincinnati Reds @ Arizona Diamondbacks": {
+        "away_team": "Cincinnati Reds",
+        "home_team": "Arizona Diamondbacks",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Los Angeles Dodgers @ San Diego Padres": {
+        "away_team": "Los Angeles Dodgers",
+        "home_team": "San Diego Padres",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Chicago Cubs @ Los Angeles Angels": {
+        "away_team": "Chicago Cubs",
+        "home_team": "Los Angeles Angels",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      },
+      "Athletics @ Seattle Mariners": {
+        "away_team": "Athletics",
+        "home_team": "Seattle Mariners",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "Market Analysis",
+            "bet": "No Strong Value",
+            "recommendation": "No clear value identified",
+            "reasoning": "Game appears efficiently priced by the market",
+            "confidence": "LOW",
+            "estimated_odds": "N/A",
+            "edge": 0,
+            "edge_rating": "\ud83d\udca1"
+          }
+        ],
+        "pitcher_quality": {}
+      }
+    },
+    "timestamp": "2025-08-27T17:21:49.193800",
+    "total_games": 14,
+    "source": "unified_cache_backfill"
+  },
+  "2025-08-24": {
+    "cached_predictions": {
+      "Colorado Rockies @ Pittsburgh Pirates": {
+        "away_team": "Colorado Rockies",
+        "home_team": "Pittsburgh Pirates",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "St. Louis Cardinals @ Tampa Bay Rays": {
+        "away_team": "St. Louis Cardinals",
+        "home_team": "Tampa Bay Rays",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Houston Astros @ Baltimore Orioles": {
+        "away_team": "Houston Astros",
+        "home_team": "Baltimore Orioles",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Washington Nationals @ Philadelphia Phillies": {
+        "away_team": "Washington Nationals",
+        "home_team": "Philadelphia Phillies",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "New York Mets @ Atlanta Braves": {
+        "away_team": "New York Mets",
+        "home_team": "Atlanta Braves",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Kansas City Royals @ Detroit Tigers": {
+        "away_team": "Kansas City Royals",
+        "home_team": "Detroit Tigers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Toronto Blue Jays @ Miami Marlins": {
+        "away_team": "Toronto Blue Jays",
+        "home_team": "Miami Marlins",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Minnesota Twins @ Chicago White Sox": {
+        "away_team": "Minnesota Twins",
+        "home_team": "Chicago White Sox",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "San Francisco Giants @ Milwaukee Brewers": {
+        "away_team": "San Francisco Giants",
+        "home_team": "Milwaukee Brewers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Cleveland Guardians @ Texas Rangers": {
+        "away_team": "Cleveland Guardians",
+        "home_team": "Texas Rangers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Chicago Cubs @ Los Angeles Angels": {
+        "away_team": "Chicago Cubs",
+        "home_team": "Los Angeles Angels",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Cincinnati Reds @ Arizona Diamondbacks": {
+        "away_team": "Cincinnati Reds",
+        "home_team": "Arizona Diamondbacks",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Los Angeles Dodgers @ San Diego Padres": {
+        "away_team": "Los Angeles Dodgers",
+        "home_team": "San Diego Padres",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Athletics @ Seattle Mariners": {
+        "away_team": "Athletics",
+        "home_team": "Seattle Mariners",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Boston Red Sox @ New York Yankees": {
+        "away_team": "Boston Red Sox",
+        "home_team": "New York Yankees",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      }
+    },
+    "timestamp": "2025-08-27T17:21:49.195094",
+    "total_games": 15,
+    "source": "unified_cache_backfill"
+  },
+  "2025-08-25": {
+    "cached_predictions": {
+      "Boston Red Sox @ Baltimore Orioles": {
+        "away_team": "Boston Red Sox",
+        "home_team": "Baltimore Orioles",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Tampa Bay Rays @ Cleveland Guardians": {
+        "away_team": "Tampa Bay Rays",
+        "home_team": "Cleveland Guardians",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Atlanta Braves @ Miami Marlins": {
+        "away_team": "Atlanta Braves",
+        "home_team": "Miami Marlins",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Washington Nationals @ New York Yankees": {
+        "away_team": "Washington Nationals",
+        "home_team": "New York Yankees",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Minnesota Twins @ Toronto Blue Jays": {
+        "away_team": "Minnesota Twins",
+        "home_team": "Toronto Blue Jays",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Philadelphia Phillies @ New York Mets": {
+        "away_team": "Philadelphia Phillies",
+        "home_team": "New York Mets",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Kansas City Royals @ Chicago White Sox": {
+        "away_team": "Kansas City Royals",
+        "home_team": "Chicago White Sox",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Arizona Diamondbacks @ Milwaukee Brewers": {
+        "away_team": "Arizona Diamondbacks",
+        "home_team": "Milwaukee Brewers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Pittsburgh Pirates @ St. Louis Cardinals": {
+        "away_team": "Pittsburgh Pirates",
+        "home_team": "St. Louis Cardinals",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Los Angeles Angels @ Texas Rangers": {
+        "away_team": "Los Angeles Angels",
+        "home_team": "Texas Rangers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "San Diego Padres @ Seattle Mariners": {
+        "away_team": "San Diego Padres",
+        "home_team": "Seattle Mariners",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Detroit Tigers @ Athletics": {
+        "away_team": "Detroit Tigers",
+        "home_team": "Athletics",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      },
+      "Cincinnati Reds @ Los Angeles Dodgers": {
+        "away_team": "Cincinnati Reds",
+        "home_team": "Los Angeles Dodgers",
+        "predicted_away_score": 0,
+        "predicted_home_score": 0,
+        "predicted_total_runs": 0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {},
+        "recommendations": [],
+        "pitcher_quality": {}
+      }
+    },
+    "timestamp": "2025-08-27T17:21:49.196679",
+    "total_games": 13,
+    "source": "unified_cache_backfill"
+  },
+  "2025-08-26": {
+    "cached_predictions": {
+      "Boston Red Sox @ Baltimore Orioles": {
+        "away_team": "Boston Red Sox",
+        "home_team": "Baltimore Orioles",
+        "predicted_away_score": 3.1,
+        "predicted_home_score": 3.0,
+        "predicted_total_runs": 6.6,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -103,
+          "away_ml": -105,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -102,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 6.6,
+            "edge": 1.9,
+            "expected_value": 0.238,
+            "kelly_bet_size": 15.4,
+            "confidence": "HIGH",
+            "reasoning": "Model: 6.6 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Lucas Giolito",
+          "home_pitcher_name": "Kyle Bradish",
+          "away_pitcher_factor": 1.1096,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Tampa Bay Rays @ Cleveland Guardians": {
+        "away_team": "Tampa Bay Rays",
+        "home_team": "Cleveland Guardians",
+        "predicted_away_score": 3.9,
+        "predicted_home_score": 3.8,
+        "predicted_total_runs": 7.9,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": 105,
+          "away_ml": -112,
+          "total_line": 7.5,
+          "over_odds": -109,
+          "under_odds": -103,
+          "run_line": -1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Shane Baz",
+          "home_pitcher_name": "Parker Messick",
+          "away_pitcher_factor": 1.3074,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Atlanta Braves @ Miami Marlins": {
+        "away_team": "Atlanta Braves",
+        "home_team": "Miami Marlins",
+        "predicted_away_score": 2.7,
+        "predicted_home_score": 2.8,
+        "predicted_total_runs": 6.3,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": 115,
+          "away_ml": -124,
+          "total_line": 8.0,
+          "over_odds": -105,
+          "under_odds": -106,
+          "run_line": -1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 6.3,
+            "edge": 2.2,
+            "expected_value": 0.295,
+            "kelly_bet_size": 20.0,
+            "confidence": "HIGH",
+            "reasoning": "Model: 6.3 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Hurston Waldrep",
+          "home_pitcher_name": "Sandy Alcantara",
+          "away_pitcher_factor": 1.0,
+          "home_pitcher_factor": 1.3854000000000002
+        }
+      },
+      "Washington Nationals @ New York Yankees": {
+        "away_team": "Washington Nationals",
+        "home_team": "New York Yankees",
+        "predicted_away_score": 3.9,
+        "predicted_home_score": 4.3,
+        "predicted_total_runs": 8.2,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": 157,
+          "away_ml": -171,
+          "total_line": 9.0,
+          "over_odds": -111,
+          "under_odds": -101,
+          "run_line": -1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "MacKenzie Gore",
+          "home_pitcher_name": "Luis Gil",
+          "away_pitcher_factor": 1.1514,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Minnesota Twins @ Toronto Blue Jays": {
+        "away_team": "Minnesota Twins",
+        "home_team": "Toronto Blue Jays",
+        "predicted_away_score": 4.7,
+        "predicted_home_score": 4.9,
+        "predicted_total_runs": 9.3,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -155,
+          "away_ml": 142,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -101,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 9.3,
+            "edge": 0.8,
+            "expected_value": 0.072,
+            "kelly_bet_size": 4.0,
+            "confidence": "MEDIUM",
+            "reasoning": "Model: 9.3 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Bailey Ober",
+          "home_pitcher_name": "Chris Bassitt",
+          "away_pitcher_factor": 1.3074,
+          "home_pitcher_factor": 1.1514
+        }
+      },
+      "Philadelphia Phillies @ New York Mets": {
+        "away_team": "Philadelphia Phillies",
+        "home_team": "New York Mets",
+        "predicted_away_score": 3.2,
+        "predicted_home_score": 3.1,
+        "predicted_total_runs": 6.8,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -107,
+          "away_ml": -101,
+          "total_line": 8.5,
+          "over_odds": 100,
+          "under_odds": -115,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 6.8,
+            "edge": 1.7,
+            "expected_value": 0.207,
+            "kelly_bet_size": 13.1,
+            "confidence": "HIGH",
+            "reasoning": "Model: 6.8 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Jes\u00fas Luzardo",
+          "home_pitcher_name": "Sean Manaea",
+          "away_pitcher_factor": 1.1514,
+          "home_pitcher_factor": 1.1195
+        }
+      },
+      "Kansas City Royals @ Chicago White Sox": {
+        "away_team": "Kansas City Royals",
+        "home_team": "Chicago White Sox",
+        "predicted_away_score": 4.7,
+        "predicted_home_score": 4.6,
+        "predicted_total_runs": 9.1,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -111,
+          "away_ml": 103,
+          "total_line": 8.5,
+          "over_odds": -106,
+          "under_odds": -105,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Michael Lorenzen",
+          "home_pitcher_name": "Mart\u00edn P\u00e9rez",
+          "away_pitcher_factor": 1.3074,
+          "home_pitcher_factor": 0.9572999999999999
+        }
+      },
+      "Arizona Diamondbacks @ Milwaukee Brewers": {
+        "away_team": "Arizona Diamondbacks",
+        "home_team": "Milwaukee Brewers",
+        "predicted_away_score": 4.4,
+        "predicted_home_score": 4.6,
+        "predicted_total_runs": 8.9,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -148,
+          "away_ml": 136,
+          "total_line": 8.0,
+          "over_odds": -109,
+          "under_odds": 100,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Brandon Pfaadt",
+          "home_pitcher_name": "Jacob Misiorowski",
+          "away_pitcher_factor": 1.3074,
+          "home_pitcher_factor": 1.0415
+        }
+      },
+      "Pittsburgh Pirates @ St. Louis Cardinals": {
+        "away_team": "Pittsburgh Pirates",
+        "home_team": "St. Louis Cardinals",
+        "predicted_away_score": 3.5,
+        "predicted_home_score": 3.5,
+        "predicted_total_runs": 7.4,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -125,
+          "away_ml": 116,
+          "total_line": 8.0,
+          "over_odds": -101,
+          "under_odds": -110,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.4,
+            "edge": 1.1,
+            "expected_value": 0.128,
+            "kelly_bet_size": 7.5,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.4 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Mitch Keller",
+          "home_pitcher_name": "Andre Pallante",
+          "away_pitcher_factor": 1.3074,
+          "home_pitcher_factor": 1.3074
+        }
+      },
+      "Los Angeles Angels @ Texas Rangers": {
+        "away_team": "Los Angeles Angels",
+        "home_team": "Texas Rangers",
+        "predicted_away_score": 4.6,
+        "predicted_home_score": 4.8,
+        "predicted_total_runs": 9.2,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": 103,
+          "away_ml": -110,
+          "total_line": 8.5,
+          "over_odds": -111,
+          "under_odds": -101,
+          "run_line": -1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Yusei Kikuchi",
+          "home_pitcher_name": "Patrick Corbin",
+          "away_pitcher_factor": 1.0734000000000001,
+          "home_pitcher_factor": 1.3074
+        }
+      },
+      "Colorado Rockies @ Houston Astros": {
+        "away_team": "Colorado Rockies",
+        "home_team": "Houston Astros",
+        "predicted_away_score": 4.3,
+        "predicted_home_score": 4.9,
+        "predicted_total_runs": 9.1,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -325,
+          "away_ml": 300,
+          "total_line": 8.0,
+          "over_odds": -101,
+          "under_odds": -111,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Tanner Gordon",
+          "home_pitcher_name": "Hunter Brown",
+          "away_pitcher_factor": 1.274,
+          "home_pitcher_factor": 0.8879999999999999
+        }
+      },
+      "San Diego Padres @ Seattle Mariners": {
+        "away_team": "San Diego Padres",
+        "home_team": "Seattle Mariners",
+        "predicted_away_score": 4.1,
+        "predicted_home_score": 4.0,
+        "predicted_total_runs": 8.2,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -112,
+          "away_ml": 104,
+          "total_line": 8.0,
+          "over_odds": -105,
+          "under_odds": -106,
+          "run_line": -1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Dylan Cease",
+          "home_pitcher_name": "Luis Castillo",
+          "away_pitcher_factor": 1.3074,
+          "home_pitcher_factor": 1.1096
+        }
+      },
+      "Chicago Cubs @ San Francisco Giants": {
+        "away_team": "Chicago Cubs",
+        "home_team": "San Francisco Giants",
+        "predicted_away_score": 3.1,
+        "predicted_home_score": 3.0,
+        "predicted_total_runs": 6.7,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": 120,
+          "away_ml": -130,
+          "total_line": 7.5,
+          "over_odds": -114,
+          "under_odds": 102,
+          "run_line": -1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 6.7,
+            "edge": 1.8,
+            "expected_value": 0.231,
+            "kelly_bet_size": 14.9,
+            "confidence": "HIGH",
+            "reasoning": "Model: 6.7 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Matthew Boyd",
+          "home_pitcher_name": "Justin Verlander",
+          "away_pitcher_factor": 0.8879999999999999,
+          "home_pitcher_factor": 1.3074
+        }
+      },
+      "Detroit Tigers @ Athletics": {
+        "away_team": "Detroit Tigers",
+        "home_team": "Athletics",
+        "predicted_away_score": 4.6,
+        "predicted_home_score": 4.3,
+        "predicted_total_runs": 8.8,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null,
+          "run_line": null,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Charlie Morton",
+          "home_pitcher_name": "Osvaldo Bido",
+          "away_pitcher_factor": 1.0,
+          "home_pitcher_factor": 1.3448
+        }
+      },
+      "Cincinnati Reds @ Los Angeles Dodgers": {
+        "away_team": "Cincinnati Reds",
+        "home_team": "Los Angeles Dodgers",
+        "predicted_away_score": 4.4,
+        "predicted_home_score": 4.6,
+        "predicted_total_runs": 8.9,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -173,
+          "away_ml": 158,
+          "total_line": 9.0,
+          "over_odds": -104,
+          "under_odds": -108,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Nick Martinez",
+          "home_pitcher_name": "Clayton Kershaw",
+          "away_pitcher_factor": 1.2655999999999998,
+          "home_pitcher_factor": 1.02528
+        }
+      }
+    },
+    "timestamp": "2025-08-27T17:21:49.198617",
+    "total_games": 15,
+    "source": "unified_cache_backfill"
+  },
+  "2025-08-27": {
+    "cached_predictions": {
+      "Washington Nationals @ New York Yankees": {
+        "away_team": "Washington Nationals",
+        "home_team": "New York Yankees",
+        "predicted_away_score": 4.5,
+        "predicted_home_score": 4.2,
+        "predicted_total_runs": 8.7,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null,
+          "run_line": null,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Cade Cavalli",
+          "home_pitcher_name": "Max Fried",
+          "away_pitcher_factor": 1.0,
+          "home_pitcher_factor": 0.865
+        }
+      },
+      "Tampa Bay Rays @ Cleveland Guardians": {
+        "away_team": "Tampa Bay Rays",
+        "home_team": "Cleveland Guardians",
+        "predicted_away_score": 4.6,
+        "predicted_home_score": 3.8,
+        "predicted_total_runs": 8.5,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null,
+          "run_line": null,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Drew Rasmussen",
+          "home_pitcher_name": "Slade Cecconi",
+          "away_pitcher_factor": 0.73,
+          "home_pitcher_factor": 1.0768
+        }
+      },
+      "Atlanta Braves @ Miami Marlins": {
+        "away_team": "Atlanta Braves",
+        "home_team": "Miami Marlins",
+        "predicted_away_score": 4.8,
+        "predicted_home_score": 4.0,
+        "predicted_total_runs": 8.7,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null,
+          "run_line": null,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Joey Wentz",
+          "home_pitcher_name": "Ryan Gusto",
+          "away_pitcher_factor": 0.978,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "San Diego Padres @ Seattle Mariners": {
+        "away_team": "San Diego Padres",
+        "home_team": "Seattle Mariners",
+        "predicted_away_score": 4.9,
+        "predicted_home_score": 4.1,
+        "predicted_total_runs": 8.8,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -1100,
+          "away_ml": 906,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -108,
+          "run_line": 2.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Yu Darvish",
+          "home_pitcher_name": "Bryan Woo",
+          "away_pitcher_factor": 1.0725,
+          "home_pitcher_factor": 0.835
+        }
+      },
+      "Boston Red Sox @ Baltimore Orioles": {
+        "away_team": "Boston Red Sox",
+        "home_team": "Baltimore Orioles",
+        "predicted_away_score": 4.7,
+        "predicted_home_score": 4.1,
+        "predicted_total_runs": 8.7,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -160,
+          "away_ml": 150,
+          "total_line": 8.0,
+          "over_odds": -108,
+          "under_odds": -105,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Brayan Bello",
+          "home_pitcher_name": "Dietrich Enns",
+          "away_pitcher_factor": 0.8859999999999999,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Minnesota Twins @ Toronto Blue Jays": {
+        "away_team": "Minnesota Twins",
+        "home_team": "Toronto Blue Jays",
+        "predicted_away_score": 4.0,
+        "predicted_home_score": 3.8,
+        "predicted_total_runs": 7.9,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -172,
+          "away_ml": 157,
+          "total_line": 9.0,
+          "over_odds": -114,
+          "under_odds": 101,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Simeon Woods Richardson",
+          "home_pitcher_name": "Eric Lauer",
+          "away_pitcher_factor": 0.9911999999999999,
+          "home_pitcher_factor": 0.892
+        }
+      },
+      "Philadelphia Phillies @ New York Mets": {
+        "away_team": "Philadelphia Phillies",
+        "home_team": "New York Mets",
+        "predicted_away_score": 4.1,
+        "predicted_home_score": 3.6,
+        "predicted_total_runs": 7.9,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": 136,
+          "away_ml": -147,
+          "total_line": 8.5,
+          "over_odds": -108,
+          "under_odds": -104,
+          "run_line": -1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Taijuan Walker",
+          "home_pitcher_name": "Nolan McLean",
+          "away_pitcher_factor": 0.9087999999999999,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Kansas City Royals @ Chicago White Sox": {
+        "away_team": "Kansas City Royals",
+        "home_team": "Chicago White Sox",
+        "predicted_away_score": 4.5,
+        "predicted_home_score": 3.9,
+        "predicted_total_runs": 8.4,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -125,
+          "away_ml": 115,
+          "total_line": 8.5,
+          "over_odds": -101,
+          "under_odds": -105,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Ryan Bergert",
+          "home_pitcher_name": "Aaron Civale",
+          "away_pitcher_factor": 0.943,
+          "home_pitcher_factor": 1.0645
+        }
+      },
+      "Arizona Diamondbacks @ Milwaukee Brewers": {
+        "away_team": "Arizona Diamondbacks",
+        "home_team": "Milwaukee Brewers",
+        "predicted_away_score": 3.0,
+        "predicted_home_score": 2.7,
+        "predicted_total_runs": 6.4,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -164,
+          "away_ml": 148,
+          "total_line": 8.5,
+          "over_odds": -113,
+          "under_odds": 100,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 6.4,
+            "edge": 2.1,
+            "expected_value": 0.155,
+            "kelly_bet_size": 9.4,
+            "confidence": "HIGH",
+            "reasoning": "Model: 6.4 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Ryne Nelson",
+          "home_pitcher_name": "Aaron Ashby",
+          "away_pitcher_factor": 0.9349999999999999,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Pittsburgh Pirates @ St. Louis Cardinals": {
+        "away_team": "Pittsburgh Pirates",
+        "home_team": "St. Louis Cardinals",
+        "predicted_away_score": 4.9,
+        "predicted_home_score": 4.1,
+        "predicted_total_runs": 8.9,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -122,
+          "away_ml": 114,
+          "total_line": 8.5,
+          "over_odds": -111,
+          "under_odds": -103,
+          "run_line": -1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Carmen Mlodzinski",
+          "home_pitcher_name": "Sonny Gray",
+          "away_pitcher_factor": 0.9911999999999999,
+          "home_pitcher_factor": 1.0959999999999999
+        }
+      },
+      "Los Angeles Angels @ Texas Rangers": {
+        "away_team": "Los Angeles Angels",
+        "home_team": "Texas Rangers",
+        "predicted_away_score": 4.3,
+        "predicted_home_score": 3.9,
+        "predicted_total_runs": 8.3,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -157,
+          "away_ml": 145,
+          "total_line": 8.5,
+          "over_odds": -114,
+          "under_odds": 102,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Jack Kochanowicz",
+          "home_pitcher_name": "Jacob Latz",
+          "away_pitcher_factor": 1.2349999999999999,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Colorado Rockies @ Houston Astros": {
+        "away_team": "Colorado Rockies",
+        "home_team": "Houston Astros",
+        "predicted_away_score": 3.0,
+        "predicted_home_score": 2.7,
+        "predicted_total_runs": 6.4,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -220,
+          "away_ml": 198,
+          "total_line": 9.0,
+          "over_odds": -103,
+          "under_odds": -112,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 6.4,
+            "edge": 2.1,
+            "expected_value": 0.156,
+            "kelly_bet_size": 9.5,
+            "confidence": "HIGH",
+            "reasoning": "Model: 6.4 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Chase Dollander",
+          "home_pitcher_name": "Framber Valdez",
+          "away_pitcher_factor": 1.2719999999999998,
+          "home_pitcher_factor": 0.8859999999999999
+        }
+      },
+      "Cincinnati Reds @ Los Angeles Dodgers": {
+        "away_team": "Cincinnati Reds",
+        "home_team": "Los Angeles Dodgers",
+        "predicted_away_score": 4.5,
+        "predicted_home_score": 4.3,
+        "predicted_total_runs": 8.8,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -184,
+          "away_ml": 168,
+          "total_line": 8.0,
+          "over_odds": -105,
+          "under_odds": 103,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Nick Lodolo",
+          "home_pitcher_name": "Shohei Ohtani",
+          "away_pitcher_factor": 0.865,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Chicago Cubs @ San Francisco Giants": {
+        "away_team": "Chicago Cubs",
+        "home_team": "San Francisco Giants",
+        "predicted_away_score": 4.4,
+        "predicted_home_score": 3.6,
+        "predicted_total_runs": 8.1,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": -121,
+          "away_ml": 110,
+          "total_line": 7.0,
+          "over_odds": -110,
+          "under_odds": 103,
+          "run_line": 1.5,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "none",
+            "recommendation": "No recommendations"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Colin Rea",
+          "home_pitcher_name": "Carson Whisenhunt",
+          "away_pitcher_factor": 0.956,
+          "home_pitcher_factor": 1.0
+        }
+      },
+      "Detroit Tigers @ Athletics": {
+        "away_team": "Detroit Tigers",
+        "home_team": "Athletics",
+        "predicted_away_score": 2.8,
+        "predicted_home_score": 2.4,
+        "predicted_total_runs": 6.0,
+        "away_pitcher": "TBD",
+        "home_pitcher": "TBD",
+        "betting_lines": {
+          "home_ml": null,
+          "away_ml": null,
+          "total_line": null,
+          "over_odds": null,
+          "under_odds": null,
+          "run_line": null,
+          "run_line_odds": null
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 6.0,
+            "edge": 2.5,
+            "expected_value": 0.192,
+            "kelly_bet_size": 12.0,
+            "confidence": "HIGH",
+            "reasoning": "Model: 6.0 vs Line: 8.5"
+          }
+        ],
+        "pitcher_quality": {
+          "away_pitcher_name": "Casey Mize",
+          "home_pitcher_name": "Luis Morales",
+          "away_pitcher_factor": 0.956,
+          "home_pitcher_factor": 1.0
+        }
+      }
+    },
+    "timestamp": "2025-08-27T17:21:49.200216",
+    "total_games": 15,
+    "source": "unified_cache_backfill"
   }
 }
