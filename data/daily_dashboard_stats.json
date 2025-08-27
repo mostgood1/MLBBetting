@@ -11,11 +11,13 @@
     "games_analyzed": 152,
     "winner_accuracy_pct": 63.2,
     "total_accuracy_pct": 59.9,
-    "total_bets_placed": 55,
-    "total_profit": -863.64,
-    "roi_percentage": -15.7,
-    "total_bet_amount": 5500,
-    "total_winnings": 4636.36
+    "total_bets_placed": 121,
+    "total_profit": 500.06,
+    "roi_percentage": 4.1,
+    "total_bet_amount": 12100,
+    "total_winnings": 6000.06,
+    "winning_bets": 66,
+    "losing_bets": 55
   },
   "daily_breakdown": {
     "2025-08-15": {
@@ -43,64 +45,64 @@
       "games_analyzed": 12,
       "winners_correct": 12,
       "totals_correct": 12,
-      "recommendations": 0,
-      "bet_profit": 0
+      "recommendations": 10,
+      "bet_profit": 925.8210742644845
     },
     "2025-08-19": {
       "games_analyzed": 15,
       "winners_correct": 15,
       "totals_correct": 15,
-      "recommendations": 0,
-      "bet_profit": 0
+      "recommendations": 13,
+      "bet_profit": 1221.103586098471
     },
     "2025-08-20": {
       "games_analyzed": 14,
       "winners_correct": 14,
       "totals_correct": 11,
-      "recommendations": 0,
-      "bet_profit": 0
+      "recommendations": 9,
+      "bet_profit": 805.5720378859658
     },
     "2025-08-21": {
       "games_analyzed": 9,
       "winners_correct": 2,
       "totals_correct": 0,
-      "recommendations": 0,
-      "bet_profit": 0
+      "recommendations": 7,
+      "bet_profit": 662.6046217062259
     },
     "2025-08-22": {
       "games_analyzed": 15,
       "winners_correct": 0,
       "totals_correct": 0,
       "recommendations": 15,
-      "bet_profit": 1363.6363636363637
+      "bet_profit": 363.6363636363636
     },
     "2025-08-23": {
       "games_analyzed": 14,
       "winners_correct": 0,
       "totals_correct": 0,
       "recommendations": 14,
-      "bet_profit": 1272.7272727272727
+      "bet_profit": 0
     },
     "2025-08-24": {
       "games_analyzed": 15,
       "winners_correct": 10,
       "totals_correct": 10,
-      "recommendations": 0,
+      "recommendations": 12,
       "bet_profit": 0
     },
     "2025-08-25": {
       "games_analyzed": 13,
       "winners_correct": 13,
       "totals_correct": 13,
-      "recommendations": 0,
-      "bet_profit": 0
+      "recommendations": 15,
+      "bet_profit": 722.1175614455856
     },
     "2025-08-26": {
       "games_analyzed": 15,
       "winners_correct": 15,
       "totals_correct": 15,
       "recommendations": 15,
-      "bet_profit": 999.9999999999998
+      "bet_profit": 1363.6363636363637
     },
     "2025-08-27": {
       "games_analyzed": 15,
@@ -110,6 +112,6 @@
       "bet_profit": 0
     }
   },
-  "generated_at": "2025-08-27T17:26:26.548989",
+  "generated_at": "2025-08-27T17:35:51.301926",
   "data_source": "unified_predictions_cache_analysis"
 }

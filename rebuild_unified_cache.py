@@ -135,7 +135,7 @@ def rebuild_unified_cache():
                     "home_pitcher": game.get('home_pitcher', 'TBD'),
                     "predictions": game_betting.get('predictions', {}),
                     "betting_lines": game_betting.get('betting_lines', {}),
-                    "recommendations": game_betting.get('recommendations', []),
+                    "recommendations": game_betting.get('recommendations', []) or game_betting.get('value_bets', []),
                     "pitcher_info": game_betting.get('pitcher_info', {}),
                     "meta": game_betting.get('meta', {}),
                     "source": "daily_files"
