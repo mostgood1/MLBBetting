@@ -92,21 +92,32 @@ def try_integrated_closing_lines():
             lines = {}
             for game in result['games']:
                 matchup_key = f"{game.get('away_team', '')} @ {game.get('home_team', '')}"
-                if game.get('closing_lines'):
-                    lines[matchup_key] = game['closing_lines']
+                
+                # Convert the integrated manager format to our expected format
+                game_lines = {
+                    "moneyline": game.get('moneyline', {}),
+                    "total_runs": {
+                        "line": game.get('total', {}).get('line'),
+                        "over": game.get('total', {}).get('over'),
+                        "under": game.get('total', {}).get('under')
+                    },
+                    "run_line": {
+                        "line": game.get('spread', {}).get('line'),
+                        "away": game.get('spread', {}).get('away'),
+                        "home": game.get('spread', {}).get('home')
+                    }
+                }
+                lines[matchup_key] = game_lines
             
             if lines:
                 today_underscore = today.replace('-', '_')
                 output_file = Path(f"data/real_betting_lines_{today_underscore}.json")
                 
                 output_data = {
-                    "lines": lines,
-                    "metadata": {
-                        "date": today,
-                        "source": "integrated_closing_lines",
-                        "games_count": len(lines),
-                        "timestamp": datetime.now().isoformat()
-                    }
+                    "date": today,
+                    "fetched_at": datetime.now().isoformat(),
+                    "source": "DraftKings_via_OddsAPI",
+                    "lines": lines
                 }
                 
                 with open(output_file, 'w') as f:

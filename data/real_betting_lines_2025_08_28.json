@@ -1,0 +1,135 @@
+{
+  "date": "2025-08-28",
+  "fetched_at": "2025-08-28T10:35:48.730563",
+  "source": "DraftKings_via_OddsAPI",
+  "lines": {
+    "Boston Red Sox @ Baltimore Orioles": {
+      "moneyline": {
+        "away": -206,
+        "home": 167
+      },
+      "total_runs": {
+        "line": 8.0,
+        "over": -116,
+        "under": -105
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -122,
+        "home": 100
+      }
+    },
+    "Arizona Diamondbacks @ Milwaukee Brewers": {
+      "moneyline": {
+        "away": 133,
+        "home": -163
+      },
+      "total_runs": {
+        "line": 9.0,
+        "over": -108,
+        "under": -113
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -157,
+        "home": 129
+      }
+    },
+    "Colorado Rockies @ Houston Astros": {
+      "moneyline": {
+        "away": 200,
+        "home": -250
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -115,
+        "under": -106
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 103,
+        "home": -125
+      }
+    },
+    "Pittsburgh Pirates @ St. Louis Cardinals": {
+      "moneyline": {
+        "away": -101,
+        "home": -121
+      },
+      "total_runs": {
+        "line": 8.0,
+        "over": -113,
+        "under": -107
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 161,
+        "home": -199
+      }
+    },
+    "Chicago Cubs @ San Francisco Giants": {
+      "moneyline": {
+        "away": -112,
+        "home": -109
+      },
+      "total_runs": {
+        "line": 7.5,
+        "over": 101,
+        "under": -124
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 155,
+        "home": -190
+      }
+    },
+    "Atlanta Braves @ Philadelphia Phillies": {
+      "moneyline": {
+        "away": 152,
+        "home": -187
+      },
+      "total_runs": {
+        "line": 9.5,
+        "over": -111,
+        "under": -110
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -127,
+        "home": 104
+      }
+    },
+    "Miami Marlins @ New York Mets": {
+      "moneyline": {
+        "away": 208,
+        "home": -261
+      },
+      "total_runs": {
+        "line": 9.0,
+        "over": -101,
+        "under": -120
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 103,
+        "home": -125
+      }
+    },
+    "New York Yankees @ Chicago White Sox": {
+      "moneyline": {
+        "away": -198,
+        "home": 160
+      },
+      "total_runs": {
+        "line": 9.0,
+        "over": -107,
+        "under": -113
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -123,
+        "home": 101
+      }
+    }
+  }
+}

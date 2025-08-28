@@ -124,8 +124,8 @@ class IntegratedClosingLinesManager:
                 away_team = event.get('away_team', '')
                 home_team = event.get('home_team', '')
                 
-                # Find best odds across bookmakers
-                best_odds = self.extract_best_odds_from_bookmakers(event.get('bookmakers', []))
+                # Find DraftKings odds specifically
+                draftkings_odds = self.extract_draftkings_odds(event.get('bookmakers', []), away_team, home_team)
                 
                 closing_line = {
                     'game_id': f"{away_team}_{home_team}_{date}".replace(' ', '_'),
@@ -137,7 +137,7 @@ class IntegratedClosingLinesManager:
                     'source': 'OddsAPI_Live',
                     'bookmakers_count': len(event.get('bookmakers', [])),
                     'line_type': self.determine_line_type(event.get('commence_time', '')),
-                    **best_odds
+                    **draftkings_odds
                 }
                 
                 parsed_lines.append(closing_line)
@@ -277,6 +277,69 @@ class IntegratedClosingLinesManager:
             return 'unknown_timing'
         except:
             return 'unknown_timing'
+    
+    def extract_draftkings_odds(self, bookmakers: List[Dict], away_team: str, home_team: str) -> Dict:
+        """Extract DraftKings specific odds"""
+        draftkings_odds = {
+            'moneyline': {'away': None, 'home': None},
+            'spread': {'line': None, 'away': None, 'home': None},
+            'total': {'line': None, 'over': None, 'under': None}
+        }
+        
+        # Find DraftKings bookmaker
+        draftkings_book = None
+        for bookmaker in bookmakers:
+            if bookmaker.get('key', '').lower() == 'draftkings':
+                draftkings_book = bookmaker
+                break
+        
+        if not draftkings_book:
+            # If no DraftKings data, fall back to best odds
+            return self.extract_best_odds_from_bookmakers(bookmakers)
+        
+        for market in draftkings_book.get('markets', []):
+            market_key = market.get('key', '')
+            outcomes = market.get('outcomes', [])
+            
+            if market_key == 'h2h' and len(outcomes) >= 2:
+                # Moneyline - match by team name instead of position
+                for outcome in outcomes:
+                    price = outcome.get('price')
+                    team_name = outcome.get('name', '')
+                    if price and team_name:
+                        if team_name == away_team:
+                            draftkings_odds['moneyline']['away'] = price
+                        elif team_name == home_team:
+                            draftkings_odds['moneyline']['home'] = price
+            
+            elif market_key == 'spreads' and len(outcomes) >= 2:
+                # Spread - match by team name
+                for outcome in outcomes:
+                    price = outcome.get('price')
+                    point = outcome.get('point')
+                    team_name = outcome.get('name', '')
+                    if price and point is not None and team_name:
+                        if team_name == away_team:
+                            draftkings_odds['spread']['line'] = abs(point)
+                            draftkings_odds['spread']['away'] = price
+                        elif team_name == home_team:
+                            draftkings_odds['spread']['line'] = abs(point)
+                            draftkings_odds['spread']['home'] = price
+            
+            elif market_key == 'totals' and len(outcomes) >= 2:
+                # Total
+                for outcome in outcomes:
+                    price = outcome.get('price')
+                    point = outcome.get('point')
+                    name = outcome.get('name', '')
+                    if price and point is not None:
+                        draftkings_odds['total']['line'] = point
+                        if name.lower() == 'over':
+                            draftkings_odds['total']['over'] = price
+                        else:
+                            draftkings_odds['total']['under'] = price
+        
+        return draftkings_odds
     
     def get_closing_lines_for_date(self, date: str) -> Dict:
         """Get closing lines for a specific date (historical, today, or future)"""

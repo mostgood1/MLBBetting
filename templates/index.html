@@ -266,46 +266,59 @@
         }
 
         .betting-lines h4 {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-size: 0.9rem;
-            color: #4fd1c7;
+            color: #ff6600;  /* DraftKings orange color */
+            text-align: center;
+            font-weight: bold;
         }
 
         .betting-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 12px;
         }
 
         .betting-item {
             text-align: center;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 8px;
+            background: rgba(79, 209, 199, 0.08);
+            border-radius: 8px;
+            border: 1px solid rgba(79, 209, 199, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .betting-item:hover {
+            background: rgba(79, 209, 199, 0.12);
+            border-color: rgba(79, 209, 199, 0.3);
         }
 
         .betting-item .line-label {
-            font-size: 0.7rem;
-            opacity: 0.8;
-            margin-bottom: 2px;
+            font-size: 0.72rem;
+            opacity: 0.9;
+            margin-bottom: 4px;
+            color: #4fd1c7;
+            font-weight: 600;
         }
 
         .betting-item .line-value {
             font-size: 0.8rem;
             font-weight: bold;
+            line-height: 1.3;
         }
 
         .moneyline-away, .moneyline-home {
             font-size: 0.75rem;
+            margin: 1px 0;
+            font-weight: 600;
         }
 
         .moneyline-away {
-            color: #ff6b6b;
+            color: #ff8a80;
         }
 
         .moneyline-home {
-            color: #4ecdc4;
+            color: #81c784;
         }
 
         .betting-recommendations {
@@ -549,18 +562,6 @@
             transform: translateY(-2px);
         }
 
-        .btn.warning {
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-            color: white;
-            border: 1px solid #ff6b35;
-        }
-
-        .btn.warning:hover {
-            background: linear-gradient(135deg, #ff8c42 0%, #ffa726 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-        }
-
         .prediction-item {
             text-align: center;
             padding: 8px;
@@ -738,10 +739,11 @@
             <div class="games-header">
                 <h2>Today's MLB Games</h2>
                 <div class="date-selector">
-                    <button class="btn" onclick="loadToday()">🔄 Refresh Today's Games</button>
+                    <input type="date" id="game-date" style="display: none;" />
+                    <button class="btn" onclick="loadToday()">Refresh</button>
                     <button class="btn secondary" onclick="refreshBettingLines()" id="refresh-betting-lines-btn">💰 Update Betting Lines</button>
-                    <button class="btn warning" onclick="forceCachePopulation()" id="force-cache-btn">🔧 Fix Cache</button>
                     <button class="btn secondary" onclick="goToHistoricalAnalysis()">📊 Historical Analysis</button>
+                    <button class="btn secondary" onclick="goToBettingGuidance()">🎯 Betting Guidance</button>
                 </div>
             </div>
 
@@ -816,7 +818,7 @@
             try {
                 console.log('🔄 Loading live dashboard stats from historical analysis API...');
                 
-                const response = await fetch('/api/cumulative');
+                const response = await fetch('/api/historical-analysis/cumulative');
                 if (!response.ok) {
                     console.warn('❌ Historical analysis API not available, keeping server-side stats');
                     return;
@@ -899,6 +901,11 @@
             window.location.href = '/historical-analysis';
         }
 
+        function goToBettingGuidance() {
+            // Navigate to improved analysis page with Kelly Criterion betting guidance
+            window.location.href = '/improved-analysis';
+        }
+
         function loadToday() {
             currentDate = new Date();
             localDateString = currentDate.getFullYear() + '-' + 
@@ -906,66 +913,6 @@
                               String(currentDate.getDate()).padStart(2, '0');
             document.getElementById('game-date').value = localDateString;
             loadTodaysGames();
-        }
-
-        // Force Cache Population Function
-        async function forceCachePopulation() {
-            const btn = document.getElementById('force-cache-btn');
-            const originalText = btn.textContent;
-            
-            btn.textContent = '⏳ Fixing...';
-            btn.disabled = true;
-            
-            try {
-                const response = await fetch('/api/force-cache-population');
-                const result = await response.json();
-                
-                if (result.success) {
-                    // Show success message
-                    btn.textContent = '✅ Fixed!';
-                    btn.style.background = 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)';
-                    
-                    // Show detailed results in console
-                    console.log('Cache population successful:', result);
-                    
-                    // Show alert with results
-                    alert(`Cache successfully populated!\\n\\nCache size: ${result.final_cache_size} bytes\\nSteps completed: ${result.steps.length}\\n\\nThe page will refresh to load the games.`);
-                    
-                    // Refresh the games after a short delay
-                    setTimeout(() => {
-                        loadToday();
-                        btn.textContent = originalText;
-                        btn.style.background = '';
-                        btn.disabled = false;
-                    }, 2000);
-                } else {
-                    // Show error
-                    btn.textContent = '❌ Failed';
-                    btn.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
-                    
-                    console.error('Cache population failed:', result);
-                    alert(`Cache population failed: ${result.error || 'Unknown error'}`);
-                    
-                    // Reset button after delay
-                    setTimeout(() => {
-                        btn.textContent = originalText;
-                        btn.style.background = '';
-                        btn.disabled = false;
-                    }, 3000);
-                }
-            } catch (error) {
-                console.error('Error calling force cache population:', error);
-                btn.textContent = '❌ Error';
-                btn.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
-                alert(`Error: ${error.message}`);
-                
-                // Reset button after delay
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.background = '';
-                    btn.disabled = false;
-                }, 3000);
-            }
         }
 
         // Betting Lines Refresh Function
@@ -1644,36 +1591,63 @@
                 displayStatus = `${liveStatus.inning_state} ${liveStatus.inning}`;
             }
             
-            // Get betting lines from either closing_lines or betting_data
-            const bettingData = game.closing_lines || game.betting_data || {};
-            const moneyline = bettingData.moneyline || {};
-            const total = bettingData.total || {};
-            const spread = bettingData.spread || {};
+            // Get real betting lines data
+            const realLines = game.real_betting_lines || {};
+            const moneyline = realLines.moneyline || {};
+            const totalRuns = realLines.total_runs || {};
+            const runLine = realLines.run_line || {};
             
             let bettingLinesHtml = '';
-            // Show betting lines if we have closing lines data OR betting data
-            if ((game.has_closing_lines && bettingData) || Object.keys(bettingData).length > 0) {
+            // Show betting lines if we have real betting lines data
+            if (game.has_real_betting_lines && Object.keys(realLines).length > 0) {
+                // Format moneyline odds with proper + sign for positive values
+                const formatOdds = (odds) => {
+                    if (!odds) return 'N/A';
+                    return odds > 0 ? `+${odds}` : `${odds}`;
+                };
+                
+                // Format run line with proper +/- signs - handle both string and numeric formats
+                const formatRunLine = (line, odds, isAway = true) => {
+                    if (!line) return 'N/A';
+                    
+                    // Handle string format like "-1.5 (+130)"
+                    if (typeof odds === 'string') {
+                        return odds;
+                    }
+                    
+                    // Handle numeric format from OddsAPI
+                    if (typeof odds === 'number') {
+                        const lineStr = isAway ? (line > 0 ? `+${line}` : `${line}`) : (line > 0 ? `-${line}` : `+${Math.abs(line)}`);
+                        const oddsStr = odds > 0 ? `+${odds}` : `${odds}`;
+                        return `${lineStr} (${oddsStr})`;
+                    }
+                    
+                    return 'N/A';
+                };
+                
                 bettingLinesHtml = `
                     <div class="betting-lines">
-                        <h4>Betting Lines</h4>
+                        <h4>DraftKings Betting Lines</h4>
                         <div class="betting-grid">
                             <div class="betting-item">
                                 <div class="line-label">Moneyline</div>
                                 <div class="line-value">
-                                    <div class="moneyline-away">${game.away_team.substring(0, 3)}: ${moneyline.away || 'N/A'}</div>
-                                    <div class="moneyline-home">${game.home_team.substring(0, 3)}: ${moneyline.home || 'N/A'}</div>
+                                    <div class="moneyline-away">${game.away_team.substring(0, 3)}: ${formatOdds(moneyline.away)}</div>
+                                    <div class="moneyline-home">${game.home_team.substring(0, 3)}: ${formatOdds(moneyline.home)}</div>
                                 </div>
                             </div>
                             <div class="betting-item">
-                                <div class="line-label">Total</div>
+                                <div class="line-label">Over/Under</div>
                                 <div class="line-value">
-                                    ${total.line ? `O/U ${total.line}` : 'N/A'}
+                                    ${totalRuns.line ? `${totalRuns.line}` : 'N/A'}<br>
+                                    ${totalRuns.over && totalRuns.under ? `O: ${formatOdds(totalRuns.over)} / U: ${formatOdds(totalRuns.under)}` : ''}
                                 </div>
                             </div>
                             <div class="betting-item">
-                                <div class="line-label">Spread</div>
+                                <div class="line-label">Run Line</div>
                                 <div class="line-value">
-                                    ${spread.line ? `${spread.line > 0 ? '+' : ''}${spread.line}` : 'N/A'}
+                                    <div class="moneyline-away">${game.away_team.substring(0, 3)}: ${formatRunLine(runLine.line, runLine.away, true)}</div>
+                                    <div class="moneyline-home">${game.home_team.substring(0, 3)}: ${formatRunLine(runLine.line, runLine.home, false)}</div>
                                 </div>
                             </div>
                         </div>
@@ -2194,35 +2168,29 @@
             const game = data.game;  // Extract game info from data object
             const pred = prediction;  // Keep this for backward compatibility with existing code
             const meta = prediction.meta || {
-                execution_time_ms: prediction.execution_time_ms || 0,
+                execution_time_ms: 0,
                 simulations_run: prediction.simulation_count || 5000,
                 data_source: prediction.model_version || 'simulation'
             };
             const recs = prediction.recommendations || [];
             
-            // Extract pitcher information with enhanced factors from new API structure
+            // Extract pitcher information from game data with real factors
             const awayPitcher = { 
                 name: game.away_pitcher || 'TBD', 
-                factor: prediction.pitcher_factors?.away_pitcher_factor || game.away_pitcher_factor || 1.0
+                factor: game.away_pitcher_factor || 1.0
             };
             const homePitcher = { 
                 name: game.home_pitcher || 'TBD', 
-                factor: prediction.pitcher_factors?.home_pitcher_factor || game.home_pitcher_factor || 1.0
+                factor: game.home_pitcher_factor || 1.0
             };
             
             // Get team names from game data
             const awayTeam = game.away_team;
             const homeTeam = game.home_team;
             
-            // Get team assets for colors from new API structure
-            const awayAssets = prediction.team_assets?.away_team_assets || prediction.away_team_assets || {};
-            const homeAssets = prediction.team_assets?.home_team_assets || prediction.home_team_assets || {};
-            
-            // Get score ranges for enhanced display
-            const scoreRanges = prediction.score_ranges || {};
-            const awayScoreRange = scoreRanges.away_score_range || [0, 10];
-            const homeScoreRange = scoreRanges.home_score_range || [0, 10];
-            const totalRunsRange = scoreRanges.total_runs_range || [0, 20];
+            // Get team assets for colors
+            const awayAssets = prediction.away_team_assets || {};
+            const homeAssets = prediction.home_team_assets || {};
             
             let html = `
                 <div class="prediction-details">
@@ -2230,164 +2198,82 @@
                         <div class="prediction-item" style="background-color: ${awayAssets.primary_color || '#4fd1c7'}22; border-left: 3px solid ${awayAssets.primary_color || '#4fd1c7'};">
                             <div class="value">${pred.predicted_away_score}</div>
                             <div class="label">${awayTeam} Score</div>
-                            <div class="range">Range: ${awayScoreRange[0]} - ${awayScoreRange[1]}</div>
                         </div>
                         <div class="prediction-item" style="background-color: ${homeAssets.primary_color || '#4fd1c7'}22; border-left: 3px solid ${homeAssets.primary_color || '#4fd1c7'};">
                             <div class="value">${pred.predicted_home_score}</div>
                             <div class="label">${homeTeam} Score</div>
-                            <div class="range">Range: ${homeScoreRange[0]} - ${homeScoreRange[1]}</div>
                         </div>
                         <div class="prediction-item">
                             <div class="value">${pred.predicted_total_runs}</div>
                             <div class="label">Total Runs</div>
-                            <div class="range">Range: ${totalRunsRange[0]} - ${totalRunsRange[1]}</div>
                         </div>
                         <div class="prediction-item">
-                            <div class="value">${pred.home_win_probability.toFixed(1)}%</div>
+                            <div class="value">${pred.home_win_probability.toFixed(2)}%</div>
                             <div class="label">Home Win Prob</div>
-                            <div class="range">Confidence: ${(prediction.confidence_percentage || 50).toFixed(1)}%</div>
                         </div>
                     </div>
                     
                     <div style="margin-top: 20px;">
-                        <h3>🥎 Starting Pitchers Analysis</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
-                            <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid ${awayAssets.primary_color || '#ff6b6b'};">
-                                <div style="font-weight: bold; color: ${awayAssets.primary_color || '#ff6b6b'};">${awayTeam}</div>
-                                <div style="font-size: 1.1em; margin: 5px 0;">${awayPitcher.name || 'TBD'}</div>
-                                <div style="font-size: 0.9em; color: #4fd1c7;">Quality Factor: ${(awayPitcher.factor || 1.0).toFixed(3)}</div>
-                                <div style="font-size: 0.8em; color: ${awayPitcher.factor < 1.0 ? '#4fd1c7' : awayPitcher.factor > 1.2 ? '#ff6b6b' : '#ffa726'}; margin-top: 3px;">
-                                    ${awayPitcher.factor < 0.9 ? 'Elite Pitcher 🔥' : awayPitcher.factor < 1.1 ? 'Good Pitcher ⚡' : awayPitcher.factor < 1.3 ? 'Average Pitcher 📊' : 'Struggling Pitcher ⚠️'}
-                                </div>
-                            </div>
-                            <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid ${homeAssets.primary_color || '#4ecdc4'};">
-                                <div style="font-weight: bold; color: ${homeAssets.primary_color || '#4ecdc4'};">${homeTeam}</div>
-                                <div style="font-size: 1.1em; margin: 5px 0;">${homePitcher.name || 'TBD'}</div>
-                                <div style="font-size: 0.9em; color: #4fd1c7;">Quality Factor: ${(homePitcher.factor || 1.0).toFixed(3)}</div>
-                                <div style="font-size: 0.8em; color: ${homePitcher.factor < 1.0 ? '#4fd1c7' : homePitcher.factor > 1.2 ? '#ff6b6b' : '#ffa726'}; margin-top: 3px;">
-                                    ${homePitcher.factor < 0.9 ? 'Elite Pitcher 🔥' : homePitcher.factor < 1.1 ? 'Good Pitcher ⚡' : homePitcher.factor < 1.3 ? 'Average Pitcher 📊' : 'Struggling Pitcher ⚠️'}
-                                </div>
-                            </div>
-                        </div>
-                        <div style="font-size: 0.85em; color: #888; margin-top: 10px; text-align: center; font-style: italic;">
-                            💡 Factor < 1.0 = Better pitcher (allows fewer runs) | Factor > 1.0 = Weaker pitcher (allows more runs)
+                        <h3>Starting Pitchers</h3>
+                        <p><strong>Away:</strong> ${awayPitcher.name || 'TBD'} (Quality Factor: ${(awayPitcher.factor || 1.0).toFixed(2)})</p>
+                        <p><strong>Home:</strong> ${homePitcher.name || 'TBD'} (Quality Factor: ${(homePitcher.factor || 1.0).toFixed(2)})</p>
+                        <div style="font-size: 0.9em; color: #888; margin-top: 10px;">
+                            <em>Factor < 1.0 = Better pitcher (allows fewer runs), Factor > 1.0 = Weaker pitcher</em>
                         </div>
                     </div>
                     
-                    ${prediction.recommendations_in_cache > 0 ? `
-                    <div style="margin-top: 20px; padding: 10px; background: rgba(79, 209, 199, 0.1); border-radius: 6px;">
-                        <div style="color: #4fd1c7; font-weight: bold;">📊 Model Analysis</div>
-                        <div style="font-size: 0.9em; margin-top: 5px;">${prediction.recommendations_in_cache} betting opportunities identified in comprehensive analysis</div>
-                    </div>
-                    ` : ''}
-                    
-                    <!-- Enhanced Factor Analysis Sections -->
-                    ${prediction.team_strength_factors ? `
+                    <!-- Add comprehensive factors section -->
                     <div style="margin-top: 20px;">
-                        <h3>💪 Team Strength Analysis</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
-                            <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid ${awayAssets.primary_color || '#ff6b6b'};">
-                                <div style="font-weight: bold; color: ${awayAssets.primary_color || '#ff6b6b'};">${awayTeam}</div>
-                                <div style="font-size: 0.9em; color: #4fd1c7;">Strength: ${prediction.team_strength_factors.away_team_strength > 0 ? '+' : ''}${(prediction.team_strength_factors.away_team_strength * 100).toFixed(1)}%</div>
-                                <div style="font-size: 0.8em; color: ${prediction.team_strength_factors.away_team_strength > 0.05 ? '#4fd1c7' : prediction.team_strength_factors.away_team_strength < -0.05 ? '#ff6b6b' : '#ffa726'}; margin-top: 3px;">
-                                    ${prediction.team_strength_factors.away_team_strength > 0.08 ? 'Elite Team 🔥' : prediction.team_strength_factors.away_team_strength > 0.03 ? 'Good Team ⚡' : prediction.team_strength_factors.away_team_strength > -0.03 ? 'Average Team 📊' : 'Struggling Team ⚠️'}
+                        <h3>📊 Model Factors</h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
+                            ${data.factors ? `
+                                <!-- Team Strengths -->
+                                <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #4fd1c7;">
+                                    <div style="font-weight: bold; color: #4fd1c7; margin-bottom: 8px;">Team Strengths</div>
+                                    <div style="font-size: 0.9em;">
+                                        <div style="color: #ff6b6b; margin-bottom: 4px;">${awayTeam}: ${data.factors.team_strengths ? (data.factors.team_strengths.away_strength > 0 ? '+' : '') + data.factors.team_strengths.away_strength.toFixed(3) : 'N/A'}</div>
+                                        <div style="color: #4ecdc4;">${homeTeam}: ${data.factors.team_strengths ? (data.factors.team_strengths.home_strength > 0 ? '+' : '') + data.factors.team_strengths.home_strength.toFixed(3) : 'N/A'}</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid ${homeAssets.primary_color || '#4ecdc4'};">
-                                <div style="font-weight: bold; color: ${homeAssets.primary_color || '#4ecdc4'};">${homeTeam}</div>
-                                <div style="font-size: 0.9em; color: #4fd1c7;">Strength: ${prediction.team_strength_factors.home_team_strength > 0 ? '+' : ''}${(prediction.team_strength_factors.home_team_strength * 100).toFixed(1)}%</div>
-                                <div style="font-size: 0.8em; color: ${prediction.team_strength_factors.home_team_strength > 0.05 ? '#4fd1c7' : prediction.team_strength_factors.home_team_strength < -0.05 ? '#ff6b6b' : '#ffa726'}; margin-top: 3px;">
-                                    ${prediction.team_strength_factors.home_team_strength > 0.08 ? 'Elite Team 🔥' : prediction.team_strength_factors.home_team_strength > 0.03 ? 'Good Team ⚡' : prediction.team_strength_factors.home_team_strength > -0.03 ? 'Average Team 📊' : 'Struggling Team ⚠️'}
+                                
+                                <!-- Bullpen Quality -->
+                                <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #ffa726;">
+                                    <div style="font-weight: bold; color: #ffa726; margin-bottom: 8px;">Bullpen Quality</div>
+                                    <div style="font-size: 0.9em;">
+                                        <div style="color: #ff6b6b; margin-bottom: 4px;">${awayTeam}: ${data.factors.bullpen_quality ? data.factors.bullpen_quality.away_bullpen.rating + ' (' + data.factors.bullpen_quality.away_bullpen.quality_factor.toFixed(2) + ')' : 'N/A'}</div>
+                                        <div style="color: #4ecdc4;">${homeTeam}: ${data.factors.bullpen_quality ? data.factors.bullpen_quality.home_bullpen.rating + ' (' + data.factors.bullpen_quality.home_bullpen.quality_factor.toFixed(2) + ')' : 'N/A'}</div>
+                                    </div>
                                 </div>
-                            </div>
+                                
+                                <!-- Weather & Park -->
+                                ${data.factors.weather_park && Object.keys(data.factors.weather_park).length > 0 ? `
+                                <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #66bb6a; grid-column: 1 / -1;">
+                                    <div style="font-weight: bold; color: #66bb6a; margin-bottom: 8px;">🌤️ Weather & Park Factors</div>
+                                    <div style="font-size: 0.9em; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                                        <div>Temp: ${data.factors.weather_park.temperature}°F</div>
+                                        <div>Wind: ${data.factors.weather_park.wind_speed} mph</div>
+                                        <div>Conditions: ${data.factors.weather_park.weather_condition}</div>
+                                        <div>Park Factor: ${data.factors.weather_park.park_factor.toFixed(2)}</div>
+                                        <div>Runs Factor: ${data.factors.weather_park.total_runs_factor.toFixed(2)}</div>
+                                    </div>
+                                </div>
+                                ` : `
+                                <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #888; grid-column: 1 / -1;">
+                                    <div style="font-weight: bold; color: #888; margin-bottom: 8px;">🌤️ Weather & Park Factors</div>
+                                    <div style="font-size: 0.9em; color: #888; font-style: italic;">Weather data not available</div>
+                                </div>
+                                `}
+                            ` : `
+                                <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #888; grid-column: 1 / -1;">
+                                    <div style="font-weight: bold; color: #888; margin-bottom: 8px;">📊 Model Factors</div>
+                                    <div style="font-size: 0.9em; color: #888; font-style: italic;">Factor details not available</div>
+                                </div>
+                            `}
                         </div>
-                        <div style="font-size: 0.85em; color: #888; margin-top: 8px; text-align: center;">
-                            ${prediction.team_strength_factors.strength_advantage > 0 ? `🏠 Home team advantage: +${(prediction.team_strength_factors.strength_advantage * 100).toFixed(1)}%` : prediction.team_strength_factors.strength_advantage < 0 ? `✈️ Away team advantage: +${Math.abs(prediction.team_strength_factors.strength_advantage * 100).toFixed(1)}%` : '⚖️ Teams evenly matched'}
-                        </div>
-                    </div>
-                    ` : ''}
-                    
-                    ${prediction.bullpen_analysis ? `
-                    <div style="margin-top: 20px;">
-                        <h3>🚀 Bullpen Analysis</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
-                            <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid ${awayAssets.primary_color || '#ff6b6b'};">
-                                <div style="font-weight: bold; color: ${awayAssets.primary_color || '#ff6b6b'};">${awayTeam} Bullpen</div>
-                                <div style="font-size: 1.0em; margin: 5px 0;">${prediction.bullpen_analysis.away_bullpen.rating}</div>
-                                <div style="font-size: 0.9em; color: #4fd1c7;">ERA: ${prediction.bullpen_analysis.away_bullpen.era.toFixed(2)}</div>
-                                <div style="font-size: 0.9em; color: #ffa726;">Save Rate: ${(prediction.bullpen_analysis.away_bullpen.save_rate * 100).toFixed(1)}%</div>
-                                <div style="font-size: 0.8em; color: ${prediction.bullpen_analysis.away_bullpen.quality_factor < 1.0 ? '#4fd1c7' : prediction.bullpen_analysis.away_bullpen.quality_factor > 1.2 ? '#ff6b6b' : '#ffa726'}; margin-top: 3px;">
-                                    Quality: ${prediction.bullpen_analysis.away_bullpen.quality_factor.toFixed(3)}
-                                </div>
-                            </div>
-                            <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid ${homeAssets.primary_color || '#4ecdc4'};">
-                                <div style="font-weight: bold; color: ${homeAssets.primary_color || '#4ecdc4'};">${homeTeam} Bullpen</div>
-                                <div style="font-size: 1.0em; margin: 5px 0;">${prediction.bullpen_analysis.home_bullpen.rating}</div>
-                                <div style="font-size: 0.9em; color: #4fd1c7;">ERA: ${prediction.bullpen_analysis.home_bullpen.era.toFixed(2)}</div>
-                                <div style="font-size: 0.9em; color: #ffa726;">Save Rate: ${(prediction.bullpen_analysis.home_bullpen.save_rate * 100).toFixed(1)}%</div>
-                                <div style="font-size: 0.8em; color: ${prediction.bullpen_analysis.home_bullpen.quality_factor < 1.0 ? '#4fd1c7' : prediction.bullpen_analysis.home_bullpen.quality_factor > 1.2 ? '#ff6b6b' : '#ffa726'}; margin-top: 3px;">
-                                    Quality: ${prediction.bullpen_analysis.home_bullpen.quality_factor.toFixed(3)}
-                                </div>
-                            </div>
-                        </div>
-                        <div style="font-size: 0.85em; color: #888; margin-top: 8px; text-align: center;">
-                            ${prediction.bullpen_analysis.bullpen_advantage > 0.1 ? `🏠 Home bullpen advantage: +${(prediction.bullpen_analysis.bullpen_advantage * 100).toFixed(1)}%` : prediction.bullpen_analysis.bullpen_advantage < -0.1 ? `✈️ Away bullpen advantage: +${Math.abs(prediction.bullpen_analysis.bullpen_advantage * 100).toFixed(1)}%` : '⚖️ Bullpens evenly matched'}
-                        </div>
-                    </div>
-                    ` : ''}
-                    
-                    ${prediction.park_weather_factors ? `
-                    <div style="margin-top: 20px;">
-                        <h3>🌤️ Park & Weather Factors</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
-                            <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #4fd1c7;">
-                                <div style="font-weight: bold; color: #4fd1c7;">🏟️ ${prediction.park_weather_factors.park_info.name || 'Stadium'}</div>
-                                <div style="font-size: 0.9em; margin: 5px 0;">Park Factor: ${prediction.park_weather_factors.park_factor.toFixed(3)}</div>
-                                <div style="font-size: 0.8em; color: #ffa726;">Altitude: ${prediction.park_weather_factors.park_info.altitude || 0}ft</div>
-                                <div style="font-size: 0.8em; color: ${prediction.park_weather_factors.park_info.dome ? '#66bb6a' : '#ff9800'};">
-                                    ${prediction.park_weather_factors.park_info.dome ? 'Dome/Roof 🏠' : 'Outdoor ☀️'}
-                                </div>
-                                <div style="font-size: 0.8em; color: ${prediction.park_weather_factors.park_factor > 1.05 ? '#ff6b6b' : prediction.park_weather_factors.park_factor < 0.95 ? '#4fd1c7' : '#ffa726'}; margin-top: 3px;">
-                                    ${prediction.park_weather_factors.park_factor > 1.05 ? 'Hitter-Friendly 💥' : prediction.park_weather_factors.park_factor < 0.95 ? 'Pitcher-Friendly 🎯' : 'Neutral Park ⚖️'}
-                                </div>
-                            </div>
-                            <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #66bb6a;">
-                                <div style="font-weight: bold; color: #66bb6a;">🌡️ Weather Conditions</div>
-                                <div style="font-size: 0.9em; margin: 5px 0;">Temp: ${prediction.park_weather_factors.weather_info.temperature || 75}°F</div>
-                                <div style="font-size: 0.8em; color: #ffa726;">Humidity: ${prediction.park_weather_factors.weather_info.humidity || 50}%</div>
-                                <div style="font-size: 0.8em; color: #66bb6a;">Wind: ${prediction.park_weather_factors.weather_info.wind_speed || 5}mph ${prediction.park_weather_factors.weather_info.wind_direction || 'Variable'}</div>
-                                <div style="font-size: 0.8em; color: ${Math.abs(prediction.park_weather_factors.run_environment_impact) > 5 ? '#ff6b6b' : '#4fd1c7'}; margin-top: 3px;">
-                                    Scoring Impact: ${prediction.park_weather_factors.run_environment_impact > 0 ? '+' : ''}${prediction.park_weather_factors.run_environment_impact.toFixed(1)}%
-                                </div>
-                            </div>
-                        </div>
-                        <div style="font-size: 0.85em; color: #888; margin-top: 8px; text-align: center;">
-                            Combined Factor: ${prediction.park_weather_factors.combined_factor.toFixed(3)} (${prediction.park_weather_factors.run_environment_impact > 0 ? '+' : ''}${prediction.park_weather_factors.run_environment_impact.toFixed(1)}% runs expected)
+                        <div style="font-size: 0.8em; color: #888; margin-top: 10px; text-align: center;">
+                            <em>Higher team strength and bullpen factors = better performance expected</em>
                         </div>
                     </div>
-                    ` : ''}
-                    
-                    ${prediction.field_advantages ? `
-                    <div style="margin-top: 20px;">
-                        <h3>🏠 Field Advantage Analysis</h3>
-                        <div style="padding: 15px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #4fd1c7;">
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
-                                <div style="text-align: center;">
-                                    <div style="font-size: 1.2em; color: #4fd1c7; font-weight: bold;">+${(prediction.field_advantages.home_field_advantage * 100).toFixed(1)}%</div>
-                                    <div style="font-size: 0.8em; color: #888;">Home Field Advantage</div>
-                                </div>
-                                <div style="text-align: center;">
-                                    <div style="font-size: 1.2em; color: #ffa726; font-weight: bold;">+${(prediction.field_advantages.away_field_boost * 100).toFixed(1)}%</div>
-                                    <div style="font-size: 0.8em; color: #888;">Away Team Boost</div>
-                                </div>
-                                <div style="text-align: center;">
-                                    <div style="font-size: 1.0em; color: #66bb6a; font-weight: bold;">${prediction.field_advantages.estimated_home_boost}</div>
-                                    <div style="font-size: 0.8em; color: #888;">Net Home Advantage</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}
             `;
             
             // Add betting lines section if available
@@ -2493,58 +2379,11 @@
                 console.log('Legacy recommendations found but using enhanced format instead');
             }
             
-            
-            // Add model weights section before performance metrics
-            if (prediction.model_weights) {
-                html += `
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-                        <h3 style="margin-top: 0; color: #ffa726;">⚖️ Model Factor Weights</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 15px;">
-                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
-                                <div style="font-size: 1.4em; color: #4fd1c7; font-weight: bold;">${(prediction.model_weights.pitcher_weight * 100).toFixed(0)}%</div>
-                                <div style="font-size: 0.8em; color: #888;">Pitcher Impact</div>
-                            </div>
-                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
-                                <div style="font-size: 1.4em; color: #ff6b6b; font-weight: bold;">${(prediction.model_weights.team_strength_weight * 100).toFixed(0)}%</div>
-                                <div style="font-size: 0.8em; color: #888;">Team Strength</div>
-                            </div>
-                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
-                                <div style="font-size: 1.4em; color: #66bb6a; font-weight: bold;">${(prediction.model_weights.bullpen_weight * 100).toFixed(0)}%</div>
-                                <div style="font-size: 0.8em; color: #888;">Bullpen Impact</div>
-                            </div>
-                        </div>
-                        <div style="font-size: 0.8em; color: #888; text-align: center; font-style: italic;">
-                            ${prediction.model_weights.factors_explanation}
-                        </div>
-                    </div>
-                `;
-            }
-            
             html += `
-                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-                    <h3 style="margin-top: 0; color: #4fd1c7;">🔍 Model Performance Metrics</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 0.9rem;">
-                        <div>
-                            <strong>Execution Time:</strong> ${meta.execution_time_ms > 0 ? `${meta.execution_time_ms.toFixed(2)}ms` : 'N/A'}
-                        </div>
-                        <div>
-                            <strong>Simulations Run:</strong> ${(meta.simulations_run || prediction.simulation_count || 5000).toLocaleString()}
-                        </div>
-                        <div>
-                            <strong>Data Source:</strong> ${meta.data_source || prediction.model_version || 'comprehensive_engine'}
-                        </div>
-                        <div>
-                            <strong>Model Confidence:</strong> ${(prediction.confidence_percentage || 50).toFixed(1)}%
-                        </div>
-                        ${prediction.recommendations_in_cache !== undefined ? `
-                        <div>
-                            <strong>Cache Recommendations:</strong> ${prediction.recommendations_in_cache}
-                        </div>
-                        ` : ''}
-                    </div>
-                    <div style="margin-top: 10px; font-size: 0.8em; color: #888; font-style: italic;">
-                        Enhanced prediction factors now include score ranges, pitcher analysis, and model confidence metrics
-                    </div>
+                <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
+                    ${meta.execution_time_ms > 0 ? `Execution Time: ${meta.execution_time_ms.toFixed(2)}ms | ` : ''}
+                    Simulations: ${(meta.simulations_run || 5000).toLocaleString()} |
+                    Data Source: ${meta.data_source || 'comprehensive_engine'}
                 </div>
             `;
             
