@@ -24,12 +24,23 @@ import json
 import logging
 import os
 import requests
+import numpy as np
 from datetime import date, datetime
 from typing import Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# Import our advanced modules
+try:
+    from model_ensemble import MLBEnsembleModel
+    from feature_engineering import AdvancedFeatureEngineer
+    from betting_strategy import KellyCriterionStrategy
+    ADVANCED_FEATURES_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Advanced features not available: {e}")
+    ADVANCED_FEATURES_AVAILABLE = False
 
 class BettingRecommendationsEngine:
     def fetch_current_betting_lines(self):
@@ -49,36 +60,54 @@ class BettingRecommendationsEngine:
         else:
             self.current_date = date
         
-                        # ==========================================
-        # BALANCED MODEL PARAMETERS (v5.0)
-        # Applied: 2025-08-25 - Balanced bias correction
-        # Target: 48-52% home win rate with realistic scoring
+        # ==========================================
+        # ENHANCED MODEL PARAMETERS (v6.0)
+        # Applied: 2025-08-27 - Advanced ensemble integration
+        # Target: 55%+ accuracy with Kelly Criterion optimization
         # ==========================================
         
-        # Core prediction parameters (BALANCED corrections)
-        self.home_field_advantage = 0.06  # Moderate home advantage
-        self.away_field_boost = 0.04        # Moderate away team boost
-        self.base_runs_per_team = 3.9     # Balanced base scoring
-        self.base_lambda = 4.0            # Moderate variance
+        # Core prediction parameters (enhanced)
+        self.home_field_advantage = 0.055  # Optimized home advantage
+        self.away_field_boost = 0.035       # Optimized away team boost
+        self.base_runs_per_team = 4.1       # Enhanced base scoring
+        self.base_lambda = 4.2              # Optimized variance
         
-        # Pitcher impact parameters (balanced for accuracy)
-        self.pitcher_era_weight = 0.78    # Good ERA impact
-        self.pitcher_whip_weight = 0.38   # Good WHIP impact
+        # Pitcher impact parameters (enhanced for accuracy)
+        self.pitcher_era_weight = 0.85      # Increased ERA impact
+        self.pitcher_whip_weight = 0.45     # Increased WHIP impact
         
-        # Team and game parameters
-        self.team_strength_multiplier = 0.17  # Moderate team impact
-        self.game_chaos_variance = 0.38       # Moderate variance
+        # Team and game parameters (optimized)
+        self.team_strength_multiplier = 0.22  # Enhanced team impact
+        self.game_chaos_variance = 0.32       # Reduced variance for stability
         
-        # Bullpen integration (maintained)
-        self.bullpen_weight = 0.15
+        # Bullpen integration (enhanced)
+        self.bullpen_weight = 0.18
         
-        # BALANCED scoring bias corrections
-        self.total_scoring_adjustment = 0.9  # Reduce total scoring by 10%
-        self.home_scoring_boost = 0.92       # Moderate home penalty
-        self.away_scoring_boost = 1.05       # Moderate away boost
+        # Enhanced scoring adjustments
+        self.total_scoring_adjustment = 0.95  # Refined total scoring
+        self.home_scoring_boost = 0.94        # Refined home adjustment
+        self.away_scoring_boost = 1.03        # Refined away boost
         
-        # Simulation parameters
-        self.simulation_count = 2000
+        # Simulation parameters (increased for accuracy)
+        self.simulation_count = 3000
+        
+        # Confidence thresholds for betting
+        self.min_confidence_threshold = 60   # Only recommend high confidence bets
+        self.min_edge_threshold = 0.05       # Minimum 5% edge over market
+        
+        # Initialize advanced modules if available
+        if ADVANCED_FEATURES_AVAILABLE:
+            try:
+                self.ensemble_model = MLBEnsembleModel()
+                self.feature_engineer = AdvancedFeatureEngineer()
+                self.kelly_strategy = KellyCriterionStrategy()
+                self.advanced_mode = True
+                logger.info("✅ Advanced features initialized")
+            except Exception as e:
+                logger.warning(f"Failed to initialize advanced features: {e}")
+                self.advanced_mode = False
+        else:
+            self.advanced_mode = False
         
         # Load bullpen data
         self.bullpen_stats = self.load_bullpen_stats()
@@ -393,22 +422,316 @@ class BettingRecommendationsEngine:
         
         return adjusted_home, adjusted_away
 
+    def enhance_predictions_with_advanced_features(self, game_data, game_key):
+        """Enhance predictions using advanced features and ensemble model"""
+        
+        if not self.advanced_mode:
+            return game_data  # Return unchanged if advanced features not available
+        
+        try:
+            # Extract team names from game key
+            if '_vs_' not in game_key:
+                return game_data
+            
+            away_team, home_team = game_key.split('_vs_')
+            
+            # Get enhanced features
+            home_features = self.feature_engineer.get_team_features(home_team)
+            away_features = self.feature_engineer.get_team_features(away_team)
+            
+            # Calculate enhanced win probability
+            enhanced_home_prob = self.feature_engineer.calculate_enhanced_win_probability(home_team, away_team)
+            
+            # Apply ensemble model if available
+            if hasattr(self.ensemble_model, 'models') and self.ensemble_model.models:
+                # Extract features for ensemble model
+                game_features = self._extract_ensemble_features(game_data, home_features, away_features)
+                if game_features:
+                    ensemble_prob = self.ensemble_model.predict_game(game_features)
+                    # Blend enhanced probability with ensemble
+                    final_prob = (enhanced_home_prob + ensemble_prob) / 2
+                else:
+                    final_prob = enhanced_home_prob
+            else:
+                final_prob = enhanced_home_prob
+            
+            # Update predictions with enhanced values
+            if 'predictions' in game_data and 'predictions' in game_data['predictions']:
+                pred_data = game_data['predictions']['predictions']
+                
+                # Update win probability
+                pred_data['home_win_prob'] = final_prob
+                
+                # Apply ballpark factors to scoring
+                if home_team in self.feature_engineer.ballpark_factors:
+                    ballpark_factor = self.feature_engineer.ballpark_factors[home_team]
+                    
+                    # Adjust predicted scores based on ballpark
+                    home_score = pred_data.get('predicted_home_score', 5.0)
+                    away_score = pred_data.get('predicted_away_score', 5.0)
+                    
+                    pred_data['predicted_home_score'] = home_score * ballpark_factor
+                    pred_data['predicted_away_score'] = away_score * ballpark_factor
+                    pred_data['predicted_total_runs'] = pred_data['predicted_home_score'] + pred_data['predicted_away_score']
+                
+                # Enhance confidence based on feature quality
+                confidence = self._calculate_enhanced_confidence(home_features, away_features, final_prob)
+                pred_data['confidence'] = confidence
+                
+                logger.info(f"🎯 Enhanced {game_key}: {final_prob:.3f} home prob, {confidence:.1f}% confidence")
+            
+            return game_data
+            
+        except Exception as e:
+            logger.warning(f"Failed to enhance predictions for {game_key}: {e}")
+            return game_data
+    
+    def _extract_ensemble_features(self, game_data, home_features, away_features):
+        """Extract features for ensemble model"""
+        
+        try:
+            if 'predictions' not in game_data or 'predictions' not in game_data['predictions']:
+                return None
+            
+            pred_data = game_data['predictions']['predictions']
+            
+            features = []
+            
+            # Basic prediction features
+            features.append(pred_data.get('home_win_prob', 0.5))
+            features.append(1 - pred_data.get('home_win_prob', 0.5))
+            features.append(pred_data.get('predicted_home_score', 5.0))
+            features.append(pred_data.get('predicted_away_score', 5.0))
+            features.append(pred_data.get('predicted_total_runs', 10.0))
+            features.append(pred_data.get('confidence', 50.0))
+            
+            # Pitcher factors
+            if 'pitcher_info' in game_data['predictions']:
+                pitcher_info = game_data['predictions']['pitcher_info']
+                features.append(pitcher_info.get('away_pitcher_factor', 1.0))
+                features.append(pitcher_info.get('home_pitcher_factor', 1.0))
+            else:
+                features.extend([1.0, 1.0])
+            
+            # Team strength features
+            features.append(abs(pred_data.get('home_win_prob', 0.5) - 0.5))  # competitiveness
+            
+            # Betting line features
+            if 'betting_lines' in game_data:
+                lines = game_data['betting_lines']
+                features.append(lines.get('total_line', 0) or 0)
+                features.append(0.5)  # placeholder for home ML prob
+                features.append(0.5)  # placeholder for away ML prob
+            else:
+                features.extend([0, 0.5, 0.5])
+            
+            # Additional derived features
+            home_score = pred_data.get('predicted_home_score', 5.0)
+            away_score = pred_data.get('predicted_away_score', 5.0)
+            features.append(abs(home_score - away_score))
+            features.append(max(home_score, away_score))
+            features.append(min(home_score, away_score))
+            
+            return features
+            
+        except Exception as e:
+            logger.warning(f"Failed to extract ensemble features: {e}")
+            return None
+    
+    def _calculate_enhanced_confidence(self, home_features, away_features, win_prob):
+        """Calculate enhanced confidence based on feature quality"""
+        
+        base_confidence = 50
+        
+        # Boost confidence based on team rating difference
+        home_elo = home_features.get('elo_rating', 1500)
+        away_elo = away_features.get('elo_rating', 1500)
+        elo_diff = abs(home_elo - away_elo)
+        
+        # Higher rating difference = higher confidence
+        confidence_boost = min(25, elo_diff / 10)
+        
+        # Boost confidence for extreme win probabilities
+        prob_extreme = abs(win_prob - 0.5) * 2
+        prob_boost = prob_extreme * 30
+        
+        # Final confidence
+        enhanced_confidence = base_confidence + confidence_boost + prob_boost
+        enhanced_confidence = max(30, min(95, enhanced_confidence))  # Clamp between 30-95%
+        
+        return enhanced_confidence
+    
+    def apply_kelly_criterion_filtering(self, game_data, game_key):
+        """Apply Kelly Criterion filtering to recommendations"""
+        
+        if not self.advanced_mode or 'betting_lines' not in game_data:
+            return game_data
+        
+        try:
+            predictions = game_data.get('predictions', {}).get('predictions', {})
+            lines = game_data.get('betting_lines', {})
+            confidence = predictions.get('confidence', 50)
+            
+            # Only proceed if confidence meets threshold
+            if confidence < self.min_confidence_threshold:
+                logger.info(f"🔍 {game_key}: Confidence {confidence:.1f}% below threshold ({self.min_confidence_threshold}%)")
+                return game_data
+            
+            # Calculate edges and Kelly fractions
+            recommendations = []
+            
+            # Moneyline analysis
+            home_prob = predictions.get('home_win_prob', 0.5)
+            
+            if 'moneyline_home' in lines and lines['moneyline_home']:
+                home_odds = lines['moneyline_home']
+                implied_prob = self._odds_to_probability(home_odds)
+                edge = home_prob - implied_prob
+                
+                if edge > self.min_edge_threshold:
+                    kelly_fraction = self._calculate_kelly_fraction(home_prob, home_odds)
+                    recommendations.append({
+                        'type': 'moneyline',
+                        'team': 'home',
+                        'edge': edge,
+                        'kelly_fraction': kelly_fraction,
+                        'confidence': confidence,
+                        'recommendation': f"Bet HOME: {edge:.1%} edge, {kelly_fraction:.1%} Kelly"
+                    })
+            
+            # Away moneyline
+            if 'moneyline_away' in lines and lines['moneyline_away']:
+                away_odds = lines['moneyline_away']
+                implied_prob = self._odds_to_probability(away_odds)
+                away_prob = 1 - home_prob
+                edge = away_prob - implied_prob
+                
+                if edge > self.min_edge_threshold:
+                    kelly_fraction = self._calculate_kelly_fraction(away_prob, away_odds)
+                    recommendations.append({
+                        'type': 'moneyline',
+                        'team': 'away',
+                        'edge': edge,
+                        'kelly_fraction': kelly_fraction,
+                        'confidence': confidence,
+                        'recommendation': f"Bet AWAY: {edge:.1%} edge, {kelly_fraction:.1%} Kelly"
+                    })
+            
+            # Over/Under analysis
+            predicted_total = predictions.get('predicted_total_runs', 0)
+            if 'total_line' in lines and lines['total_line'] and predicted_total > 0:
+                total_line = lines['total_line']
+                
+                # Over bet
+                if predicted_total > total_line + 0.5:
+                    edge = (predicted_total - total_line) / total_line
+                    if edge > self.min_edge_threshold:
+                        recommendations.append({
+                            'type': 'total',
+                            'bet': 'over',
+                            'edge': edge,
+                            'confidence': confidence,
+                            'recommendation': f"Bet OVER {total_line}: {edge:.1%} edge"
+                        })
+                
+                # Under bet
+                elif predicted_total < total_line - 0.5:
+                    edge = (total_line - predicted_total) / total_line
+                    if edge > self.min_edge_threshold:
+                        recommendations.append({
+                            'type': 'total',
+                            'bet': 'under',
+                            'edge': edge,
+                            'confidence': confidence,
+                            'recommendation': f"Bet UNDER {total_line}: {edge:.1%} edge"
+                        })
+            
+            # Update game data with Kelly-filtered recommendations
+            if recommendations:
+                game_data['kelly_recommendations'] = recommendations
+                logger.info(f"🎯 {game_key}: {len(recommendations)} Kelly recommendations generated")
+            else:
+                logger.info(f"🔍 {game_key}: No qualifying Kelly recommendations")
+            
+            return game_data
+            
+        except Exception as e:
+            logger.warning(f"Failed to apply Kelly filtering for {game_key}: {e}")
+            return game_data
+    
+    def _odds_to_probability(self, odds):
+        """Convert American odds to implied probability"""
+        if odds > 0:
+            return 100 / (odds + 100)
+        else:
+            return abs(odds) / (abs(odds) + 100)
+    
+    def _calculate_kelly_fraction(self, win_prob, odds):
+        """Calculate Kelly fraction for a bet"""
+        # Convert odds to decimal
+        if odds > 0:
+            decimal_odds = (odds / 100) + 1
+        else:
+            decimal_odds = (100 / abs(odds)) + 1
+        
+        # Kelly formula: f = (bp - q) / b
+        b = decimal_odds - 1
+        p = win_prob
+        q = 1 - p
+        
+        if b > 0:
+            kelly_fraction = (b * p - q) / b
+        else:
+            kelly_fraction = 0
+        
+        # Apply conservative sizing (50% Kelly) and maximum limit
+        kelly_fraction = kelly_fraction * 0.5  # Conservative Kelly
+        kelly_fraction = max(0, min(kelly_fraction, 0.10))  # Max 10% of bankroll
+        
+        return kelly_fraction
+
 def main():
     logger.info("🎯 MLB Betting Recommendations Engine Starting")
     import argparse
     parser = argparse.ArgumentParser(description="MLB Betting Recommendations Engine")
     parser.add_argument('--date', type=str, help='Date for recommendations (YYYY-MM-DD)', default=None)
     args = parser.parse_args()
+    
+    # Initialize enhanced engine
     engine = BettingRecommendationsEngine(date=args.date)
+    
+    # Initialize advanced features if available
+    if engine.advanced_mode:
+        logger.info("🚀 Initializing advanced features...")
+        try:
+            # Build enhanced features
+            engine.feature_engineer.engineer_advanced_features()
+            logger.info("✅ Advanced features built successfully")
+        except Exception as e:
+            logger.warning(f"Failed to build advanced features: {e}")
+            engine.advanced_mode = False
+    
+    # Generate recommendations
     recommendations = engine.generate_betting_recommendations()
+    
+    # Apply enhancements to each game
+    if recommendations and 'games' in recommendations and engine.advanced_mode:
+        logger.info("🎯 Applying advanced enhancements...")
+        for game_key, game_data in recommendations['games'].items():
+            # Enhance predictions
+            enhanced_game = engine.enhance_predictions_with_advanced_features(game_data, game_key)
+            # Apply Kelly filtering
+            enhanced_game = engine.apply_kelly_criterion_filtering(enhanced_game, game_key)
+            recommendations['games'][game_key] = enhanced_game
+    
     if recommendations:
-        logger.info("✅ Betting recommendations generated successfully!")
+        logger.info("✅ Enhanced betting recommendations generated successfully!")
         output_path = f"data/betting_recommendations_{engine.current_date.replace('-', '_')}.json"
         try:
             with open(output_path, "w") as f:
                 import json
                 json.dump(recommendations, f, indent=2)
-            logger.info(f"💾 Saved to {output_path}")
+            logger.info(f"💾 Enhanced recommendations saved to {output_path}")
         except Exception as e:
             logger.error(f"❌ Failed to write recommendations file: {e}")
     else:

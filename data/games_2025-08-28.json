@@ -1,0 +1,82 @@
+[
+  {
+    "game_pk": 776564,
+    "game_time": "2025-08-28T17:05:00Z",
+    "away_team": "Boston Red Sox",
+    "home_team": "Baltimore Orioles",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Garrett Crochet",
+    "home_probable_pitcher": "Cade Povich"
+  },
+  {
+    "game_pk": 776555,
+    "game_time": "2025-08-28T18:10:00Z",
+    "away_team": "Colorado Rockies",
+    "home_team": "Houston Astros",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Kyle Freeland",
+    "home_probable_pitcher": "Jason Alexander"
+  },
+  {
+    "game_pk": 776553,
+    "game_time": "2025-08-28T18:10:00Z",
+    "away_team": "Arizona Diamondbacks",
+    "home_team": "Milwaukee Brewers",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Nabil Crismatt",
+    "home_probable_pitcher": "Jose Quintana"
+  },
+  {
+    "game_pk": 776554,
+    "game_time": "2025-08-28T18:15:00Z",
+    "away_team": "Pittsburgh Pirates",
+    "home_team": "St. Louis Cardinals",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Braxton Ashcraft",
+    "home_probable_pitcher": "Miles Mikolas"
+  },
+  {
+    "game_pk": 776550,
+    "game_time": "2025-08-28T19:45:00Z",
+    "away_team": "Chicago Cubs",
+    "home_team": "San Francisco Giants",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Shota Imanaga",
+    "home_probable_pitcher": "Logan Webb"
+  },
+  {
+    "game_pk": 776560,
+    "game_time": "2025-08-28T22:45:00Z",
+    "away_team": "Atlanta Braves",
+    "home_team": "Philadelphia Phillies",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Cal Quantrill",
+    "home_probable_pitcher": "Aaron Nola"
+  },
+  {
+    "game_pk": 776558,
+    "game_time": "2025-08-28T23:10:00Z",
+    "away_team": "Miami Marlins",
+    "home_team": "New York Mets",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "TBD",
+    "home_probable_pitcher": "Clay Holmes"
+  },
+  {
+    "game_pk": 776556,
+    "game_time": "2025-08-28T23:40:00Z",
+    "away_team": "New York Yankees",
+    "home_team": "Chicago White Sox",
+    "away_pitcher": "TBD",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Will Warren",
+    "home_probable_pitcher": "Davis Martin"
+  }
+]

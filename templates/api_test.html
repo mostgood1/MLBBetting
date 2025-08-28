@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test Page</h1>
+    <button onclick="testAPI()">Test Today Games API</button>
+    <div id="result"></div>
+    
+    <script>
+    async function testAPI() {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = 'Testing API...';
+        
+        try {
+            console.log('Making API call...');
+            const response = await fetch('/api/today-games?date=2025-08-27');
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            const text = await response.text();
+            console.log('Response text (first 200 chars):', text.substring(0, 200));
+            
+            if (text.trim().startsWith('<')) {
+                resultDiv.innerHTML = '<h3>ERROR: API returned HTML instead of JSON</h3><pre>' + text.substring(0, 500) + '</pre>';
+                return;
+            }
+            
+            const data = JSON.parse(text);
+            console.log('Parsed JSON:', data);
+            
+            resultDiv.innerHTML = `
+                <h3>API Test Results:</h3>
+                <p>Success: ${data.success}</p>
+                <p>Games Count: ${data.games ? data.games.length : 0}</p>
+                <p>Date: ${data.date}</p>
+                ${data.error ? `<p>Error: ${data.error}</p>` : ''}
+            `;
+        } catch (error) {
+            console.error('Error:', error);
+            resultDiv.innerHTML = '<h3>ERROR:</h3><p>' + error.message + '</p>';
+        }
+    }
+    </script>
+</body>
+</html>

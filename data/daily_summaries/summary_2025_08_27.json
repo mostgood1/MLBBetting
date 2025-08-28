@@ -1,0 +1,52 @@
+{
+  "date": "2025-08-27",
+  "generated_at": "2025-08-27T21:56:07.528023",
+  "total_games": 15,
+  "high_confidence_games": 2,
+  "betting_recommendations": 3,
+  "average_confidence": 61.0,
+  "high_confidence_details": [
+    {
+      "game": "Arizona Diamondbacks @ Milwaukee Brewers",
+      "confidence": 65.8,
+      "recommendation": {
+        "type": "total",
+        "side": "under",
+        "line": 8.5,
+        "odds": -110,
+        "model_total": 6.4,
+        "edge": 2.1,
+        "expected_value": 0.155,
+        "kelly_bet_size": 9.4,
+        "confidence": "HIGH",
+        "reasoning": "Model: 6.4 vs Line: 8.5"
+      }
+    },
+    {
+      "game": "Detroit Tigers @ Athletics",
+      "confidence": 65.4,
+      "recommendation": {
+        "type": "total",
+        "side": "under",
+        "line": 8.5,
+        "odds": -110,
+        "model_total": 6.0,
+        "edge": 2.5,
+        "expected_value": 0.192,
+        "kelly_bet_size": 12.0,
+        "confidence": "HIGH",
+        "reasoning": "Model: 6.0 vs Line: 8.5"
+      }
+    }
+  ],
+  "system_enhancements": {
+    "active": true,
+    "features": [
+      "Enhanced pitcher factor validation",
+      "Improved confidence calculation",
+      "Kelly Criterion bet sizing",
+      "Advanced feature engineering",
+      "Ensemble model integration"
+    ]
+  }
+}

@@ -6876,6 +6876,435 @@
       "source": "daily_files",
       "games_file": "data/games_2025-08-27.json",
       "betting_file": "data/betting_recommendations_2025_08_27.json"
+    },
+    "2025-08-28": {
+      "games": {
+        "Boston Red Sox_vs_Baltimore Orioles": {
+          "away_team": "Boston Red Sox",
+          "home_team": "Baltimore Orioles",
+          "game_date": "2025-08-28",
+          "predictions": {
+            "home_win_prob": 0.395,
+            "away_win_prob": 0.605,
+            "predicted_home_score": 3.2,
+            "predicted_away_score": 3.9,
+            "predicted_total_runs": 7.5,
+            "home_score_range": [
+              1.0,
+              6.0
+            ],
+            "away_score_range": [
+              2.0,
+              6.0
+            ],
+            "total_runs_range": [
+              4.0,
+              11.0
+            ],
+            "confidence": 62.7
+          },
+          "betting_lines": {
+            "home_ml": 153,
+            "away_ml": -153,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Garrett Crochet",
+            "home_pitcher_name": "Cade Povich",
+            "away_pitcher_factor": 0.76,
+            "home_pitcher_factor": 1.1032
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 7.7,
+            "recommendations_found": 0,
+            "timestamp": "2025-08-28T10:36:32.953165",
+            "data_source": "live_simulation"
+          }
+        },
+        "Colorado Rockies_vs_Houston Astros": {
+          "away_team": "Colorado Rockies",
+          "home_team": "Houston Astros",
+          "game_date": "2025-08-28",
+          "predictions": {
+            "home_win_prob": 0.52,
+            "away_win_prob": 0.48,
+            "predicted_home_score": 4.7,
+            "predicted_away_score": 4.5,
+            "predicted_total_runs": 9.0,
+            "home_score_range": [
+              2.0,
+              8.0
+            ],
+            "away_score_range": [
+              2.0,
+              7.0
+            ],
+            "total_runs_range": [
+              5.0,
+              13.0
+            ],
+            "confidence": 59.3
+          },
+          "betting_lines": {
+            "home_ml": -108,
+            "away_ml": 108,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Kyle Freeland",
+            "home_pitcher_name": "Jason Alexander",
+            "away_pitcher_factor": 1.2349999999999999,
+            "home_pitcher_factor": 1.0
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 5.9,
+            "recommendations_found": 0,
+            "timestamp": "2025-08-28T10:36:32.959108",
+            "data_source": "live_simulation"
+          }
+        },
+        "Arizona Diamondbacks_vs_Milwaukee Brewers": {
+          "away_team": "Arizona Diamondbacks",
+          "home_team": "Milwaukee Brewers",
+          "game_date": "2025-08-28",
+          "predictions": {
+            "home_win_prob": 0.467,
+            "away_win_prob": 0.533,
+            "predicted_home_score": 4.1,
+            "predicted_away_score": 4.4,
+            "predicted_total_runs": 8.5,
+            "home_score_range": [
+              2.0,
+              7.0
+            ],
+            "away_score_range": [
+              2.0,
+              7.0
+            ],
+            "total_runs_range": [
+              5.0,
+              12.0
+            ],
+            "confidence": 59.8
+          },
+          "betting_lines": {
+            "home_ml": 114,
+            "away_ml": -114,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Nabil Crismatt",
+            "home_pitcher_name": "Jose Quintana",
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 0.8859999999999999
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 5.2,
+            "recommendations_found": 0,
+            "timestamp": "2025-08-28T10:36:32.966274",
+            "data_source": "live_simulation"
+          }
+        },
+        "Pittsburgh Pirates_vs_St. Louis Cardinals": {
+          "away_team": "Pittsburgh Pirates",
+          "home_team": "St. Louis Cardinals",
+          "game_date": "2025-08-28",
+          "predictions": {
+            "home_win_prob": 0.444,
+            "away_win_prob": 0.556,
+            "predicted_home_score": 2.7,
+            "predicted_away_score": 3.0,
+            "predicted_total_runs": 6.4,
+            "home_score_range": [
+              1.0,
+              5.0
+            ],
+            "away_score_range": [
+              1.0,
+              5.0
+            ],
+            "total_runs_range": [
+              3.0,
+              9.0
+            ],
+            "confidence": 64.3
+          },
+          "betting_lines": {
+            "home_ml": 125,
+            "away_ml": -125,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 6.4,
+              "edge": 2.1,
+              "expected_value": 0.156,
+              "kelly_bet_size": 9.5,
+              "confidence": "HIGH",
+              "reasoning": "Model: 6.4 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Braxton Ashcraft",
+            "home_pitcher_name": "Miles Mikolas",
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 1.129
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 5.2,
+            "recommendations_found": 1,
+            "timestamp": "2025-08-28T10:36:32.971492",
+            "data_source": "live_simulation"
+          }
+        },
+        "Chicago Cubs_vs_San Francisco Giants": {
+          "away_team": "Chicago Cubs",
+          "home_team": "San Francisco Giants",
+          "game_date": "2025-08-28",
+          "predictions": {
+            "home_win_prob": 0.44,
+            "away_win_prob": 0.56,
+            "predicted_home_score": 2.4,
+            "predicted_away_score": 2.8,
+            "predicted_total_runs": 6.0,
+            "home_score_range": [
+              0.0,
+              4.1
+            ],
+            "away_score_range": [
+              1.0,
+              5.0
+            ],
+            "total_runs_range": [
+              3.0,
+              8.0
+            ],
+            "confidence": 65.4
+          },
+          "betting_lines": {
+            "home_ml": 127,
+            "away_ml": -127,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 6.0,
+              "edge": 2.5,
+              "expected_value": 0.198,
+              "kelly_bet_size": 12.4,
+              "confidence": "HIGH",
+              "reasoning": "Model: 6.0 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Shota Imanaga",
+            "home_pitcher_name": "Logan Webb",
+            "away_pitcher_factor": 0.835,
+            "home_pitcher_factor": 0.8859999999999999
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 6.6,
+            "recommendations_found": 1,
+            "timestamp": "2025-08-28T10:36:32.978648",
+            "data_source": "live_simulation"
+          }
+        },
+        "Atlanta Braves_vs_Philadelphia Phillies": {
+          "away_team": "Atlanta Braves",
+          "home_team": "Philadelphia Phillies",
+          "game_date": "2025-08-28",
+          "predictions": {
+            "home_win_prob": 0.459,
+            "away_win_prob": 0.541,
+            "predicted_home_score": 2.9,
+            "predicted_away_score": 3.1,
+            "predicted_total_runs": 6.6,
+            "home_score_range": [
+              1.0,
+              5.0
+            ],
+            "away_score_range": [
+              1.0,
+              5.0
+            ],
+            "total_runs_range": [
+              3.0,
+              9.0
+            ],
+            "confidence": 64.5
+          },
+          "betting_lines": {
+            "home_ml": 117,
+            "away_ml": -117,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 6.6,
+              "edge": 1.9,
+              "expected_value": 0.138,
+              "kelly_bet_size": 8.2,
+              "confidence": "HIGH",
+              "reasoning": "Model: 6.6 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Cal Quantrill",
+            "home_pitcher_name": "Aaron Nola",
+            "away_pitcher_factor": 1.199,
+            "home_pitcher_factor": 1.2719999999999998
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 4.7,
+            "recommendations_found": 1,
+            "timestamp": "2025-08-28T10:36:32.985450",
+            "data_source": "live_simulation"
+          }
+        },
+        "Miami Marlins_vs_New York Mets": {
+          "away_team": "Miami Marlins",
+          "home_team": "New York Mets",
+          "game_date": "2025-08-28",
+          "predictions": {
+            "home_win_prob": 0.474,
+            "away_win_prob": 0.526,
+            "predicted_home_score": 2.7,
+            "predicted_away_score": 2.9,
+            "predicted_total_runs": 6.4,
+            "home_score_range": [
+              1.0,
+              5.0
+            ],
+            "away_score_range": [
+              1.0,
+              5.0
+            ],
+            "total_runs_range": [
+              3.0,
+              9.0
+            ],
+            "confidence": 64.1
+          },
+          "betting_lines": {
+            "home_ml": 111,
+            "away_ml": -111,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 6.4,
+              "edge": 2.1,
+              "expected_value": 0.159,
+              "kelly_bet_size": 9.7,
+              "confidence": "HIGH",
+              "reasoning": "Model: 6.4 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": null,
+            "home_pitcher_name": null,
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 1.0
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 5.3,
+            "recommendations_found": 1,
+            "timestamp": "2025-08-28T10:36:32.990755",
+            "data_source": "live_simulation"
+          }
+        },
+        "New York Yankees_vs_Chicago White Sox": {
+          "away_team": "New York Yankees",
+          "home_team": "Chicago White Sox",
+          "game_date": "2025-08-28",
+          "predictions": {
+            "home_win_prob": 0.392,
+            "away_win_prob": 0.608,
+            "predicted_home_score": 4.0,
+            "predicted_away_score": 4.9,
+            "predicted_total_runs": 8.8,
+            "home_score_range": [
+              2.0,
+              7.0
+            ],
+            "away_score_range": [
+              2.0,
+              8.0
+            ],
+            "total_runs_range": [
+              5.0,
+              13.0
+            ],
+            "confidence": 59.8
+          },
+          "betting_lines": {
+            "home_ml": 155,
+            "away_ml": -155,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Will Warren",
+            "home_pitcher_name": "Davis Martin",
+            "away_pitcher_factor": 1.129,
+            "home_pitcher_factor": 0.956
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 5.8,
+            "recommendations_found": 0,
+            "timestamp": "2025-08-28T10:36:32.997545",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "engine": "UltraFast",
+        "generated_at": "2025-08-28T10:36:33.000765",
+        "game_count": 8
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

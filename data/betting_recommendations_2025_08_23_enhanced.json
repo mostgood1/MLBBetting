@@ -1,0 +1,1296 @@
+{
+  "date": "2025-08-23",
+  "generated_at": "2025-08-23T15:16:59.097805",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Boston Red Sox_vs_New York Yankees": {
+      "away_team": "Boston Red Sox",
+      "home_team": "New York Yankees",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Boston Red Sox",
+        "home_team": "New York Yankees",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.55,
+          "away_win_prob": 0.45,
+          "predicted_home_score": 5.9,
+          "predicted_away_score": 5.6,
+          "predicted_total_runs": 11.5,
+          "home_score_range": [
+            3.0,
+            9.0
+          ],
+          "away_score_range": [
+            3.0,
+            9.0
+          ],
+          "total_runs_range": [
+            7.0,
+            16.0
+          ],
+          "confidence": 66.9
+        },
+        "betting_lines": {
+          "home_ml": -122,
+          "away_ml": 122,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 11.5,
+            "edge": 3.0,
+            "expected_value": 0.245,
+            "kelly_bet_size": 16.0,
+            "confidence": "HIGH",
+            "reasoning": "Model: 11.5 vs Line: 8.5"
+          }
+        ],
+        "pitcher_info": {
+          "away_pitcher_name": "Garrett Crochet",
+          "home_pitcher_name": "Will Warren",
+          "away_pitcher_factor": 0.865,
+          "home_pitcher_factor": 1.3014999999999999
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 6.3,
+          "recommendations_found": 1,
+          "timestamp": "2025-08-23T14:06:07.927353",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.5375000000000001,
+        "ensemble_home_score": 5.550000000000001,
+        "ensemble_away_score": 5.324999999999999,
+        "ensemble_total_runs": 10.875,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 54.4% \u2192 66.9%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "Toronto Blue Jays_vs_Miami Marlins": {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Miami Marlins",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Toronto Blue Jays",
+        "home_team": "Miami Marlins",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.514,
+          "away_win_prob": 0.486,
+          "predicted_home_score": 3.6,
+          "predicted_away_score": 3.5,
+          "predicted_total_runs": 7.1,
+          "home_score_range": [
+            1.0,
+            6.0
+          ],
+          "away_score_range": [
+            1.0,
+            6.0
+          ],
+          "total_runs_range": [
+            4.0,
+            11.0
+          ],
+          "confidence": 67.6
+        },
+        "betting_lines": {
+          "home_ml": -105,
+          "away_ml": 105,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.1,
+            "edge": 1.4,
+            "expected_value": 0.087,
+            "kelly_bet_size": 4.9,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.1 vs Line: 8.5"
+          }
+        ],
+        "pitcher_info": {
+          "away_pitcher_name": "Jos\u00e9 Berr\u00edos",
+          "home_pitcher_name": "Janson Junk",
+          "away_pitcher_factor": 1.0985,
+          "home_pitcher_factor": 1.062
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 13.1,
+          "recommendations_found": 1,
+          "timestamp": "2025-08-23T14:06:07.940467",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.5105,
+        "ensemble_home_score": 3.825,
+        "ensemble_away_score": 3.75,
+        "ensemble_total_runs": 7.575,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 61.9% \u2192 67.6%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "Washington Nationals_vs_Philadelphia Phillies": {
+      "away_team": "Washington Nationals",
+      "home_team": "Philadelphia Phillies",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Washington Nationals",
+        "home_team": "Philadelphia Phillies",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.561,
+          "away_win_prob": 0.439,
+          "predicted_home_score": 4.4,
+          "predicted_away_score": 4.0,
+          "predicted_total_runs": 8.4,
+          "home_score_range": [
+            2.0,
+            7.0
+          ],
+          "away_score_range": [
+            1.0,
+            7.0
+          ],
+          "total_runs_range": [
+            5.0,
+            12.0
+          ],
+          "confidence": 72.65
+        },
+        "betting_lines": {
+          "home_ml": -127,
+          "away_ml": 127,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [],
+        "pitcher_info": {
+          "away_pitcher_name": "Mitchell Parker",
+          "home_pitcher_name": "Aaron Nola",
+          "away_pitcher_factor": 1.4224999999999999,
+          "home_pitcher_factor": 1.0
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 1.9,
+          "recommendations_found": 0,
+          "timestamp": "2025-08-23T14:06:07.942412",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.54575,
+        "ensemble_home_score": 4.425000000000001,
+        "ensemble_away_score": 4.125,
+        "ensemble_total_runs": 8.55,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 59.6% \u2192 72.7%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "Kansas City Royals_vs_Detroit Tigers": {
+      "away_team": "Kansas City Royals",
+      "home_team": "Detroit Tigers",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Kansas City Royals",
+        "home_team": "Detroit Tigers",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.553,
+          "away_win_prob": 0.447,
+          "predicted_home_score": 5.6,
+          "predicted_away_score": 5.2,
+          "predicted_total_runs": 10.8,
+          "home_score_range": [
+            3.0,
+            9.0
+          ],
+          "away_score_range": [
+            2.0,
+            8.0
+          ],
+          "total_runs_range": [
+            7.0,
+            15.0
+          ],
+          "confidence": 69.05
+        },
+        "betting_lines": {
+          "home_ml": -123,
+          "away_ml": 123,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 10.8,
+            "edge": 2.3,
+            "expected_value": 0.176,
+            "kelly_bet_size": 10.8,
+            "confidence": "HIGH",
+            "reasoning": "Model: 10.8 vs Line: 8.5"
+          }
+        ],
+        "pitcher_info": {
+          "away_pitcher_name": "Michael Wacha",
+          "home_pitcher_name": "Chris Paddack",
+          "away_pitcher_factor": 1.0134999999999998,
+          "home_pitcher_factor": 1.2685
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 15.5,
+          "recommendations_found": 1,
+          "timestamp": "2025-08-23T14:06:07.957912",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.53975,
+        "ensemble_home_score": 5.324999999999999,
+        "ensemble_away_score": 5.025,
+        "ensemble_total_runs": 10.35,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 56.4% \u2192 69.0%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "Colorado Rockies_vs_Pittsburgh Pirates": {
+      "away_team": "Colorado Rockies",
+      "home_team": "Pittsburgh Pirates",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Colorado Rockies",
+        "home_team": "Pittsburgh Pirates",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.561,
+          "away_win_prob": 0.439,
+          "predicted_home_score": 6.0,
+          "predicted_away_score": 5.5,
+          "predicted_total_runs": 11.5,
+          "home_score_range": [
+            3.0,
+            9.0
+          ],
+          "away_score_range": [
+            3.0,
+            9.0
+          ],
+          "total_runs_range": [
+            7.0,
+            16.0
+          ],
+          "confidence": 68.65
+        },
+        "betting_lines": {
+          "home_ml": -127,
+          "away_ml": 127,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 11.5,
+            "edge": 3.0,
+            "expected_value": 0.242,
+            "kelly_bet_size": 15.7,
+            "confidence": "HIGH",
+            "reasoning": "Model: 11.5 vs Line: 8.5"
+          }
+        ],
+        "pitcher_info": {
+          "away_pitcher_name": "Kyle Freeland",
+          "home_pitcher_name": "Mike Burrows",
+          "away_pitcher_factor": 1.3375,
+          "home_pitcher_factor": 1.2147999999999999
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 10.7,
+          "recommendations_found": 1,
+          "timestamp": "2025-08-23T14:06:07.968619",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.54575,
+        "ensemble_home_score": 5.625,
+        "ensemble_away_score": 5.25,
+        "ensemble_total_runs": 10.875,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 55.6% \u2192 68.7%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "Houston Astros_vs_Baltimore Orioles": {
+      "away_team": "Houston Astros",
+      "home_team": "Baltimore Orioles",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Houston Astros",
+        "home_team": "Baltimore Orioles",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.507,
+          "away_win_prob": 0.493,
+          "predicted_home_score": 3.6,
+          "predicted_away_score": 3.5,
+          "predicted_total_runs": 7.2,
+          "home_score_range": [
+            1.0,
+            6.0
+          ],
+          "away_score_range": [
+            1.0,
+            6.0
+          ],
+          "total_runs_range": [
+            4.0,
+            11.0
+          ],
+          "confidence": 67.25
+        },
+        "betting_lines": {
+          "home_ml": -102,
+          "away_ml": 102,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.2,
+            "edge": 1.3,
+            "expected_value": 0.08,
+            "kelly_bet_size": 4.6,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.2 vs Line: 8.5"
+          }
+        ],
+        "pitcher_info": {
+          "away_pitcher_name": "Cristian Javier",
+          "home_pitcher_name": "Dean Kremer",
+          "away_pitcher_factor": 1.0,
+          "home_pitcher_factor": 1.0985
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 10.2,
+          "recommendations_found": 1,
+          "timestamp": "2025-08-23T14:06:07.978800",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.50525,
+        "ensemble_home_score": 3.825,
+        "ensemble_away_score": 3.75,
+        "ensemble_total_runs": 7.575,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 61.9% \u2192 67.2%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "Cleveland Guardians_vs_Texas Rangers": {
+      "away_team": "Cleveland Guardians",
+      "home_team": "Texas Rangers",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Cleveland Guardians",
+        "home_team": "Texas Rangers",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.533,
+          "away_win_prob": 0.467,
+          "predicted_home_score": 5.9,
+          "predicted_away_score": 5.6,
+          "predicted_total_runs": 11.6,
+          "home_score_range": [
+            3.0,
+            9.0
+          ],
+          "away_score_range": [
+            3.0,
+            9.0
+          ],
+          "total_runs_range": [
+            7.0,
+            16.0
+          ],
+          "confidence": 67.15
+        },
+        "betting_lines": {
+          "home_ml": -114,
+          "away_ml": 114,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 11.6,
+            "edge": 3.1,
+            "expected_value": 0.247,
+            "kelly_bet_size": 16.1,
+            "confidence": "HIGH",
+            "reasoning": "Model: 11.6 vs Line: 8.5"
+          }
+        ],
+        "pitcher_info": {
+          "away_pitcher_name": "Logan Allen",
+          "home_pitcher_name": "Jack Leiter",
+          "away_pitcher_factor": 1.1315,
+          "home_pitcher_factor": 1.1315
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 9.2,
+          "recommendations_found": 1,
+          "timestamp": "2025-08-23T14:06:07.988455",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.52475,
+        "ensemble_home_score": 5.550000000000001,
+        "ensemble_away_score": 5.324999999999999,
+        "ensemble_total_runs": 10.875,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 55.5% \u2192 67.2%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "Minnesota Twins_vs_Chicago White Sox": {
+      "away_team": "Minnesota Twins",
+      "home_team": "Chicago White Sox",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Minnesota Twins",
+        "home_team": "Chicago White Sox",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.511,
+          "away_win_prob": 0.489,
+          "predicted_home_score": 3.6,
+          "predicted_away_score": 3.5,
+          "predicted_total_runs": 7.2,
+          "home_score_range": [
+            1.0,
+            6.0
+          ],
+          "away_score_range": [
+            1.0,
+            6.0
+          ],
+          "total_runs_range": [
+            4.0,
+            11.0
+          ],
+          "confidence": 67.55
+        },
+        "betting_lines": {
+          "home_ml": -104,
+          "away_ml": 104,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.2,
+            "edge": 1.3,
+            "expected_value": 0.082,
+            "kelly_bet_size": 4.6,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.2 vs Line: 8.5"
+          }
+        ],
+        "pitcher_info": {
+          "away_pitcher_name": "Mick Abel",
+          "home_pitcher_name": "Davis Martin",
+          "away_pitcher_factor": 1.0,
+          "home_pitcher_factor": 1.1315
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 8.0,
+          "recommendations_found": 1,
+          "timestamp": "2025-08-23T14:06:07.996482",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.5082500000000001,
+        "ensemble_home_score": 3.825,
+        "ensemble_away_score": 3.75,
+        "ensemble_total_runs": 7.575,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 62.0% \u2192 67.5%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "San Francisco Giants_vs_Milwaukee Brewers": {
+      "away_team": "San Francisco Giants",
+      "home_team": "Milwaukee Brewers",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "San Francisco Giants",
+        "home_team": "Milwaukee Brewers",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.528,
+          "away_win_prob": 0.472,
+          "predicted_home_score": 3.7,
+          "predicted_away_score": 3.4,
+          "predicted_total_runs": 7.1,
+          "home_score_range": [
+            1.0,
+            6.0
+          ],
+          "away_score_range": [
+            1.0,
+            6.0
+          ],
+          "total_runs_range": [
+            4.0,
+            11.0
+          ],
+          "confidence": 68.5
+        },
+        "betting_lines": {
+          "home_ml": -111,
+          "away_ml": 111,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.1,
+            "edge": 1.4,
+            "expected_value": 0.087,
+            "kelly_bet_size": 5.0,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.1 vs Line: 8.5"
+          }
+        ],
+        "pitcher_info": {
+          "away_pitcher_name": "Logan Webb",
+          "home_pitcher_name": "Freddy Peralta",
+          "away_pitcher_factor": 1.0134999999999998,
+          "home_pitcher_factor": 0.9924999999999999
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 7.3,
+          "recommendations_found": 1,
+          "timestamp": "2025-08-23T14:06:08.003758",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.521,
+        "ensemble_home_score": 3.9,
+        "ensemble_away_score": 3.675,
+        "ensemble_total_runs": 7.574999999999999,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 62.1% \u2192 68.5%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "New York Mets_vs_Atlanta Braves": {
+      "away_team": "New York Mets",
+      "home_team": "Atlanta Braves",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "New York Mets",
+        "home_team": "Atlanta Braves",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.507,
+          "away_win_prob": 0.493,
+          "predicted_home_score": 5.8,
+          "predicted_away_score": 5.7,
+          "predicted_total_runs": 11.5,
+          "home_score_range": [
+            3.0,
+            9.0
+          ],
+          "away_score_range": [
+            3.0,
+            9.0
+          ],
+          "total_runs_range": [
+            7.0,
+            16.0
+          ],
+          "confidence": 65.45
+        },
+        "betting_lines": {
+          "home_ml": -103,
+          "away_ml": 103,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "over",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 11.5,
+            "edge": 3.0,
+            "expected_value": 0.243,
+            "kelly_bet_size": 15.8,
+            "confidence": "HIGH",
+            "reasoning": "Model: 11.5 vs Line: 8.5"
+          }
+        ],
+        "pitcher_info": {
+          "away_pitcher_name": "Clay Holmes",
+          "home_pitcher_name": "Cal Quantrill",
+          "away_pitcher_factor": 1.1315,
+          "home_pitcher_factor": 1.3014999999999999
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 12.4,
+          "recommendations_found": 1,
+          "timestamp": "2025-08-23T14:06:08.016196",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.50525,
+        "ensemble_home_score": 5.475,
+        "ensemble_away_score": 5.4,
+        "ensemble_total_runs": 10.875,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 55.1% \u2192 65.5%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "Cincinnati Reds_vs_Arizona Diamondbacks": {
+      "away_team": "Cincinnati Reds",
+      "home_team": "Arizona Diamondbacks",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Cincinnati Reds",
+        "home_team": "Arizona Diamondbacks",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.54,
+          "away_win_prob": 0.46,
+          "predicted_home_score": 4.5,
+          "predicted_away_score": 4.3,
+          "predicted_total_runs": 8.8,
+          "home_score_range": [
+            2.0,
+            7.0
+          ],
+          "away_score_range": [
+            2.0,
+            7.0
+          ],
+          "total_runs_range": [
+            5.0,
+            13.0
+          ],
+          "confidence": 71.7
+        },
+        "betting_lines": {
+          "home_ml": -117,
+          "away_ml": 117,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [],
+        "pitcher_info": {
+          "away_pitcher_name": "Andrew Abbott",
+          "home_pitcher_name": "Nabil Crismatt",
+          "away_pitcher_factor": 0.865,
+          "home_pitcher_factor": 1.0
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 13.9,
+          "recommendations_found": 0,
+          "timestamp": "2025-08-23T14:06:08.030115",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.53,
+        "ensemble_home_score": 4.5,
+        "ensemble_away_score": 4.35,
+        "ensemble_total_runs": 8.85,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 59.7% \u2192 71.7%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "Los Angeles Dodgers_vs_San Diego Padres": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "San Diego Padres",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Los Angeles Dodgers",
+        "home_team": "San Diego Padres",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.527,
+          "away_win_prob": 0.473,
+          "predicted_home_score": 3.7,
+          "predicted_away_score": 3.5,
+          "predicted_total_runs": 7.2,
+          "home_score_range": [
+            1.0,
+            6.0
+          ],
+          "away_score_range": [
+            1.0,
+            6.0
+          ],
+          "total_runs_range": [
+            4.0,
+            11.0
+          ],
+          "confidence": 68.05000000000001
+        },
+        "betting_lines": {
+          "home_ml": -111,
+          "away_ml": 111,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.2,
+            "edge": 1.3,
+            "expected_value": 0.08,
+            "kelly_bet_size": 4.5,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.2 vs Line: 8.5"
+          }
+        ],
+        "pitcher_info": {
+          "away_pitcher_name": "Tyler Glasnow",
+          "home_pitcher_name": "Nestor Cortes",
+          "away_pitcher_factor": 0.994,
+          "home_pitcher_factor": 1.0
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 8.8,
+          "recommendations_found": 1,
+          "timestamp": "2025-08-23T14:06:08.038918",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.5202500000000001,
+        "ensemble_home_score": 3.9,
+        "ensemble_away_score": 3.75,
+        "ensemble_total_runs": 7.65,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 61.7% \u2192 68.1%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "Chicago Cubs_vs_Los Angeles Angels": {
+      "away_team": "Chicago Cubs",
+      "home_team": "Los Angeles Angels",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Chicago Cubs",
+        "home_team": "Los Angeles Angels",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.527,
+          "away_win_prob": 0.473,
+          "predicted_home_score": 3.7,
+          "predicted_away_score": 3.5,
+          "predicted_total_runs": 7.1,
+          "home_score_range": [
+            1.0,
+            6.0
+          ],
+          "away_score_range": [
+            1.0,
+            6.0
+          ],
+          "total_runs_range": [
+            4.0,
+            11.0
+          ],
+          "confidence": 68.55000000000001
+        },
+        "betting_lines": {
+          "home_ml": -111,
+          "away_ml": 111,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [
+          {
+            "type": "total",
+            "side": "under",
+            "line": 8.5,
+            "odds": -110,
+            "model_total": 7.1,
+            "edge": 1.4,
+            "expected_value": 0.084,
+            "kelly_bet_size": 4.8,
+            "confidence": "HIGH",
+            "reasoning": "Model: 7.1 vs Line: 8.5"
+          }
+        ],
+        "pitcher_info": {
+          "away_pitcher_name": "Cade Horton",
+          "home_pitcher_name": "Victor Mederos",
+          "away_pitcher_factor": 1.0108,
+          "home_pitcher_factor": 1.0
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 7.1,
+          "recommendations_found": 1,
+          "timestamp": "2025-08-23T14:06:08.045980",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.5202500000000001,
+        "ensemble_home_score": 3.9,
+        "ensemble_away_score": 3.75,
+        "ensemble_total_runs": 7.65,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 62.2% \u2192 68.6%",
+        "Applied simple ensemble adjustment"
+      ]
+    },
+    "Athletics_vs_Seattle Mariners": {
+      "away_team": "Athletics",
+      "home_team": "Seattle Mariners",
+      "game_date": "2025-08-23",
+      "predictions": {
+        "away_team": "Athletics",
+        "home_team": "Seattle Mariners",
+        "game_date": "2025-08-23",
+        "predictions": {
+          "home_win_prob": 0.547,
+          "away_win_prob": 0.453,
+          "predicted_home_score": 4.6,
+          "predicted_away_score": 4.2,
+          "predicted_total_runs": 8.9,
+          "home_score_range": [
+            2.0,
+            7.0
+          ],
+          "away_score_range": [
+            2.0,
+            7.0
+          ],
+          "total_runs_range": [
+            5.0,
+            13.0
+          ],
+          "confidence": 71.55000000000001
+        },
+        "betting_lines": {
+          "home_ml": -120,
+          "away_ml": 120,
+          "total_line": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "recommendations": [],
+        "pitcher_info": {
+          "away_pitcher_name": "Jeffrey Springs",
+          "home_pitcher_name": "George Kirby",
+          "away_pitcher_factor": 1.0985,
+          "home_pitcher_factor": 1.062
+        },
+        "meta": {
+          "simulations_run": 5000,
+          "execution_time_ms": 5.7,
+          "recommendations_found": 0,
+          "timestamp": "2025-08-23T14:06:08.051694",
+          "data_source": "live_simulation"
+        }
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "Market Analysis",
+          "bet": "No Strong Value",
+          "recommendation": "No clear value identified",
+          "reasoning": "Game appears efficiently priced by the market",
+          "confidence": "LOW",
+          "estimated_odds": "N/A",
+          "edge": 0,
+          "edge_rating": "\ud83d\udca1"
+        }
+      ],
+      "ensemble_adjusted_predictions": {
+        "ensemble_home_win_prob": 0.53525,
+        "ensemble_home_score": 4.574999999999999,
+        "ensemble_away_score": 4.275,
+        "ensemble_total_runs": 8.85,
+        "adjustment_applied": "Simple conservative ensemble"
+      },
+      "enhancements_applied": [
+        "Enhanced confidence: 59.2% \u2192 71.6%",
+        "Applied simple ensemble adjustment"
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 14,
+    "games_with_betting_lines": 14,
+    "total_value_bets": 0,
+    "high_confidence_bets": 0,
+    "medium_confidence_bets": 0
+  },
+  "enhancement_info": {
+    "enhanced_at": "2025-08-27T21:42:11.551795",
+    "improvements_made": 28,
+    "version": "quick_enhanced_v1.0"
+  }
+}

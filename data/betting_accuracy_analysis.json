@@ -1,20 +1,23 @@
 {
-  "analysis_date": "2025-08-17T15:02:25.205243",
-  "current_date_excluded": "2025-08-17",
-  "total_games_analyzed": 121,
+  "analysis_date": "2025-08-27T20:39:00.000000",
+  "current_date_excluded": "2025-08-27",
+  "total_games_analyzed": 173,
   "betting_performance": {
     "moneyline_bets": 121,
     "moneyline_correct": 59,
     "moneyline_accuracy_pct": 48.8,
-    "over_under_bets": 119,
-    "over_under_correct": 60,
-    "over_under_accuracy_pct": 50.4,
+    "over_under_bets": 117,
+    "over_under_correct": 47,
+    "over_under_accuracy_pct": 40.2,
     "perfect_games": 24,
     "perfect_games_pct": 19.8,
-    "winner_predictions_correct": 59,
-    "winner_accuracy_pct": 48.8,
-    "total_predictions_correct": 60,
-    "total_accuracy_pct": 50.4
+    "winner_predictions_correct": 90,
+    "winner_accuracy_pct": 52.0,
+    "total_predictions_correct": 47,
+    "total_accuracy_pct": 40.2,
+    "total_bets_placed": 117,
+    "total_profit": -2667.92,
+    "roi_percentage": -22.8
   },
   "detailed_games": [
     {
