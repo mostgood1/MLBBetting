@@ -50,6 +50,17 @@ $questionableFiles = @(
     "quick_performance_check.py"
 )
 
+# Old documentation files that might be outdated
+$questionableDocs = @(
+    "CLEANUP_SUMMARY.md",
+    "COMPREHENSIVE_RETUNING_SUMMARY.md", 
+    "RETUNING_SUCCESS_REPORT.md",
+    "ENHANCED_SYSTEM_STATUS.md",
+    "RENDER_COMPATIBILITY_REPORT.md",
+    "RENDER_DEPLOYMENT.md",
+    "RENDER_FULL_FUNCTIONALITY_STATUS.md"
+)
+
 # Directories to clean up (remove empty __pycache__ dirs)
 $pyCache = Get-ChildItem -Recurse -Directory -Name "__pycache__"
 
@@ -75,6 +86,17 @@ foreach ($file in $questionableFiles) {
     }
 }
 
+Write-Host "`nOld documentation files (consider archiving):" -ForegroundColor Cyan
+$questionableDocsPresent = @()
+foreach ($file in $questionableDocs) {
+    if (Test-Path $file) {
+        $fileInfo = Get-Item $file
+        $sizeKB = [math]::Round($fileInfo.Length / 1KB, 1)
+        Write-Host "  ? $file ($sizeKB KB)" -ForegroundColor Cyan
+        $questionableDocsPresent += $file
+    }
+}
+
 Write-Host "`nPython cache directories to remove:" -ForegroundColor Yellow
 foreach ($dir in $pyCache) {
     Write-Host "  DIR $dir" -ForegroundColor Cyan
@@ -96,6 +118,10 @@ Write-Host "  Total space to reclaim: $([math]::Round($totalSizeKB, 1)) KB"
 
 if ($questionablePresent.Count -gt 0) {
     Write-Host "  Files needing manual review: $($questionablePresent.Count)" -ForegroundColor Yellow
+}
+
+if ($questionableDocsPresent.Count -gt 0) {
+    Write-Host "  Old docs to consider archiving: $($questionableDocsPresent.Count)" -ForegroundColor Cyan
 }
 
 if ($DryRun) {
@@ -155,6 +181,14 @@ if ($questionablePresent.Count -gt 0) {
         Write-Host "  > $file" -ForegroundColor Yellow
     }
     Write-Host "  These files may contain useful analysis code." -ForegroundColor Yellow
+}
+
+if ($questionableDocsPresent.Count -gt 0) {
+    Write-Host "`nOld documentation files to consider archiving:" -ForegroundColor Cyan
+    foreach ($file in $questionableDocsPresent) {
+        Write-Host "  > $file" -ForegroundColor Cyan
+    }
+    Write-Host "  These are old status reports that may be outdated." -ForegroundColor Cyan
 }
 
 Write-Host "`nNext steps:" -ForegroundColor Blue
