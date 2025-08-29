@@ -15,6 +15,10 @@ track_*.py
 create_performance_*.py
 fix_*.py
 
+# Backup files
+*.backup*
+data/*.backup*
+
 # Allow essential tuning files but block others
 !admin_tuning.py
 !continuous_auto_tuning.py
