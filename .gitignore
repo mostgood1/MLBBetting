@@ -77,6 +77,7 @@ logs/
 *.swo
 
 # OS generated files
+# macOS
 .DS_Store
 .DS_Store?
 ._*
@@ -84,3 +85,13 @@ logs/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Log files (keep only current day's logs)
+*.log
+logs_archive/
+!.gitkeep
+
+# Cleanup directories
+cleanup/
+archive-*/
+cleanup-*/
