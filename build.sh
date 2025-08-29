@@ -34,19 +34,15 @@ python -c "import schedule; print(f'Schedule installed')"
 python -c "import requests; print(f'Requests installed')"
 python -c "import numpy; print(f'Numpy installed')"
 
-# Create necessary directories and files for Render deployment
-echo "📁 Setting up data directories and files..."
-mkdir -p data
-mkdir -p logs
-mkdir -p monitoring_data
-mkdir -p static
-mkdir -p templates
-
-# Create essential data files if they don't exist
-echo '{}' > data/unified_predictions_cache.json
-echo '{}' > data/betting_accuracy_analysis.json
-echo '{}' > data/daily_dashboard_stats.json
-echo '{}' > data/historical_betting_lines_cache.json
-echo '{}' > data/system_status.json
+# Ensure directories exist (do not overwrite data files; Render should use same data volume/artifacts as local)
+echo "📁 Ensuring data directories exist (no clobber)..."
+mkdir -p data logs monitoring_data static templates
+for f in unified_predictions_cache.json betting_accuracy_analysis.json daily_dashboard_stats.json historical_betting_lines_cache.json system_status.json; do
+	if [ ! -f "data/$f" ]; then
+		echo '{}' > "data/$f"
+	else
+		echo "Keeping existing data/$f"
+	fi
+done
 
 echo "🎯 Build completed successfully!"

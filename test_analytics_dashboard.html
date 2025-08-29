@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLB Betting Analytics Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2980b9;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .positive { color: #27ae60; }
+        .negative { color: #e74c3c; }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏟️ MLB Betting Analytics Dashboard</h1>
+        <p>Historical Performance Analysis & Kelly Criterion Betting Guidance</p>
+        <p>Last Updated: <span id="lastUpdated">Loading...</span></p>
+    </div>
+
+    <!-- Historical Kelly Performance -->
+    <div class="container">
+        <h2>💰 Historical Kelly Performance</h2>
+        <div id="historicalPerformance">
+            <div class="loading">Loading historical performance data...</div>
+        </div>
+    </div>
+
+    <!-- Bet Type Performance -->
+    <div class="container">
+        <h2>📈 Historical Performance by Bet Type</h2>
+        <div id="betTypePerformance">
+            <div class="loading">Loading bet type performance...</div>
+        </div>
+    </div>
+
+    <!-- Daily Results -->
+    <div class="container">
+        <h2>📅 Daily Kelly Results</h2>
+        <div id="dailyResults">
+            <div class="loading">Loading daily results...</div>
+        </div>
+    </div>
+
+    <!-- Today's Opportunities -->
+    <div class="container">
+        <h2>🎯 Today's Opportunities</h2>
+        <div id="todaysOpportunities">
+            <div class="loading">Loading today's opportunities...</div>
+        </div>
+    </div>
+
+    <script>
+        // Set last updated time
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+
+        // Fetch and display historical Kelly performance
+        async function loadHistoricalPerformance() {
+            try {
+                const response = await fetch('http://localhost:5001/api/historical-kelly-performance');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const data = result.data;
+                    const summary = data.summary;
+                    
+                    document.getElementById('historicalPerformance').innerHTML = `
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">${summary.total_kelly_recommendations}</div>
+                                <div class="stat-label">Total Kelly Bets</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${summary.win_rate}%</div>
+                                <div class="stat-label">Win Rate</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value ${summary.total_roi >= 0 ? 'positive' : 'negative'}">${summary.total_roi}%</div>
+                                <div class="stat-label">Total ROI</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value ${summary.net_profit >= 0 ? 'positive' : 'negative'}">$${summary.net_profit}</div>
+                                <div class="stat-label">Net Profit</div>
+                            </div>
+                        </div>
+                        <p><strong>Analysis Period:</strong> ${summary.period}</p>
+                        <p><strong>Total Betting Days:</strong> ${summary.total_betting_days}</p>
+                    `;
+                } else {
+                    throw new Error(result.message || 'Failed to load data');
+                }
+            } catch (error) {
+                document.getElementById('historicalPerformance').innerHTML = `
+                    <div class="error">Error loading historical performance: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Fetch and display bet type performance
+        async function loadBetTypePerformance() {
+            try {
+                const response = await fetch('http://localhost:5001/api/historical-kelly-performance');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const betTypes = result.data.bet_type_performance;
+                    
+                    let tableHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Bet Type</th>
+                                    <th>Total Bets</th>
+                                    <th>Wins</th>
+                                    <th>Accuracy</th>
+                                    <th>Recommendation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    for (const [type, data] of Object.entries(betTypes)) {
+                        if (data.count > 0) {
+                            const accuracy = data.count > 0 ? (data.wins / data.count * 100).toFixed(1) : 0;
+                            const recommendation = accuracy > 55 ? 'RECOMMENDED' : accuracy > 45 ? 'NEUTRAL' : 'AVOID';
+                            const recClass = accuracy > 55 ? 'positive' : accuracy < 45 ? 'negative' : '';
+                            
+                            tableHTML += `
+                                <tr>
+                                    <td>${type.charAt(0).toUpperCase() + type.slice(1)}</td>
+                                    <td>${data.count}</td>
+                                    <td>${data.wins}</td>
+                                    <td>${accuracy}%</td>
+                                    <td class="${recClass}">${recommendation}</td>
+                                </tr>
+                            `;
+                        }
+                    }
+                    
+                    tableHTML += '</tbody></table>';
+                    document.getElementById('betTypePerformance').innerHTML = tableHTML;
+                } else {
+                    throw new Error(result.message || 'Failed to load data');
+                }
+            } catch (error) {
+                document.getElementById('betTypePerformance').innerHTML = `
+                    <div class="error">Error loading bet type performance: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Fetch and display daily results
+        async function loadDailyResults() {
+            try {
+                const response = await fetch('http://localhost:5001/api/historical-kelly-performance');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const dailyResults = result.data.daily_results;
+                    
+                    let tableHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Kelly Bets</th>
+                                    <th>Successful</th>
+                                    <th>Win Rate</th>
+                                    <th>ROI</th>
+                                    <th>Net Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    // Sort by date descending
+                    dailyResults.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
+                    for (const day of dailyResults) {
+                        if (day.kelly_bets > 0) {
+                            tableHTML += `
+                                <tr>
+                                    <td>${day.date}</td>
+                                    <td>${day.kelly_bets}</td>
+                                    <td>${day.successful_bets}</td>
+                                    <td>${day.win_rate}%</td>
+                                    <td class="${day.roi >= 0 ? 'positive' : 'negative'}">${day.roi}%</td>
+                                    <td class="${day.net_profit >= 0 ? 'positive' : 'negative'}">$${day.net_profit}</td>
+                                </tr>
+                            `;
+                        }
+                    }
+                    
+                    tableHTML += '</tbody></table>';
+                    document.getElementById('dailyResults').innerHTML = tableHTML;
+                } else {
+                    throw new Error(result.message || 'Failed to load data');
+                }
+            } catch (error) {
+                document.getElementById('dailyResults').innerHTML = `
+                    <div class="error">Error loading daily results: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Fetch and display today's opportunities
+        async function loadTodaysOpportunities() {
+            try {
+                const response = await fetch('http://localhost:5001/api/todays-opportunities');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const data = result.data;
+                    const summary = data.summary;
+                    
+                    if (data.total_opportunities === 0) {
+                        document.getElementById('todaysOpportunities').innerHTML = `
+                            <p>No Kelly Criterion opportunities available for today.</p>
+                            <p>Check back later when new predictions are generated.</p>
+                        `;
+                    } else {
+                        document.getElementById('todaysOpportunities').innerHTML = `
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-value">${data.total_opportunities}</div>
+                                    <div class="stat-label">Total Opportunities</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${summary.high_value_bets}</div>
+                                    <div class="stat-label">High Value Bets</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${summary.medium_value_bets}</div>
+                                    <div class="stat-label">Medium Value Bets</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${summary.avg_confidence}%</div>
+                                    <div class="stat-label">Avg Confidence</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    throw new Error(result.message || 'Failed to load data');
+                }
+            } catch (error) {
+                document.getElementById('todaysOpportunities').innerHTML = `
+                    <div class="error">Error loading today's opportunities: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Load all data
+        loadHistoricalPerformance();
+        loadBetTypePerformance();
+        loadDailyResults();
+        loadTodaysOpportunities();
+    </script>
+</body>
+</html>

@@ -135,14 +135,14 @@ def try_integrated_closing_lines():
 
 def main():
     """Main function"""
-    print("🎯 Fetching betting lines for today...")
+    print("Fetching betting lines for today...")
     
     # Try integrated closing lines first
     if try_integrated_closing_lines():
         return True
     
     # Fallback to sample data
-    print("🔄 Creating sample betting lines...")
+    print("Creating sample betting lines...")
     return create_sample_betting_lines()
 
 if __name__ == "__main__":

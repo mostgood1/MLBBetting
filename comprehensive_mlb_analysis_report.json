@@ -1,0 +1,318 @@
+{
+  "analysis_timestamp": "2025-08-29T08:50:08.470378",
+  "total_games_analyzed": 182,
+  "date_range": {
+    "start_date": "2025-08-15",
+    "end_date": "2025-08-27",
+    "total_days": 13
+  },
+  "model_predictive_accuracy": {
+    "total_games": 167,
+    "winner_prediction": {
+      "correct_predictions": 82,
+      "accuracy_percentage": 49.1,
+      "incorrect_predictions": 85
+    },
+    "score_accuracy": {
+      "average_score_error": 3.48,
+      "median_score_error": 3.2,
+      "within_1_run_percent": 7.19,
+      "within_2_runs_percent": 25.15,
+      "within_3_runs_percent": 47.9
+    },
+    "total_runs_accuracy": {
+      "average_total_error": 6.0,
+      "median_total_error": 5.1,
+      "within_1_run_percent": 14.97,
+      "within_2_runs_percent": 22.16,
+      "within_3_runs_percent": 32.34
+    }
+  },
+  "betting_line_performance": {
+    "total_games_with_lines": 80,
+    "over_under_accuracy": {
+      "correct_predictions": 38,
+      "accuracy_percentage": 47.5,
+      "incorrect_predictions": 42
+    },
+    "line_beating_performance": {
+      "model_beat_line": 38,
+      "model_followed_line": 42,
+      "edge_percentage": -2.5
+    }
+  },
+  "recommendation_intelligence": {
+    "error": "No betting recommendations found"
+  },
+  "daily_breakdown": {
+    "2025-08-15": {
+      "total_games": 15,
+      "winner_accuracy": 46.67,
+      "avg_score_error": 2.96,
+      "total_runs_error": 5.19,
+      "betting_line_accuracy": 45.45,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-16": {
+      "total_games": 15,
+      "winner_accuracy": 60.0,
+      "avg_score_error": 2.78,
+      "total_runs_error": 4.43,
+      "betting_line_accuracy": 58.33,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-17": {
+      "total_games": 15,
+      "winner_accuracy": 46.67,
+      "avg_score_error": 5.27,
+      "total_runs_error": 10.53,
+      "betting_line_accuracy": 0,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-18": {
+      "total_games": 12,
+      "winner_accuracy": 41.67,
+      "avg_score_error": 2.84,
+      "total_runs_error": 3.68,
+      "betting_line_accuracy": 70.0,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-19": {
+      "total_games": 15,
+      "winner_accuracy": 53.33,
+      "avg_score_error": 2.49,
+      "total_runs_error": 3.63,
+      "betting_line_accuracy": 41.67,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-20": {
+      "total_games": 14,
+      "winner_accuracy": 71.43,
+      "avg_score_error": 2.46,
+      "total_runs_error": 3.04,
+      "betting_line_accuracy": 44.44,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-21": {
+      "total_games": 9,
+      "winner_accuracy": 44.44,
+      "avg_score_error": 2.22,
+      "total_runs_error": 2.73,
+      "betting_line_accuracy": 28.57,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-22": {
+      "total_games": 15,
+      "winner_accuracy": 46.67,
+      "avg_score_error": 4.87,
+      "total_runs_error": 9.73,
+      "betting_line_accuracy": 0,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-23": {
+      "total_games": 14,
+      "winner_accuracy": 50.0,
+      "avg_score_error": 4.89,
+      "total_runs_error": 9.79,
+      "betting_line_accuracy": 0,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-24": {
+      "total_games": 15,
+      "winner_accuracy": 53.33,
+      "avg_score_error": 2.33,
+      "total_runs_error": 3.17,
+      "betting_line_accuracy": 45.45,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-25": {
+      "total_games": 13,
+      "winner_accuracy": 23.08,
+      "avg_score_error": 3.19,
+      "total_runs_error": 4.38,
+      "betting_line_accuracy": 37.5,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-26": {
+      "total_games": 15,
+      "winner_accuracy": 46.67,
+      "avg_score_error": 4.87,
+      "total_runs_error": 9.73,
+      "betting_line_accuracy": 0,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    },
+    "2025-08-27": {
+      "total_games": 15,
+      "winner_accuracy": 0.0,
+      "avg_score_error": 0,
+      "total_runs_error": 0,
+      "betting_line_accuracy": 0,
+      "recommendation_accuracy": 0,
+      "total_recommendations": 0
+    }
+  },
+  "improvement_recommendations": {
+    "model_accuracy_improvements": [
+      {
+        "issue": "Low winner prediction accuracy",
+        "current_rate": "49.1%",
+        "recommendation": "Review pitcher factors and team strength calculations",
+        "priority": "HIGH"
+      },
+      {
+        "issue": "High average score error",
+        "current_error": "3.48 runs",
+        "recommendation": "Improve run environment factors and park effects",
+        "priority": "MEDIUM"
+      }
+    ],
+    "betting_strategy_improvements": [
+      {
+        "issue": "Poor over/under performance vs market",
+        "current_rate": "47.5%",
+        "recommendation": "Recalibrate total runs model and weather factors",
+        "priority": "HIGH"
+      }
+    ],
+    "data_quality_issues": [
+      {
+        "issue": "Missing final scores",
+        "count": 15,
+        "recommendation": "Improve score fetching reliability",
+        "priority": "MEDIUM"
+      }
+    ]
+  },
+  "detailed_game_analysis": {
+    "best_predictions": [
+      {
+        "date": "2025-08-26",
+        "matchup": "Arizona Diamondbacks @ Milwaukee Brewers",
+        "predicted_score": "0.0-0.0",
+        "actual_score": "8-9",
+        "winner_correct": false,
+        "score_error": 8.5,
+        "total_error": 17,
+        "recommendations": 0,
+        "recommendation_success": 0
+      },
+      {
+        "date": "2025-08-22",
+        "matchup": "St. Louis Cardinals @ Tampa Bay Rays",
+        "predicted_score": "0.0-0.0",
+        "actual_score": "6-10",
+        "winner_correct": false,
+        "score_error": 8.0,
+        "total_error": 16,
+        "recommendations": 0,
+        "recommendation_success": 0
+      },
+      {
+        "date": "2025-08-26",
+        "matchup": "Detroit Tigers @ Oakland Athletics",
+        "predicted_score": "0.0-0.0",
+        "actual_score": "6-7",
+        "winner_correct": false,
+        "score_error": 6.5,
+        "total_error": 13,
+        "recommendations": 0,
+        "recommendation_success": 0
+      },
+      {
+        "date": "2025-08-18",
+        "matchup": "Chicago White Sox @ Atlanta Braves",
+        "predicted_score": "4.7-5.1",
+        "actual_score": "13-9",
+        "winner_correct": false,
+        "score_error": 6.1,
+        "total_error": 12.2,
+        "recommendations": 0,
+        "recommendation_success": 0
+      },
+      {
+        "date": "2025-08-22",
+        "matchup": "Kansas City Royals @ Detroit Tigers",
+        "predicted_score": "0.0-0.0",
+        "actual_score": "5-7",
+        "winner_correct": false,
+        "score_error": 6.0,
+        "total_error": 12,
+        "recommendations": 0,
+        "recommendation_success": 0
+      }
+    ],
+    "worst_predictions": [
+      {
+        "date": "2025-08-15",
+        "matchup": "Texas Rangers @ Toronto Blue Jays",
+        "predicted_score": "5.6-6.0",
+        "actual_score": "5-6",
+        "winner_correct": true,
+        "score_error": 0.3,
+        "total_error": 0.5,
+        "recommendations": 0,
+        "recommendation_success": 0
+      },
+      {
+        "date": "2025-08-19",
+        "matchup": "Cleveland Guardians @ Arizona Diamondbacks",
+        "predicted_score": "5.6-5.9",
+        "actual_score": "5-6",
+        "winner_correct": true,
+        "score_error": 0.35,
+        "total_error": 0.5,
+        "recommendations": 0,
+        "recommendation_success": 0
+      },
+      {
+        "date": "2025-08-20",
+        "matchup": "New York Mets @ Washington Nationals",
+        "predicted_score": "4.2-4.4",
+        "actual_score": "4-5",
+        "winner_correct": true,
+        "score_error": 0.4,
+        "total_error": 0.3,
+        "recommendations": 0,
+        "recommendation_success": 0
+      },
+      {
+        "date": "2025-08-22",
+        "matchup": "Boston Red Sox @ New York Yankees",
+        "predicted_score": "0.0-0.0",
+        "actual_score": "1-0",
+        "winner_correct": true,
+        "score_error": 0.5,
+        "total_error": 1,
+        "recommendations": 0,
+        "recommendation_success": 0
+      },
+      {
+        "date": "2025-08-21",
+        "matchup": "Texas Rangers @ Kansas City Royals",
+        "predicted_score": "4.3-4.4",
+        "actual_score": "4-6",
+        "winner_correct": true,
+        "score_error": 0.95,
+        "total_error": 1.3,
+        "recommendations": 0,
+        "recommendation_success": 0
+      }
+    ],
+    "analysis_notes": {
+      "best_games_avg_error": 7.02,
+      "worst_games_avg_error": 0.5
+    }
+  }
+}

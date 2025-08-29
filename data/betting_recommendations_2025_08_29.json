@@ -1,0 +1,378 @@
+{
+  "date": "2025-08-29",
+  "generated_at": "2025-08-29T08:50:08.203112",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "St. Louis Cardinals_vs_Cincinnati Reds": {
+      "away_team": "St. Louis Cardinals",
+      "home_team": "Cincinnati Reds",
+      "away_pitcher": "Matthew Liberatore",
+      "home_pitcher": "Zack Littell",
+      "predicted_score": "3.1-2.7",
+      "predicted_total_runs": 6.5,
+      "win_probabilities": {
+        "away_prob": 0.57,
+        "home_prob": 0.43
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Under 9.0",
+          "expected_value": 0.3698347107438017,
+          "win_probability": 0.75,
+          "american_odds": "-121",
+          "confidence": "high",
+          "predicted_total": 6.5,
+          "betting_line": 9.0,
+          "reasoning": "Predicted 6.5 vs line 9.0"
+        },
+        {
+          "type": "moneyline",
+          "recommendation": "St. Louis Cardinals ML",
+          "expected_value": 0.2027,
+          "win_probability": 0.57,
+          "american_odds": "111",
+          "confidence": "low",
+          "reasoning": "Model projects 57.0% win probability vs 47.4% implied odds"
+        }
+      ]
+    },
+    "Tampa Bay Rays_vs_Washington Nationals": {
+      "away_team": "Tampa Bay Rays",
+      "home_team": "Washington Nationals",
+      "away_pitcher": "Adrian Houser",
+      "home_pitcher": "Mitchell Parker",
+      "predicted_score": "3.2-2.6",
+      "predicted_total_runs": 6.5,
+      "win_probabilities": {
+        "away_prob": 0.602,
+        "home_prob": 0.398
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Under 9.0",
+          "expected_value": 0.4575471698113207,
+          "win_probability": 0.75,
+          "american_odds": "-106",
+          "confidence": "high",
+          "predicted_total": 6.5,
+          "betting_line": 9.0,
+          "reasoning": "Predicted 6.5 vs line 9.0"
+        }
+      ]
+    },
+    "Atlanta Braves_vs_Philadelphia Phillies": {
+      "away_team": "Atlanta Braves",
+      "home_team": "Philadelphia Phillies",
+      "away_pitcher": "Bryce Elder",
+      "home_pitcher": "Ranger Su\u00e1rez",
+      "predicted_score": "3.1-2.9",
+      "predicted_total_runs": 6.6,
+      "win_probabilities": {
+        "away_prob": 0.536,
+        "home_prob": 0.464
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Under 9.0",
+          "expected_value": 0.43811320754716976,
+          "win_probability": 0.74,
+          "american_odds": "-106",
+          "confidence": "high",
+          "predicted_total": 6.6,
+          "betting_line": 9.0,
+          "reasoning": "Predicted 6.6 vs line 9.0"
+        }
+      ]
+    },
+    "Milwaukee Brewers_vs_Toronto Blue Jays": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "Freddy Peralta",
+      "home_pitcher": "Shane Bieber",
+      "predicted_score": "5.0-4.3",
+      "predicted_total_runs": 9.1,
+      "win_probabilities": {
+        "away_prob": 0.599,
+        "home_prob": 0.401
+      },
+      "value_bets": [
+        {
+          "type": "moneyline",
+          "recommendation": "Milwaukee Brewers ML",
+          "expected_value": 0.26988,
+          "win_probability": 0.599,
+          "american_odds": "112",
+          "confidence": "low",
+          "reasoning": "Model projects 59.9% win probability vs 47.2% implied odds"
+        },
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.23894736842105246,
+          "win_probability": 0.6599999999999999,
+          "american_odds": "-114",
+          "confidence": "medium",
+          "predicted_total": 9.1,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 9.1 vs line 7.5"
+        }
+      ]
+    },
+    "Pittsburgh Pirates_vs_Boston Red Sox": {
+      "away_team": "Pittsburgh Pirates",
+      "home_team": "Boston Red Sox",
+      "away_pitcher": null,
+      "home_pitcher": null,
+      "predicted_score": "4.9-4.6",
+      "predicted_total_runs": 9.2,
+      "win_probabilities": {
+        "away_prob": 0.539,
+        "home_prob": 0.461
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 8.0",
+          "expected_value": 0.21047619047619026,
+          "win_probability": 0.6199999999999999,
+          "american_odds": "-105",
+          "confidence": "medium",
+          "predicted_total": 9.2,
+          "betting_line": 8.0,
+          "reasoning": "Predicted 9.2 vs line 8.0"
+        }
+      ]
+    },
+    "Seattle Mariners_vs_Cleveland Guardians": {
+      "away_team": "Seattle Mariners",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": "George Kirby",
+      "home_pitcher": "Logan Allen",
+      "predicted_score": "4.8-4.0",
+      "predicted_total_runs": 8.7,
+      "win_probabilities": {
+        "away_prob": 0.609,
+        "home_prob": 0.391
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 8.0",
+          "expected_value": 0.12882352941176456,
+          "win_probability": 0.57,
+          "american_odds": "-102",
+          "confidence": "low",
+          "predicted_total": 8.7,
+          "betting_line": 8.0,
+          "reasoning": "Predicted 8.7 vs line 8.0"
+        }
+      ]
+    },
+    "Miami Marlins_vs_New York Mets": {
+      "away_team": "Miami Marlins",
+      "home_team": "New York Mets",
+      "away_pitcher": "Eury P\u00e9rez",
+      "home_pitcher": "Jonah Tong",
+      "predicted_score": "4.6-4.3",
+      "predicted_total_runs": 8.8,
+      "win_probabilities": {
+        "away_prob": 0.538,
+        "home_prob": 0.462
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.15500000000000025,
+          "win_probability": 0.6300000000000001,
+          "american_odds": "-120",
+          "confidence": "medium",
+          "predicted_total": 8.8,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 8.8 vs line 7.5"
+        }
+      ]
+    },
+    "New York Yankees_vs_Chicago White Sox": {
+      "away_team": "New York Yankees",
+      "home_team": "Chicago White Sox",
+      "away_pitcher": "Carlos Rod\u00f3n",
+      "home_pitcher": "Yoendrys G\u00f3mez",
+      "predicted_score": "5.1-4.1",
+      "predicted_total_runs": 9.0,
+      "win_probabilities": {
+        "away_prob": 0.626,
+        "home_prob": 0.374
+      },
+      "value_bets": []
+    },
+    "Los Angeles Angels_vs_Houston Astros": {
+      "away_team": "Los Angeles Angels",
+      "home_team": "Houston Astros",
+      "away_pitcher": "Tyler Anderson",
+      "home_pitcher": "Cristian Javier",
+      "predicted_score": "3.0-2.8",
+      "predicted_total_runs": 6.5,
+      "win_probabilities": {
+        "away_prob": 0.54,
+        "home_prob": 0.46
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Under 9.0",
+          "expected_value": 0.375,
+          "win_probability": 0.75,
+          "american_odds": "-120",
+          "confidence": "high",
+          "predicted_total": 6.5,
+          "betting_line": 9.0,
+          "reasoning": "Predicted 6.5 vs line 9.0"
+        }
+      ]
+    },
+    "Detroit Tigers_vs_Kansas City Royals": {
+      "away_team": "Detroit Tigers",
+      "home_team": "Kansas City Royals",
+      "away_pitcher": "Chris Paddack",
+      "home_pitcher": "Seth Lugo",
+      "predicted_score": "4.5-3.8",
+      "predicted_total_runs": 8.3,
+      "win_probabilities": {
+        "away_prob": 0.587,
+        "home_prob": 0.413
+      },
+      "value_bets": [
+        {
+          "type": "moneyline",
+          "recommendation": "Detroit Tigers ML",
+          "expected_value": 0.17986999999999997,
+          "win_probability": 0.587,
+          "american_odds": "101",
+          "confidence": "low",
+          "reasoning": "Model projects 58.7% win probability vs 49.8% implied odds"
+        },
+        {
+          "type": "total",
+          "recommendation": "Under 9.0",
+          "expected_value": 0.08351351351351344,
+          "win_probability": 0.57,
+          "american_odds": "-111",
+          "confidence": "low",
+          "predicted_total": 8.3,
+          "betting_line": 9.0,
+          "reasoning": "Predicted 8.3 vs line 9.0"
+        }
+      ]
+    },
+    "San Diego Padres_vs_Minnesota Twins": {
+      "away_team": "San Diego Padres",
+      "home_team": "Minnesota Twins",
+      "away_pitcher": "Nestor Cortes",
+      "home_pitcher": "Zebby Matthews",
+      "predicted_score": "4.9-4.1",
+      "predicted_total_runs": 8.9,
+      "win_probabilities": {
+        "away_prob": 0.605,
+        "home_prob": 0.395
+      },
+      "value_bets": []
+    },
+    "Chicago Cubs_vs_Colorado Rockies": {
+      "away_team": "Chicago Cubs",
+      "home_team": "Colorado Rockies",
+      "away_pitcher": "Cade Horton",
+      "home_pitcher": "Germ\u00e1n M\u00e1rquez",
+      "predicted_score": "3.8-2.9",
+      "predicted_total_runs": 7.1,
+      "win_probabilities": {
+        "away_prob": 0.616,
+        "home_prob": 0.384
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Under 11.0",
+          "expected_value": 0.6776106194690268,
+          "win_probability": 0.8900000000000001,
+          "american_odds": "-113",
+          "confidence": "high",
+          "predicted_total": 7.1,
+          "betting_line": 11.0,
+          "reasoning": "Predicted 7.1 vs line 11.0"
+        }
+      ]
+    },
+    "Texas Rangers_vs_Athletics": {
+      "away_team": "Texas Rangers",
+      "home_team": "Athletics",
+      "away_pitcher": "Jack Leiter",
+      "home_pitcher": "Jeffrey Springs",
+      "predicted_score": "5.0-4.2",
+      "predicted_total_runs": 9.0,
+      "win_probabilities": {
+        "away_prob": 0.614,
+        "home_prob": 0.386
+      },
+      "value_bets": []
+    },
+    "Arizona Diamondbacks_vs_Los Angeles Dodgers": {
+      "away_team": "Arizona Diamondbacks",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Zac Gallen",
+      "home_pitcher": "Blake Snell",
+      "predicted_score": "4.5-4.1",
+      "predicted_total_runs": 8.6,
+      "win_probabilities": {
+        "away_prob": 0.552,
+        "home_prob": 0.448
+      },
+      "value_bets": [
+        {
+          "type": "moneyline",
+          "recommendation": "Arizona Diamondbacks ML",
+          "expected_value": 0.4407200000000002,
+          "win_probability": 0.552,
+          "american_odds": "161",
+          "confidence": "low",
+          "reasoning": "Model projects 55.2% win probability vs 38.3% implied odds"
+        }
+      ]
+    },
+    "Baltimore Orioles_vs_San Francisco Giants": {
+      "away_team": "Baltimore Orioles",
+      "home_team": "San Francisco Giants",
+      "away_pitcher": "Dean Kremer",
+      "home_pitcher": "Robbie Ray",
+      "predicted_score": "2.6-2.5",
+      "predicted_total_runs": 5.9,
+      "win_probabilities": {
+        "away_prob": 0.521,
+        "home_prob": 0.479
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Under 7.5",
+          "expected_value": 0.23894736842105246,
+          "win_probability": 0.6599999999999999,
+          "american_odds": "-114",
+          "confidence": "medium",
+          "predicted_total": 5.9,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 5.9 vs line 7.5"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 15,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 15,
+    "high_confidence_bets": 5,
+    "medium_confidence_bets": 4
+  }
+}

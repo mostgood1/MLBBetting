@@ -157,6 +157,18 @@ try:
 except ImportError as e:
     logging.warning(f"Historical analysis endpoint not available: {e}")
 
+# Initialize redesigned analytics and comprehensive analyzer for direct API use (Render-safe)
+try:
+    from redesigned_betting_analytics import RedesignedBettingAnalytics
+    from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer
+    redesigned_analytics = RedesignedBettingAnalytics()
+    direct_historical_analyzer = ComprehensiveHistoricalAnalyzer()
+    logging.info("✅ Direct analytics initialized for in-process APIs")
+except Exception as e:
+    redesigned_analytics = None
+    direct_historical_analyzer = None
+    logging.error(f"❌ Failed to initialize direct analytics: {e}")
+
 import threading
 import queue
 from datetime import timedelta
@@ -2372,40 +2384,15 @@ def monitoring_dashboard():
 
 @app.route('/historical')
 def historical():
-    """Historical predictions page with filtering support"""
-    try:
-        from flask import request
-        
-        # Get filter parameter from URL
-        filter_type = request.args.get('filter', 'all')
-        
-        # Load unified cache
-        unified_cache = load_unified_cache()
-        
-        # Generate comprehensive stats for context
-        comprehensive_stats = generate_comprehensive_dashboard_insights(unified_cache)
-        
-        # Use the robust historical analysis template with filter context
-        return render_template('historical_robust.html', 
-                             filter_type=filter_type,
-                             comprehensive_stats=comprehensive_stats)
-    
-    except Exception as e:
-        logger.error(f"Error in historical route: {e}")
-        # Fallback to simple template if robust fails
-        return render_template('historical.html',
-                             predictions=[],
-                             predictions_by_date={},
-                             sorted_dates=[],
-                             selected_date='',
-                             stats={'total_games': 0},
-                             archaeological_insights={},
-                             filter_type='all')
+    """Redirect to improved analysis - historical endpoint deprecated"""
+    from flask import redirect, url_for
+    return redirect(url_for('improved_historical_analysis'))
 
 @app.route('/historical-analysis')
 def historical_analysis():
-    """New comprehensive historical analysis page with complete revamp"""
-    return render_template('historical_analysis.html')
+    """Redirect to improved analysis"""
+    from flask import redirect, url_for
+    return redirect(url_for('improved_historical_analysis'))
 
 @app.route('/improved-analysis')
 def improved_historical_analysis():
@@ -4552,6 +4539,254 @@ def proxy_today_games(date):
             'date': date,
             'message': 'Make sure historical_analysis_app.py is running on port 5001'
         }), 503
+
+@app.route('/api/system-performance-overview')
+def system_performance_overview_direct():
+    """Direct system performance overview using in-process analytics"""
+    try:
+        if not redesigned_analytics:
+            return jsonify({'error': 'Analytics not initialized', 'data': {}}), 500
+        model_performance = redesigned_analytics.get_model_performance_analysis()
+        if not model_performance.get('success'):
+            return jsonify({'error': 'Failed to get model performance data', 'data': {}}), 500
+        data = model_performance.get('data', {})
+        overall_stats = data.get('overall_stats', {})
+        try:
+            files_eval = redesigned_analytics.historical_analyzer.analyze_betting_files()
+            betting_perf = (files_eval or {}).get('betting_performance', {})
+            raw_total = (files_eval or {}).get('raw_total_found', 0)
+        except Exception:
+            try:
+                cumulative = redesigned_analytics._get_cached_cumulative_analysis() if hasattr(redesigned_analytics, '_get_cached_cumulative_analysis') else redesigned_analytics.historical_analyzer.get_cumulative_analysis()
+            except Exception:
+                cumulative = {}
+            betting_perf = (cumulative or {}).get('betting_performance', {})
+            try:
+                raw_total, _ = redesigned_analytics.historical_analyzer.count_all_recommendations()
+            except Exception:
+                raw_total = betting_perf.get('total_recommendations', 0)
+        overview_data = {
+            'overview': {
+                'total_predictions': overall_stats.get('total_games', 0),
+                'overall_accuracy': overall_stats.get('winner_accuracy', 0),
+                'winner_accuracy': overall_stats.get('winner_accuracy', 0),
+                'total_accuracy_1': overall_stats.get('totals_within_1_pct', 0),
+                'total_accuracy_2': overall_stats.get('totals_within_2_pct', 0),
+                'home_runs_accuracy_1': overall_stats.get('home_team_runs_accuracy_1', 0),
+                'away_runs_accuracy_1': overall_stats.get('away_team_runs_accuracy_1', 0),
+                'home_runs_accuracy_2': overall_stats.get('home_team_runs_accuracy_2', 0),
+                'away_runs_accuracy_2': overall_stats.get('away_team_runs_accuracy_2', 0)
+            },
+            'predictionTypes': {
+                'total': overall_stats.get('total_games', 0),
+                'spread': overall_stats.get('total_games', 0),
+                'moneyline': overall_stats.get('total_games', 0),
+                'accuracy_by_type': {
+                    'total': overall_stats.get('totals_within_1_pct', 0)
+                }
+            },
+            'bettingRecommendations': {
+                'total_recommended': raw_total,
+                'evaluated_recommended': betting_perf.get('total_recommendations', 0),
+                'moneyline_accuracy': betting_perf.get('moneyline_stats', {}).get('accuracy', 0),
+                'runline_accuracy': betting_perf.get('runline_stats', {}).get('accuracy', 0),
+                'totals_accuracy': betting_perf.get('total_stats', {}).get('accuracy', 0)
+            },
+            'dailyPerformance': {k: {
+                'total_bets': v.get('games_analyzed', 0),
+                'wins': v.get('winner_predictions_correct', 0),
+                'roi': ((v.get('winner_predictions_correct', 0) / v.get('games_analyzed', 1)) * 100 - 50) * 2 if v.get('games_analyzed', 0) > 0 else 0,
+                'net_profit': ((((v.get('winner_predictions_correct', 0) / v.get('games_analyzed', 1)) * 100 - 50) * 2) * v.get('games_analyzed', 0)) if v.get('games_analyzed', 0) > 0 else 0
+            } for k, v in (data.get('daily_breakdown', {}) or {}).items()},
+            'date_range': data.get('date_range', {}),
+            'daily_breakdown': data.get('daily_breakdown', [])
+        }
+        return jsonify({'success': True, 'data': overview_data})
+    except Exception as e:
+        logger.error(f"Error generating system performance overview: {e}")
+        return jsonify({'error': str(e), 'data': {}}), 500
+
+@app.route('/api/todays-opportunities')
+def todays_opportunities_direct():
+    """Direct Today's Opportunities based on unified cache"""
+    try:
+        if not redesigned_analytics:
+            return jsonify({'error': 'Analytics not initialized', 'data': {}}), 500
+        from pathlib import Path
+        today_str = datetime.now().strftime('%Y-%m-%d')
+        unified_cache_path = Path(__file__).parent / 'data' / 'unified_predictions_cache.json'
+        with open(unified_cache_path, 'r') as f:
+            cache_data = json.load(f)
+        predictions_by_date = cache_data.get('predictions_by_date', {})
+        today_data = predictions_by_date.get(today_str, {})
+        today_games = today_data.get('games', {})
+        kelly_opportunities = []
+        base_unit = 100
+        max_units = 2
+        bankroll_proxy = base_unit * 10
+        for game_key, game_data in today_games.items():
+            for rec in game_data.get('recommendations', []):
+                kelly_size = rec.get('kelly_bet_size', 0)
+                confidence = str(rec.get('confidence', '')).upper()
+                if kelly_size >= 5.0 and confidence == 'HIGH':
+                    kf = (kelly_size or 0) / 100.0
+                    k_amount = kf * bankroll_proxy
+                    suggested_bet = max(10, min(round(k_amount / 10) * 10, int(base_unit * max_units)))
+                    kelly_opportunities.append({
+                        'date': today_str,
+                        'game': f"{game_data.get('away_team')} vs {game_data.get('home_team')}",
+                        'bet_type': 'Over/Under' if rec.get('type') == 'total' else str(rec.get('type', '')).title(),
+                        'bet_details': f"{str(rec.get('side','')).title()} {rec.get('line','')} runs" if rec.get('type') == 'total' else f"{rec.get('side','')} {rec.get('line','')}",
+                        'confidence': kf,
+                        'kelly_percentage': kelly_size,
+                        'recommended_bet': int(suggested_bet),
+                        'expected_value': rec.get('expected_value', 0),
+                        'edge': rec.get('edge', 0),
+                        'reasoning': rec.get('reasoning', ''),
+                        'odds': rec.get('odds', 0),
+                        'model_prediction': rec.get('model_total', 0) if rec.get('type') == 'total' else None
+                    })
+        return jsonify({'success': True, 'data': {'total_opportunities': len(kelly_opportunities), 'opportunities': kelly_opportunities, 'date': today_str}})
+    except Exception as e:
+        logger.error(f"Error generating today's opportunities: {e}")
+        return jsonify({'error': str(e), 'data': {}}), 500
+
+@app.route('/api/historical-kelly-performance')
+def historical_kelly_performance_direct():
+    """Direct Kelly Best of Best performance using redesigned analytics"""
+    try:
+        if not redesigned_analytics:
+            return jsonify({'error': 'Analytics not initialized', 'data': {}}), 500
+        result = redesigned_analytics.get_kelly_best_of_best_performance()
+        if not result.get('success'):
+            return jsonify(result), 500
+        kelly_actual_data = result.get('data', {})
+        daily_summary = kelly_actual_data.get('daily_summary', {})
+        overall_stats = kelly_actual_data.get('overall_stats', {})
+        mapped_daily_performance = {date: {
+            'total_bets': day.get('bets', 0),
+            'wins': day.get('wins', 0),
+            'losses': day.get('losses', 0),
+            'roi': day.get('roi', 0),
+            'net_profit': day.get('profit', 0),
+            'invested': day.get('invested', 0)
+        } for date, day in daily_summary.items()}
+        kelly_data = {
+            'daily_performance': mapped_daily_performance,
+            'summary': {
+                'total_bets': overall_stats.get('total_kelly_bets', 0),
+                'win_rate': overall_stats.get('win_rate', 0),
+                'overall_roi': overall_stats.get('roi', 0),
+                'net_profit': overall_stats.get('total_profit', 0)
+            }
+        }
+        return jsonify({'success': True, 'data': kelly_data})
+    except Exception as e:
+        logger.error(f"Error generating historical Kelly performance: {e}")
+        return jsonify({'error': str(e), 'data': {}}), 500
+
+@app.route('/api/model-performance-tab')
+def proxy_model_performance_tab():
+    """Proxy route for model performance tab"""
+    try:
+        response = requests.get('http://localhost:5001/api/model-performance-tab', timeout=15)
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        logger.error(f"Failed to proxy model-performance-tab request: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Historical analysis service unavailable',
+            'message': 'Make sure historical_analysis_app.py is running on port 5001'
+        }), 503
+
+@app.route('/api/betting-recommendations-tab')
+def proxy_betting_recommendations_tab():
+    """Proxy route for betting recommendations tab"""
+    try:
+        response = requests.get('http://localhost:5001/api/betting-recommendations-tab', timeout=15)
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        logger.error(f"Failed to proxy betting-recommendations-tab request: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Historical analysis service unavailable',
+            'message': 'Make sure historical_analysis_app.py is running on port 5001'
+        }), 503
+
+@app.route('/api/kelly-best-of-best-tab')
+def proxy_kelly_best_of_best_tab():
+    """Proxy route for kelly best of best tab"""
+    try:
+        response = requests.get('http://localhost:5001/api/kelly-best-of-best-tab', timeout=15)
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        logger.error(f"Failed to proxy kelly-best-of-best-tab request: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Historical analysis service unavailable',
+            'message': 'Make sure historical_analysis_app.py is running on port 5001'
+        }), 503
+
+# Direct ROI summary to support Render deployment without a secondary service
+@app.route('/api/roi-summary')
+def roi_summary_direct():
+    try:
+        if not direct_historical_analyzer:
+            return jsonify({'success': False, 'error': 'Historical analyzer not initialized'})
+
+        files_eval = None
+        try:
+            files_eval = direct_historical_analyzer.analyze_betting_files()
+        except Exception:
+            files_eval = None
+
+        roi_data = {}
+        if files_eval and files_eval.get('betting_performance', {}).get('total_recommendations', 0) > 0:
+            bp = files_eval['betting_performance']
+            total_bets = bp.get('total_recommendations', 0)
+            winning_bets = bp.get('correct_recommendations', 0)
+            win_rate = round((winning_bets / total_bets) * 100, 2) if total_bets > 0 else 0
+            roi_data = {
+                'total_investment': bp.get('total_bet_amount', 0),
+                'total_winnings': bp.get('total_winnings', 0),
+                'net_profit': bp.get('net_profit', 0),
+                'roi_percentage': bp.get('roi_percentage', 0),
+                'total_bets': total_bets,
+                'winning_bets': winning_bets,
+                'win_rate': win_rate,
+                'bet_type_breakdown': {
+                    'moneyline': bp.get('moneyline_stats', {}),
+                    'totals': bp.get('total_stats', {}),
+                    'runline': bp.get('runline_stats', {})
+                },
+                'confidence_breakdown': {},
+                'dates_analyzed': len(direct_historical_analyzer.get_available_dates()),
+                'period': f"Since {direct_historical_analyzer.start_date} ({len(direct_historical_analyzer.get_available_dates())} days)"
+            }
+        else:
+            cumulative_data = direct_historical_analyzer.get_cumulative_analysis()
+            roi_data = {
+                'total_investment': cumulative_data.get('betting_performance', {}).get('total_bet_amount', 0),
+                'total_winnings': cumulative_data.get('betting_performance', {}).get('total_winnings', 0),
+                'net_profit': cumulative_data.get('betting_performance', {}).get('net_profit', 0),
+                'roi_percentage': cumulative_data.get('betting_performance', {}).get('roi_percentage', 0),
+                'total_bets': cumulative_data.get('betting_performance', {}).get('total_recommendations', 0),
+                'winning_bets': cumulative_data.get('betting_performance', {}).get('correct_recommendations', 0),
+                'win_rate': cumulative_data.get('betting_performance', {}).get('overall_accuracy', 0),
+                'bet_type_breakdown': {
+                    'moneyline': cumulative_data.get('betting_performance', {}).get('moneyline_stats', {}),
+                    'totals': cumulative_data.get('betting_performance', {}).get('total_stats', {}),
+                    'runline': cumulative_data.get('betting_performance', {}).get('runline_stats', {})
+                },
+                'confidence_breakdown': {},
+                'dates_analyzed': cumulative_data.get('total_dates_analyzed', 0),
+                'period': f"Since 8/15 ({cumulative_data.get('total_dates_analyzed', 0)} days)"
+            }
+
+        return jsonify({'success': True, 'data': roi_data})
+    except Exception as e:
+        logger.error(f"Error calculating ROI summary: {e}")
+        return jsonify({'success': False, 'error': str(e)})
 
 def initialize_system():
     """Initialize the system with REAL MLB data from repository files (using August 19, 2025 dataset)"""

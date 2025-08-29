@@ -1,15 +1,37 @@
-# MLB Betting System PowerShell Launcher
+# MLB System Launcher
+# Enhanced version with better error handling and process management
+
 param(
-    [switch]$NoWait,
-    [switch]$Verbose
+    [switch]$NoWait
 )
 
-Write-Host "================================================" -ForegroundColor Cyan
-Write-Host "MLB Betting System PowerShell Launcher" -ForegroundColor Cyan  
-Write-Host "================================================" -ForegroundColor Cyan
-Write-Host ""
+# Configuration
+$workingDir = "c:\Users\mostg\OneDrive\Coding\MLB-Betting"
+$venvPath = Join-Path $workingDir ".venv"
+$venvActivate = Join-Path $venvPath "Scripts\Activate.ps1"
+$mainApp = "app.py"
+$historicalApp = "historical_analysis_app.py"
+$mainPort = 5000
+$historicalPort = 5001
+$logDir = Join-Path $workingDir "logs"
 
-# Function to check if port is available
+# Ensure we're in the right directory
+Set-Location $workingDir
+
+# Check if virtual environment exists
+if (-not (Test-Path $venvActivate)) {
+    Write-Host "Error: Virtual environment not found at $venvPath" -ForegroundColor Red
+    Write-Host "Please create a virtual environment first:" -ForegroundColor Yellow
+    Write-Host "python -m venv .venv" -ForegroundColor Yellow
+    exit 1
+}
+
+# Create logs directory if it doesn't exist
+if (-not (Test-Path $logDir)) {
+    New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+}
+
+# Function to check if port is in use
 function Test-Port {
     param([int]$Port)
     try {
@@ -23,110 +45,103 @@ function Test-Port {
     }
 }
 
-# Function to wait for service to be ready
-function Wait-ForService {
-    param([int]$Port, [string]$ServiceName, [int]$MaxAttempts = 30)
+# Function to start application in separate window
+function Start-Application {
+    param(
+        [string]$AppName,
+        [int]$Port,
+        [string]$LogSuffix
+    )
     
-    Write-Host "Waiting for $ServiceName to be ready on port $Port..." -ForegroundColor Yellow
-    
-    for ($i = 1; $i -le $MaxAttempts; $i++) {
-        if (Test-Port -Port $Port) {
-            Write-Host "✅ $ServiceName is ready!" -ForegroundColor Green
-            return $true
-        }
-        Start-Sleep -Seconds 1
-        if ($Verbose) {
-            Write-Host "  Attempt $i/$MaxAttempts..." -ForegroundColor Gray
-        }
+    if (Test-Port -Port $Port) {
+        Write-Host "Port $Port is already in use. Application may already be running." -ForegroundColor Yellow
+        return $null
     }
     
-    Write-Host "❌ $ServiceName failed to start within $MaxAttempts seconds" -ForegroundColor Red
-    return $false
-}
-
-# Check if virtual environment exists
-if (Test-Path ".venv\Scripts\Activate.ps1") {
-    Write-Host "Activating virtual environment..." -ForegroundColor Yellow
-    & .venv\Scripts\Activate.ps1
-} else {
-    Write-Host "No virtual environment found - using system Python" -ForegroundColor Yellow
-}
-
-Write-Host ""
-
-# Check if required files exist
-$requiredFiles = @("app.py", "historical_analysis_app.py")
-foreach ($file in $requiredFiles) {
-    if (-not (Test-Path $file)) {
-        Write-Host "❌ Required file not found: $file" -ForegroundColor Red
-        exit 1
-    }
-}
-
-try {
-    # Start main prediction app
-    Write-Host "🚀 Starting Main Prediction App (port 5000)..." -ForegroundColor Green
-    $mainApp = Start-Process -FilePath "python" -ArgumentList "app.py" -PassThru -WindowStyle Minimized
+    $logFile = Join-Path $logDir "mlb_system_$LogSuffix.log"
+    Write-Host "Starting $AppName in separate window on port $Port..."
+    Write-Host "Log file: $logFile"
     
-    # Wait a moment for main app to initialize
-    Start-Sleep -Seconds 3
+    # Create command to run in new window
+    $windowTitle = "MLB $LogSuffix App - Port $Port"
+    $command = "cd '$workingDir'; & '$venvActivate'; python '$AppName' 2>&1 | Tee-Object -FilePath '$logFile'"
     
-    # Start historical analysis app
-    Write-Host "🚀 Starting Historical Analysis App (port 5001)..." -ForegroundColor Green  
-    $historicalApp = Start-Process -FilePath "python" -ArgumentList "historical_analysis_app.py" -PassThru -WindowStyle Minimized
+    # Start the application in a new PowerShell window
+    $process = Start-Process -FilePath "powershell.exe" -ArgumentList @(
+        "-NoExit",
+        "-Command",
+        "`$Host.UI.RawUI.WindowTitle = '$windowTitle'; $command"
+    ) -PassThru
     
-    # Wait for both services to be ready
-    Write-Host ""
-    $mainReady = Wait-ForService -Port 5000 -ServiceName "Main Prediction App" -MaxAttempts 30
-    $historicalReady = Wait-ForService -Port 5001 -ServiceName "Historical Analysis App" -MaxAttempts 30
+    # Wait a moment for the app to start
+    Start-Sleep -Seconds 5
     
-    if ($mainReady -and $historicalReady) {
-        Write-Host ""
-        Write-Host "🎉 MLB Betting System Started Successfully!" -ForegroundColor Green
-        Write-Host "================================================" -ForegroundColor Cyan
-        Write-Host "📍 Main Prediction App:    http://localhost:5000" -ForegroundColor White
-        Write-Host "📍 Historical Analysis:    http://localhost:5001" -ForegroundColor White
-        Write-Host "📊 Complete System:        http://localhost:5000/historical-analysis" -ForegroundColor White
-        Write-Host "================================================" -ForegroundColor Cyan
-        Write-Host ""
-        Write-Host "Process IDs:" -ForegroundColor Yellow
-        Write-Host "  Main App PID: $($mainApp.Id)" -ForegroundColor Gray
-        Write-Host "  Historical App PID: $($historicalApp.Id)" -ForegroundColor Gray
-        Write-Host ""
-        
-        if (-not $NoWait) {
-            Write-Host "💡 Press any key to stop both services..." -ForegroundColor Yellow
-            $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-            
-            Write-Host ""
-            Write-Host "🛑 Stopping services..." -ForegroundColor Yellow
-            
-            if (-not $mainApp.HasExited) {
-                $mainApp.Kill()
-                Write-Host "✅ Main app stopped" -ForegroundColor Green
-            }
-            
-            if (-not $historicalApp.HasExited) {
-                $historicalApp.Kill() 
-                Write-Host "✅ Historical analysis app stopped" -ForegroundColor Green
-            }
-            
-            Write-Host "🏁 All services stopped" -ForegroundColor Green
-        } else {
-            Write-Host "Running in background mode. Use 'Get-Process python' to monitor." -ForegroundColor Yellow
-        }
-        
+    if (Test-Port -Port $Port) {
+        Write-Host "$AppName started successfully on port $Port" -ForegroundColor Green
+        return $process
     } else {
-        Write-Host "❌ One or more services failed to start" -ForegroundColor Red
-        
-        # Cleanup failed processes
-        if ($mainApp -and -not $mainApp.HasExited) { $mainApp.Kill() }
-        if ($historicalApp -and -not $historicalApp.HasExited) { $historicalApp.Kill() }
-        
-        exit 1
+        Write-Host "Failed to start $AppName on port $Port" -ForegroundColor Red
+        return $null
+    }
+}
+
+# Stop any existing processes on the ports
+Write-Host "Checking for existing processes..."
+$existingMainProcess = Get-NetTCPConnection -LocalPort $mainPort -ErrorAction SilentlyContinue
+$existingHistoricalProcess = Get-NetTCPConnection -LocalPort $historicalPort -ErrorAction SilentlyContinue
+
+if ($existingMainProcess) {
+    Write-Host "Stopping existing process on port $mainPort..."
+    Stop-Process -Id $existingMainProcess.OwningProcess -Force -ErrorAction SilentlyContinue
+}
+
+if ($existingHistoricalProcess) {
+    Write-Host "Stopping existing process on port $historicalPort..."
+    Stop-Process -Id $existingHistoricalProcess.OwningProcess -Force -ErrorAction SilentlyContinue
+}
+
+# Start applications
+Write-Host "Starting MLB Betting System..." -ForegroundColor Cyan
+Write-Host "Working directory: $workingDir"
+
+$mainProcess = Start-Application -AppName $mainApp -Port $mainPort -LogSuffix "main"
+$historicalProcess = Start-Application -AppName $historicalApp -Port $historicalPort -LogSuffix "historical"
+
+# Summary
+Write-Host "`n=== MLB System Status ===" -ForegroundColor Cyan
+if ($mainProcess) {
+    Write-Host "[OK] Main App: http://localhost:$mainPort" -ForegroundColor Green
+} else {
+    Write-Host "[ERROR] Main App: Failed to start" -ForegroundColor Red
+}
+
+if ($historicalProcess) {
+    Write-Host "[OK] Historical App: http://localhost:$historicalPort" -ForegroundColor Green
+} else {
+    Write-Host "[ERROR] Historical App: Failed to start" -ForegroundColor Red
+}
+
+if ($mainProcess -or $historicalProcess) {
+    Write-Host "`nApplications are running in separate windows." -ForegroundColor Yellow
+    Write-Host "Close the individual windows to stop each application." -ForegroundColor Yellow
+    
+    # Try to open browser automatically
+    if ($mainProcess) {
+        try {
+            Start-Process "http://localhost:$mainPort"
+            Write-Host "Main application opened in browser." -ForegroundColor Green
+        } catch {
+            Write-Host "Could not automatically open browser. Navigate to http://localhost:$mainPort manually." -ForegroundColor Yellow
+        }
     }
     
-    } catch {
-        Write-Host "❌ Error starting MLB Betting System: $($_.Exception.Message)" -ForegroundColor Red
-        exit 1
+    if (-not $NoWait) {
+        Write-Host "`nPress any key to exit launcher (applications will continue running)..."
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     }
+    
+    Write-Host "`nLauncher exiting. Applications are still running in their windows." -ForegroundColor Green
+} else {
+    Write-Host "Failed to start any applications. Check the error messages above." -ForegroundColor Red
+    exit 1
+}

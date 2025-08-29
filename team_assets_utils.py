@@ -199,12 +199,12 @@ class MLBTeamAssets:
             try:
                 with open(asset_path, 'r', encoding='utf-8') as f:
                     self._assets = json.load(f)
-                print(f"✓ Team assets loaded from {asset_path}")
+                print(f"[OK] Team assets loaded from {asset_path}")
             except Exception as e:
-                print(f"❌ Error loading team assets from {asset_path}: {e}")
+                print(f"[ERROR] Error loading team assets from {asset_path}: {e}")
                 self._assets = {}
         else:
-            print(f"❌ Team assets file not found: {asset_path}")
+            print(f"[ERROR] Team assets file not found: {asset_path}")
             self._assets = {}
     
     def get_team_assets(self, team_name: str) -> Dict[str, Any]:

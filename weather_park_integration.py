@@ -550,7 +550,7 @@ class WeatherParkFactorEngine:
             try:
                 factor_data = self.get_total_park_weather_factor(team, date_str)
                 daily_data['teams'][team] = factor_data
-                print(f"✅ {team}: Park={factor_data['park_factor']:.3f}, Weather={factor_data['weather_factor']:.3f}, Total={factor_data['total_factor']:.3f}")
+                print(f"OK {team}: Park={factor_data['park_factor']:.3f}, Weather={factor_data['weather_factor']:.3f}, Total={factor_data['total_factor']:.3f}")
             except Exception as e:
                 print(f"❌ Error processing {team}: {e}")
                 # Use park factor only as fallback
@@ -569,45 +569,55 @@ class WeatherParkFactorEngine:
         with open(filepath, 'w') as f:
             json.dump(daily_data, f, indent=2)
         
-        print(f"\n📊 Park and weather factors saved to: {filepath}")
+        print(f"\nPark and weather factors saved to: {filepath}")
         return filepath
 
 def main():
     """Test the weather and park factors system"""
-    print("🌤️ MLB Weather and Park Factors Integration Test")
-    print("=" * 60)
-    
-    # Ensure weather API key is set
-    if not os.environ.get('WEATHER_API_KEY'):
-        os.environ['WEATHER_API_KEY'] = '487d8b3060df1751a73e0f242629f0ca'
-        print("🔑 Weather API key configured")
-    
-    engine = WeatherParkFactorEngine()
-    
-    # Test a few teams
-    test_teams = [
-        "Colorado Rockies",      # High altitude
-        "San Francisco Giants",  # Windy
-        "Houston Astros",       # Dome
-        "Boston Red Sox",       # Green Monster
-        "Oakland Athletics"     # Pitcher-friendly
-    ]
-    
-    print("🏟️ Individual Team Analysis:")
-    for team in test_teams:
-        factor_data = engine.get_total_park_weather_factor(team)
-        print(f"\n{team}:")
-        print(f"  Stadium: {factor_data['stadium_name']}")
-        print(f"  Park Factor: {factor_data['park_factor']:.3f}")
-        print(f"  Weather Factor: {factor_data['weather_factor']:.3f}")
-        print(f"  Total Factor: {factor_data['total_factor']:.3f}")
+    try:
+        print("MLB Weather and Park Factors Integration Test")
+        print("=" * 60)
         
-        weather = factor_data['weather']
-        print(f"  Weather: {weather['temperature']}°F, {weather['conditions']}, Wind: {weather['wind_speed']} mph")
-    
-    print(f"\n📅 Generating daily data for all teams...")
-    filepath = engine.save_daily_park_weather_data()
-    print(f"✅ Complete! Data saved to: {filepath}")
+        # Ensure weather API key is set
+        if not os.environ.get('WEATHER_API_KEY'):
+            os.environ['WEATHER_API_KEY'] = '487d8b3060df1751a73e0f242629f0ca'
+            print("Weather API key configured")
+        
+        engine = WeatherParkFactorEngine()
+        
+        # Test a few teams
+        test_teams = [
+            "Colorado Rockies",      # High altitude
+            "San Francisco Giants",  # Windy
+            "Houston Astros",       # Dome
+            "Boston Red Sox",       # Green Monster
+            "Oakland Athletics"     # Pitcher-friendly
+        ]
+        
+        print("Individual Team Analysis:")
+        for team in test_teams:
+            factor_data = engine.get_total_park_weather_factor(team)
+            print(f"\n{team}:")
+            print(f"  Stadium: {factor_data['stadium_name']}")
+            print(f"  Park Factor: {factor_data['park_factor']:.3f}")
+            print(f"  Weather Factor: {factor_data['weather_factor']:.3f}")
+            print(f"  Total Factor: {factor_data['total_factor']:.3f}")
+            
+            weather = factor_data['weather']
+            print(f"  Weather: {weather['temperature']}°F, {weather['conditions']}, Wind: {weather['wind_speed']} mph")
+        
+        print(f"\nGenerating daily data for all teams...")
+        filepath = engine.save_daily_park_weather_data()
+        print(f"Complete! Data saved to: {filepath}")
+        return True
+        
+    except Exception as e:
+        print(f"Error in weather integration: {e}")
+        import logging
+        logging.getLogger(__name__).error(f"Weather integration failed: {e}")
+        return False
 
 if __name__ == "__main__":
-    main()
+    import sys
+    success = main()
+    sys.exit(0 if success else 1)

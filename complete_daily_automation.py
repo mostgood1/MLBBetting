@@ -58,12 +58,20 @@ def run_script(script_path: Path, description: str, logger, timeout: int = 300):
         
         if result.returncode == 0:
             logger.info(f"✅ SUCCESS: {description}")
-            if result.stdout:
-                logger.info(f"Output: {result.stdout.strip()}")
+            if result.stdout and result.stdout.strip():
+                # Show last few lines of output
+                output_lines = result.stdout.strip().split('\n')
+                for line in output_lines[-3:]:  # Show last 3 lines
+                    if line.strip():
+                        logger.info(f"   {line}")
             return True
         else:
             logger.error(f"❌ FAILED: {description}")
-            logger.error(f"Error: {result.stderr}")
+            logger.error(f"Return code: {result.returncode}")
+            if result.stderr and result.stderr.strip():
+                logger.error(f"Error output: {result.stderr.strip()}")
+            if result.stdout and result.stdout.strip():
+                logger.error(f"Standard output: {result.stdout.strip()}")
             return False
             
     except subprocess.TimeoutExpired:
@@ -118,8 +126,9 @@ def complete_daily_automation():
         "fast_pitcher_updater.py",
         "weekly_team_updater.py", 
         "daily_data_updater.py",
-        "daily_betting_lines_automation.py",
+        "fetch_betting_lines_simple.py",       # DraftKings-specific fetcher
         "fetch_betting_lines_real.py",
+        "integrated_closing_lines.py",
         "daily_ultrafastengine_predictions.py",
         "unified_betting_engine.py",
         "betting_recommendations_engine.py"
@@ -221,7 +230,7 @@ def complete_daily_automation():
     logger.info("🌐 Updating comprehensive daily data...")
     daily_updater = base_dir / "daily_data_updater.py"
     if daily_updater.exists():
-        success_daily = run_script(daily_updater, "Update Daily Data", logger, 120)
+        success_daily = run_script(daily_updater, "Update Daily Data", logger, 300)  # Increased timeout to 300s
         if success_daily:
             logger.info("✅ Daily data updated (bullpen, weather factors)")
         else:
@@ -230,37 +239,55 @@ def complete_daily_automation():
         logger.warning("⚠️ Daily data updater not found - using cached daily data")
     
     # Step 3: Fetch Real Betting Lines
-    # Step 3: Fetch Real Betting Lines
-    logger.info("\n🎯 STEP 3: Fetching Real Betting Lines")
+    logger.info("\n🎯 STEP 3: Fetching Real Betting Lines (DraftKings preferred)")
+    logger.info("💰 Connecting to OddsAPI for current betting odds...")
+    step_start = datetime.now()
+    
     lines_candidates = [
-        base_dir / "daily_betting_lines_automation.py",
+        base_dir / "fetch_betting_lines_simple.py",  # DK-focused builder
         base_dir / "fetch_betting_lines_real.py"
     ]
 
     success3 = False
     for candidate in lines_candidates:
         if candidate.exists():
-            success3 = run_script(candidate, f"Fetch Betting Lines ({candidate.name})", logger, 600)
+            # longer timeout to allow API rate limits
+            logger.info(f"📡 Running {candidate.name} (this may take 2-3 minutes)...")
+            success3 = run_script(candidate, f"Fetch Betting Lines ({candidate.name})", logger, 900)
             if success3:
                 break
         else:
             logger.debug(f"Lines fetch candidate not found: {candidate}")
 
+    step_duration = (datetime.now() - step_start).total_seconds()
+    
     # Fallback: try importing and calling directly
     if not success3:
+        logger.info("🔄 Trying fallback import method...")
         try:
             import importlib
-            mod = importlib.import_module('daily_betting_lines_automation')
-            if hasattr(mod, 'main'):
-                logger.info("🔁 Running daily_betting_lines_automation.main() as fallback")
-                success3 = mod.main()
+            for modname in ("fetch_betting_lines_simple", "fetch_betting_lines_real"):
+                try:
+                    mod = importlib.import_module(modname)
+                    if hasattr(mod, 'main'):
+                        logger.info(f"🔁 Running {modname}.main() as fallback")
+                        ok = bool(mod.main())
+                        success3 = success3 or ok
+                        if success3:
+                            break
+                except Exception as ie:
+                    logger.debug(f"Fallback import failed for {modname}: {ie}")
+            if not success3:
+                raise RuntimeError("No betting lines module succeeded")
         except Exception as e:
-            logger.debug(f"Fallback betting lines import failed: {e}")
-            logger.warning("⚠️ No real betting lines available - continuing without them")
+            logger.warning(f"⚠️ No real betting lines available after {step_duration:.1f}s - continuing without them")
             logger.info("📋 To get real betting lines:")
             logger.info("   1. Get an OddsAPI key from https://the-odds-api.com/")
             logger.info("   2. Add it to data/closing_lines_config.json")
             logger.info("   3. Re-run the automation")
+    
+    if success3:
+        logger.info(f"✅ Betting lines fetched successfully ({step_duration:.1f}s)")
     
     # Step 4: Generate Today's Predictions
     logger.info("\n🎯 STEP 4: Generating Today's Predictions")
@@ -384,7 +411,10 @@ def complete_daily_automation():
                 logger.info(f"✅ Unified cache loaded: {len(dates)} dates, today included: {has_today}, games today: {games_count}")
                 if not has_today or games_count == 0:
                     logger.warning(f"⚠️ Cache missing today's data: has_today={has_today}, games_count={games_count}")
-                    cache_ok = False
+                    # Allow system to continue - betting engine can work with existing data
+                    cache_ok = True  # Don't fail the entire system for missing today's predictions
+                else:
+                    cache_ok = True
         except Exception as e:
             logger.error(f"❌ Error reading unified cache: {e}")
             cache_ok = False

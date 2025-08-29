@@ -31,6 +31,22 @@ class ComprehensiveHistoricalAnalyzer:
         
     def get_available_dates(self) -> List[str]:
         """Get all available dates with both predictions and final scores"""
+        # First try to get dates from unified cache
+        unified_cache_path = f"{self.data_dir}/unified_predictions_cache.json"
+        available_dates = set()
+        
+        try:
+            with open(unified_cache_path, 'r') as f:
+                cache_data = json.load(f)
+            
+            predictions_by_date = cache_data.get('predictions_by_date', {})
+            cache_dates = set(predictions_by_date.keys())
+            logger.info(f"Found {len(cache_dates)} dates in unified cache")
+            available_dates.update(cache_dates)
+        except (FileNotFoundError, KeyError) as e:
+            logger.info(f"Unified cache not available, falling back to legacy files: {e}")
+        
+        # Also check legacy format files
         betting_files = glob.glob(f"{self.data_dir}/betting_recommendations_2025_08_*.json")
         games_files = glob.glob(f"{self.data_dir}/games_2025-08-*.json")
         
@@ -46,17 +62,58 @@ class ComprehensiveHistoricalAnalyzer:
             games_dates.add(date_part)
         
         # Find common dates (where we have both predictions and games data)
-        common_dates = list(betting_dates & games_dates)
-        common_dates.sort()
+        legacy_common_dates = betting_dates & games_dates
+        available_dates.update(legacy_common_dates)
         
-        # Filter to start from our analysis start date
-        filtered_dates = [d for d in common_dates if d >= self.start_date]
+        # Convert to sorted list and filter
+        all_dates = list(available_dates)
+        all_dates.sort()
+        
+        # Filter to start from our analysis start date and ensure we have final scores
+        filtered_dates = []
+        for date in all_dates:
+            if date >= self.start_date:
+                # Check if we have final scores for this date
+                final_scores = self.load_final_scores_for_date(date)
+                if final_scores:
+                    filtered_dates.append(date)
         
         logger.info(f"Found {len(filtered_dates)} dates with complete data since {self.start_date}")
         return filtered_dates
     
     def load_predictions_for_date(self, date: str) -> Dict:
         """Load betting recommendations for a specific date"""
+        # First try to load from unified cache
+        unified_cache_path = f"{self.data_dir}/unified_predictions_cache.json"
+        
+        try:
+            with open(unified_cache_path, 'r') as f:
+                cache_data = json.load(f)
+            
+            # Check if date exists in unified cache
+            predictions_by_date = cache_data.get('predictions_by_date', {})
+            if date in predictions_by_date:
+                date_data = predictions_by_date[date]
+                games_data = date_data.get('games', {})
+                
+                if games_data:
+                    logger.info(f"Loaded {len(games_data)} games from unified cache for {date}")
+                    return games_data
+
+            # Fallback: some unified caches store dates at top-level
+            if date in cache_data:
+                date_blob = cache_data.get(date) or {}
+                games_data = date_blob.get('games') if isinstance(date_blob, dict) else None
+                if not games_data and isinstance(date_blob, dict):
+                    # Some formats store games directly under the date as keys
+                    games_data = {k: v for k, v in date_blob.items() if k not in ['metadata', 'generated_at']}
+                if games_data:
+                    logger.info(f"Loaded {len(games_data)} games from top-level unified cache for {date}")
+                    return games_data
+        except (FileNotFoundError, KeyError) as e:
+            logger.info(f"Unified cache not available for {date}, trying legacy format: {e}")
+        
+        # Fallback to legacy format
         date_formatted = date.replace('-', '_')
         file_path = f"{self.data_dir}/betting_recommendations_{date_formatted}.json"
         
@@ -215,6 +272,32 @@ class ComprehensiveHistoricalAnalyzer:
                         'is_final': True
                     }
             
+            # Fallback to local cached file if live fetch produced none
+            if len(final_scores) == 0:
+                try:
+                    cache_path = os.path.join(self.data_dir, f"final_scores_{date.replace('-', '_')}.json")
+                    if os.path.exists(cache_path):
+                        with open(cache_path, 'r') as f:
+                            cached = json.load(f)
+                        if isinstance(cached, dict):
+                            final_scores = {}
+                            for k, v in cached.items():
+                                away_team = normalize_team_name(v.get('away_team', ''))
+                                home_team = normalize_team_name(v.get('home_team', ''))
+                                key = f"{away_team}_vs_{home_team}"
+                                final_scores[key] = {
+                                    'away_team': away_team,
+                                    'home_team': home_team,
+                                    'away_score': v.get('away_score', 0),
+                                    'home_score': v.get('home_score', 0),
+                                    'total_runs': v.get('total_runs', v.get('away_score', 0) + v.get('home_score', 0)),
+                                    'winner': v.get('winner', 'away' if v.get('away_score', 0) > v.get('home_score', 0) else 'home'),
+                                    'game_pk': v.get('game_pk', ''),
+                                    'is_final': True
+                                }
+                except Exception:
+                    pass
+
             logger.info(f"Loaded {len(final_scores)} final scores for {date}")
             return final_scores
             
@@ -249,9 +332,13 @@ class ComprehensiveHistoricalAnalyzer:
             
             # Extract prediction data
             win_probs = prediction.get('win_probabilities', {})
-            away_prob = win_probs.get('away_prob', 0.5)
-            home_prob = win_probs.get('home_prob', 0.5)
-            predicted_total = prediction.get('predicted_total_runs', 0)
+            predictions_data = prediction.get('predictions', {})
+            
+            # Try to get from different possible locations
+            away_prob = win_probs.get('away_prob') or predictions_data.get('away_win_prob', 0.5)
+            home_prob = win_probs.get('home_prob') or predictions_data.get('home_win_prob', 0.5)
+            predicted_total = (prediction.get('predicted_total_runs') or 
+                             predictions_data.get('predicted_total_runs', 0))
             
             # Winner accuracy
             predicted_winner = 'away' if away_prob > home_prob else 'home'
@@ -454,17 +541,116 @@ class ComprehensiveHistoricalAnalyzer:
     def extract_game_recommendations(self, prediction: Dict) -> List[Dict]:
         """Extract betting recommendations from game data - handles multiple data formats"""
         recommendations = []
+        away_team = normalize_team_name(prediction.get('away_team', ''))
+        home_team = normalize_team_name(prediction.get('home_team', ''))
+
+        # Helper to detect non-bet commentary that should not be counted
+        commentary_types = {
+            'market analysis', 'market_analysis', 'analysis', 'commentary', 'lean', 'watchlist'
+        }
+        commentary_markers = [
+            'market analysis', 'efficiently priced', 'efficiently-priced',
+            'no clear value', 'no recommendation', 'no recommendations',
+            'no bet', 'pass', 'stay away', 'monitor only', 'monitor-only',
+            'lean only', 'lean-only'
+        ]
+
+        def is_non_bet_commentary(bt: str, conf: str, text: str) -> bool:
+            bt_l = (bt or '').lower().strip()
+            conf_l = (conf or '').lower().strip()
+            txt_l = (text or '').lower()
+            if bt_l in commentary_types:
+                return True
+            # Treat LOW-confidence entries that read like market commentary as non-bets
+            if 'low' in conf_l and any(marker in txt_l for marker in commentary_markers):
+                return True
+            # Generic phrasing strongly implying "no bet" regardless of confidence
+            if any(kw in txt_l for kw in ['no bet', 'no recommendation', 'no clear value']):
+                return True
+            return False
+
+        def derive_side_and_line(text: str, existing_side: str, bet_type: str, line_val):
+            text_l = (text or '').lower()
+            side = (existing_side or '').lower()
+            line_out = line_val
+            import re
+
+            def infer_side_via_aliases(txt: str, away: str, home: str) -> str:
+                # Tokenize and try to normalize each token to a team; covers KC, STL, LAA, nicknames
+                tokens = re.findall(r"[A-Za-z\.']+", txt)
+                for tok in tokens:
+                    norm = normalize_team_name(tok)
+                    if norm and norm == away:
+                        return 'away'
+                    if norm and norm == home:
+                        return 'home'
+                return ''
+            # Totals: try to parse Over/Under X
+            if bet_type == 'total':
+                if not side:
+                    if 'over' in text_l:
+                        side = 'over'
+                    elif 'under' in text_l:
+                        side = 'under'
+                if (line_out is None or not isinstance(line_out, (int, float)) or line_out <= 0):
+                    m = re.search(r"(over|under)\s*([0-9]+(?:\.[0-9])?)", text_l)
+                    if m:
+                        try:
+                            line_out = float(m.group(2))
+                        except Exception:
+                            pass
+            # Moneyline: infer home/away via team names or aliases in text
+            elif bet_type == 'moneyline':
+                if not side:
+                    tl = text_l
+                    if away_team and away_team.lower() in tl:
+                        side = 'away'
+                    elif home_team and home_team.lower() in tl:
+                        side = 'home'
+                    elif 'road' in tl or 'away' in tl:
+                        side = 'away'
+                    elif 'home' in tl:
+                        side = 'home'
+                    if not side:
+                        inferred = infer_side_via_aliases(text, away_team, home_team)
+                        if inferred:
+                            side = inferred
+            # Runline: parse like Team -1.5 / +1.5
+            elif bet_type in ['runline', 'run_line']:
+                if (line_out is None or not isinstance(line_out, (int, float)) or line_out == 0):
+                    m = re.search(r"([+-][0-9]+(?:\.[0-9])?)", text_l)
+                    if m:
+                        try:
+                            line_out = float(m.group(1))
+                        except Exception:
+                            pass
+                if not side:
+                    tl = text_l
+                    if away_team and away_team.lower() in tl:
+                        side = 'away'
+                    elif home_team and home_team.lower() in tl:
+                        side = 'home'
+                    if not side:
+                        inferred = infer_side_via_aliases(text, away_team, home_team)
+                        if inferred:
+                            side = inferred
+            return side, line_out
         
         # Method 1: Direct recommendations field (current format)
         if 'recommendations' in prediction and prediction['recommendations']:
             for rec in prediction['recommendations']:
                 if isinstance(rec, dict) and rec.get('type'):
                     # Filter out invalid/empty recommendations
-                    bet_type = rec.get('type', '').lower()
-                    side = rec.get('side', '').lower()
+                    bet_type = str(rec.get('type', '')).lower()
+                    side = str(rec.get('side', '')).lower()
+                    rec_text = str(rec.get('recommendation', '') or rec.get('reasoning', ''))
+                    conf = str(rec.get('confidence', ''))
                     
                     # Skip invalid bet types
                     if bet_type in ['none', 'unknown', '']:
+                        continue
+                    # Skip commentary / non-bet entries
+                    if is_non_bet_commentary(bet_type, conf, rec_text):
                         continue
                     
                     # Skip if no valid side for bet types that need it
@@ -482,29 +668,27 @@ class ComprehensiveHistoricalAnalyzer:
                         'reasoning': rec.get('reasoning', '')
                     })
         
-        # Method 2: value_bets field (converted format)
+        # Method 2: value_bets field (converted/newer format)
         if 'value_bets' in prediction and prediction['value_bets']:
             for bet in prediction['value_bets']:
                 if isinstance(bet, dict) and bet.get('type'):
                     # Filter out invalid bet types
-                    bet_type = bet.get('type', '').lower()
+                    bet_type = str(bet.get('type', '')).lower()
                     if bet_type in ['none', 'unknown', '']:
                         continue
                     
                     # Parse the recommendation field for side/direction
-                    rec_text = bet.get('recommendation', '').lower()
+                    rec_text = str(bet.get('recommendation', '')).lower()
                     if rec_text in ['no recommendations', 'no clear value identified', '']:
                         continue
-                        
-                    side = ''
-                    if 'over' in rec_text:
-                        side = 'over'
-                    elif 'under' in rec_text:
-                        side = 'under'
-                    elif 'home' in rec_text:
-                        side = 'home'
-                    elif 'away' in rec_text:
-                        side = 'away'
+                    # Skip commentary / non-bet entries
+                    conf = str(bet.get('confidence', ''))
+                    if is_non_bet_commentary(bet_type, conf, rec_text):
+                        continue
+                    # Start with provided side and line, then try to derive from text/team names
+                    side = str(bet.get('side', '')).lower()
+                    line_val = bet.get('betting_line', bet.get('line', 0))
+                    side, line_val = derive_side_and_line(rec_text or bet.get('reasoning', ''), side, bet_type, line_val)
                     
                     # Skip if no valid side found
                     if not side:
@@ -514,8 +698,8 @@ class ComprehensiveHistoricalAnalyzer:
                         'source': 'value_bets',
                         'type': bet_type,
                         'side': side,
-                        'line': bet.get('betting_line', 0),
-                        'odds': bet.get('american_odds', '-110').replace('+', '').replace('-', ''),
+                        'line': line_val or 0,
+                        'odds': bet.get('american_odds', '-110'),
                         'expected_value': bet.get('expected_value', 0),
                         'confidence': bet.get('confidence', 'MEDIUM'),
                         'reasoning': bet.get('reasoning', '')
@@ -527,16 +711,83 @@ class ComprehensiveHistoricalAnalyzer:
             if isinstance(unified_bets, list):
                 for bet in unified_bets:
                     if isinstance(bet, dict) and bet.get('type'):
+                        bt = str(bet.get('type', '')).lower()
+                        conf = str(bet.get('confidence', ''))
+                        rec_text = str(bet.get('recommendation', '') or bet.get('reasoning', ''))
+                        # Skip commentary / non-bet entries
+                        if is_non_bet_commentary(bt, conf, rec_text):
+                            continue
+                        # Optionally skip entries with no side and no parseable text
+                        side_val = str(bet.get('side', '')).lower()
+                        if not side_val and not any(k in rec_text.lower() for k in ['over', 'under', 'home', 'away', away_team.lower(), home_team.lower()] if isinstance(rec_text, str)):
+                            continue
                         recommendations.append({
                             'source': 'unified_value_bets',
-                            'type': bet.get('type', ''),
-                            'side': bet.get('side', ''),
+                            'type': bt,
+                            'side': side_val,
                             'line': bet.get('line', 0),
                             'odds': bet.get('odds', -110),
                             'expected_value': bet.get('expected_value', 0),
                             'confidence': bet.get('confidence', 'MEDIUM'),
                             'reasoning': bet.get('reasoning', '')
                         })
+
+        # Method 4: Alternate field 'betting_recommendations' used in some dates
+        if 'betting_recommendations' in prediction and prediction['betting_recommendations']:
+            br = prediction['betting_recommendations']
+            # It can be a dict keyed by type or a list
+            if isinstance(br, dict):
+                # Example: {'moneyline': {...}, 'total': {...}}
+                for bt, val in br.items():
+                    if isinstance(val, dict):
+                        rec_text = str(val.get('recommendation', '')).lower()
+                        side = str(val.get('side', '')).lower()
+                        line_val = val.get('line', val.get('betting_line', 0))
+                        bt_l = str(bt).lower()
+                        conf = str(val.get('confidence', ''))
+                        # Skip commentary / non-bet entries
+                        if is_non_bet_commentary(bt_l, conf, rec_text or val.get('reasoning', '')):
+                            continue
+                        side, line_val = derive_side_and_line(rec_text or val.get('reasoning', ''), side, bt_l, line_val)
+                        if not side:
+                            continue
+                        recommendations.append({
+                            'source': 'betting_recommendations',
+                            'type': bt_l,
+                            'side': side,
+                            'line': line_val or 0,
+                            'odds': val.get('odds', val.get('american_odds', '-110')),
+                            'expected_value': val.get('expected_value', 0),
+                            'confidence': val.get('confidence', 'MEDIUM'),
+                            'reasoning': val.get('reasoning', rec_text)
+                        })
+            elif isinstance(br, list):
+                for val in br:
+                    if not isinstance(val, dict):
+                        continue
+                    bt = str(val.get('type', '')).lower()
+                    if bt in ['none', 'unknown', '']:
+                        continue
+                    rec_text = str(val.get('recommendation', '')).lower()
+                    conf = str(val.get('confidence', ''))
+                    # Skip commentary / non-bet entries
+                    if is_non_bet_commentary(bt, conf, rec_text or val.get('reasoning', '')):
+                        continue
+                    side = str(val.get('side', '')).lower()
+                    line_val = val.get('line', val.get('betting_line', 0))
+                    side, line_val = derive_side_and_line(rec_text or val.get('reasoning', ''), side, bt, line_val)
+                    if not side:
+                        continue
+                    recommendations.append({
+                        'source': 'betting_recommendations',
+                        'type': bt,
+                        'side': side,
+                        'line': line_val or 0,
+                        'odds': val.get('odds', val.get('american_odds', '-110')),
+                        'expected_value': val.get('expected_value', 0),
+                        'confidence': val.get('confidence', 'MEDIUM'),
+                        'reasoning': val.get('reasoning', rec_text)
+                    })
         
         return recommendations
     
@@ -547,19 +798,67 @@ class ComprehensiveHistoricalAnalyzer:
         line = recommendation.get('line', 0)
         odds = recommendation.get('odds', -110)
         
-        # Validate bet has required fields
+        # If side is missing, try to infer it using team names and text
+        if bet_type and not side:
+            try:
+                away_team = normalize_team_name(prediction.get('away_team', ''))
+                home_team = normalize_team_name(prediction.get('home_team', ''))
+                text = (str(recommendation.get('recommendation', '')) + ' ' + str(recommendation.get('reasoning', ''))).lower()
+                # Moneyline: match team name to home/away
+                if bet_type == 'moneyline':
+                    if away_team and away_team.lower() in text:
+                        side = 'away'
+                    elif home_team and home_team.lower() in text:
+                        side = 'home'
+                # Totals: parse Over/Under
+                elif bet_type == 'total':
+                    if 'over' in text:
+                        side = 'over'
+                    elif 'under' in text:
+                        side = 'under'
+                    # Try to parse a line if missing/invalid
+                    if not (isinstance(line, (int, float)) and line > 0):
+                        import re
+                        m = re.search(r"(over|under)\s*([0-9]+(?:\.[0-9])?)", text)
+                        if m:
+                            try:
+                                line = float(m.group(2))
+                            except Exception:
+                                pass
+                # Runline: infer team and parse +/- line
+                elif bet_type in ['runline', 'run_line']:
+                    if away_team and away_team.lower() in text:
+                        side = 'away'
+                    elif home_team and home_team.lower() in text:
+                        side = 'home'
+                    if not (isinstance(line, (int, float)) and line != 0):
+                        import re
+                        m = re.search(r"([+-][0-9]+(?:\.[0-9])?)", text)
+                        if m:
+                            try:
+                                line = float(m.group(1))
+                            except Exception:
+                                pass
+            except Exception:
+                pass
+
+        # Validate bet has required fields after inference
         if not bet_type or not side:
             return {'is_valid': False}
         
         # Convert odds to string format if needed
-        if isinstance(odds, (int, float)):
-            american_odds = f"{odds:+d}" if odds else '+100'
-        else:
-            american_odds = str(odds)
+        try:
+            if isinstance(odds, (int, float)):
+                american_odds = f"{int(odds):+d}"
+            else:
+                american_odds = str(odds).strip()
+        except Exception:
+            american_odds = "-110"
             
         # Ensure odds have proper sign
         if not american_odds.startswith(('+', '-')):
-            american_odds = f"-{american_odds}" if american_odds.isdigit() else american_odds
+            # If numeric string without sign, default to negative (favorite-style) odds
+            american_odds = f"-{american_odds}" if american_odds.replace('.', '').isdigit() else american_odds
         
         actual_total = final_score.get('total_runs', 0)
         actual_winner = final_score.get('winner', '')
@@ -784,6 +1083,450 @@ class ComprehensiveHistoricalAnalyzer:
         
         logger.info(f"Cumulative analysis complete: {mp['total_games']} games, {bp['total_recommendations']} bets, {bp['roi_percentage']}% ROI")
         return cumulative_stats
+
+    def count_all_recommendations(self) -> Tuple[int, Dict[str, int]]:
+        """Count all betting recommendations found in predictions, regardless of evaluability.
+
+        Returns a tuple of (total_found, per_date_counts).
+        """
+        total_found = 0
+        per_date: Dict[str, int] = {}
+
+        dates = self.get_available_dates()
+        for date in dates:
+            try:
+                predictions = self.load_predictions_for_date(date) or {}
+            except Exception:
+                predictions = {}
+            count = 0
+            for _, prediction in predictions.items():
+                try:
+                    recs = self.extract_game_recommendations(prediction)
+                    count += len(recs)
+                except Exception:
+                    continue
+            per_date[date] = count
+            total_found += count
+        return total_found, per_date
+
+    def analyze_betting_files(self) -> Dict:
+        """Evaluate recommendations directly from betting_recommendations_*.json files.
+
+        Returns a dict with cumulative betting performance and a raw total of recs found.
+        """
+        # Initialize cumulative structure similar to get_cumulative_analysis betting_performance
+        cumulative = {
+            'betting_performance': {
+                'total_recommendations': 0,
+                'correct_recommendations': 0,
+                'overall_accuracy': 0,
+                'moneyline_stats': {'total': 0, 'correct': 0, 'accuracy': 0},
+                'total_stats': {'total': 0, 'correct': 0, 'accuracy': 0},
+                'runline_stats': {'total': 0, 'correct': 0, 'accuracy': 0},
+                'total_bet_amount': 0,
+                'total_winnings': 0,
+                'net_profit': 0,
+                'roi_percentage': 0
+            },
+            'raw_total_found': 0
+        }
+
+        # Find all betting files
+        files = glob.glob(f"{self.data_dir}/betting_recommendations_2025_08_*.json")
+        files.sort()
+        # Exclude current day from counts/evaluation per policy
+        import datetime
+        today_str = datetime.date.today().strftime('%Y-%m-%d')
+        for fp in files:
+            try:
+                with open(fp, 'r') as f:
+                    data = json.load(f)
+            except Exception as e:
+                logger.warning(f"Failed to read {fp}: {e}")
+                continue
+
+            # Extract date from file or content
+            date = data.get('date')
+            if not date:
+                base = os.path.basename(fp)
+                date = base.replace('betting_recommendations_', '').replace('.json', '').replace('_', '-')
+
+            if date < self.start_date:
+                continue
+            if date == today_str:
+                # Skip current day for logging until next day
+                continue
+
+            predictions = data.get('games', {}) or {}
+            # Count raw recs found in this file
+            raw_count = 0
+            for _, pred in predictions.items():
+                try:
+                    raw_count += len(self.extract_game_recommendations(pred))
+                except Exception:
+                    continue
+            cumulative['raw_total_found'] += raw_count
+
+            # Load final scores for evaluation
+            final_scores = self.load_final_scores_for_date(date)
+            if not final_scores:
+                # Can't evaluate this date; move on but keep raw count
+                continue
+
+            # Evaluate using existing routine
+            day_stats = self.analyze_betting_recommendations(predictions, final_scores)
+
+            bp = cumulative['betting_performance']
+            bp['total_recommendations'] += day_stats.get('total_recommendations', 0)
+            bp['correct_recommendations'] += day_stats.get('correct_recommendations', 0)
+            bp['total_bet_amount'] += day_stats.get('total_bet_amount', 0)
+            bp['total_winnings'] += day_stats.get('total_winnings', 0)
+            for bt in ['moneyline_stats', 'total_stats', 'runline_stats']:
+                bp[bt]['total'] += day_stats.get(bt, {}).get('total', 0)
+                bp[bt]['correct'] += day_stats.get(bt, {}).get('correct', 0)
+
+        # Finalize accuracies and ROI
+        bp = cumulative['betting_performance']
+        if bp['total_recommendations'] > 0:
+            bp['overall_accuracy'] = round((bp['correct_recommendations'] / bp['total_recommendations']) * 100, 2)
+        for bt in ['moneyline_stats', 'total_stats', 'runline_stats']:
+            total = bp[bt]['total']
+            if total > 0:
+                bp[bt]['accuracy'] = round((bp[bt]['correct'] / total) * 100, 2)
+        if bp['total_bet_amount'] > 0:
+            bp['net_profit'] = round(bp['total_winnings'] - bp['total_bet_amount'], 2)
+            bp['roi_percentage'] = round((bp['net_profit'] / bp['total_bet_amount']) * 100, 2)
+
+        return cumulative
+
+    def analyze_betting_files_gaps(self) -> Dict:
+        """Diagnose why some recommendations are not evaluated.
+
+        Returns a dict with counts and categorized reasons per date and overall.
+        """
+        summary = {
+            'overall': {
+                'raw_found': 0,
+                'with_final_scores': 0,
+                'evaluated': 0,
+                'skipped': 0,
+                'reasons': {}
+            },
+            'by_date': {}
+        }
+
+        def add_reason(bucket: Dict, reason: str):
+            bucket['reasons'][reason] = bucket['reasons'].get(reason, 0) + 1
+
+        files = glob.glob(f"{self.data_dir}/betting_recommendations_2025_08_*.json")
+        files.sort()
+        import datetime
+        today_str = datetime.date.today().strftime('%Y-%m-%d')
+        for fp in files:
+            try:
+                with open(fp, 'r') as f:
+                    data = json.load(f)
+            except Exception:
+                continue
+
+            date = data.get('date')
+            if not date:
+                base = os.path.basename(fp)
+                date = base.replace('betting_recommendations_', '').replace('.json', '').replace('_', '-')
+            if date < self.start_date:
+                continue
+            if date == today_str:
+                # Exclude current day from diagnostics as it's not logged yet
+                continue
+
+            predictions = data.get('games', {}) or {}
+            date_bucket = summary['by_date'].setdefault(date, {
+                'raw_found': 0,
+                'with_final_scores': 0,
+                'evaluated': 0,
+                'skipped': 0,
+                'reasons': {}
+            })
+
+            # Load final scores once per date
+            final_scores = self.load_final_scores_for_date(date)
+
+            for _, pred in predictions.items():
+                recs = []
+                try:
+                    recs = self.extract_game_recommendations(pred)
+                except Exception:
+                    pass
+                date_bucket['raw_found'] += len(recs)
+                summary['overall']['raw_found'] += len(recs)
+
+                # Build normalized key and check final score
+                away_team = normalize_team_name(pred.get('away_team', ''))
+                home_team = normalize_team_name(pred.get('home_team', ''))
+                normalized_key = f"{away_team}_vs_{home_team}"
+                fs = final_scores.get(normalized_key)
+                if not fs:
+                    # None of the recs for this game can be evaluated
+                    date_bucket['skipped'] += len(recs)
+                    summary['overall']['skipped'] += len(recs)
+                    add_reason(date_bucket, 'no_final_score_for_game')
+                    add_reason(summary['overall'], 'no_final_score_for_game')
+                    continue
+
+                date_bucket['with_final_scores'] += len(recs)
+                summary['overall']['with_final_scores'] += len(recs)
+
+                for rec in recs:
+                    # Quick validity checks mirroring evaluate_single_bet
+                    bet_type = str(rec.get('type', '')).lower()
+                    side = str(rec.get('side', '')).lower()
+                    line = rec.get('line', 0)
+
+                    if not bet_type or bet_type in ['none', 'unknown']:
+                        date_bucket['skipped'] += 1
+                        summary['overall']['skipped'] += 1
+                        add_reason(date_bucket, 'unsupported_or_missing_bet_type')
+                        add_reason(summary['overall'], 'unsupported_or_missing_bet_type')
+                        continue
+
+                    if not side:
+                        date_bucket['skipped'] += 1
+                        summary['overall']['skipped'] += 1
+                        add_reason(date_bucket, 'missing_side')
+                        add_reason(summary['overall'], 'missing_side')
+                        continue
+
+                    if bet_type == 'total' and not (isinstance(line, (int, float)) and line > 0):
+                        date_bucket['skipped'] += 1
+                        summary['overall']['skipped'] += 1
+                        add_reason(date_bucket, 'missing_or_invalid_total_line')
+                        add_reason(summary['overall'], 'missing_or_invalid_total_line')
+                        continue
+
+                    if bet_type in ['runline', 'run_line'] and not (isinstance(line, (int, float)) and line != 0):
+                        date_bucket['skipped'] += 1
+                        summary['overall']['skipped'] += 1
+                        add_reason(date_bucket, 'missing_or_zero_runline')
+                        add_reason(summary['overall'], 'missing_or_zero_runline')
+                        continue
+
+                    # If it passes basic checks, consider it evaluated
+                    date_bucket['evaluated'] += 1
+                    summary['overall']['evaluated'] += 1
+
+        return summary
+
+    def get_missing_side_examples(self, limit: int = 20) -> List[Dict]:
+        """Return concrete examples of recommendations missing a resolvable 'side'."""
+        examples: List[Dict] = []
+        files = glob.glob(f"{self.data_dir}/betting_recommendations_2025_08_*.json")
+        files.sort()
+        for fp in files:
+            try:
+                with open(fp, 'r') as f:
+                    data = json.load(f)
+            except Exception:
+                continue
+            date = data.get('date')
+            if not date:
+                base = os.path.basename(fp)
+                date = base.replace('betting_recommendations_', '').replace('.json', '').replace('_', '-')
+            if date < self.start_date:
+                continue
+            games = data.get('games', {}) or {}
+            for game_key, pred in games.items():
+                away_team = normalize_team_name(pred.get('away_team', ''))
+                home_team = normalize_team_name(pred.get('home_team', ''))
+                # direct recommendations list (some legacy)
+                recs = pred.get('recommendations')
+                if isinstance(recs, list):
+                    for rec in recs:
+                        if not isinstance(rec, dict):
+                            continue
+                        bt = str(rec.get('type', '')).lower()
+                        side = str(rec.get('side', '')).lower()
+                        if not side and bt in ['total', 'moneyline', 'runline', 'run_line']:
+                            examples.append({
+                                'date': date,
+                                'game': f"{away_team} vs {home_team}",
+                                'source': 'recommendations',
+                                'type': bt,
+                                'recommendation': rec.get('recommendation', ''),
+                                'raw': rec
+                            })
+                            if len(examples) >= limit:
+                                return examples
+                # unified_value_bets often missing explicit side
+                uvb = pred.get('unified_value_bets')
+                if isinstance(uvb, list):
+                    for bet in uvb:
+                        bt = str(bet.get('type', '')).lower()
+                        side = str(bet.get('side', '')).lower()
+                        rec_text = str(bet.get('recommendation', ''))
+                        if not side:
+                            examples.append({
+                                'date': date,
+                                'game': f"{away_team} vs {home_team}",
+                                'source': 'unified_value_bets',
+                                'type': bt,
+                                'recommendation': rec_text,
+                                'raw': bet
+                            })
+                            if len(examples) >= limit:
+                                return examples
+                # betting_recommendations dict/list with missing side and no parseable text
+                br = pred.get('betting_recommendations')
+                if isinstance(br, dict):
+                    for bt, val in br.items():
+                        if not isinstance(val, dict):
+                            continue
+                        side = str(val.get('side', '')).lower()
+                        rec_text = str(val.get('recommendation', ''))
+                        if not side and not any(k in rec_text.lower() for k in ['over', 'under', 'home', 'away', away_team.lower(), home_team.lower()] if isinstance(rec_text, str)):
+                            examples.append({
+                                'date': date,
+                                'game': f"{away_team} vs {home_team}",
+                                'source': 'betting_recommendations',
+                                'type': str(bt).lower(),
+                                'recommendation': rec_text,
+                                'raw': val
+                            })
+                            if len(examples) >= limit:
+                                return examples
+                elif isinstance(br, list):
+                    for val in br:
+                        if not isinstance(val, dict):
+                            continue
+                        bt = str(val.get('type', '')).lower()
+                        side = str(val.get('side', '')).lower()
+                        rec_text = str(val.get('recommendation', ''))
+                        if not side and not any(k in rec_text.lower() for k in ['over', 'under', 'home', 'away', away_team.lower(), home_team.lower()] if isinstance(rec_text, str)):
+                            examples.append({
+                                'date': date,
+                                'game': f"{away_team} vs {home_team}",
+                                'source': 'betting_recommendations',
+                                'type': bt,
+                                'recommendation': rec_text,
+                                'raw': val
+                            })
+                            if len(examples) >= limit:
+                                return examples
+                # value_bets with no side in text (rare, but include if present)
+                vb = pred.get('value_bets')
+                if isinstance(vb, list):
+                    for bet in vb:
+                        bt = str(bet.get('type', '')).lower()
+                        rec_text = str(bet.get('recommendation', ''))
+                        if bt in ['total', 'moneyline', 'runline', 'run_line']:
+                            tl = rec_text.lower()
+                            implied_side = ''
+                            if away_team and away_team.lower() in tl:
+                                implied_side = 'away'
+                            elif home_team and home_team.lower() in tl:
+                                implied_side = 'home'
+                            has_side_marker = any(k in tl for k in ['over', 'under', 'home', 'away']) or bool(bet.get('side')) or bool(implied_side)
+                            if not has_side_marker:
+                                examples.append({
+                                    'date': date,
+                                    'game': f"{away_team} vs {home_team}",
+                                    'source': 'value_bets',
+                                    'type': bt,
+                                    'recommendation': rec_text,
+                                    'raw': bet
+                                })
+                                if len(examples) >= limit:
+                                    return examples
+                if len(examples) >= limit:
+                    return examples
+        return examples
+
+    def collect_gap_samples(self, reason_filter: Optional[str] = None, limit: int = 50) -> Dict[str, List[Dict]]:
+        """Collect detailed examples of skipped recommendations grouped by reason.
+
+        reason_filter: if provided, only include that reason.
+        limit: maximum examples per reason.
+        Returns: { reason: [ examples... ] }
+        """
+        results: Dict[str, List[Dict]] = {}
+        files = glob.glob(f"{self.data_dir}/betting_recommendations_2025_08_*.json")
+        files.sort()
+
+        for fp in files:
+            try:
+                with open(fp, 'r') as f:
+                    data = json.load(f)
+            except Exception:
+                continue
+            date = data.get('date')
+            if not date:
+                base = os.path.basename(fp)
+                date = base.replace('betting_recommendations_', '').replace('.json', '').replace('_', '-')
+            if date < self.start_date:
+                continue
+
+            predictions = data.get('games', {}) or {}
+            final_scores = self.load_final_scores_for_date(date)
+
+            for game_key, pred in predictions.items():
+                away_team = normalize_team_name(pred.get('away_team', ''))
+                home_team = normalize_team_name(pred.get('home_team', ''))
+                normalized_key = f"{away_team}_vs_{home_team}"
+                fs = final_scores.get(normalized_key)
+
+                try:
+                    recs = self.extract_game_recommendations(pred)
+                except Exception:
+                    recs = []
+
+                if not fs and recs:
+                    reason = 'no_final_score_for_game'
+                    if not reason_filter or reason_filter == reason:
+                        bucket = results.setdefault(reason, [])
+                        for rec in recs:
+                            if len(bucket) >= limit:
+                                break
+                            bucket.append({
+                                'date': date,
+                                'game': normalized_key,
+                                'bet_type': rec.get('type'),
+                                'side': rec.get('side'),
+                                'line': rec.get('line'),
+                                'odds': rec.get('odds'),
+                                'confidence': rec.get('confidence'),
+                                'expected_value': rec.get('expected_value'),
+                                'recommendation_text': rec.get('reasoning') or rec.get('recommendation')
+                            })
+                    continue
+
+                for rec in recs:
+                    bet_type = str(rec.get('type', '')).lower()
+                    side = str(rec.get('side', '')).lower()
+                    line = rec.get('line', 0)
+                    reason = None
+                    if not bet_type or bet_type in ['none', 'unknown']:
+                        reason = 'unsupported_or_missing_bet_type'
+                    elif not side:
+                        reason = 'missing_side'
+                    elif bet_type == 'total' and not (isinstance(line, (int, float)) and line > 0):
+                        reason = 'missing_or_invalid_total_line'
+                    elif bet_type in ['runline', 'run_line'] and not (isinstance(line, (int, float)) and line != 0):
+                        reason = 'missing_or_zero_runline'
+
+                    if reason and (not reason_filter or reason_filter == reason):
+                        bucket = results.setdefault(reason, [])
+                        if len(bucket) < limit:
+                            bucket.append({
+                                'date': date,
+                                'game': normalized_key,
+                                'bet_type': bet_type,
+                                'side': side,
+                                'line': line,
+                                'odds': rec.get('odds'),
+                                'confidence': rec.get('confidence'),
+                                'expected_value': rec.get('expected_value'),
+                                'recommendation_text': rec.get('reasoning') or rec.get('recommendation')
+                            })
+        return results
     
     def get_date_analysis(self, date: str) -> Dict:
         """Get detailed analysis for a specific date"""

@@ -175,6 +175,20 @@
             line-height: 1.4;
         }
 
+        /* Historical Summary Metrics (4 cards in one row) */
+        .summary-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        @media (max-width: 1100px) {
+            .summary-metrics { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .summary-metrics { grid-template-columns: 1fr; }
+        }
+
         /* Status indicators */
         .status-excellent { color: #28a745; }
         .status-good { color: #17a2b8; }
@@ -671,6 +685,11 @@
                 <div class="loading-spinner">Loading system metrics...</div>
             </div>
 
+            <!-- Daily Performance Table -->
+            <div id="dailyPerformanceContainer">
+                <div class="loading-spinner">Loading daily performance...</div>
+            </div>
+
             <div class="info-box">
                 <h4>🔍 How to Read This Dashboard</h4>
                 <p><strong>ROI (Return on Investment):</strong> Percentage return based on $100 unit bets on all recommendations</p>
@@ -787,121 +806,257 @@
 
         async function loadSystemOverview() {
             try {
-                console.log('Fetching system overview data...');
-                // Try the proxy first, then fall back to direct connection
-                let response;
-                try {
-                    response = await fetch('/api/historical-analysis/cumulative');
-                } catch (e) {
-                    console.log('Proxy failed, trying direct connection to port 5001...');
-                    response = await fetch('http://localhost:5001/api/cumulative');
-                }
+                console.log('🔄 Loading system overview...');
+                const response = await fetch('/api/system-performance-overview');
+                
                 console.log('Response status:', response.status);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
-                const data = await response.json();
-                console.log('Received data:', data);
+                const result = await response.json();
+                console.log('Received data:', result);
                 
-                if (data.success) {
-                    const bettingPerformance = data.data.betting_performance || {};
-                    const modelPerformance = data.data.model_performance || {};
+                if (result.success) {
+                    const data = result.data;
+                    const overview = data.overview || {};
+                    const predictionTypes = data.predictionTypes || {};  // Fixed: use camelCase to match backend
                     
-                    console.log('Betting performance:', bettingPerformance);
+                    console.log('System overview:', overview);
+                    console.log('Prediction types:', predictionTypes);
                     
+                    const recs = data.bettingRecommendations || {};
                     const metricsHtml = `
                         <div class="metric-card">
-                            <div class="metric-value ${getStatusClass(bettingPerformance.roi_percentage || 0, 'roi')}">${(bettingPerformance.roi_percentage || 0).toFixed(1)}%</div>
-                            <div class="metric-label">Overall ROI</div>
-                            <div class="metric-description">Return on Investment since 8/15</div>
+                            <div class="metric-value">${overview.total_predictions || 0}</div>
+                            <div class="metric-label">Games Analyzed</div>
+                            <div class="metric-description">Completed games (excludes today)</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value ${getStatusClass(bettingPerformance.overall_accuracy || 0, 'accuracy')}">${(bettingPerformance.overall_accuracy || 0).toFixed(1)}%</div>
-                            <div class="metric-label">Betting Accuracy</div>
-                            <div class="metric-description">Percentage of winning bets</div>
+                            <div class="metric-value ${getStatusClass(overview.winner_accuracy || overview.overall_accuracy || 0, 'accuracy')}">${(overview.winner_accuracy || overview.overall_accuracy || 0).toFixed(1)}%</div>
+                            <div class="metric-label">Model Winner Accuracy</div>
+                            <div class="metric-description">Accuracy picking winners</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value">${bettingPerformance.total_recommendations || 0}</div>
-                            <div class="metric-label">Total Bets</div>
-                            <div class="metric-description">Recommendations analyzed</div>
+                            <div class="metric-value ${getStatusClass(overview.total_accuracy_1 || 0, 'accuracy')}">${(overview.total_accuracy_1 || 0).toFixed(1)}%</div>
+                            <div class="metric-label">Totals Accuracy ±1</div>
+                            <div class="metric-description">Total runs within 1</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value ${getStatusClass(bettingPerformance.net_profit || 0, 'profit')}">${bettingPerformance.net_profit >= 0 ? '+' : ''}$${(bettingPerformance.net_profit || 0).toFixed(0)}</div>
-                            <div class="metric-label">Net Profit</div>
-                            <div class="metric-description">Based on $100 unit bets</div>
+                            <div class="metric-value ${getStatusClass(overview.total_accuracy_2 || 0, 'accuracy')}">${(overview.total_accuracy_2 || 0).toFixed(1)}%</div>
+                            <div class="metric-label">Totals Accuracy ±2</div>
+                            <div class="metric-description">Total runs within 2</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value ${getStatusClass(modelPerformance.winner_accuracy || 0, 'accuracy')}">${(modelPerformance.winner_accuracy || 0).toFixed(1)}%</div>
-                            <div class="metric-label">Model Accuracy</div>
-                            <div class="metric-description">Game winner predictions</div>
+                            <div class="metric-value ${getStatusClass(overview.home_runs_accuracy_1 || 0, 'accuracy')}">${(overview.home_runs_accuracy_1 || 0).toFixed(1)}%</div>
+                            <div class="metric-label">Home Run Accuracy ±1</div>
+                            <div class="metric-description">Home team runs within 1</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value">${data.data.total_dates_analyzed || 14}</div>
-                            <div class="metric-label">Days Analyzed</div>
-                            <div class="metric-description">Since system launch</div>
+                            <div class="metric-value ${getStatusClass(overview.away_runs_accuracy_1 || 0, 'accuracy')}">${(overview.away_runs_accuracy_1 || 0).toFixed(1)}%</div>
+                            <div class="metric-label">Away Run Accuracy ±1</div>
+                            <div class="metric-description">Away team runs within 1</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${(recs.total_recommended || 0)} / ${(recs.evaluated_recommended || 0)} evaluated</div>
+                            <div class="metric-label">Bets Recommended</div>
+                            <div class="metric-description">Raw total / evaluated (finals available)</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value ${getStatusClass(recs.moneyline_accuracy || 0, 'accuracy')}">${(recs.moneyline_accuracy || 0).toFixed(1)}%</div>
+                            <div class="metric-label">ML Recommendation Accuracy</div>
+                            <div class="metric-description">Moneyline bets win rate</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value ${getStatusClass(recs.runline_accuracy || 0, 'accuracy')}">${(recs.runline_accuracy || 0).toFixed(1)}%</div>
+                            <div class="metric-label">Runline Recommendation Accuracy</div>
+                            <div class="metric-description">Runline bets win rate</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value ${getStatusClass(recs.totals_accuracy || 0, 'accuracy')}">${(recs.totals_accuracy || 0).toFixed(1)}%</div>
+                            <div class="metric-label">Over/Under Accuracy</div>
+                            <div class="metric-description">Totals bets win rate</div>
                         </div>
                     `;
                     
                     document.getElementById('overviewMetrics').innerHTML = metricsHtml;
+
+                    // Append Total ROI card from ROI summary endpoint
+                    try {
+                        const roiRes = await fetch('/api/roi-summary');
+                        if (roiRes.ok) {
+                            const roiJson = await roiRes.json();
+                            if (roiJson.success) {
+                                const roi = roiJson.data || {};
+                                const profit = Number(roi.net_profit || 0);
+                                const roiHtml = `
+                                    <div class="metric-card">
+                                        <div class="metric-value ${getStatusClass(roi.roi_percentage || 0, 'roi')}">${(roi.roi_percentage || 0).toFixed(2)}%</div>
+                                        <div class="metric-label">Total ROI</div>
+                                        <div class="metric-description">${roi.total_bets || 0} bets, ${profit >= 0 ? '+' : ''}$${profit.toFixed(0)}</div>
+                                    </div>
+                                `;
+                                document.getElementById('overviewMetrics').insertAdjacentHTML('beforeend', roiHtml);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('ROI summary unavailable:', e);
+                    }
+                    
+                    // Also populate the daily performance table with system overview data
+                    const dailyPerformance = data.dailyPerformance || {};
+                    if (Object.keys(dailyPerformance).length > 0) {
+                        updateDailyPerformanceTable(dailyPerformance);
+                    }
+                    
                 } else {
-                    throw new Error(data.error || 'Failed to load overview data');
+                    throw new Error(result.error || 'Failed to load overview data');
                 }
             } catch (error) {
                 document.getElementById('overviewMetrics').innerHTML = `<div class="error-message">Error loading overview: ${error.message}</div>`;
             }
         }
 
+        function updateDailyPerformanceTable(dailyPerformance) {
+            try {
+                let tableHtml = `
+                    <div class="daily-performance">
+                        <h4>📊 Daily System Performance</h4>
+                        <table class="performance-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Total Bets</th>
+                                    <th>Wins</th>
+                                    <th>Win Rate</th>
+                                    <th>ROI</th>
+                                    <th>Net Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                // Sort dates in descending order (most recent first) without timezone parsing
+                // ISO YYYY-MM-DD sorts lexicographically in chronological order
+                const sortedDates = Object.keys(dailyPerformance).sort().reverse();
+                const fmtDate = (s) => {
+                    try {
+                        const [y, m, d] = s.split('-');
+                        return `${m}/${d}/${y}`;
+                    } catch (e) { return s; }
+                };
+                
+                for (const date of sortedDates) {
+                    const dayStats = dailyPerformance[date];
+                    const winRate = dayStats.total_bets > 0 ? (dayStats.wins / dayStats.total_bets * 100) : 0;
+                    const profit = dayStats.net_profit || 0;
+                    
+                    tableHtml += `
+                        <tr>
+                            <td><strong>${fmtDate(date)}</strong></td>
+                            <td>${dayStats.total_bets}</td>
+                            <td>${dayStats.wins}</td>
+                            <td>${winRate.toFixed(1)}%</td>
+                            <td class="${getStatusClass(dayStats.roi, 'roi')}">${dayStats.roi.toFixed(2)}%</td>
+                            <td class="${getStatusClass(profit, 'profit')}">${profit >= 0 ? '+' : ''}$${profit.toFixed(0)}</td>
+                        </tr>
+                    `;
+                }
+                
+                tableHtml += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                // Find the daily performance container and update it
+                const performanceContainer = document.querySelector('#dailyPerformanceContainer');
+                if (performanceContainer) {
+                    performanceContainer.innerHTML = tableHtml;
+                } else {
+                    console.warn('Daily performance container not found');
+                }
+                
+                console.log('✅ Daily performance table updated with', sortedDates.length, 'dates');
+                
+            } catch (error) {
+                console.error('Error updating daily performance table:', error);
+            }
+        }
+
         async function loadTodaysOpportunities() {
             try {
-                // Load Kelly Criterion betting guidance from the API
                 console.log('🎯 Loading Kelly betting opportunities...');
-                const response = await fetch('/api/kelly-betting-guidance');
-                const data = await response.json();
-                
-                if (data.success && data.opportunities && data.opportunities.length > 0) {
-                    console.log('✅ Kelly opportunities loaded:', data.opportunities.length, 'games');
-                    
+                const response = await fetch('/api/todays-opportunities');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const payload = await response.json();
+
+                const oppData = payload && payload.data ? payload.data : payload;
+                const opps = Array.isArray(oppData.opportunities) ? oppData.opportunities : [];
+
+                if (opps.length > 0) {
+                    console.log('✅ Kelly opportunities loaded:', opps.length);
+
+                    // Group by game
+                    const grouped = {};
+                    let totalInvestment = 0;
+                    opps.forEach(o => {
+                        const key = o.game || 'Unknown Matchup';
+                        if (!grouped[key]) grouped[key] = { game: key, total_kelly_amount: 0, bets: [] };
+                        const suggested = Math.round(o.recommended_bet || o.kelly_percentage || 0);
+                        grouped[key].total_kelly_amount += suggested;
+                        totalInvestment += suggested;
+                        grouped[key].bets.push({
+                            bet_type: o.bet_type || 'Bet',
+                            confidence: 'HIGH',
+                            pick: o.bet_details || '',
+                            suggested_bet: suggested,
+                            odds: o.odds || 0,
+                            expected_value: (o.expected_value ?? ''),
+                            kelly_fraction: (o.kelly_percentage != null ? o.kelly_percentage.toFixed(1) : ''),
+                            // Use 'Edge' instead of Win% since API doesn't provide it
+                            edge: (o.edge != null ? o.edge : ''),
+                            reasoning: o.reasoning || ''
+                        });
+                    });
+
+                    const games = Object.values(grouped);
+
                     let opportunitiesHtml = `
                         <div class="opportunities-summary">
                             <div class="summary-stats">
                                 <div class="stat-item">
-                                    <span class="stat-value">${data.opportunities.length}</span>
+                                    <span class="stat-value">${games.length}</span>
                                     <span class="stat-label">Games</span>
                                 </div>
                                 <div class="stat-item">
-                                    <span class="stat-value">$${data.system_overview.total_recommended_investment}</span>
-                                    <span class="stat-label">Total Investment</span>
+                                    <span class="stat-value">$${totalInvestment}</span>
+                                    <span class="stat-label">Total Kelly</span>
                                 </div>
                                 <div class="stat-item">
-                                    <span class="stat-value">${data.system_overview.system_status}</span>
+                                    <span class="stat-value">ACTIVE</span>
                                     <span class="stat-label">System Status</span>
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="opportunities-grid">
                     `;
-                    
-                    // Add each game's opportunities
-                    data.opportunities.forEach(gameOpportunity => {
+
+                    games.forEach(gameOpportunity => {
                         opportunitiesHtml += `
                             <div class="opportunity-card">
                                 <h5 class="game-title">${gameOpportunity.game}</h5>
                                 <div class="game-total">Total Kelly: $${gameOpportunity.total_kelly_amount}</div>
                                 <div class="bets-list">
                         `;
-                        
+
                         gameOpportunity.bets.forEach(bet => {
-                            const riskColor = bet.risk_rating === 'HIGH_REWARD' ? '#e74c3c' : 
-                                             bet.risk_rating === 'MODERATE' ? '#f39c12' : '#27ae60';
-                            
                             opportunitiesHtml += `
                                 <div class="bet-recommendation">
                                     <div class="bet-header">
                                         <span class="bet-type">${bet.bet_type}</span>
-                                        <span class="bet-confidence ${bet.confidence.toLowerCase()}">${bet.confidence}</span>
+                                        <span class="bet-confidence high">HIGH</span>
                                     </div>
                                     <div class="bet-pick">${bet.pick}</div>
                                     <div class="bet-details">
@@ -911,56 +1066,33 @@
                                     </div>
                                     <div class="bet-metrics">
                                         <span class="kelly-fraction">Kelly: ${bet.kelly_fraction}%</span>
-                                        <span class="win-prob">Win: ${bet.win_probability}%</span>
-                                        <span class="risk-rating" style="color: ${riskColor}">${bet.risk_rating}</span>
+                                        ${bet.edge !== '' ? `<span class="risk-rating">Edge: ${bet.edge}</span>` : ''}
                                     </div>
                                     <div class="bet-reasoning">${bet.reasoning}</div>
                                 </div>
                             `;
                         });
-                        
+
                         opportunitiesHtml += `
                                 </div>
                             </div>
                         `;
                     });
-                    
+
                     opportunitiesHtml += `
                         </div>
-                        
-                        <div class="kelly-guidelines">
-                            <h5>💡 Kelly Criterion Guidelines</h5>
-                            <div class="guidelines-grid">
-                                <div class="guideline-item">
-                                    <strong>Base Unit:</strong> $${data.kelly_guidelines.base_unit}
-                                </div>
-                                <div class="guideline-item">
-                                    <strong>Recommended Bankroll:</strong> $${data.kelly_guidelines.recommended_bankroll}
-                                </div>
-                                <div class="guideline-item">
-                                    <strong>Daily Limit:</strong> $${data.system_overview.total_recommended_investment}
-                                </div>
-                                <div class="guideline-item">
-                                    <strong>Risk Cap:</strong> ${data.kelly_guidelines.kelly_cap}
-                                </div>
-                            </div>
-                            <div class="risk-warning">
-                                <strong>⚠️ Risk Management:</strong> Never bet more than you can afford to lose. Start with smaller amounts and scale based on your comfort level.
-                            </div>
-                        </div>
                     `;
-                    
+
                     document.getElementById('opportunitiesContent').innerHTML = opportunitiesHtml;
                 } else {
                     console.log('❌ No Kelly opportunities found');
-                    const opportunitiesHtml = `
+                    document.getElementById('opportunitiesContent').innerHTML = `
                         <div class="no-opportunities">
                             <h4>📊 No High-Value Opportunities Today</h4>
                             <p>No betting opportunities meet the Kelly Criterion value threshold for today's games.</p>
                             <p>Check back later or review the main dashboard for standard recommendations.</p>
                         </div>
                     `;
-                    document.getElementById('opportunitiesContent').innerHTML = opportunitiesHtml;
                 }
             } catch (error) {
                 console.error('❌ Error loading Kelly opportunities:', error);
@@ -976,47 +1108,88 @@
 
         async function loadHistoricalPerformance() {
             try {
-                const response = await fetch('/api/historical-analysis/cumulative');
+                const response = await fetch('/api/historical-kelly-performance');
                 const data = await response.json();
                 
                 if (data.success) {
-                    const betTypePerformance = data.data.betting_analysis?.bet_type_performance || {};
+                    const kellyPerformance = data.data || {};
+                    const dailyPerformance = kellyPerformance.daily_performance || {};
+                    const summary = kellyPerformance.summary || {};
                     
-                    let tableHtml = `
-                        <table class="performance-table">
-                            <thead>
-                                <tr>
-                                    <th>Bet Type</th>
-                                    <th>Total Bets</th>
-                                    <th>Accuracy</th>
-                                    <th>ROI</th>
-                                    <th>Recommendation</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                    let contentHtml = `
+                        <div class="kelly-summary">
+                            <div class="summary-metrics">
+                                <div class="metric-card">
+                                    <div class="metric-value">${summary.total_bets || 0}</div>
+                                    <div class="metric-label">Total Kelly Bets</div>
+                                    <div class="metric-description">High-confidence recommendations</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value ${getStatusClass(summary.win_rate || 0, 'accuracy')}">${(summary.win_rate || 0).toFixed(1)}%</div>
+                                    <div class="metric-label">Kelly Win Rate</div>
+                                    <div class="metric-description">Percentage of winning Kelly bets</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value ${getStatusClass(summary.overall_roi || 0, 'roi')}">${(summary.overall_roi || 0).toFixed(2)}%</div>
+                                    <div class="metric-label">Kelly ROI</div>
+                                    <div class="metric-description">Return on Investment</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value ${getStatusClass(summary.net_profit || 0, 'profit')}">${summary.net_profit >= 0 ? '+' : ''}$${(summary.net_profit || 0).toFixed(0)}</div>
+                                    <div class="metric-label">Net Profit</div>
+                                    <div class="metric-description">Based on $100 unit bets</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="daily-performance">
+                            <h4>📊 Daily Kelly Performance</h4>
+                            <table class="performance-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Bets</th>
+                                        <th>Wins</th>
+                                        <th>Win Rate</th>
+                                        <th>ROI</th>
+                                        <th>Risked</th>
+                                        <th>Profit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                     `;
                     
-                    for (const [betType, stats] of Object.entries(betTypePerformance)) {
-                        const accuracy = stats.total > 0 ? (stats.correct / stats.total * 100) : 0;
-                        const roi = calculateROI(stats.correct, stats.total);
-                        const recommendation = getRecommendation(accuracy, roi, stats.total);
+                    // Sort dates in descending order (most recent first) using lexicographic sort
+                    const sortedDates = Object.keys(dailyPerformance).sort().reverse();
+                    const fmtDate = (s) => { try { const [y,m,d]=s.split('-'); return `${m}/${d}/${y}`; } catch(e){ return s; } };
+                    
+                    for (const date of sortedDates) {
+                        const dayStats = dailyPerformance[date];
+                        const winRate = dayStats.total_bets > 0 ? (dayStats.wins / dayStats.total_bets * 100) : 0;
+                        const profit = dayStats.net_profit || 0;
                         
-                        tableHtml += `
+                        contentHtml += `
                             <tr>
-                                <td><strong>${betType.replace('_', ' ').toUpperCase()}</strong></td>
-                                <td>${stats.total}</td>
-                                <td>${accuracy.toFixed(1)}%</td>
-                                <td>${roi.toFixed(1)}%</td>
-                                <td><span class="recommendation-badge badge-${recommendation.toLowerCase().replace('_', '-')}">${recommendation}</span></td>
+                                <td><strong>${fmtDate(date)}</strong></td>
+                                <td>${dayStats.total_bets}</td>
+                                <td>${dayStats.wins}</td>
+                                <td>${winRate.toFixed(1)}%</td>
+                                <td class="${getStatusClass(dayStats.roi, 'roi')}">${dayStats.roi.toFixed(2)}%</td>
+                                <td>$${(dayStats.invested || 0).toFixed(0)}</td>
+                                <td class="${getStatusClass(profit, 'profit')}">${profit >= 0 ? '+' : ''}$${profit.toFixed(0)}</td>
                             </tr>
                         `;
                     }
                     
-                    tableHtml += '</tbody></table>';
+                    contentHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
                     
-                    document.getElementById('historicalContent').innerHTML = tableHtml;
+                    document.getElementById('historicalContent').innerHTML = contentHtml;
                 } else {
-                    throw new Error(data.error || 'Failed to load historical data');
+                    throw new Error(data.error || 'Failed to load Kelly performance data');
                 }
             } catch (error) {
                 document.getElementById('historicalContent').innerHTML = `<div class="error-message">Error loading historical data: ${error.message}</div>`;
