@@ -4551,10 +4551,31 @@ def system_performance_overview_direct():
             return jsonify({'error': 'Failed to get model performance data', 'data': {}}), 500
         data = model_performance.get('data', {})
         overall_stats = data.get('overall_stats', {})
+        # Prefer the file-based evaluation path for both totals and daily breakdown so ROI matches the table
+        files_eval = None
+        betting_perf = {}
+        raw_total = 0
+        daily_perf_rows = {}
         try:
             files_eval = redesigned_analytics.historical_analyzer.analyze_betting_files()
             betting_perf = (files_eval or {}).get('betting_performance', {})
             raw_total = (files_eval or {}).get('raw_total_found', 0)
+            # Build daily performance map from the same source to avoid mismatch
+            for day in (files_eval or {}).get('daily_breakdown', []) or []:
+                date = day.get('date')
+                bp = day.get('betting_performance', {}) or {}
+                invested = bp.get('total_bet_amount', 0)
+                net = bp.get('net_profit', 0)
+                roi = bp.get('roi_percentage', 0)
+                total_bets = bp.get('total_recommendations', 0)
+                wins = bp.get('correct_recommendations', 0)
+                daily_perf_rows[date] = {
+                    'total_bets': total_bets,
+                    'wins': wins,
+                    'roi': roi,
+                    'net_profit': net,
+                    'invested': invested
+                }
         except Exception:
             try:
                 cumulative = redesigned_analytics._get_cached_cumulative_analysis() if hasattr(redesigned_analytics, '_get_cached_cumulative_analysis') else redesigned_analytics.historical_analyzer.get_cumulative_analysis()
@@ -4565,6 +4586,22 @@ def system_performance_overview_direct():
                 raw_total, _ = redesigned_analytics.historical_analyzer.count_all_recommendations()
             except Exception:
                 raw_total = betting_perf.get('total_recommendations', 0)
+            # Fallback daily rows built from cumulative daily breakdown
+            for day in (cumulative or {}).get('daily_breakdown', []) or []:
+                date = day.get('date')
+                bp = day.get('betting_performance', {}) or {}
+                invested = bp.get('total_bet_amount', 0)
+                net = bp.get('net_profit', 0)
+                roi = bp.get('roi_percentage', 0)
+                total_bets = bp.get('total_recommendations', 0)
+                wins = bp.get('correct_recommendations', 0)
+                daily_perf_rows[date] = {
+                    'total_bets': total_bets,
+                    'wins': wins,
+                    'roi': roi,
+                    'net_profit': net,
+                    'invested': invested
+                }
         overview_data = {
             'overview': {
                 'total_predictions': overall_stats.get('total_games', 0),
@@ -4592,12 +4629,8 @@ def system_performance_overview_direct():
                 'runline_accuracy': betting_perf.get('runline_stats', {}).get('accuracy', 0),
                 'totals_accuracy': betting_perf.get('total_stats', {}).get('accuracy', 0)
             },
-            'dailyPerformance': {k: {
-                'total_bets': v.get('games_analyzed', 0),
-                'wins': v.get('winner_predictions_correct', 0),
-                'roi': ((v.get('winner_predictions_correct', 0) / v.get('games_analyzed', 1)) * 100 - 50) * 2 if v.get('games_analyzed', 0) > 0 else 0,
-                'net_profit': ((((v.get('winner_predictions_correct', 0) / v.get('games_analyzed', 1)) * 100 - 50) * 2) * v.get('games_analyzed', 0)) if v.get('games_analyzed', 0) > 0 else 0
-            } for k, v in (data.get('daily_breakdown', {}) or {}).items()},
+            # Use daily evaluated betting performance (includes invested column)
+            'dailyPerformance': daily_perf_rows,
             'date_range': data.get('date_range', {}),
             'daily_breakdown': data.get('daily_breakdown', [])
         }
@@ -4614,6 +4647,13 @@ def todays_opportunities_direct():
             return jsonify({'error': 'Analytics not initialized', 'data': {}}), 500
         from pathlib import Path
         today_str = datetime.now().strftime('%Y-%m-%d')
+        # Optional query parameters to widen/narrow results
+        try:
+            min_kelly = float(request.args.get('minKelly', 5))
+        except Exception:
+            min_kelly = 5.0
+        min_conf = str(request.args.get('minConf', 'HIGH')).upper()
+        conf_order = {'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'NONE': 0}
         unified_cache_path = Path(__file__).parent / 'data' / 'unified_predictions_cache.json'
         with open(unified_cache_path, 'r') as f:
             cache_data = json.load(f)
@@ -4624,28 +4664,131 @@ def todays_opportunities_direct():
         base_unit = 100
         max_units = 2
         bankroll_proxy = base_unit * 10
+        
+        def _kelly_fraction(win_probability: float, american_odds) -> float:
+            try:
+                odds = int(str(american_odds).replace('+', ''))
+                if odds > 0:
+                    b = odds / 100.0
+                else:
+                    b = 100.0 / abs(odds)
+                p = max(0.0, min(1.0, float(win_probability)))
+                q = 1.0 - p
+                if b <= 0:
+                    return 0.0
+                f = (b * p - q) / b
+                return max(0.0, min(f, 0.25))
+            except Exception:
+                return 0.0
+        
+        def _format_bet(rec: dict) -> tuple:
+            rtype = str(rec.get('type', '')).lower()
+            bet_type = 'Over/Under' if rtype == 'total' else ('Run Line' if rtype == 'run_line' else 'Moneyline' if rtype == 'moneyline' else rec.get('type', ''))
+            # Prefer explicit recommendation text when present
+            if rec.get('recommendation'):
+                bet_details = rec['recommendation']
+            else:
+                if rtype == 'total':
+                    side = str(rec.get('side', '')).title() if rec.get('side') else ''
+                    line = rec.get('line') or rec.get('betting_line')
+                    if side and line:
+                        bet_details = f"{side} {line}"
+                    else:
+                        bet_details = 'Total'
+                elif rtype in ('moneyline', 'run_line'):
+                    side = rec.get('side') or ''
+                    line = rec.get('line') or ''
+                    bet_details = f"{side} {line}".strip()
+                else:
+                    bet_details = rec.get('recommendation', 'Bet')
+            return bet_type, bet_details
+        
+        def _extract_kelly_size(rec: dict) -> float:
+            ks = rec.get('kelly_bet_size')
+            if isinstance(ks, (int, float)) and ks > 0:
+                return float(ks)
+            # Fallback compute from available fields
+            wp = rec.get('win_probability') or rec.get('win_prob') or rec.get('probability')
+            odds = rec.get('american_odds') or rec.get('odds')
+            if wp is not None and odds is not None:
+                return round(_kelly_fraction(wp, odds) * 100, 1)
+            return 0.0
         for game_key, game_data in today_games.items():
-            for rec in game_data.get('recommendations', []):
-                kelly_size = rec.get('kelly_bet_size', 0)
+            # Consider both legacy 'recommendations' and new 'value_bets' collections
+            rec_list = []
+            try:
+                rec_list = (game_data.get('value_bets') or []) + (game_data.get('recommendations') or [])
+            except Exception:
+                rec_list = game_data.get('recommendations', [])
+            for rec in rec_list:
+                kelly_size = _extract_kelly_size(rec)
                 confidence = str(rec.get('confidence', '')).upper()
-                if kelly_size >= 5.0 and confidence == 'HIGH':
+                if kelly_size >= min_kelly and conf_order.get(confidence, 0) >= conf_order.get(min_conf, 3):
                     kf = (kelly_size or 0) / 100.0
                     k_amount = kf * bankroll_proxy
                     suggested_bet = max(10, min(round(k_amount / 10) * 10, int(base_unit * max_units)))
+                    bet_type, bet_details = _format_bet(rec)
                     kelly_opportunities.append({
                         'date': today_str,
                         'game': f"{game_data.get('away_team')} vs {game_data.get('home_team')}",
-                        'bet_type': 'Over/Under' if rec.get('type') == 'total' else str(rec.get('type', '')).title(),
-                        'bet_details': f"{str(rec.get('side','')).title()} {rec.get('line','')} runs" if rec.get('type') == 'total' else f"{rec.get('side','')} {rec.get('line','')}",
+                        'bet_type': bet_type,
+                        'bet_details': bet_details,
                         'confidence': kf,
                         'kelly_percentage': kelly_size,
                         'recommended_bet': int(suggested_bet),
                         'expected_value': rec.get('expected_value', 0),
                         'edge': rec.get('edge', 0),
                         'reasoning': rec.get('reasoning', ''),
-                        'odds': rec.get('odds', 0),
-                        'model_prediction': rec.get('model_total', 0) if rec.get('type') == 'total' else None
+                        'odds': rec.get('american_odds') or rec.get('odds', 0),
+                        'model_prediction': rec.get('predicted_total') or rec.get('model_total') if str(rec.get('type','')).lower() == 'total' else None
                     })
+        
+        # Fallback/supplement: if few opportunities found from unified cache, supplement with today's betting file
+        if len(kelly_opportunities) < 5:
+            try:
+                today_underscore = today_str.replace('-', '_')
+                bets_path = Path(__file__).parent / 'data' / f'betting_recommendations_{today_underscore}.json'
+                if bets_path.exists():
+                    with open(bets_path, 'r') as bf:
+                        bets_data = json.load(bf)
+                    games = bets_data.get('games', {})
+                    # Build a simple de-dup key set to avoid duplicate entries
+                    seen = set(
+                        (o['game'], o['bet_type'], o['bet_details'], str(o.get('odds')))
+                        for o in kelly_opportunities
+                    )
+                    for gkey, gdata in games.items():
+                        away = gdata.get('away_team')
+                        home = gdata.get('home_team')
+                        recs = gdata.get('value_bets') or gdata.get('recommendations') or []
+                        for rec in recs:
+                            kelly_size = _extract_kelly_size(rec)
+                            confidence = str(rec.get('confidence', '')).upper()
+                            if kelly_size >= min_kelly and conf_order.get(confidence, 0) >= conf_order.get(min_conf, 3):
+                                kf = (kelly_size or 0) / 100.0
+                                k_amount = kf * bankroll_proxy
+                                suggested_bet = max(10, min(round(k_amount / 10) * 10, int(base_unit * max_units)))
+                                bet_type, bet_details = _format_bet(rec)
+                                dedup_key = (f"{away} vs {home}", bet_type, bet_details, str(rec.get('american_odds') or rec.get('odds', 0)))
+                                if dedup_key in seen:
+                                    continue
+                                kelly_opportunities.append({
+                                    'date': today_str,
+                                    'game': f"{away} vs {home}",
+                                    'bet_type': bet_type,
+                                    'bet_details': bet_details,
+                                    'confidence': kf,
+                                    'kelly_percentage': kelly_size,
+                                    'recommended_bet': int(suggested_bet),
+                                    'expected_value': rec.get('expected_value', 0),
+                                    'edge': rec.get('edge', 0),
+                                    'reasoning': rec.get('reasoning', ''),
+                                    'odds': rec.get('american_odds') or rec.get('odds', 0),
+                                    'model_prediction': rec.get('predicted_total') or rec.get('model_total') if str(rec.get('type','')).lower() == 'total' else None
+                                })
+                                seen.add(dedup_key)
+            except Exception as e:
+                logger.warning(f"Fallback to betting file failed: {e}")
         return jsonify({'success': True, 'data': {'total_opportunities': len(kelly_opportunities), 'opportunities': kelly_opportunities, 'date': today_str}})
     except Exception as e:
         logger.error(f"Error generating today's opportunities: {e}")

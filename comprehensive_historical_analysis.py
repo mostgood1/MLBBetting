@@ -28,25 +28,108 @@ class ComprehensiveHistoricalAnalyzer:
     def __init__(self):
         self.start_date = "2025-08-15"  # Analysis start date
         self.data_dir = "data"
+        # In-process caches to speed up repeated calls within the same process/request
+        self._unified_cache: Optional[Dict[str, Any]] = None
+        self._unified_cache_mtime: Optional[float] = None
+        self._predictions_cache_by_date: Dict[str, Dict] = {}
+        self._final_scores_cache_by_date: Dict[str, Dict] = {}
+        self._final_scores_bundle: Optional[Dict[str, Any]] = None
+        self._final_scores_bundle_mtime: Optional[float] = None
+        self._summary_cache: Optional[Dict[str, Any]] = None
+        self._summary_cache_mtime: Optional[float] = None
+
+    def _load_final_scores_bundle_once(self) -> Dict[str, Any]:
+        """Load historical_final_scores_cache.json once per file change."""
+        try:
+            bundle_path = os.path.join(self.data_dir, 'historical_final_scores_cache.json')
+            if not os.path.exists(bundle_path):
+                return {}
+            mtime = os.path.getmtime(bundle_path)
+            if self._final_scores_bundle is not None and self._final_scores_bundle_mtime == mtime:
+                return self._final_scores_bundle
+            with open(bundle_path, 'r') as f:
+                data = json.load(f)
+            self._final_scores_bundle = data if isinstance(data, dict) else {}
+            self._final_scores_bundle_mtime = mtime
+            return self._final_scores_bundle
+        except Exception:
+            return {}
+
+    def _persist_final_scores_bundle(self, bundle: Dict[str, Any]) -> None:
+        try:
+            os.makedirs(self.data_dir, exist_ok=True)
+            bundle_path = os.path.join(self.data_dir, 'historical_final_scores_cache.json')
+            with open(bundle_path, 'w') as f:
+                json.dump(bundle, f, indent=2)
+            self._final_scores_bundle = bundle
+            self._final_scores_bundle_mtime = os.path.getmtime(bundle_path)
+        except Exception:
+            pass
+
+    def _load_summary_cache(self) -> Dict[str, Any]:
+        try:
+            summary_path = os.path.join(self.data_dir, 'historical_summary_cache.json')
+            if not os.path.exists(summary_path):
+                return {}
+            mtime = os.path.getmtime(summary_path)
+            if self._summary_cache is not None and self._summary_cache_mtime == mtime:
+                return self._summary_cache
+            with open(summary_path, 'r') as f:
+                data = json.load(f)
+            self._summary_cache = data if isinstance(data, dict) else {}
+            self._summary_cache_mtime = mtime
+            return self._summary_cache
+        except Exception:
+            return {}
+
+    def _persist_summary_cache(self, summary: Dict[str, Any]) -> None:
+        try:
+            os.makedirs(self.data_dir, exist_ok=True)
+            summary_path = os.path.join(self.data_dir, 'historical_summary_cache.json')
+            with open(summary_path, 'w') as f:
+                json.dump(summary, f, indent=2)
+            self._summary_cache = summary
+            self._summary_cache_mtime = os.path.getmtime(summary_path)
+        except Exception:
+            pass
+
+    def _load_unified_cache_once(self) -> Dict[str, Any]:
+        """Load unified_predictions_cache.json only once per file change.
+
+        Returns the parsed JSON dict. If the file does not exist, returns an empty dict.
+        """
+        try:
+            cache_path = os.path.join(self.data_dir, 'unified_predictions_cache.json')
+            if not os.path.exists(cache_path):
+                return {}
+
+            mtime = os.path.getmtime(cache_path)
+            if self._unified_cache is not None and self._unified_cache_mtime == mtime:
+                return self._unified_cache
+
+            with open(cache_path, 'r') as f:
+                data = json.load(f)
+            self._unified_cache = data if isinstance(data, dict) else {}
+            self._unified_cache_mtime = mtime
+            return self._unified_cache
+        except Exception:
+            # On any error, fall back to empty structure (callers have fallbacks too)
+            return {}
         
     def get_available_dates(self) -> List[str]:
         """Get all available dates with both predictions and final scores"""
-        # First try to get dates from unified cache
-        unified_cache_path = f"{self.data_dir}/unified_predictions_cache.json"
+        # Load dates from unified cache (fast, no network)
         available_dates = set()
-        
-        try:
-            with open(unified_cache_path, 'r') as f:
-                cache_data = json.load(f)
-            
-            predictions_by_date = cache_data.get('predictions_by_date', {})
-            cache_dates = set(predictions_by_date.keys())
+        cache_data = self._load_unified_cache_once()
+        predictions_by_date = cache_data.get('predictions_by_date', {}) if isinstance(cache_data, dict) else {}
+        cache_dates = set(predictions_by_date.keys())
+        if cache_dates:
             logger.info(f"Found {len(cache_dates)} dates in unified cache")
             available_dates.update(cache_dates)
-        except (FileNotFoundError, KeyError) as e:
-            logger.info(f"Unified cache not available, falling back to legacy files: {e}")
-        
-        # Also check legacy format files
+        else:
+            logger.info("Unified cache not available or empty, falling back to legacy files")
+
+        # Also check legacy format files (fallback)
         betting_files = glob.glob(f"{self.data_dir}/betting_recommendations_2025_08_*.json")
         games_files = glob.glob(f"{self.data_dir}/games_2025-08-*.json")
         
@@ -69,39 +152,36 @@ class ComprehensiveHistoricalAnalyzer:
         all_dates = list(available_dates)
         all_dates.sort()
         
-        # Filter to start from our analysis start date and ensure we have final scores
-        filtered_dates = []
-        for date in all_dates:
-            if date >= self.start_date:
-                # Check if we have final scores for this date
-                final_scores = self.load_final_scores_for_date(date)
-                if final_scores:
-                    filtered_dates.append(date)
+        # Filter to start from our analysis start date and exclude today
+        # Avoid live API calls here to keep this fast; get_cumulative_analysis will skip dates w/o finals.
+        from datetime import date as _date
+        today_str = _date.today().strftime('%Y-%m-%d')
+        filtered_dates = [d for d in all_dates if d >= self.start_date and d < today_str]
         
-        logger.info(f"Found {len(filtered_dates)} dates with complete data since {self.start_date}")
+        logger.info(f"Found {len(filtered_dates)} dates since {self.start_date} (finals checked later)")
         return filtered_dates
     
     def load_predictions_for_date(self, date: str) -> Dict:
         """Load betting recommendations for a specific date"""
-        # First try to load from unified cache
-        unified_cache_path = f"{self.data_dir}/unified_predictions_cache.json"
-        
+        # First try from in-memory cache
+        if date in self._predictions_cache_by_date:
+            return self._predictions_cache_by_date[date]
+
+        # Try to load from unified cache (single file, loaded once)
         try:
-            with open(unified_cache_path, 'r') as f:
-                cache_data = json.load(f)
-            
-            # Check if date exists in unified cache
-            predictions_by_date = cache_data.get('predictions_by_date', {})
-            if date in predictions_by_date:
-                date_data = predictions_by_date[date]
-                games_data = date_data.get('games', {})
-                
+            cache_data = self._load_unified_cache_once()
+            # Check if date exists in unified cache structures
+            predictions_by_date = cache_data.get('predictions_by_date', {}) if isinstance(cache_data, dict) else {}
+            if isinstance(predictions_by_date, dict) and date in predictions_by_date:
+                date_data = predictions_by_date.get(date) or {}
+                games_data = date_data.get('games', {}) if isinstance(date_data, dict) else {}
                 if games_data:
                     logger.info(f"Loaded {len(games_data)} games from unified cache for {date}")
+                    self._predictions_cache_by_date[date] = games_data
                     return games_data
 
             # Fallback: some unified caches store dates at top-level
-            if date in cache_data:
+            if isinstance(cache_data, dict) and date in cache_data:
                 date_blob = cache_data.get(date) or {}
                 games_data = date_blob.get('games') if isinstance(date_blob, dict) else None
                 if not games_data and isinstance(date_blob, dict):
@@ -109,38 +189,41 @@ class ComprehensiveHistoricalAnalyzer:
                     games_data = {k: v for k, v in date_blob.items() if k not in ['metadata', 'generated_at']}
                 if games_data:
                     logger.info(f"Loaded {len(games_data)} games from top-level unified cache for {date}")
+                    self._predictions_cache_by_date[date] = games_data
                     return games_data
-        except (FileNotFoundError, KeyError) as e:
+        except Exception as e:
             logger.info(f"Unified cache not available for {date}, trying legacy format: {e}")
         
         # Fallback to legacy format
         date_formatted = date.replace('-', '_')
         file_path = f"{self.data_dir}/betting_recommendations_{date_formatted}.json"
-        
+
         try:
             with open(file_path, 'r') as f:
                 data = json.load(f)
             games_data = data.get('games', {})
-            
+
             # Validate that the data has proper predictions (support both old and new formats)
             if games_data:
                 sample_game = next(iter(games_data.values()))
-                
+
                 # Check for new format first (win_probabilities structure at top level)
                 win_probs = sample_game.get('win_probabilities', {})
                 if (win_probs.get('home_prob') is not None and 
                     win_probs.get('away_prob') is not None and
                     sample_game.get('predicted_total_runs') is not None):
                     logger.info(f"Cached data for {date} is in new format")
+                    self._predictions_cache_by_date[date] = games_data
                     return games_data
-                
+
                 # Check for current format (has both predictions and recommendations)
                 if ('predictions' in sample_game and 
                     'recommendations' in sample_game and
                     sample_game.get('predictions', {}).get('predicted_total_runs') is not None):
                     logger.info(f"Cached data for {date} is in current format with recommendations")
+                    self._predictions_cache_by_date[date] = games_data
                     return games_data
-                
+
                 # Check for old format (predictions structure only, needs conversion)
                 predictions = sample_game.get('predictions', {})
                 if (predictions.get('home_win_prob') is not None and
@@ -149,12 +232,14 @@ class ComprehensiveHistoricalAnalyzer:
                     'recommendations' not in sample_game):
                     logger.info(f"Cached data for {date} is in old format, converting...")
                     # Convert old format to new format
-                    return self._convert_old_format_to_new(games_data)
-                
+                    converted = self._convert_old_format_to_new(games_data)
+                    self._predictions_cache_by_date[date] = converted
+                    return converted
+
                 # If neither format is valid, try regeneration
                 logger.warning(f"Cached data for {date} has invalid predictions, regenerating...")
                 raise ValueError("Invalid cached data")
-            
+
             return games_data
         except (FileNotFoundError, ValueError):
             logger.info(f"Generating fresh predictions for {date} using enhanced engine...")
@@ -247,20 +332,75 @@ class ComprehensiveHistoricalAnalyzer:
         return new_games_data
     
     def load_final_scores_for_date(self, date: str) -> Dict:
-        """Load final scores for a specific date using live MLB API"""
+        """Load final scores for a specific date with caching and disk-first strategy.
+
+        Order of attempts:
+        1) In-memory cache
+        2) Local file data/final_scores_YYYY_MM_DD.json
+        3) Live MLB API (once), then persist to file and memory
+        """
+        # In-memory cache
+        if date in self._final_scores_cache_by_date:
+            return self._final_scores_cache_by_date[date]
+
+        # Bundle cache (all dates in one file)
+        bundle = self._load_final_scores_bundle_once()
+        if date in bundle:
+            finals = bundle.get(date) or {}
+            if isinstance(finals, dict) and finals:
+                self._final_scores_cache_by_date[date] = finals
+                return finals
+
+        # Disk cache
         try:
-            # Use the same live data API that powers the main dashboard
+            cache_path = os.path.join(self.data_dir, f"final_scores_{date.replace('-', '_')}.json")
+            if os.path.exists(cache_path):
+                with open(cache_path, 'r') as f:
+                    cached = json.load(f)
+                final_scores: Dict[str, Any] = {}
+                if isinstance(cached, dict):
+                    for _, v in cached.items():
+                        away_team = normalize_team_name(v.get('away_team', ''))
+                        home_team = normalize_team_name(v.get('home_team', ''))
+                        key = f"{away_team}_vs_{home_team}"
+                        final_scores[key] = {
+                            'away_team': away_team,
+                            'home_team': home_team,
+                            'away_score': v.get('away_score', 0),
+                            'home_score': v.get('home_score', 0),
+                            'total_runs': v.get('total_runs', v.get('away_score', 0) + v.get('home_score', 0)),
+                            'winner': v.get('winner', 'away' if v.get('away_score', 0) > v.get('home_score', 0) else 'home'),
+                            'game_pk': v.get('game_pk', ''),
+                            'is_final': True
+                        }
+                if final_scores:
+                    logger.info(f"Loaded {len(final_scores)} final scores for {date} from disk cache")
+                    self._final_scores_cache_by_date[date] = final_scores
+                    # Also hydrate bundle and persist
+                    try:
+                        bundle = self._load_final_scores_bundle_once()
+                        bundle[date] = final_scores
+                        self._persist_final_scores_bundle(bundle)
+                    except Exception:
+                        pass
+                    return final_scores
+        except Exception:
+            # Non-fatal; fall through to live fetch
+            pass
+
+        # Live fetch (last resort)
+        try:
             from live_mlb_data import LiveMLBData
             mlb_api = LiveMLBData()
             live_games = mlb_api.get_enhanced_games_data(date)
-            
-            final_scores = {}
+
+            final_scores: Dict[str, Any] = {}
             for game in live_games:
                 if game.get('is_final', False):
                     away_team = normalize_team_name(game.get('away_team', ''))
                     home_team = normalize_team_name(game.get('home_team', ''))
                     game_key = f"{away_team}_vs_{home_team}"
-                    
+
                     final_scores[game_key] = {
                         'away_team': away_team,
                         'home_team': home_team,
@@ -271,36 +411,27 @@ class ComprehensiveHistoricalAnalyzer:
                         'game_pk': game.get('game_pk', ''),
                         'is_final': True
                     }
-            
-            # Fallback to local cached file if live fetch produced none
-            if len(final_scores) == 0:
-                try:
-                    cache_path = os.path.join(self.data_dir, f"final_scores_{date.replace('-', '_')}.json")
-                    if os.path.exists(cache_path):
-                        with open(cache_path, 'r') as f:
-                            cached = json.load(f)
-                        if isinstance(cached, dict):
-                            final_scores = {}
-                            for k, v in cached.items():
-                                away_team = normalize_team_name(v.get('away_team', ''))
-                                home_team = normalize_team_name(v.get('home_team', ''))
-                                key = f"{away_team}_vs_{home_team}"
-                                final_scores[key] = {
-                                    'away_team': away_team,
-                                    'home_team': home_team,
-                                    'away_score': v.get('away_score', 0),
-                                    'home_score': v.get('home_score', 0),
-                                    'total_runs': v.get('total_runs', v.get('away_score', 0) + v.get('home_score', 0)),
-                                    'winner': v.get('winner', 'away' if v.get('away_score', 0) > v.get('home_score', 0) else 'home'),
-                                    'game_pk': v.get('game_pk', ''),
-                                    'is_final': True
-                                }
-                except Exception:
-                    pass
+
+            # Persist to disk for future fast loads
+            try:
+                if final_scores:
+                    out_path = os.path.join(self.data_dir, f"final_scores_{date.replace('-', '_')}.json")
+                    with open(out_path, 'w') as f:
+                        json.dump(final_scores, f, indent=2)
+                    # Update bundle cache as well
+                    try:
+                        bundle = self._load_final_scores_bundle_once()
+                        bundle[date] = final_scores
+                        self._persist_final_scores_bundle(bundle)
+                    except Exception:
+                        pass
+            except Exception:
+                # If persisting fails, still return in-memory result
+                pass
 
             logger.info(f"Loaded {len(final_scores)} final scores for {date}")
+            self._final_scores_cache_by_date[date] = final_scores
             return final_scores
-            
         except Exception as e:
             logger.error(f"Error loading final scores for {date}: {e}")
             return {}
@@ -636,6 +767,39 @@ class ComprehensiveHistoricalAnalyzer:
                             side = inferred
             return side, line_out
         
+        # Method 0: Some dates (e.g., 8/22, 8/23) nest recommendations under prediction['predictions']
+        try:
+            nested = prediction.get('predictions') or {}
+            nested_recs = nested.get('recommendations') if isinstance(nested, dict) else None
+            if isinstance(nested_recs, list) and nested_recs:
+                for rec in nested_recs:
+                    if not isinstance(rec, dict):
+                        continue
+                    bt = str(rec.get('type', '')).lower()
+                    conf = str(rec.get('confidence', ''))
+                    rec_text = str(rec.get('recommendation', '') or rec.get('reasoning', ''))
+                    # Skip commentary / non-bet entries
+                    if is_non_bet_commentary(bt, conf, rec_text):
+                        continue
+                    side = str(rec.get('side', '')).lower()
+                    line_val = rec.get('line', rec.get('betting_line', 0))
+                    # Try to derive if missing
+                    side, line_val = derive_side_and_line(rec_text, side, bt, line_val)
+                    if bt in ['total', 'moneyline', 'runline', 'run_line'] and not side:
+                        continue
+                    recommendations.append({
+                        'source': 'predictions.recommendations',
+                        'type': bt,
+                        'side': side,
+                        'line': line_val or 0,
+                        'odds': rec.get('odds', rec.get('american_odds', '-110')),
+                        'expected_value': rec.get('expected_value', 0),
+                        'confidence': rec.get('confidence', 'MEDIUM'),
+                        'reasoning': rec.get('reasoning', rec_text)
+                    })
+        except Exception:
+            pass
+        
         # Method 1: Direct recommendations field (current format)
         if 'recommendations' in prediction and prediction['recommendations']:
             for rec in prediction['recommendations']:
@@ -653,15 +817,18 @@ class ComprehensiveHistoricalAnalyzer:
                     if is_non_bet_commentary(bet_type, conf, rec_text):
                         continue
                     
-                    # Skip if no valid side for bet types that need it
-                    if bet_type in ['total', 'moneyline', 'runline'] and not side:
-                        continue
+                    # If side missing, attempt to derive from text and team names
+                    line_val = rec.get('line', 0)
+                    if bet_type in ['total', 'moneyline', 'runline', 'run_line'] and not side:
+                        d_side, d_line = derive_side_and_line(rec_text, side, bet_type, line_val)
+                        side = d_side or side
+                        line_val = d_line if d_line is not None else line_val
                     
                     recommendations.append({
                         'source': 'recommendations',
                         'type': bet_type,
                         'side': side,
-                        'line': rec.get('line', 0),
+                        'line': line_val,
                         'odds': rec.get('odds', -110),
                         'expected_value': rec.get('expected_value', 0),
                         'confidence': rec.get('confidence', 'MEDIUM'),
@@ -699,7 +866,7 @@ class ComprehensiveHistoricalAnalyzer:
                         'type': bet_type,
                         'side': side,
                         'line': line_val or 0,
-                        'odds': bet.get('american_odds', '-110'),
+                        'odds': bet.get('american_odds', bet.get('odds', '-110')),
                         'expected_value': bet.get('expected_value', 0),
                         'confidence': bet.get('confidence', 'MEDIUM'),
                         'reasoning': bet.get('reasoning', '')
@@ -743,7 +910,7 @@ class ComprehensiveHistoricalAnalyzer:
                         rec_text = str(val.get('recommendation', '')).lower()
                         side = str(val.get('side', '')).lower()
                         line_val = val.get('line', val.get('betting_line', 0))
-                        bt_l = str(bt).lower()
+                        bt_l = str(bt).lower().replace(' ', '_')
                         conf = str(val.get('confidence', ''))
                         # Skip commentary / non-bet entries
                         if is_non_bet_commentary(bt_l, conf, rec_text or val.get('reasoning', '')):
@@ -988,8 +1155,18 @@ class ComprehensiveHistoricalAnalyzer:
             return bet_amount * 2
     
     def get_cumulative_analysis(self) -> Dict:
-        """Get cumulative analysis across all available dates"""
+        """Get cumulative analysis across all available dates.
+
+        Uses a disk cache when the set of available dates hasn't changed to avoid recomputation.
+        """
         available_dates = self.get_available_dates()
+
+        # Try summary cache first
+        summary_cache = self._load_summary_cache()
+        cached_dates = summary_cache.get('available_dates') if isinstance(summary_cache, dict) else None
+        if isinstance(cached_dates, list) and cached_dates == available_dates and summary_cache.get('model_performance') and summary_cache.get('betting_performance'):
+            logger.info("📦 Using cached historical summary (dates unchanged)")
+            return summary_cache
         
         cumulative_stats = {
             'analysis_period': f"{self.start_date} to {max(available_dates) if available_dates else 'present'}",
@@ -1082,6 +1259,13 @@ class ComprehensiveHistoricalAnalyzer:
             bp['roi_percentage'] = round((bp['net_profit'] / bp['total_bet_amount']) * 100, 2)
         
         logger.info(f"Cumulative analysis complete: {mp['total_games']} games, {bp['total_recommendations']} bets, {bp['roi_percentage']}% ROI")
+        # Persist summary to disk with available_dates for fast subsequent loads
+        try:
+            to_cache = dict(cumulative_stats)
+            to_cache['available_dates'] = available_dates
+            self._persist_summary_cache(to_cache)
+        except Exception:
+            pass
         return cumulative_stats
 
     def count_all_recommendations(self) -> Tuple[int, Dict[str, int]]:
@@ -1115,7 +1299,7 @@ class ComprehensiveHistoricalAnalyzer:
         Returns a dict with cumulative betting performance and a raw total of recs found.
         """
         # Initialize cumulative structure similar to get_cumulative_analysis betting_performance
-        cumulative = {
+        cumulative: Dict = {
             'betting_performance': {
                 'total_recommendations': 0,
                 'correct_recommendations': 0,
@@ -1128,15 +1312,39 @@ class ComprehensiveHistoricalAnalyzer:
                 'net_profit': 0,
                 'roi_percentage': 0
             },
-            'raw_total_found': 0
+            'raw_total_found': 0,
+            # Provide a per-date breakdown so UIs can build a daily table aligned to this evaluation path
+            'daily_breakdown': []
         }
 
-        # Find all betting files
-        files = glob.glob(f"{self.data_dir}/betting_recommendations_2025_08_*.json")
-        files.sort()
-        # Exclude current day from counts/evaluation per policy
-        import datetime
-        today_str = datetime.date.today().strftime('%Y-%m-%d')
+        # Find all betting files and deduplicate by date (prefer *_enhanced when both exist)
+        all_files = glob.glob(f"{self.data_dir}/betting_recommendations_2025_08_*.json")
+        all_files.sort()
+        by_date: Dict[str, str] = {}
+        for fp in all_files:
+            base = os.path.basename(fp)
+            date_key = None
+            try:
+                name_part = base.replace('betting_recommendations_', '').replace('.json', '')
+                parts = name_part.split('_')
+                if len(parts) >= 3 and parts[0].isdigit():
+                    date_key = f"{parts[0]}-{parts[1]}-{parts[2]}"
+            except Exception:
+                date_key = None
+            if not date_key:
+                date_key = base
+            prev = by_date.get(date_key)
+            if prev is None:
+                by_date[date_key] = fp
+            else:
+                if ('enhanced' in base.lower()) and ('enhanced' not in os.path.basename(prev).lower()):
+                    by_date[date_key] = fp
+
+        files = [by_date[k] for k in sorted(by_date.keys())]
+
+        import datetime as _dt
+        today_str = _dt.date.today().strftime('%Y-%m-%d')
+
         for fp in files:
             try:
                 with open(fp, 'r') as f:
@@ -1158,6 +1366,7 @@ class ComprehensiveHistoricalAnalyzer:
                 continue
 
             predictions = data.get('games', {}) or {}
+
             # Count raw recs found in this file
             raw_count = 0
             for _, pred in predictions.items():
@@ -1184,6 +1393,12 @@ class ComprehensiveHistoricalAnalyzer:
             for bt in ['moneyline_stats', 'total_stats', 'runline_stats']:
                 bp[bt]['total'] += day_stats.get(bt, {}).get('total', 0)
                 bp[bt]['correct'] += day_stats.get(bt, {}).get('correct', 0)
+
+            # Capture per-date stats for downstream daily tables
+            cumulative['daily_breakdown'].append({
+                'date': date,
+                'betting_performance': day_stats
+            })
 
         # Finalize accuracies and ROI
         bp = cumulative['betting_performance']

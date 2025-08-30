@@ -132,6 +132,27 @@ class UnifiedBettingEngine:
                 return abs(odds) / (abs(odds) + 100)
         except:
             return None
+
+    def _kelly_fraction(self, win_probability: float, american_odds: str) -> float:
+        """Compute Kelly fraction given win probability and American odds.
+        Caps at 25% for risk management. Returns 0 if invalid.
+        """
+        try:
+            odds = int(str(american_odds).replace('+', ''))
+            # Convert to decimal profit multiplier b
+            if odds > 0:
+                b = odds / 100.0
+            else:
+                b = 100.0 / abs(odds)
+            p = max(0.0, min(1.0, float(win_probability)))
+            q = 1.0 - p
+            if b <= 0:
+                return 0.0
+            f = (b * p - q) / b
+            # Clamp between 0 and 0.25 (25%)
+            return max(0.0, min(f, 0.25))
+        except Exception:
+            return 0.0
     
     def calculate_expected_value(self, win_probability: float, american_odds: str) -> Optional[float]:
         """Calculate Expected Value: EV = (win_prob * profit) - (lose_prob * stake)"""
@@ -193,6 +214,7 @@ class UnifiedBettingEngine:
         if away_ev and away_ev > 0.05:  # Require at least 5% edge
             confidence = self.get_confidence_level(away_ev, away_prob)
             if confidence != "NONE":
+                kf = self._kelly_fraction(away_prob, str(away_odds))
                 recommendations.append({
                     'type': 'moneyline',
                     'recommendation': f"{away_team} ML",
@@ -200,6 +222,7 @@ class UnifiedBettingEngine:
                     'win_probability': away_prob,
                     'american_odds': str(away_odds),
                     'confidence': confidence.lower(),
+                    'kelly_bet_size': round(kf * 100, 1),
                     'reasoning': f"Model projects {away_prob:.1%} win probability vs {self.american_to_decimal(str(away_odds)):.1%} implied odds"
                 })
         
@@ -208,6 +231,7 @@ class UnifiedBettingEngine:
         if home_ev and home_ev > 0.05:  # Require at least 5% edge
             confidence = self.get_confidence_level(home_ev, home_prob)
             if confidence != "NONE":
+                kf = self._kelly_fraction(home_prob, str(home_odds))
                 recommendations.append({
                     'type': 'moneyline',
                     'recommendation': f"{home_team} ML",
@@ -215,6 +239,7 @@ class UnifiedBettingEngine:
                     'win_probability': home_prob,
                     'american_odds': str(home_odds),
                     'confidence': confidence.lower(),
+                    'kelly_bet_size': round(kf * 100, 1),
                     'reasoning': f"Model projects {home_prob:.1%} win probability vs {self.american_to_decimal(str(home_odds)):.1%} implied odds"
                 })
         
@@ -303,6 +328,7 @@ class UnifiedBettingEngine:
                 if over_ev and over_ev > best_ev:
                     confidence = self.get_confidence_level(over_ev, over_prob)
                     if confidence != "NONE":
+                        kf = self._kelly_fraction(over_prob, str(over_odds))
                         best_recommendation = {
                             'type': 'total',
                             'recommendation': f"Over {total_line}",
@@ -310,6 +336,7 @@ class UnifiedBettingEngine:
                             'win_probability': over_prob,
                             'american_odds': str(over_odds),
                             'confidence': confidence.lower(),
+                            'kelly_bet_size': round(kf * 100, 1),
                             'predicted_total': predicted_total,
                             'betting_line': total_line,
                             'reasoning': f"Predicted {predicted_total} vs line {total_line}"
@@ -324,6 +351,7 @@ class UnifiedBettingEngine:
                 if under_ev and under_ev > best_ev:
                     confidence = self.get_confidence_level(under_ev, under_prob)
                     if confidence != "NONE":
+                        kf = self._kelly_fraction(under_prob, str(under_odds))
                         best_recommendation = {
                             'type': 'total',
                             'recommendation': f"Under {total_line}",
@@ -331,6 +359,7 @@ class UnifiedBettingEngine:
                             'win_probability': under_prob,
                             'american_odds': str(under_odds),
                             'confidence': confidence.lower(),
+                            'kelly_bet_size': round(kf * 100, 1),
                             'predicted_total': predicted_total,
                             'betting_line': total_line,
                             'reasoning': f"Predicted {predicted_total} vs line {total_line}"
@@ -388,6 +417,7 @@ class UnifiedBettingEngine:
                         if rl_ev and rl_ev > 0.1:  # Require at least 10% edge for run lines
                             confidence = self.get_confidence_level(rl_ev, cover_prob)
                             if confidence != "NONE":
+                                kf = self._kelly_fraction(cover_prob, str(odds))
                                 recommendations.append({
                                     'type': 'run_line',
                                     'recommendation': f"{favorite_team} {spread}",
@@ -395,6 +425,7 @@ class UnifiedBettingEngine:
                                     'win_probability': cover_prob,
                                     'american_odds': str(odds),
                                     'confidence': confidence.lower(),
+                                    'kelly_bet_size': round(kf * 100, 1),
                                     'reasoning': f"Strong favorite {favorite_team} ({favorite_prob:.1%}) to cover run line"
                                 })
                     
@@ -407,6 +438,7 @@ class UnifiedBettingEngine:
                         if rl_ev and rl_ev > 0.1:  # Require at least 10% edge for run lines
                             confidence = self.get_confidence_level(rl_ev, cover_prob)
                             if confidence != "NONE":
+                                kf = self._kelly_fraction(cover_prob, str(odds))
                                 recommendations.append({
                                     'type': 'run_line',
                                     'recommendation': f"{underdog_team} +{spread}",
@@ -414,6 +446,7 @@ class UnifiedBettingEngine:
                                     'win_probability': cover_prob,
                                     'american_odds': str(odds),
                                     'confidence': confidence.lower(),
+                                    'kelly_bet_size': round(kf * 100, 1),
                                     'reasoning': f"Underdog {underdog_team} value on run line"
                                 })
         
