@@ -4967,16 +4967,20 @@ def historical_kelly_performance_direct():
                 from pathlib import Path as _P
                 from datetime import datetime, timedelta
                 import re as _re
+                from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer as _Analyzer
                 yday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
                 u = yday.replace('-', '_')
                 droot = _P(__file__).parent / 'data'
                 bet_fp = droot / f'betting_recommendations_{u}.json'
-                score_fp = droot / f'final_scores_{u}.json'
-                if bet_fp.exists() and score_fp.exists():
+                if bet_fp.exists():
                     with open(bet_fp, 'r', encoding='utf-8') as bf:
                         bets_data = json.load(bf)
-                    with open(score_fp, 'r', encoding='utf-8') as sf:
-                        scores = json.load(sf)
+                    # Load final scores via analyzer (handles fetching/caching)
+                    try:
+                        _an = _Analyzer()
+                        scores = _an.load_final_scores_for_date(yday) or {}
+                    except Exception:
+                        scores = {}
                     base_unit = 100
                     kelly_cap = 0.25
                     def _size_from_kelly_local(kf: float) -> int:
@@ -5152,12 +5156,16 @@ def historical_kelly_performance_direct():
                     u = yday.replace('-', '_')
                     droot = _P(__file__).parent / 'data'
                     bet_fp = droot / f'betting_recommendations_{u}.json'
-                    score_fp = droot / f'final_scores_{u}.json'
-                    if bet_fp.exists() and score_fp.exists():
+                    if bet_fp.exists():
                         with open(bet_fp, 'r') as bf:
                             bets_data = json.load(bf)
-                        with open(score_fp, 'r') as sf:
-                            scores = json.load(sf)
+                        # Load final scores via analyzer (handles fetching/caching)
+                        try:
+                            from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer as _Analyzer
+                            _an = _Analyzer()
+                            scores = _an.load_final_scores_for_date(yday) or {}
+                        except Exception:
+                            scores = {}
                         def _total_from_scores(game_key: str) -> float:
                             # Try nested under 'games', else top-level mapping
                             g = None
