@@ -4759,46 +4759,56 @@ def todays_opportunities_direct():
                     if not prev or (kelly_size > prev.get('kelly_percentage', 0)):
                         best_by_key[dedup_key] = candidate
 
-        # Fallback/supplement: if few opportunities found, supplement with today's betting file (also dedup by best Kelly)
-        if len(best_by_key) < 5:
-            try:
-                today_underscore = today_str.replace('-', '_')
-                bets_path = Path(__file__).parent / 'data' / f'betting_recommendations_{today_underscore}.json'
-                if bets_path.exists():
-                    with open(bets_path, 'r') as bf:
-                        bets_data = json.load(bf)
-                    games = bets_data.get('games', {})
-                    for gkey, gdata in games.items():
-                        away = gdata.get('away_team')
-                        home = gdata.get('home_team')
-                        recs = gdata.get('value_bets') or gdata.get('recommendations') or []
-                        for rec in recs:
-                            kelly_size = _extract_kelly_size(rec)
-                            confidence = str(rec.get('confidence', '')).upper()
-                            if kelly_size >= min_kelly and conf_order.get(confidence, 0) >= conf_order.get(min_conf, 3):
-                                kf = (kelly_size or 0) / 100.0
-                                suggested_bet = _size_from_kelly(kf)
-                                bet_type, bet_details = _format_bet(rec)
-                                dedup_key = (f"{away} vs {home}", bet_type, bet_details)
-                                candidate = {
-                                    'date': today_str,
-                                    'game': f"{away} vs {home}",
-                                    'bet_type': bet_type,
-                                    'bet_details': bet_details,
-                                    'confidence': kf,
-                                    'kelly_percentage': kelly_size,
-                                    'recommended_bet': int(suggested_bet),
-                                    'expected_value': rec.get('expected_value', 0),
-                                    'edge': rec.get('edge', 0),
-                                    'reasoning': rec.get('reasoning', ''),
-                                    'odds': rec.get('american_odds') or rec.get('odds', 0),
-                                    'model_prediction': rec.get('predicted_total') or rec.get('model_total') if str(rec.get('type','')).lower() == 'total' else None
-                                }
-                                prev = best_by_key.get(dedup_key)
-                                if not prev or (kelly_size > prev.get('kelly_percentage', 0)):
-                                    best_by_key[dedup_key] = candidate
-            except Exception as e:
-                logger.warning(f"Fallback to betting file failed: {e}")
+        # Always enrich with today's betting file (real-line grounded), then dedupe by best Kelly
+        try:
+            today_underscore = today_str.replace('-', '_')
+            bets_path = Path(__file__).parent / 'data' / f'betting_recommendations_{today_underscore}.json'
+            if bets_path.exists():
+                with open(bets_path, 'r') as bf:
+                    bets_data = json.load(bf)
+                games = bets_data.get('games', {})
+                for gkey, gdata in games.items():
+                    away = gdata.get('away_team')
+                    home = gdata.get('home_team')
+                    # Gather recommendations from all known shapes
+                    recs = []
+                    # Structured dict under 'betting_recommendations'
+                    if isinstance(gdata.get('betting_recommendations'), dict):
+                        for rtype, rec in (gdata.get('betting_recommendations') or {}).items():
+                            if isinstance(rec, dict):
+                                rc = dict(rec)
+                                rc['type'] = rtype
+                                recs.append(rc)
+                    # Legacy arrays
+                    recs += list(gdata.get('value_bets') or [])
+                    recs += list(gdata.get('recommendations') or [])
+                    for rec in recs:
+                        kelly_size = _extract_kelly_size(rec)
+                        confidence = str(rec.get('confidence', '')).upper()
+                        if kelly_size >= min_kelly and conf_order.get(confidence, 0) >= conf_order.get(min_conf, 3):
+                            kf = (kelly_size or 0) / 100.0
+                            suggested_bet = _size_from_kelly(kf)
+                            bet_type, bet_details = _format_bet(rec)
+                            dedup_key = (f"{away} vs {home}", bet_type, bet_details)
+                            candidate = {
+                                'date': today_str,
+                                'game': f"{away} vs {home}",
+                                'bet_type': bet_type,
+                                'bet_details': bet_details,
+                                'confidence': kf,
+                                'kelly_percentage': kelly_size,
+                                'recommended_bet': int(suggested_bet),
+                                'expected_value': rec.get('expected_value', 0),
+                                'edge': rec.get('edge', 0),
+                                'reasoning': rec.get('reasoning', ''),
+                                'odds': rec.get('american_odds') or rec.get('odds', 0),
+                                'model_prediction': rec.get('predicted_total') or rec.get('model_total') if str(rec.get('type','')).lower() == 'total' else None
+                            }
+                            prev = best_by_key.get(dedup_key)
+                            if not prev or (kelly_size > prev.get('kelly_percentage', 0)):
+                                best_by_key[dedup_key] = candidate
+        except Exception as e:
+            logger.warning(f"Fallback to betting file failed: {e}")
 
         # Finalize deduped list
         kelly_opportunities = list(best_by_key.values())
