@@ -4637,6 +4637,44 @@ def system_performance_overview_direct():
             'date_range': data.get('date_range', {}),
             'daily_breakdown': data.get('daily_breakdown', [])
         }
+        # Supplement dailyPerformance total_bets with counts from daily betting files to avoid undercount (e.g., 8/26-8/28)
+        try:
+            from pathlib import Path as _P
+            droot = _P(__file__).parent / 'data'
+            # Consider last 10 days
+            for off in range(1, 12):
+                day = (datetime.now() - timedelta(days=off)).strftime('%Y-%m-%d')
+                u = day.replace('-', '_')
+                bet_fp = droot / f'betting_recommendations_{u}.json'
+                if not bet_fp.exists():
+                    continue
+                try:
+                    with open(bet_fp, 'r', encoding='utf-8') as bf:
+                        bd = json.load(bf) or {}
+                    games = (bd.get('games') or {})
+                    count = 0
+                    for gkey, gdata in games.items():
+                        # Count unified dict entries
+                        if isinstance(gdata.get('betting_recommendations'), dict):
+                            count += sum(1 for _k, _v in gdata['betting_recommendations'].items() if isinstance(_v, dict))
+                        # Count legacy arrays
+                        count += len(gdata.get('value_bets') or [])
+                        count += len(gdata.get('recommendations') or [])
+                    if day not in daily_perf_rows:
+                        daily_perf_rows[day] = {
+                            'total_bets': count,
+                            'wins': 0,
+                            'roi': 0,
+                            'net_profit': 0,
+                            'invested': 0
+                        }
+                    else:
+                        # If existing count seems low, bump to at least the raw count
+                        daily_perf_rows[day]['total_bets'] = max(daily_perf_rows[day].get('total_bets', 0), count)
+                except Exception as _dperr:
+                    logger.debug(f"Daily perf supplement failed for {day}: {_dperr}")
+        except Exception:
+            pass
         return jsonify({'success': True, 'data': overview_data})
     except Exception as e:
         logger.error(f"Error generating system performance overview: {e}")
@@ -5260,6 +5298,31 @@ def historical_kelly_performance_direct():
                     'net_profit': 0,
                     'invested': 0
                 }
+            # Override yesterday from kelly_betting_recommendations.json if available to ensure exact counts (e.g., 3/4)
+            try:
+                from pathlib import Path as _P
+                kelly_fp = _P(__file__).parent / 'data' / 'kelly_betting_recommendations.json'
+                if kelly_fp.exists():
+                    with open(kelly_fp, 'r', encoding='utf-8') as _kf:
+                        _kelly = json.load(_kf) or []
+                    bets = [br for br in _kelly if br.get('date') == yday]
+                    if bets:
+                        total = len(bets)
+                        wins = sum(1 for br in bets if str(br.get('outcome', '')).lower() == 'win')
+                        losses = sum(1 for br in bets if str(br.get('outcome', '')).lower() == 'loss')
+                        invested = sum(int(br.get('recommended_bet', 0) or 0) for br in bets)
+                        net = sum(float(br.get('profit_loss', 0) or 0) for br in bets)
+                        roi = round((net / invested * 100.0), 2) if invested > 0 else 0
+                        mapped_daily_performance[yday] = {
+                            'total_bets': total,
+                            'wins': wins,
+                            'losses': losses if losses else max(0, total - wins),
+                            'roi': roi,
+                            'net_profit': round(net, 2),
+                            'invested': invested
+                        }
+            except Exception as _yadj_err:
+                logger.warning(f"Kelly yesterday override adjust failed: {_yadj_err}")
         except Exception:
             pass
         kelly_data = {
