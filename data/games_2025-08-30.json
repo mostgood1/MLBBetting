@@ -4,32 +4,40 @@
     "game_time": "2025-08-30T19:07:00Z",
     "away_team": "Milwaukee Brewers",
     "home_team": "Toronto Blue Jays",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Quinn Priester",
+    "home_pitcher": "Kevin Gausman",
+    "away_probable_pitcher": "Quinn Priester",
+    "home_probable_pitcher": "Kevin Gausman"
   },
   {
     "game_pk": 776525,
     "game_time": "2025-08-30T20:05:00Z",
     "away_team": "Tampa Bay Rays",
     "home_team": "Washington Nationals",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Ryan Pepiot",
+    "home_pitcher": "Jake Irvin",
+    "away_probable_pitcher": "Ryan Pepiot",
+    "home_probable_pitcher": "Jake Irvin"
   },
   {
     "game_pk": 776539,
     "game_time": "2025-08-30T20:10:00Z",
     "away_team": "Pittsburgh Pirates",
     "home_team": "Boston Red Sox",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Johan Oviedo",
+    "home_pitcher": "Dustin May",
+    "away_probable_pitcher": "Johan Oviedo",
+    "home_probable_pitcher": "Dustin May"
   },
   {
     "game_pk": 776535,
     "game_time": "2025-08-30T20:10:00Z",
     "away_team": "Miami Marlins",
     "home_team": "New York Mets",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Edward Cabrera",
+    "home_pitcher": "David Peterson",
+    "away_probable_pitcher": "Edward Cabrera",
+    "home_probable_pitcher": "David Peterson"
   },
   {
     "game_pk": 776532,
@@ -37,86 +45,108 @@
     "away_team": "Atlanta Braves",
     "home_team": "Philadelphia Phillies",
     "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "home_pitcher": "Cristopher S\u00e1nchez",
+    "home_probable_pitcher": "Cristopher S\u00e1nchez",
+    "away_probable_pitcher": "TBD"
   },
   {
     "game_pk": 776536,
     "game_time": "2025-08-30T22:40:00Z",
     "away_team": "St. Louis Cardinals",
     "home_team": "Cincinnati Reds",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Michael McGreevy",
+    "home_pitcher": "Andrew Abbott",
+    "away_probable_pitcher": "Michael McGreevy",
+    "home_probable_pitcher": "Andrew Abbott"
   },
   {
     "game_pk": 776531,
     "game_time": "2025-08-30T23:10:00Z",
     "away_team": "Los Angeles Angels",
     "home_team": "Houston Astros",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Kyle Hendricks",
+    "home_pitcher": "Spencer Arrighetti",
+    "away_probable_pitcher": "Kyle Hendricks",
+    "home_probable_pitcher": "Spencer Arrighetti"
   },
   {
     "game_pk": 776530,
     "game_time": "2025-08-30T23:10:00Z",
     "away_team": "San Diego Padres",
     "home_team": "Minnesota Twins",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Nick Pivetta",
+    "home_pitcher": "Taj Bradley",
+    "away_probable_pitcher": "Nick Pivetta",
+    "home_probable_pitcher": "Taj Bradley"
   },
   {
     "game_pk": 776529,
     "game_time": "2025-08-30T23:10:00Z",
     "away_team": "New York Yankees",
     "home_team": "Chicago White Sox",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Cam Schlittler",
+    "home_pitcher": "Shane Smith",
+    "away_probable_pitcher": "Cam Schlittler",
+    "home_probable_pitcher": "Shane Smith"
   },
   {
     "game_pk": 776528,
     "game_time": "2025-08-30T23:15:00Z",
     "away_team": "Detroit Tigers",
     "home_team": "Kansas City Royals",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Jack Flaherty",
+    "home_pitcher": "Stephen Kolek",
+    "away_probable_pitcher": "Jack Flaherty",
+    "home_probable_pitcher": "Stephen Kolek"
   },
   {
     "game_pk": 776537,
     "game_time": "2025-08-30T23:15:00Z",
     "away_team": "Seattle Mariners",
     "home_team": "Cleveland Guardians",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Logan Gilbert",
+    "home_pitcher": "Gavin Williams",
+    "away_probable_pitcher": "Logan Gilbert",
+    "home_probable_pitcher": "Gavin Williams"
   },
   {
     "game_pk": 776516,
     "game_time": "2025-08-30T23:15:00Z",
     "away_team": "Baltimore Orioles",
     "home_team": "San Francisco Giants",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Trevor Rogers",
+    "home_pitcher": "Carson Seymour",
+    "away_probable_pitcher": "Trevor Rogers",
+    "home_probable_pitcher": "Carson Seymour"
   },
   {
     "game_pk": 776526,
     "game_time": "2025-08-31T00:10:00Z",
     "away_team": "Chicago Cubs",
     "home_team": "Colorado Rockies",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Javier Assad",
+    "home_pitcher": "McCade Brown",
+    "away_probable_pitcher": "Javier Assad",
+    "home_probable_pitcher": "McCade Brown"
   },
   {
     "game_pk": 776523,
     "game_time": "2025-08-31T01:10:00Z",
     "away_team": "Arizona Diamondbacks",
     "home_team": "Los Angeles Dodgers",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Eduardo Rodriguez",
+    "home_pitcher": "Tyler Glasnow",
+    "away_probable_pitcher": "Eduardo Rodriguez",
+    "home_probable_pitcher": "Tyler Glasnow"
   },
   {
     "game_pk": 776524,
     "game_time": "2025-08-31T02:05:00Z",
     "away_team": "Texas Rangers",
     "home_team": "Athletics",
-    "away_pitcher": "TBD",
-    "home_pitcher": "TBD"
+    "away_pitcher": "Merrill Kelly",
+    "home_pitcher": "Mason Barnett",
+    "away_probable_pitcher": "Merrill Kelly",
+    "home_probable_pitcher": "Mason Barnett"
   }
 ]

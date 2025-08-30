@@ -186,6 +186,17 @@ def complete_daily_automation():
 
     if not success2:
         logger.warning("⚠️ No pitcher fetch script found - predictions may lack pitcher data")
+    else:
+        # Re-run games fetch to merge newly fetched pitcher names into games file
+        logger.info("\n🔁 STEP 2B: Re-fetching Games to Merge Pitchers")
+        success1b = False
+        for candidate in games_candidates:
+            if candidate.exists():
+                success1b = run_script(candidate, f"Re-Fetch Today's Games for Pitcher Merge ({candidate.name})", logger, 300)
+                if success1b:
+                    break
+        if not success1b:
+            logger.warning("⚠️ Pitchers fetched but failed to re-merge into games file")
     
     # Step 2.5: Update Core Data Files (CRITICAL - Must run before predictions)
     logger.info("\n🔄 STEP 2.5: Updating Core Data Files")

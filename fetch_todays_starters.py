@@ -88,96 +88,102 @@ def update_predictions_with_real_pitchers(pitcher_data):
     """Update today's predictions with real starting pitcher data"""
     try:
         # Load current predictions cache (append by date)
-        cache_path = 'unified_predictions_cache.json'
-        if os.path.exists(cache_path):
-            with open(cache_path, 'r') as f:
+        cache_path_candidates = [
+            'data/unified_predictions_cache.json',  # preferred
+            'unified_predictions_cache.json'        # fallback
+        ]
+        cache_path = None
+        predictions_data = {}
+        for p in cache_path_candidates:
+            if os.path.exists(p):
+                cache_path = p
                 try:
-                    predictions_data = json.load(f)
+                    with open(p, 'r') as f:
+                        predictions_data = json.load(f)
                 except Exception:
                     predictions_data = {}
-        else:
-            predictions_data = {}
+                break
+        if cache_path is None:
+            cache_path = cache_path_candidates[0]
         today = datetime.now().strftime('%Y-%m-%d')
         # Ensure structure
         if 'predictions_by_date' not in predictions_data:
             predictions_data['predictions_by_date'] = {}
-        # Update only today's predictions (assume already present)
-        if today in predictions_data['predictions_by_date']:
-            day_data = predictions_data['predictions_by_date'][today]
-            updated_count = 0
-            # ...existing code to update day_data['games'] with pitcher info...
-            for game_key, game_data in day_data['games'].items():
-                # ...existing code for updating pitcher info...
-                pass
-            # Update metadata
-            day_data['metadata']['last_pitcher_update'] = datetime.now().isoformat()
-            day_data['metadata']['pitcher_update_date'] = today
-            day_data['metadata']['pitchers_updated_count'] = updated_count
-        else:
+        if today not in predictions_data['predictions_by_date']:
             logger.warning(f"No predictions found for {today} in cache. Skipping update.")
+            # Still write out a metadata note so we can track the attempt
+            predictions_data['predictions_by_date'][today] = {
+                'games': {},
+                'metadata': {
+                    'last_pitcher_update': datetime.now().isoformat(),
+                    'pitcher_update_date': today,
+                    'pitchers_updated_count': 0
+                }
+            }
+            with open(cache_path, 'w') as f:
+                json.dump(predictions_data, f, indent=2)
+            return False
+
+        # Create a mapping of "Away Team @ Home Team" to pitchers
+        def norm(name: str) -> str:
+            return (name or '').lower()
+
+        pitcher_mapping = {}
+        for game in pitcher_data:
+            key = f"{game['away_team']} @ {game['home_team']}"
+            pitcher_mapping[norm(key)] = {
+                'away_pitcher': game.get('away_pitcher', 'TBD') or 'TBD',
+                'home_pitcher': game.get('home_pitcher', 'TBD') or 'TBD'
+            }
+
+        # Update predictions with real pitchers
+        updated_count = 0
+        day_data = predictions_data['predictions_by_date'][today]
+        games = day_data.get('games', {})
+
+        for game_key, game_data in games.items():
+            # Try to build a flexible key from stored game data
+            pred_away = game_data.get('away_team') or game_key.split('_vs_')[0].replace('_', ' ')
+            pred_home = game_data.get('home_team') or game_key.split('_vs_')[-1].replace('_', ' ')
+            lookup_keys = [
+                f"{pred_away} @ {pred_home}",
+                f"{pred_away} vs {pred_home}",
+                game_key.replace('_vs_', ' @ ')
+            ]
+            found = False
+            for lk in lookup_keys:
+                pm = pitcher_mapping.get(norm(lk))
+                if pm:
+                    # Persist under pitcher_info for downstream consumers
+                    pi = game_data.get('pitcher_info', {})
+                    pi['away_pitcher_name'] = pm['away_pitcher']
+                    pi['home_pitcher_name'] = pm['home_pitcher']
+                    game_data['pitcher_info'] = pi
+                    # Also mirror to flat fields for backward compatibility
+                    game_data['away_pitcher'] = pm['away_pitcher']
+                    game_data['home_pitcher'] = pm['home_pitcher']
+                    updated_count += 1
+                    found = True
+                    logger.info(f"Updated pitchers for {pred_away} @ {pred_home}: {pm['away_pitcher']} vs {pm['home_pitcher']}")
+                    break
+            if not found:
+                # leave as-is
+                continue
+
+        # Update metadata
+        md = day_data.get('metadata', {})
+        md['last_pitcher_update'] = datetime.now().isoformat()
+        md['pitcher_update_date'] = today
+        md['pitchers_updated_count'] = updated_count
+        day_data['metadata'] = md
+
         # Save merged cache
+        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
         with open(cache_path, 'w') as f:
             json.dump(predictions_data, f, indent=2)
         logger.info(f"✅ Updated {updated_count} games with real starting pitchers")
         return True
-        
-        if today not in predictions_data['predictions_by_date']:
-            logger.error(f"No predictions found for {today}")
-            return False
-        
-        # Create a mapping of games to pitchers
-        pitcher_mapping = {}
-        for game in pitcher_data:
-            key = f"{game['away_team']} @ {game['home_team']}"
-            pitcher_mapping[key] = {
-                'away_pitcher': game['away_pitcher'],
-                'home_pitcher': game['home_pitcher']
-            }
-        
-        # Update predictions with real pitchers
-        updated_count = 0
-        games = predictions_data['predictions_by_date'][today]['games']
-        
-        for game_key, game_data in games.items():
-            # Try exact match first
-            if game_key in pitcher_mapping:
-                game_data['away_pitcher'] = pitcher_mapping[game_key]['away_pitcher']
-                game_data['home_pitcher'] = pitcher_mapping[game_key]['home_pitcher']
-                updated_count += 1
-                logger.info(f"Updated {game_key} with pitchers: {pitcher_mapping[game_key]['away_pitcher']} vs {pitcher_mapping[game_key]['home_pitcher']}")
-            else:
-                # Try partial matching
-                for pitcher_key, pitcher_info in pitcher_mapping.items():
-                    # Extract team names for comparison
-                    pred_away = game_data.get('away_team', '')
-                    pred_home = game_data.get('home_team', '')
-                    
-                    pitcher_parts = pitcher_key.split(' @ ')
-                    if len(pitcher_parts) == 2:
-                        pitcher_away = pitcher_parts[0]
-                        pitcher_home = pitcher_parts[1]
-                        
-                        # Check if teams match (accounting for variations)
-                        if (pred_away.lower() in pitcher_away.lower() or pitcher_away.lower() in pred_away.lower()) and \
-                           (pred_home.lower() in pitcher_home.lower() or pitcher_home.lower() in pred_home.lower()):
-                            game_data['away_pitcher'] = pitcher_info['away_pitcher']
-                            game_data['home_pitcher'] = pitcher_info['home_pitcher']
-                            updated_count += 1
-                            logger.info(f"Updated {game_key} (matched to {pitcher_key}) with pitchers: {pitcher_info['away_pitcher']} vs {pitcher_info['home_pitcher']}")
-                            break
-        
-        # Update metadata
-        predictions_data['metadata']['last_pitcher_update'] = datetime.now().isoformat()
-        predictions_data['metadata']['pitcher_update_date'] = today
-        predictions_data['metadata']['pitchers_updated_count'] = updated_count
-        
-        # Save updated predictions
-        with open('unified_predictions_cache.json', 'w') as f:
-            json.dump(predictions_data, f, indent=2)
-        
-        logger.info(f"✅ Updated {updated_count} games with real starting pitchers")
-        return True
-        
+
     except Exception as e:
         logger.error(f"❌ Error updating predictions with pitchers: {e}")
         return False

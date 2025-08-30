@@ -19,7 +19,8 @@ def fetch_todays_complete_games(date: str) -> List[Dict]:
         List of game dicts. If nothing found, returns an empty list.
     """
     try:
-        url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={date}"
+        # Include probablePitcher and team in hydrate to improve pitcher availability
+        url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={date}&hydrate=probablePitcher,team"
         resp = requests.get(url, timeout=10)
         resp.raise_for_status()
         data = resp.json()

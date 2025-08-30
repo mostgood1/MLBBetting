@@ -29,6 +29,20 @@ def main():
         data_dir = current_dir / "data"
         data_dir.mkdir(exist_ok=True)
         
+        # Populate probable pitcher fields from enhanced fetcher output as a default
+        # (These will be overwritten by real starting_pitchers file if present below)
+        for game in games:
+            try:
+                if 'away_probable_pitcher' not in game or not game['away_probable_pitcher']:
+                    if game.get('away_pitcher') and game.get('away_pitcher') != 'TBD':
+                        game['away_probable_pitcher'] = game['away_pitcher']
+                if 'home_probable_pitcher' not in game or not game['home_probable_pitcher']:
+                    if game.get('home_pitcher') and game.get('home_pitcher') != 'TBD':
+                        game['home_probable_pitcher'] = game['home_pitcher']
+            except Exception:
+                # Non-fatal; continue best-effort
+                pass
+
         # Try to merge with real starting pitcher data
         pitcher_file = data_dir / f"starting_pitchers_{today.replace('-', '_')}.json"
         pitcher_data = {}
