@@ -13,6 +13,20 @@
       "execution_time": 0.0,
       "success": false,
       "error": "'str' object has no attribute 'get'"
+    },
+    {
+      "timestamp": "2025-08-30T10:11:28.434457",
+      "function": "api_predictions_2025-08-19",
+      "execution_time": 0.0,
+      "success": false,
+      "error": "'str' object has no attribute 'get'"
+    },
+    {
+      "timestamp": "2025-08-30T10:12:55.768711",
+      "function": "api_predictions_2025-08-19",
+      "execution_time": 0.0,
+      "success": false,
+      "error": "'str' object has no attribute 'get'"
     }
   ]
 }
