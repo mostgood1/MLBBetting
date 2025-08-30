@@ -506,6 +506,17 @@ def complete_daily_automation():
             if step_name in critical_steps:
                 critical_success = False
     
+    # Final step: write Kelly 'Best of Best' entries for yesterday so the tab persists daily
+    try:
+        writer = base_dir / 'write_kelly_best_of_best.py'
+        if writer.exists():
+            logger.info("\n🎯 FINAL STEP: Writing Kelly 'Best of Best' entries for yesterday")
+            run_script(writer, "Write Kelly Best of Best (yesterday)", logger, 180)
+        else:
+            logger.warning("⚠️ Kelly writer script not found; skipping persistent Kelly output")
+    except Exception as e:
+        logger.warning(f"⚠️ Kelly writer step failed: {e}")
+
     if all_success:
         logger.info("\n🎉 ALL STEPS COMPLETED SUCCESSFULLY!")
         logger.info(f"🎯 Ready for MLB betting analysis on {today}")

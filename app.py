@@ -4664,12 +4664,19 @@ def todays_opportunities_direct():
         today_data = predictions_by_date.get(today_str, {})
         today_games = today_data.get('games', {})
 
-        kelly_opportunities = []
-        # Track seen opportunities to prevent duplicates across sources
-        seen_keys = set()
-        base_unit = 100
-        max_units = 2
-        bankroll_proxy = base_unit * 10
+        base_unit = 100  # $100 base stake per bet
+        kelly_cap = 0.25  # 25% cap
+        # New sizing: scale within [0, base_unit] by kelly_fraction/kelly_cap, then round to $10
+        def _size_from_kelly(kf: float) -> int:
+            try:
+                sized = base_unit * max(0.0, min(kf / kelly_cap, 1.0))
+                # Round to nearest $10 with a $10 floor when non-zero
+                rounded = int(round(sized / 10.0) * 10)
+                if rounded == 0 and sized > 0:
+                    return 10
+                return rounded
+            except Exception:
+                return 0
 
         def _kelly_fraction(win_probability: float, american_odds) -> float:
             try:
@@ -4714,6 +4721,9 @@ def todays_opportunities_direct():
                 return round(_kelly_fraction(wp, odds) * 100, 1)
             return 0.0
 
+        # Collect and dedupe across all sources, preferring higher Kelly for identical markets
+        best_by_key = {}
+
         for game_key, game_data in today_games.items():
             # Consider both legacy 'recommendations' and new 'value_bets' collections
             try:
@@ -4725,17 +4735,13 @@ def todays_opportunities_direct():
                 confidence = str(rec.get('confidence', '')).upper()
                 if kelly_size >= min_kelly and conf_order.get(confidence, 0) >= conf_order.get(min_conf, 3):
                     kf = (kelly_size or 0) / 100.0
-                    k_amount = kf * bankroll_proxy
-                    suggested_bet = max(10, min(round(k_amount / 10) * 10, int(base_unit * max_units)))
+                    suggested_bet = _size_from_kelly(kf)
                     bet_type, bet_details = _format_bet(rec)
                     # Build de-duplication key across sources
                     game_label = f"{game_data.get('away_team')} vs {game_data.get('home_team')}"
                     odds_val = rec.get('american_odds') or rec.get('odds', 0)
-                    dedup_key = (game_label, bet_type, bet_details, str(odds_val))
-                    if dedup_key in seen_keys:
-                        continue
-                    seen_keys.add(dedup_key)
-                    kelly_opportunities.append({
+                    dedup_key = (game_label, bet_type, bet_details)
+                    candidate = {
                         'date': today_str,
                         'game': game_label,
                         'bet_type': bet_type,
@@ -4748,10 +4754,13 @@ def todays_opportunities_direct():
                         'reasoning': rec.get('reasoning', ''),
                         'odds': odds_val,
                         'model_prediction': rec.get('predicted_total') or rec.get('model_total') if str(rec.get('type','')).lower() == 'total' else None
-                    })
+                    }
+                    prev = best_by_key.get(dedup_key)
+                    if not prev or (kelly_size > prev.get('kelly_percentage', 0)):
+                        best_by_key[dedup_key] = candidate
 
-        # Fallback/supplement: if few opportunities found from unified cache, supplement with today's betting file
-        if len(kelly_opportunities) < 5:
+        # Fallback/supplement: if few opportunities found, supplement with today's betting file (also dedup by best Kelly)
+        if len(best_by_key) < 5:
             try:
                 today_underscore = today_str.replace('-', '_')
                 bets_path = Path(__file__).parent / 'data' / f'betting_recommendations_{today_underscore}.json'
@@ -4759,11 +4768,6 @@ def todays_opportunities_direct():
                     with open(bets_path, 'r') as bf:
                         bets_data = json.load(bf)
                     games = bets_data.get('games', {})
-                    # Seed seen set with any previously added opportunities
-                    seen_keys.update(
-                        (o['game'], o['bet_type'], o['bet_details'], str(o.get('odds')))
-                        for o in kelly_opportunities
-                    )
                     for gkey, gdata in games.items():
                         away = gdata.get('away_team')
                         home = gdata.get('home_team')
@@ -4773,14 +4777,10 @@ def todays_opportunities_direct():
                             confidence = str(rec.get('confidence', '')).upper()
                             if kelly_size >= min_kelly and conf_order.get(confidence, 0) >= conf_order.get(min_conf, 3):
                                 kf = (kelly_size or 0) / 100.0
-                                k_amount = kf * bankroll_proxy
-                                suggested_bet = max(10, min(round(k_amount / 10) * 10, int(base_unit * max_units)))
+                                suggested_bet = _size_from_kelly(kf)
                                 bet_type, bet_details = _format_bet(rec)
-                                dedup_key = (f"{away} vs {home}", bet_type, bet_details, str(rec.get('american_odds') or rec.get('odds', 0)))
-                                if dedup_key in seen_keys:
-                                    continue
-                                seen_keys.add(dedup_key)
-                                kelly_opportunities.append({
+                                dedup_key = (f"{away} vs {home}", bet_type, bet_details)
+                                candidate = {
                                     'date': today_str,
                                     'game': f"{away} vs {home}",
                                     'bet_type': bet_type,
@@ -4793,9 +4793,18 @@ def todays_opportunities_direct():
                                     'reasoning': rec.get('reasoning', ''),
                                     'odds': rec.get('american_odds') or rec.get('odds', 0),
                                     'model_prediction': rec.get('predicted_total') or rec.get('model_total') if str(rec.get('type','')).lower() == 'total' else None
-                                })
+                                }
+                                prev = best_by_key.get(dedup_key)
+                                if not prev or (kelly_size > prev.get('kelly_percentage', 0)):
+                                    best_by_key[dedup_key] = candidate
             except Exception as e:
                 logger.warning(f"Fallback to betting file failed: {e}")
+
+        # Finalize deduped list
+        kelly_opportunities = list(best_by_key.values())
+        # Sort by Kelly percentage descending for nicer presentation
+        kelly_opportunities.sort(key=lambda o: o.get('kelly_percentage', 0), reverse=True)
+
         return jsonify({'success': True, 'data': {'total_opportunities': len(kelly_opportunities), 'opportunities': kelly_opportunities, 'date': today_str}})
     except Exception as e:
         logger.error(f"Error generating today's opportunities: {e}")
@@ -4823,13 +4832,21 @@ def historical_kelly_performance_direct():
                 date = day.get('date')
                 if not date:
                     continue
+                bets = day.get('kelly_bets', 0)
+                roi_pct = day.get('roi', 0)
+                net = day.get('net_profit', 0)
+                # If ROI is available and non-zero, infer invested = net / (roi/100), else fallback to $100 per bet
+                try:
+                    invested = round(net / (roi_pct / 100.0), 2) if roi_pct not in (0, None) else bets * 100
+                except Exception:
+                    invested = bets * 100
                 mapped_daily[date] = {
-                    'total_bets': day.get('kelly_bets', 0),
+                    'total_bets': bets,
                     'wins': day.get('successful_bets', 0),
-                    'losses': max(0, day.get('kelly_bets', 0) - day.get('successful_bets', 0)),
-                    'roi': day.get('roi', 0),
-                    'net_profit': day.get('net_profit', 0),
-                    'invested': day.get('kelly_bets', 0) * 100  # assumes $100 base bet
+                    'losses': max(0, bets - day.get('successful_bets', 0)),
+                    'roi': roi_pct,
+                    'net_profit': net,
+                    'invested': max(0, invested)
                 }
             # Ensure yesterday recap exists even if zero bets
             try:
