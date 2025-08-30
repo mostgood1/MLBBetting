@@ -12,7 +12,7 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional, Tuple
 
 # Prefer local analyzer to load final scores and persist bundle
 from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer
@@ -126,6 +126,57 @@ def _save_json(path: Path, data: Any) -> None:
         json.dump(data, f, indent=2)
 
 
+def _parse_american_odds(odds_val: Any) -> Optional[int]:
+    """Parse American odds from str/int; returns int or None."""
+    if odds_val is None:
+        return None
+    try:
+        if isinstance(odds_val, (int, float)):
+            return int(odds_val)
+        s = str(odds_val).strip()
+        if s.startswith('+'):
+            s = s[1:]
+        return int(s)
+    except Exception:
+        return None
+
+
+def _parse_total_recommendation(rec: Dict[str, Any]) -> Tuple[Optional[str], Optional[float]]:
+    """Extract (side, line) from a total-type recommendation."""
+    side = None
+    line_val: Optional[float] = None
+    # Try structured fields first
+    if rec.get('side'):
+        side = str(rec['side']).title()
+    if rec.get('line') is not None:
+        try:
+            line_val = float(rec['line'])
+        except Exception:
+            line_val = None
+    if line_val is None and rec.get('total_line') is not None:
+        try:
+            line_val = float(rec['total_line'])
+        except Exception:
+            line_val = None
+    if line_val is None and rec.get('betting_line') is not None:
+        try:
+            line_val = float(rec['betting_line'])
+        except Exception:
+            line_val = None
+
+    # Parse from free-text recommendation if needed: e.g., "Under 9.0" or "Over 7.5"
+    if (not side or line_val is None) and rec.get('recommendation'):
+        try:
+            parts = str(rec['recommendation']).strip().split()
+            if len(parts) >= 2:
+                side = side or parts[0].title()
+                if line_val is None:
+                    line_val = float(parts[1])
+        except Exception:
+            pass
+    return side, line_val
+
+
 def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
     # Load input data
     date_underscore = date_str.replace('-', '_')
@@ -141,7 +192,7 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
     analyzer = ComprehensiveHistoricalAnalyzer()
     final_scores = analyzer.load_final_scores_for_date(date_str) or {}
 
-    results: List[Dict[str, Any]] = []
+    candidates: List[Dict[str, Any]] = []
 
     for game_key, game_data in games.items():
         # Determine a normalized key to find final scores
@@ -152,48 +203,60 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
         away_score = (fs or {}).get('away_score')
         home_score = (fs or {}).get('home_score')
 
-        recs = game_data.get('betting_recommendations', {})
-        if not isinstance(recs, dict):
-            continue
+        # Unified handling: prefer detailed mapping under 'betting_recommendations', otherwise accept 'value_bets' list
+        if isinstance(game_data.get('betting_recommendations'), dict):
+            rec_iter = []
+            for rtype, rec in game_data['betting_recommendations'].items():
+                if isinstance(rec, dict):
+                    rec_copy = dict(rec)
+                    rec_copy['type'] = rtype
+                    rec_iter.append(rec_copy)
+        else:
+            rec_iter = game_data.get('value_bets') or []
+            if not isinstance(rec_iter, list):
+                rec_iter = []
 
         # Inspect supported bet types
-        for rtype, rec in recs.items():
+        for rec in rec_iter:
             try:
                 if not isinstance(rec, dict):
                     continue
+                rtype = str(rec.get('type', '')).lower()
+                # Best of Best: focus on totals only for now to match existing dataset
+                if rtype != 'total':
+                    continue
+
+                bet_type = 'Over/Under'
+                side, line = _parse_total_recommendation(rec)
+                if not side or line is None:
+                    continue
+                bet_details = f"{side} {line}"
+
+                # Pull probability
+                win_prob = rec.get('win_probability')
+                if win_prob is None:
+                    # Side-specific fields if present
+                    if str(side).lower() == 'over':
+                        win_prob = rec.get('over_probability')
+                    else:
+                        win_prob = rec.get('under_probability')
+
                 # Only include if Kelly fraction is present or computable
                 kf = rec.get('kelly_fraction')
                 odds = rec.get('odds') or rec.get('american_odds')
-                # Pull probability based on type for Kelly calc if needed
-                win_prob = None
-                bet_type = None
-                bet_details = None
-
-                if rtype == 'moneyline':
-                    bet_type = 'Moneyline'
-                    side = rec.get('pick') or rec.get('side')
-                    if not side:
+                odds_int = _parse_american_odds(odds)
+                if kf is None:
+                    if isinstance(win_prob, (int, float)):
+                        p = float(win_prob)
+                        if p > 1:
+                            p = p / 100.0
+                        kf = _calc_kelly_fraction(p, odds_int if odds_int is not None else -110)
+                    else:
                         continue
-                    bet_details = side
-                    win_prob = rec.get('win_probability')
-                elif rtype == 'total':
-                    bet_type = 'Over/Under'
-                    side = 'Over' if rec.get('recommendation', '').upper().startswith('OVER') or rec.get('side', '').lower() == 'over' else 'Under'
-                    line = rec.get('line') or rec.get('total_line') or rec.get('betting_line')
-                    if not line:
-                        continue
-                    bet_details = f"{side} {line}"
-                    win_prob = rec.get('over_probability') if side.lower() == 'over' else rec.get('under_probability')
-                elif rtype == 'run_line':
-                    bet_type = 'Run Line'
-                    side = rec.get('side') or rec.get('pick')
-                    line = rec.get('line')
-                    if not side or line is None:
-                        continue
-                    bet_details = f"{side} {line}"
-                    win_prob = rec.get('cover_probability')
                 else:
-                    continue
+                    # Might be provided in 0..1 or 0..100
+                    if kf > 1.0:
+                        kf = kf / 100.0
 
                 if kf is None:
                     if isinstance(win_prob, (int, float)):
@@ -245,7 +308,7 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
                         profit_loss = 0.0
                     roi = (profit_loss / suggested * 100.0) if suggested > 0 else 0.0
 
-                results.append({
+                candidates.append({
                     'date': date_str,
                     'game': _normalize_game_key(game_key),
                     'bet_type': bet_type,
@@ -253,7 +316,7 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
                     'confidence': round(kf, 3),  # decimal 0..1
                     'kelly_percentage': round(kf * 100, 1),
                     'recommended_bet': suggested,
-                    'odds': int(odds) if odds is not None else -110,
+                    'odds': odds_int if odds_int is not None else -110,
                     'outcome': outcome,
                     'profit_loss': round(profit_loss, 2),
                     'roi': round(roi, 2)
@@ -261,7 +324,9 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
             except Exception:
                 # Skip malformed entries
                 continue
-
+    # Best of Best cap: keep top 4 entries by Kelly percentage
+    candidates.sort(key=lambda e: e.get('kelly_percentage', 0), reverse=True)
+    results = candidates[:4]
     return results
 
 
