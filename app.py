@@ -4861,6 +4861,113 @@ def historical_kelly_performance_direct():
                         'net_profit': 0,
                         'invested': 0
                     }
+                # Best-of-Best override for yesterday when file-backed analytics are missing
+                # Compute top-4 totals outcomes from daily betting recommendations and final scores if available
+                try:
+                    from pathlib import Path as _P
+                    import re as _re
+                    base_unit = 100
+                    kelly_cap = 0.25
+                    def _size_from_kelly_local(kf: float) -> int:
+                        sized = base_unit * max(0.0, min(kf / kelly_cap, 1.0))
+                        rounded = int(round(sized / 10.0) * 10)
+                        return 10 if rounded == 0 and sized > 0 else rounded
+                    def _kelly_fraction_local(p: float, a_odds) -> float:
+                        try:
+                            odds = int(str(a_odds).replace('+', ''))
+                            b = odds / 100.0 if odds > 0 else 100.0 / abs(odds)
+                            p = max(0.0, min(1.0, float(p)))
+                            q = 1.0 - p
+                            if b <= 0:
+                                return 0.0
+                            f = (b * p - q) / b
+                            return max(0.0, min(f, 0.25))
+                        except Exception:
+                            return 0.0
+                    def _profit_local(stake: float, a_odds: int, won: bool) -> float:
+                        if not won:
+                            return -stake
+                        if a_odds >= 0:
+                            return stake * (a_odds / 100.0)
+                        return stake * (100.0 / abs(a_odds))
+                    # File paths
+                    u = yday.replace('-', '_')
+                    droot = _P(__file__).parent / 'data'
+                    bet_fp = droot / f'betting_recommendations_{u}.json'
+                    score_fp = droot / f'final_scores_{u}.json'
+                    if bet_fp.exists() and score_fp.exists():
+                        with open(bet_fp, 'r') as bf:
+                            bets_data = json.load(bf)
+                        with open(score_fp, 'r') as sf:
+                            scores = json.load(sf)
+                        def _total_from_scores(game_key: str) -> float:
+                            g = scores.get('games', {}).get(game_key) or {}
+                            return (g.get('away_score', 0) or 0) + (g.get('home_score', 0) or 0)
+                        candidates = []
+                        for gkey, gdata in (bets_data.get('games', {}) or {}).items():
+                            recs = (gdata.get('value_bets') or []) + (gdata.get('recommendations') or [])
+                            for rec in recs:
+                                rtype = str(rec.get('type', '')).lower()
+                                # Focus on totals for Best-of-Best
+                                if rtype != 'total' and 'total' not in str(rec.get('recommendation', '')).lower():
+                                    continue
+                                # Parse side and line
+                                side = (rec.get('side') or '').strip().upper()
+                                line = rec.get('line') or rec.get('betting_line')
+                                if not (side and line):
+                                    # Try to parse from text like "Under 8.5"
+                                    m = _re.search(r'(OVER|UNDER)\s+([0-9]+(?:\.[0-9])?)', str(rec.get('recommendation', '')).upper())
+                                    if m:
+                                        side = m.group(1)
+                                        line = float(m.group(2))
+                                try:
+                                    line = float(line)
+                                except Exception:
+                                    continue
+                                odds = rec.get('american_odds') or rec.get('odds') or -110
+                                wp = rec.get('win_probability') or rec.get('win_prob') or rec.get('probability')
+                                if isinstance(wp, (int, float)) and wp > 1:
+                                    wp = wp / 100.0
+                                kelly_pct = rec.get('kelly_bet_size')
+                                if not isinstance(kelly_pct, (int, float)):
+                                    if wp is not None:
+                                        kelly_pct = round(_kelly_fraction_local(wp, odds) * 100, 2)
+                                    else:
+                                        continue
+                                candidates.append({
+                                    'game_key': gkey,
+                                    'side': side,
+                                    'line': line,
+                                    'odds': int(str(odds).replace('+','')),
+                                    'kelly_pct': float(kelly_pct)
+                                })
+                        # Rank and choose top 4
+                        candidates.sort(key=lambda c: c['kelly_pct'], reverse=True)
+                        top = candidates[:4]
+                        invested = 0.0
+                        net = 0.0
+                        wins = 0
+                        for c in top:
+                            kf = c['kelly_pct'] / 100.0
+                            stake = _size_from_kelly_local(kf)
+                            invested += stake
+                            total_runs = _total_from_scores(c['game_key'])
+                            won = (total_runs > c['line'] and c['side'] == 'OVER') or (total_runs < c['line'] and c['side'] == 'UNDER')
+                            if won:
+                                wins += 1
+                            net += _profit_local(stake, c['odds'], won)
+                        losses = max(0, len(top) - wins)
+                        roi = round((net / invested * 100.0), 2) if invested > 0 else 0
+                        mapped_daily[yday] = {
+                            'total_bets': len(top),
+                            'wins': wins,
+                            'losses': losses,
+                            'roi': roi,
+                            'net_profit': round(net, 2),
+                            'invested': round(invested, 2)
+                        }
+                except Exception as _yerr:
+                    logger.warning(f"Yesterday Best-of-Best override failed: {_yerr}")
             except Exception:
                 pass
             summary_src = enh.get('summary', {})
