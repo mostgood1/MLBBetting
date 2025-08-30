@@ -4657,12 +4657,31 @@ def todays_opportunities_direct():
             min_kelly = 5.0
         min_conf = str(request.args.get('minConf', 'HIGH')).upper()
         conf_order = {'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'NONE': 0}
-        unified_cache_path = Path(__file__).parent / 'data' / 'unified_predictions_cache.json'
+        data_dir = Path(__file__).parent / 'data'
+        unified_cache_path = data_dir / 'unified_predictions_cache.json'
         with open(unified_cache_path, 'r') as f:
             cache_data = json.load(f)
         predictions_by_date = cache_data.get('predictions_by_date', {})
         today_data = predictions_by_date.get(today_str, {})
         today_games = today_data.get('games', {})
+
+        # Load real betting lines for today to ground totals to actual market numbers
+        real_lines_map = {}
+        try:
+            rl_path = data_dir / f"real_betting_lines_{today_str.replace('-', '_')}.json"
+            if rl_path.exists():
+                with open(rl_path, 'r', encoding='utf-8') as rlf:
+                    rl = json.load(rlf)
+                for gk, glines in (rl.get('lines', {}) or {}).items():
+                    # gk like "Away @ Home"; normalize to "Away vs Home"
+                    if ' @ ' in gk:
+                        a, h = gk.split(' @ ')
+                        key = f"{a} vs {h}"
+                    else:
+                        key = gk.replace(' @ ', ' vs ')
+                    real_lines_map[key] = glines
+        except Exception as _rlerr:
+            logger.warning(f"Could not load real betting lines for opportunities: {_rlerr}")
 
         base_unit = 100  # $100 base stake per bet
         kelly_cap = 0.25  # 25% cap
@@ -4691,7 +4710,7 @@ def todays_opportunities_direct():
             except Exception:
                 return 0.0
 
-        def _format_bet(rec: dict) -> tuple:
+        def _format_bet(rec: dict, game_label: str) -> tuple:
             rtype = str(rec.get('type', '')).lower()
             bet_type = 'Over/Under' if rtype == 'total' else ('Run Line' if rtype == 'run_line' else 'Moneyline' if rtype == 'moneyline' else rec.get('type', ''))
             # Prefer explicit recommendation text when present
@@ -4700,7 +4719,14 @@ def todays_opportunities_direct():
             else:
                 if rtype == 'total':
                     side = str(rec.get('side', '')).title() if rec.get('side') else ''
-                    line = rec.get('line') or rec.get('betting_line')
+                    # Prefer real market line if available for this game
+                    line = None
+                    if game_label in real_lines_map:
+                        try:
+                            line = real_lines_map[game_label].get('total_runs', {}).get('line')
+                        except Exception:
+                            line = None
+                    line = line or rec.get('line') or rec.get('betting_line')
                     bet_details = f"{side} {line}" if side and line else 'Total'
                 elif rtype in ('moneyline', 'run_line'):
                     side = rec.get('side') or ''
@@ -4730,16 +4756,27 @@ def todays_opportunities_direct():
                 rec_list = (game_data.get('value_bets') or []) + (game_data.get('recommendations') or [])
             except Exception:
                 rec_list = game_data.get('recommendations', [])
+            game_label = f"{game_data.get('away_team')} vs {game_data.get('home_team')}"
             for rec in rec_list:
                 kelly_size = _extract_kelly_size(rec)
                 confidence = str(rec.get('confidence', '')).upper()
                 if kelly_size >= min_kelly and conf_order.get(confidence, 0) >= conf_order.get(min_conf, 3):
                     kf = (kelly_size or 0) / 100.0
                     suggested_bet = _size_from_kelly(kf)
-                    bet_type, bet_details = _format_bet(rec)
+                    bet_type, bet_details = _format_bet(rec, game_label)
                     # Build de-duplication key across sources
-                    game_label = f"{game_data.get('away_team')} vs {game_data.get('home_team')}"
+                    # For totals, prefer odds from real market for correct side
                     odds_val = rec.get('american_odds') or rec.get('odds', 0)
+                    if bet_type == 'Over/Under' and game_label in real_lines_map:
+                        try:
+                            side = str(rec.get('side', '')).lower()
+                            totals = real_lines_map[game_label].get('total_runs', {})
+                            if side == 'under' and 'under' in totals:
+                                odds_val = totals.get('under', odds_val)
+                            elif side == 'over' and 'over' in totals:
+                                odds_val = totals.get('over', odds_val)
+                        except Exception:
+                            pass
                     dedup_key = (game_label, bet_type, bet_details)
                     candidate = {
                         'date': today_str,
@@ -4788,11 +4825,12 @@ def todays_opportunities_direct():
                         if kelly_size >= min_kelly and conf_order.get(confidence, 0) >= conf_order.get(min_conf, 3):
                             kf = (kelly_size or 0) / 100.0
                             suggested_bet = _size_from_kelly(kf)
-                            bet_type, bet_details = _format_bet(rec)
+                            game_label = f"{away} vs {home}"
+                            bet_type, bet_details = _format_bet(rec, game_label)
                             dedup_key = (f"{away} vs {home}", bet_type, bet_details)
                             candidate = {
                                 'date': today_str,
-                                'game': f"{away} vs {home}",
+                                'game': game_label,
                                 'bet_type': bet_type,
                                 'bet_details': bet_details,
                                 'confidence': kf,
@@ -4801,7 +4839,8 @@ def todays_opportunities_direct():
                                 'expected_value': rec.get('expected_value', 0),
                                 'edge': rec.get('edge', 0),
                                 'reasoning': rec.get('reasoning', ''),
-                                'odds': rec.get('american_odds') or rec.get('odds', 0),
+                                # Prefer real market odds for totals when available
+                                'odds': (real_lines_map.get(game_label, {}).get('total_runs', {}).get('under') if str(rec.get('side','')).lower()=='under' else real_lines_map.get(game_label, {}).get('total_runs', {}).get('over')) if bet_type=='Over/Under' else (rec.get('american_odds') or rec.get('odds', 0)),
                                 'model_prediction': rec.get('predicted_total') or rec.get('model_total') if str(rec.get('type','')).lower() == 'total' else None
                             }
                             prev = best_by_key.get(dedup_key)
