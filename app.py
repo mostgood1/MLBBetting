@@ -160,12 +160,15 @@ except ImportError as e:
 # Initialize redesigned analytics and comprehensive analyzer for direct API use (Render-safe)
 try:
     from redesigned_betting_analytics import RedesignedBettingAnalytics
+    from enhanced_betting_analytics import EnhancedBettingAnalytics
     from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer
     redesigned_analytics = RedesignedBettingAnalytics()
+    enhanced_analytics = EnhancedBettingAnalytics()
     direct_historical_analyzer = ComprehensiveHistoricalAnalyzer()
     logging.info("✅ Direct analytics initialized for in-process APIs")
 except Exception as e:
     redesigned_analytics = None
+    enhanced_analytics = None
     direct_historical_analyzer = None
     logging.error(f"❌ Failed to initialize direct analytics: {e}")
 
@@ -4660,18 +4663,18 @@ def todays_opportunities_direct():
         predictions_by_date = cache_data.get('predictions_by_date', {})
         today_data = predictions_by_date.get(today_str, {})
         today_games = today_data.get('games', {})
+
         kelly_opportunities = []
+        # Track seen opportunities to prevent duplicates across sources
+        seen_keys = set()
         base_unit = 100
         max_units = 2
         bankroll_proxy = base_unit * 10
-        
+
         def _kelly_fraction(win_probability: float, american_odds) -> float:
             try:
                 odds = int(str(american_odds).replace('+', ''))
-                if odds > 0:
-                    b = odds / 100.0
-                else:
-                    b = 100.0 / abs(odds)
+                b = odds / 100.0 if odds > 0 else 100.0 / abs(odds)
                 p = max(0.0, min(1.0, float(win_probability)))
                 q = 1.0 - p
                 if b <= 0:
@@ -4680,7 +4683,7 @@ def todays_opportunities_direct():
                 return max(0.0, min(f, 0.25))
             except Exception:
                 return 0.0
-        
+
         def _format_bet(rec: dict) -> tuple:
             rtype = str(rec.get('type', '')).lower()
             bet_type = 'Over/Under' if rtype == 'total' else ('Run Line' if rtype == 'run_line' else 'Moneyline' if rtype == 'moneyline' else rec.get('type', ''))
@@ -4691,10 +4694,7 @@ def todays_opportunities_direct():
                 if rtype == 'total':
                     side = str(rec.get('side', '')).title() if rec.get('side') else ''
                     line = rec.get('line') or rec.get('betting_line')
-                    if side and line:
-                        bet_details = f"{side} {line}"
-                    else:
-                        bet_details = 'Total'
+                    bet_details = f"{side} {line}" if side and line else 'Total'
                 elif rtype in ('moneyline', 'run_line'):
                     side = rec.get('side') or ''
                     line = rec.get('line') or ''
@@ -4702,7 +4702,7 @@ def todays_opportunities_direct():
                 else:
                     bet_details = rec.get('recommendation', 'Bet')
             return bet_type, bet_details
-        
+
         def _extract_kelly_size(rec: dict) -> float:
             ks = rec.get('kelly_bet_size')
             if isinstance(ks, (int, float)) and ks > 0:
@@ -4713,9 +4713,9 @@ def todays_opportunities_direct():
             if wp is not None and odds is not None:
                 return round(_kelly_fraction(wp, odds) * 100, 1)
             return 0.0
+
         for game_key, game_data in today_games.items():
             # Consider both legacy 'recommendations' and new 'value_bets' collections
-            rec_list = []
             try:
                 rec_list = (game_data.get('value_bets') or []) + (game_data.get('recommendations') or [])
             except Exception:
@@ -4728,9 +4728,16 @@ def todays_opportunities_direct():
                     k_amount = kf * bankroll_proxy
                     suggested_bet = max(10, min(round(k_amount / 10) * 10, int(base_unit * max_units)))
                     bet_type, bet_details = _format_bet(rec)
+                    # Build de-duplication key across sources
+                    game_label = f"{game_data.get('away_team')} vs {game_data.get('home_team')}"
+                    odds_val = rec.get('american_odds') or rec.get('odds', 0)
+                    dedup_key = (game_label, bet_type, bet_details, str(odds_val))
+                    if dedup_key in seen_keys:
+                        continue
+                    seen_keys.add(dedup_key)
                     kelly_opportunities.append({
                         'date': today_str,
-                        'game': f"{game_data.get('away_team')} vs {game_data.get('home_team')}",
+                        'game': game_label,
                         'bet_type': bet_type,
                         'bet_details': bet_details,
                         'confidence': kf,
@@ -4739,10 +4746,10 @@ def todays_opportunities_direct():
                         'expected_value': rec.get('expected_value', 0),
                         'edge': rec.get('edge', 0),
                         'reasoning': rec.get('reasoning', ''),
-                        'odds': rec.get('american_odds') or rec.get('odds', 0),
+                        'odds': odds_val,
                         'model_prediction': rec.get('predicted_total') or rec.get('model_total') if str(rec.get('type','')).lower() == 'total' else None
                     })
-        
+
         # Fallback/supplement: if few opportunities found from unified cache, supplement with today's betting file
         if len(kelly_opportunities) < 5:
             try:
@@ -4752,8 +4759,8 @@ def todays_opportunities_direct():
                     with open(bets_path, 'r') as bf:
                         bets_data = json.load(bf)
                     games = bets_data.get('games', {})
-                    # Build a simple de-dup key set to avoid duplicate entries
-                    seen = set(
+                    # Seed seen set with any previously added opportunities
+                    seen_keys.update(
                         (o['game'], o['bet_type'], o['bet_details'], str(o.get('odds')))
                         for o in kelly_opportunities
                     )
@@ -4770,8 +4777,9 @@ def todays_opportunities_direct():
                                 suggested_bet = max(10, min(round(k_amount / 10) * 10, int(base_unit * max_units)))
                                 bet_type, bet_details = _format_bet(rec)
                                 dedup_key = (f"{away} vs {home}", bet_type, bet_details, str(rec.get('american_odds') or rec.get('odds', 0)))
-                                if dedup_key in seen:
+                                if dedup_key in seen_keys:
                                     continue
+                                seen_keys.add(dedup_key)
                                 kelly_opportunities.append({
                                     'date': today_str,
                                     'game': f"{away} vs {home}",
@@ -4786,7 +4794,6 @@ def todays_opportunities_direct():
                                     'odds': rec.get('american_odds') or rec.get('odds', 0),
                                     'model_prediction': rec.get('predicted_total') or rec.get('model_total') if str(rec.get('type','')).lower() == 'total' else None
                                 })
-                                seen.add(dedup_key)
             except Exception as e:
                 logger.warning(f"Fallback to betting file failed: {e}")
         return jsonify({'success': True, 'data': {'total_opportunities': len(kelly_opportunities), 'opportunities': kelly_opportunities, 'date': today_str}})
@@ -4798,9 +4805,60 @@ def todays_opportunities_direct():
 def historical_kelly_performance_direct():
     """Direct Kelly Best of Best performance using redesigned analytics"""
     try:
-        if not redesigned_analytics:
+        if not redesigned_analytics and not enhanced_analytics:
             return jsonify({'error': 'Analytics not initialized', 'data': {}}), 500
-        result = redesigned_analytics.get_kelly_best_of_best_performance()
+
+        # First try the explicit Kelly Best of Best file-backed analytics
+        if redesigned_analytics:
+            result = redesigned_analytics.get_kelly_best_of_best_performance()
+        else:
+            result = {'success': False, 'error': 'Redesigned analytics unavailable', 'data': {}}
+
+        # If Kelly file missing or failed, fall back to Enhanced analytics built from historical caches
+        if not result.get('success') and enhanced_analytics:
+            enh = enhanced_analytics.get_historical_kelly_performance(days_back=30)
+            # Map enhanced format to expected response
+            mapped_daily = {}
+            for day in enh.get('daily_results', []):
+                date = day.get('date')
+                if not date:
+                    continue
+                mapped_daily[date] = {
+                    'total_bets': day.get('kelly_bets', 0),
+                    'wins': day.get('successful_bets', 0),
+                    'losses': max(0, day.get('kelly_bets', 0) - day.get('successful_bets', 0)),
+                    'roi': day.get('roi', 0),
+                    'net_profit': day.get('net_profit', 0),
+                    'invested': day.get('kelly_bets', 0) * 100  # assumes $100 base bet
+                }
+            # Ensure yesterday recap exists even if zero bets
+            try:
+                from datetime import datetime, timedelta
+                yday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+                if yday not in mapped_daily:
+                    mapped_daily[yday] = {
+                        'total_bets': 0,
+                        'wins': 0,
+                        'losses': 0,
+                        'roi': 0,
+                        'net_profit': 0,
+                        'invested': 0
+                    }
+            except Exception:
+                pass
+            summary_src = enh.get('summary', {})
+            kelly_data = {
+                'daily_performance': mapped_daily,
+                'summary': {
+                    'total_bets': summary_src.get('total_kelly_recommendations', 0),
+                    'win_rate': summary_src.get('win_rate', 0),
+                    'overall_roi': summary_src.get('total_roi', 0),
+                    'net_profit': summary_src.get('net_profit', 0)
+                }
+            }
+            return jsonify({'success': True, 'data': kelly_data, 'fallback': 'enhanced'})
+
+        # Otherwise, return the redesigned analytics result mapped to expected response
         if not result.get('success'):
             return jsonify(result), 500
         kelly_actual_data = result.get('data', {})
@@ -4814,6 +4872,21 @@ def historical_kelly_performance_direct():
             'net_profit': day.get('profit', 0),
             'invested': day.get('invested', 0)
         } for date, day in daily_summary.items()}
+        # Ensure yesterday recap exists even if zero bets
+        try:
+            from datetime import datetime, timedelta
+            yday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+            if yday not in mapped_daily_performance:
+                mapped_daily_performance[yday] = {
+                    'total_bets': 0,
+                    'wins': 0,
+                    'losses': 0,
+                    'roi': 0,
+                    'net_profit': 0,
+                    'invested': 0
+                }
+        except Exception:
+            pass
         kelly_data = {
             'daily_performance': mapped_daily_performance,
             'summary': {
