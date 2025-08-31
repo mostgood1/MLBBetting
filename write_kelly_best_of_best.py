@@ -203,7 +203,7 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
         away_score = (fs or {}).get('away_score')
         home_score = (fs or {}).get('home_score')
 
-        # Unified handling: prefer detailed mapping under 'betting_recommendations', otherwise accept 'value_bets' list
+        # Unified handling: prefer detailed mapping under 'betting_recommendations', otherwise accept arrays
         if isinstance(game_data.get('betting_recommendations'), dict):
             rec_iter = []
             for rtype, rec in game_data['betting_recommendations'].items():
@@ -212,9 +212,13 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
                     rec_copy['type'] = rtype
                     rec_iter.append(rec_copy)
         else:
-            rec_iter = game_data.get('value_bets') or []
-            if not isinstance(rec_iter, list):
-                rec_iter = []
+            rec_iter = []
+            vb = game_data.get('value_bets') or []
+            if isinstance(vb, list):
+                rec_iter.extend(vb)
+            recs = game_data.get('recommendations') or []
+            if isinstance(recs, list):
+                rec_iter.extend(recs)
 
         # Inspect supported bet types
         for rec in rec_iter:
@@ -222,8 +226,8 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
                 if not isinstance(rec, dict):
                     continue
                 rtype = str(rec.get('type', '')).lower()
-                # Best of Best: focus on totals only for now to match existing dataset
-                if rtype != 'total':
+                # Best of Best: focus on totals only for now (support common aliases)
+                if rtype not in ('total', 'totals', 'over_under', 'over/under'):
                     continue
 
                 bet_type = 'Over/Under'
@@ -242,17 +246,23 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
                         win_prob = rec.get('under_probability')
 
                 # Only include if Kelly fraction is present or computable
+                # Prefer explicit kelly_fraction (0..1) or kelly_bet_size (percent 0..100)
                 kf = rec.get('kelly_fraction')
                 odds = rec.get('odds') or rec.get('american_odds')
                 odds_int = _parse_american_odds(odds)
                 if kf is None:
-                    if isinstance(win_prob, (int, float)):
-                        p = float(win_prob)
-                        if p > 1:
-                            p = p / 100.0
-                        kf = _calc_kelly_fraction(p, odds_int if odds_int is not None else -110)
+                    # Check for kelly_bet_size in percent
+                    kbs = rec.get('kelly_bet_size')
+                    if isinstance(kbs, (int, float)):
+                        kf = float(kbs) / 100.0
                     else:
-                        continue
+                        if isinstance(win_prob, (int, float)):
+                            p = float(win_prob)
+                            if p > 1:
+                                p = p / 100.0
+                            kf = _calc_kelly_fraction(p, odds_int if odds_int is not None else -110)
+                        else:
+                            continue
                 else:
                     # Might be provided in 0..1 or 0..100
                     if kf > 1.0:
@@ -273,13 +283,13 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
                         # Already percent 0..100? scale
                         kf = kf / 100.0
 
-                # Filter for "Best of Best" – require at least 10% Kelly
-                if kf < 0.10:
-                    continue
-
-                # Suggested bet using $1000 notional bankroll, cap at $200
-                suggested = int(min(round(kf * 1000 / 10) * 10, 200))
-                if suggested < 10:
+                # Suggested bet sizing aligned with UI rules:
+                # base_unit = $100, cap at 25% Kelly -> max $100, round to $10, floor $10 if >0
+                base_unit = 100
+                kelly_cap = 0.25
+                sized = base_unit * max(0.0, min(kf / kelly_cap, 1.0))
+                suggested = int(round(sized / 10.0) * 10)
+                if suggested == 0 and sized > 0:
                     suggested = 10
 
                 outcome = 'pending'
