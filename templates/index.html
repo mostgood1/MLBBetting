@@ -1227,8 +1227,8 @@
         }
 
         function startLiveUpdates() {
-            // Check for live games every 30 seconds
-            setInterval(updateLiveGames, 30000);
+            // Check for live games more frequently (every 10 seconds)
+            setInterval(updateLiveGames, 10000);
         }
 
         async function updateLiveGames() {
