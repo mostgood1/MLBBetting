@@ -1,0 +1,111 @@
+{
+  "date": "2025-08-31",
+  "fetched_at": "2025-08-31T10:29:29.336234",
+  "games": [
+    {
+      "away_team": "St. Louis Cardinals",
+      "home_team": "Cincinnati Reds",
+      "away_pitcher": "Andre Pallante",
+      "home_pitcher": "Brady Singer",
+      "game_key": "St. Louis Cardinals @ Cincinnati Reds"
+    },
+    {
+      "away_team": "San Diego Padres",
+      "home_team": "Minnesota Twins",
+      "away_pitcher": "David Morgan",
+      "home_pitcher": "Joe Ryan",
+      "game_key": "San Diego Padres @ Minnesota Twins"
+    },
+    {
+      "away_team": "Pittsburgh Pirates",
+      "home_team": "Boston Red Sox",
+      "away_pitcher": "Mitch Keller",
+      "home_pitcher": "Lucas Giolito",
+      "game_key": "Pittsburgh Pirates @ Boston Red Sox"
+    },
+    {
+      "away_team": "Tampa Bay Rays",
+      "home_team": "Washington Nationals",
+      "away_pitcher": "Ian Seymour",
+      "home_pitcher": "Brad Lord",
+      "game_key": "Tampa Bay Rays @ Washington Nationals"
+    },
+    {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "Brandon Woodruff",
+      "home_pitcher": "Max Scherzer",
+      "game_key": "Milwaukee Brewers @ Toronto Blue Jays"
+    },
+    {
+      "away_team": "Seattle Mariners",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": "Bryce Miller",
+      "home_pitcher": "Tanner Bibee",
+      "game_key": "Seattle Mariners @ Cleveland Guardians"
+    },
+    {
+      "away_team": "Miami Marlins",
+      "home_team": "New York Mets",
+      "away_pitcher": "Sandy Alcantara",
+      "home_pitcher": "Kodai Senga",
+      "game_key": "Miami Marlins @ New York Mets"
+    },
+    {
+      "away_team": "Los Angeles Angels",
+      "home_team": "Houston Astros",
+      "away_pitcher": "Jos\u00e9 Soriano",
+      "home_pitcher": "Hunter Brown",
+      "game_key": "Los Angeles Angels @ Houston Astros"
+    },
+    {
+      "away_team": "Detroit Tigers",
+      "home_team": "Kansas City Royals",
+      "away_pitcher": "Tarik Skubal",
+      "home_pitcher": "Michael Wacha",
+      "game_key": "Detroit Tigers @ Kansas City Royals"
+    },
+    {
+      "away_team": "New York Yankees",
+      "home_team": "Chicago White Sox",
+      "away_pitcher": "Luis Gil",
+      "home_pitcher": "Mart\u00edn P\u00e9rez",
+      "game_key": "New York Yankees @ Chicago White Sox"
+    },
+    {
+      "away_team": "Chicago Cubs",
+      "home_team": "Colorado Rockies",
+      "away_pitcher": "Matthew Boyd",
+      "home_pitcher": "Tanner Gordon",
+      "game_key": "Chicago Cubs @ Colorado Rockies"
+    },
+    {
+      "away_team": "Baltimore Orioles",
+      "home_team": "San Francisco Giants",
+      "away_pitcher": "Tomoyuki Sugano",
+      "home_pitcher": "Justin Verlander",
+      "game_key": "Baltimore Orioles @ San Francisco Giants"
+    },
+    {
+      "away_team": "Texas Rangers",
+      "home_team": "Athletics",
+      "away_pitcher": "Jacob deGrom",
+      "home_pitcher": "J.T. Ginn",
+      "game_key": "Texas Rangers @ Athletics"
+    },
+    {
+      "away_team": "Arizona Diamondbacks",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Brandon Pfaadt",
+      "home_pitcher": "Yoshinobu Yamamoto",
+      "game_key": "Arizona Diamondbacks @ Los Angeles Dodgers"
+    },
+    {
+      "away_team": "Atlanta Braves",
+      "home_team": "Philadelphia Phillies",
+      "away_pitcher": "Hurston Waldrep",
+      "home_pitcher": "Jes\u00fas Luzardo",
+      "game_key": "Atlanta Braves @ Philadelphia Phillies"
+    }
+  ]
+}
