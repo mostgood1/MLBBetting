@@ -2459,6 +2459,35 @@ def improved_historical_analysis():
     """Improved historical analysis dashboard with Kelly Criterion guidance"""
     return render_template('improved_historical_analysis.html')
 
+@app.route('/historical-performance')
+def historical_performance_page():
+    """Model performance and accuracy focused page"""
+    return render_template('historical_performance.html')
+
+@app.route('/betting-guidance')
+def betting_guidance_page():
+    """Betting guidance page with Kelly recommendations and performance"""
+    return render_template('betting_guidance.html')
+
+@app.route('/api/betting-guidance/performance')
+def api_betting_guidance_performance():
+    """Historical performance by bet type for betting guidance page"""
+    try:
+        from betting_guidance_system import BettingGuidanceSystem
+        guidance = BettingGuidanceSystem()
+        performance = guidance.get_historical_performance_by_bet_type()
+        return jsonify({
+            'success': True,
+            'performance_by_bet_type': performance
+        })
+    except Exception as e:
+        logger.error(f"Error building betting guidance performance: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'performance_by_bet_type': {}
+        }), 500
+
 @app.route('/api/historical-filtered/<filter_type>')
 def api_historical_filtered(filter_type):
     """API endpoint for filtered historical games using same logic as main page stats"""

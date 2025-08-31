@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Historical Performance - Model Accuracy</title>
+  <style>
+    body { font-family: Inter, Segoe UI, Arial, sans-serif; background:#0b1e39; color:#111; margin:0; }
+    .container { max-width:1200px; margin:0 auto; padding:24px; }
+    .card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:18px; }
+    h1 { color:#163a6b; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:16px; }
+    .stat { background:#f8fbff; border:1px solid #e2ecf7; border-radius:12px; padding:16px; text-align:center; }
+    .stat .num { font-size:28px; font-weight:700; color:#163a6b; }
+    .muted { color:#666; font-size:13px; }
+    .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .input { padding:8px 10px; border-radius:8px; border:1px solid #cfe1f8; }
+    .btn { background:#163a6b; color:#fff; padding:10px 16px; border:none; border-radius:10px; cursor:pointer; }
+    .btn.secondary { background:#2a74dc; }
+    .table { width:100%; border-collapse: collapse; }
+    .table th, .table td { border-bottom:1px solid #eee; padding:10px; text-align:left; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>📊 Historical Performance (Model Accuracy)</h1>
+      <div class="row" style="margin-top:10px;">
+        <label>Start date:</label>
+        <input id="start" class="input" type="date" />
+        <label>End date:</label>
+        <input id="end" class="input" type="date" />
+        <button class="btn" onclick="loadCumulative()">Load</button>
+        <a class="btn secondary" href="/betting-guidance" style="text-decoration:none;">Go to Betting Guidance</a>
+      </div>
+    </div>
+
+    <div id="summary" class="grid"></div>
+
+    <div class="card">
+      <h2>Daily Accuracy</h2>
+      <table class="table" id="daily"></table>
+      <div class="muted">Focus: winners accuracy and score errors over time.</div>
+    </div>
+  </div>
+
+  <script>
+    function fmtPct(n){ return (n*100).toFixed(1)+'%'; }
+    function setDefaultDates(){
+      const d=new Date(); const y=new Date(d.getTime()-14*86400000);
+      document.getElementById('start').value = y.toISOString().slice(0,10);
+      document.getElementById('end').value = d.toISOString().slice(0,10);
+    }
+    async function loadCumulative(){
+      const start=document.getElementById('start').value || '2025-08-15';
+      const url=`/api/historical-analysis?type=cumulative&start_date=${start}`;
+      const res=await fetch(url); const data=await res.json();
+      render(data);
+    }
+    function render(data){
+      const s=document.getElementById('summary');
+      s.innerHTML = '';
+      const cards=[
+        {label:'Winner Accuracy', val: fmtPct((data.model_predictability||{}).winner_accuracy||0)},
+        {label:'Avg Team Score Error', val: ((data.model_predictability||{}).avg_team_score_error||0).toFixed(2)},
+        {label:'Avg Total Score Error', val: ((data.model_predictability||{}).avg_total_score_error||0).toFixed(2)},
+        {label:'Coverage', val: fmtPct((data.model_predictability||{}).coverage_rate||0)},
+        {label:'Games Analyzed', val: (data.model_predictability||{}).matched_games||0}
+      ];
+      for(const c of cards){ const div=document.createElement('div'); div.className='stat'; div.innerHTML=`<div class='num'>${c.val}</div><div class='muted'>${c.label}</div>`; s.appendChild(div); }
+      const daily=document.getElementById('daily');
+      const dailyData=((data.detailed||{}).daily || []);
+      daily.innerHTML = '<tr><th>Date</th><th>Games</th><th>Winner Acc</th><th>Avg Team Err</th><th>Avg Total Err</th></tr>' +
+        dailyData.map(d=>`<tr><td>${d.date}</td><td>${d.model_predictability?.matched_games||0}</td><td>${fmtPct(d.model_predictability?.winner_accuracy||0)}</td><td>${(d.model_predictability?.avg_team_score_error||0).toFixed(2)}</td><td>${(d.model_predictability?.avg_total_score_error||0).toFixed(2)}</td></tr>`).join('');
+    }
+    setDefaultDates(); loadCumulative();
+  </script>
+</body>
+</html>
