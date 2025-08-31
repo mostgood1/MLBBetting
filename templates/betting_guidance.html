@@ -17,6 +17,9 @@
     .badge.MEDIUM { background:#2563eb; color:#fff; }
     .badge.LOW { background:#eab308; color:#111; }
     .muted { color:#666; font-size:13px; }
+  .btn { background:#163a6b; color:#fff; padding:10px 16px; border:none; border-radius:10px; cursor:pointer; text-decoration:none; display:inline-block; }
+  .btn.secondary { background:#2a74dc; }
+  .input { padding:8px 10px; border-radius:8px; border:1px solid #cfe1f8; }
     .table { width:100%; border-collapse: collapse; }
     .table th, .table td { border-bottom:1px solid #eee; padding:10px; text-align:left; }
   </style>
@@ -36,6 +39,16 @@
     <div class="card">
       <h2>Today’s Kelly Opportunities</h2>
       <div id="today"></div>
+    </div>
+
+    <div class="card">
+      <h2>Historical Day Performance</h2>
+      <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+        <label for="hist-day" class="muted">Select day:</label>
+        <select id="hist-day" class="input"></select>
+        <button class="btn" onclick="loadDayPerformance()">Load</button>
+      </div>
+      <div class="grid" id="day-grid"></div>
     </div>
   </div>
 
@@ -61,7 +74,30 @@
       if(!opps.length){ div.innerHTML='<div class="muted">No opportunities available.</div>'; return; }
       div.innerHTML='<table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>Kelly %</th><th>Suggested</th><th>EV</th></tr></thead><tbody>'+opps.map(g=>g.bets.map(b=>`<tr><td>${g.game}</td><td>${b.bet_type} ${b.pick}</td><td>${b.odds}</td><td><span class="badge ${b.confidence}">${b.confidence}</span></td><td>${b.kelly_fraction}%</td><td>$${b.suggested_bet}</td><td>${b.expected_value}</td></tr>`).join('')).join('')+'</tbody></table>';
     }
-    loadPerformance(); loadToday();
+    async function loadAvailableDates(){
+      try{
+        const res=await fetch('/api/historical-analysis/dates');
+        const data=await res.json();
+        const sel=document.getElementById('hist-day'); sel.innerHTML='';
+        (data.available_dates||[]).forEach(dt=>{ const o=document.createElement('option'); o.value=dt; o.textContent=dt; sel.appendChild(o); });
+      }catch(e){ console.warn('Failed to load available dates', e); }
+    }
+    async function loadDayPerformance(){
+      const day=document.getElementById('hist-day').value; if(!day) return;
+      const res=await fetch(`/api/historical-analysis?date=${day}`);
+      const data=await res.json();
+      const grid=document.getElementById('day-grid'); grid.innerHTML='';
+      const bet = data.betting_recommendations || {};
+      const roi = data.roi_analysis || {};
+      const tiles=[
+        {label:'Rec Accuracy', val: (Number((bet.overall_accuracy||0)*100)).toFixed(1)+'%'},
+        {label:'Total Recs', val: (bet.total_recommendations||0)},
+        {label:'ROI %', val: (Number(roi.roi_percentage||0)).toFixed(1)+'%'},
+        {label:'Net Profit', val: '$'+(Number(roi.net_profit||0)).toFixed(2)}
+      ];
+      tiles.forEach(t=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${t.val}</div><div class='muted'>${t.label}</div>`; grid.appendChild(d); });
+    }
+    loadPerformance(); loadToday(); loadAvailableDates();
   </script>
 </body>
 </html>
