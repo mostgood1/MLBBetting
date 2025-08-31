@@ -36,6 +36,11 @@
         <button class="btn" onclick="loadCumulative()">Load</button>
         <a class="btn secondary" href="/betting-guidance" style="text-decoration:none;">Go to Betting Guidance</a>
       </div>
+      <div class="row" style="margin-top:10px;">
+        <label>Historic day:</label>
+        <select id="day" class="input"></select>
+        <button class="btn secondary" onclick="loadSingleDay()">Load Day</button>
+      </div>
     </div>
 
     <div id="summary" class="grid"></div>
@@ -45,20 +50,44 @@
       <table class="table" id="daily"></table>
       <div class="muted">Focus: winners accuracy and score errors over time.</div>
     </div>
+
+    <div class="card" id="single-day-card" style="display:none;">
+      <h2 id="single-day-title">Single Day</h2>
+      <div class="grid" id="single-day-grid"></div>
+    </div>
   </div>
 
   <script>
     function fmtPct(n){ return (n*100).toFixed(1)+'%'; }
-    function setDefaultDates(){
+    async function setDefaultDates(){
       const d=new Date(); const y=new Date(d.getTime()-14*86400000);
       document.getElementById('start').value = y.toISOString().slice(0,10);
       document.getElementById('end').value = d.toISOString().slice(0,10);
+      await loadAvailableDates();
+    }
+    async function loadAvailableDates(){
+      try{
+        const res = await fetch('/api/historical-analysis/dates');
+        const data = await res.json();
+        const sel = document.getElementById('day');
+        sel.innerHTML = '';
+        (data.available_dates||[]).forEach(dt=>{
+          const opt=document.createElement('option'); opt.value=dt; opt.textContent=dt; sel.appendChild(opt);
+        });
+      }catch(e){ console.warn('Failed to load available dates', e); }
     }
     async function loadCumulative(){
       const start=document.getElementById('start').value || '2025-08-15';
       const url=`/api/historical-analysis?type=cumulative&start_date=${start}`;
       const res=await fetch(url); const data=await res.json();
       render(data);
+    }
+    async function loadSingleDay(){
+      const day=(document.getElementById('day').value)||'';
+      if(!day){ return; }
+      const res = await fetch(`/api/historical-analysis?date=${day}`);
+      const data = await res.json();
+      renderSingleDay(day, data);
     }
     function render(data){
       const s=document.getElementById('summary');
@@ -76,7 +105,30 @@
       daily.innerHTML = '<tr><th>Date</th><th>Games</th><th>Winner Acc</th><th>Avg Team Err</th><th>Avg Total Err</th></tr>' +
         dailyData.map(d=>`<tr><td>${d.date}</td><td>${d.model_predictability?.matched_games||0}</td><td>${fmtPct(d.model_predictability?.winner_accuracy||0)}</td><td>${(d.model_predictability?.avg_team_score_error||0).toFixed(2)}</td><td>${(d.model_predictability?.avg_total_score_error||0).toFixed(2)}</td></tr>`).join('');
     }
-    setDefaultDates(); loadCumulative();
+    function renderSingleDay(day, data){
+      const card=document.getElementById('single-day-card');
+      const grid=document.getElementById('single-day-grid');
+      const title=document.getElementById('single-day-title');
+      title.textContent = `Single Day • ${day}`;
+      card.style.display='block';
+
+      const mp = data.model_predictability || data.predictability || {};
+      const summary = data.summary || {};
+      const winnerAcc = mp.winner_accuracy ?? (summary.model_winner_accuracy ?? 0);
+      const teamErr = mp.avg_team_score_error ?? 0;
+      const totalErr = mp.avg_total_score_error ?? 0;
+      const matched = mp.matched_games ?? 0;
+
+      grid.innerHTML='';
+      const items=[
+        {label:'Winner Accuracy', val: fmtPct(winnerAcc)},
+        {label:'Avg Team Score Error', val: (Number(teamErr)||0).toFixed(2)},
+        {label:'Avg Total Score Error', val: (Number(totalErr)||0).toFixed(2)},
+        {label:'Matched Games', val: matched}
+      ];
+      for(const c of items){ const div=document.createElement('div'); div.className='stat'; div.innerHTML=`<div class='num'>${c.val}</div><div class='muted'>${c.label}</div>`; grid.appendChild(div); }
+    }
+    setDefaultDates().then(loadCumulative);
   </script>
 </body>
 </html>
