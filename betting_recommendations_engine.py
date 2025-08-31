@@ -4,10 +4,21 @@ print(f"[DEBUG] Executing: {os.path.abspath(__file__)}")
 """
 MLB Betting Recommendation            # Copy betting lines
             rec_game['betting_lines'] = game_data.get('betting_lines', {})
-            # Copy recommendations
+            # Copy recommendations (preserve any structured total side/line if available)
             recs = game_data.get('recommendations', [])
-            if not recs:
-                recs = [{'type': 'none', 'recommendation': 'No recommendations'}]
+            # If totals recommendation exists but lacks a concrete line, prefer real betting_lines total_line
+            try:
+                if isinstance(recs, list) and recs:
+                    for r in recs:
+                        if isinstance(r, dict) and str(r.get('type', '')).lower() in ('total', 'totals', 'over_under', 'over/under'):
+                            if r.get('line') is None and rec_game.get('betting_lines', {}).get('total_line') is not None:
+                                r['line'] = rec_game['betting_lines']['total_line']
+                            # If side missing but text exists like "Under 8.5", keep as is
+                if not recs:
+                    recs = [{'type': 'none', 'recommendation': 'No recommendations'}]
+            except Exception:
+                if not recs:
+                    recs = [{'type': 'none', 'recommendation': 'No recommendations'}]
             rec_game['recommendations'] = recs
             # Copy pitcher info
             rec_game['pitcher_info'] = game_data.get('pitcher_info', {})

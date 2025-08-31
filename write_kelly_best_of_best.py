@@ -20,6 +20,7 @@ from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer
 BASE_PATH = Path(__file__).parent
 DATA_DIR = BASE_PATH / 'data'
 KELLY_FILE = DATA_DIR / 'kelly_betting_recommendations.json'
+DAILY_KELLY_DIR = DATA_DIR / 'kelly_daily'
 
 KELLY_START_DATE = '2025-08-27'
 
@@ -177,6 +178,117 @@ def _parse_total_recommendation(rec: Dict[str, Any]) -> Tuple[Optional[str], Opt
     return side, line_val
 
 
+def _normalize_team_for_lines(name: str) -> str:
+    """Map shorthand or ambiguous team names to the full names used in real_betting_lines keys."""
+    if not name:
+        return name
+    mapping = {
+        # Common aliases to sportsbook-style names
+        "Athletics": "Oakland Athletics",
+        "A's": "Oakland Athletics",
+        "Guardians": "Cleveland Guardians",
+        "Indians": "Cleveland Guardians",
+        "White Sox": "Chicago White Sox",
+        "Red Sox": "Boston Red Sox",
+        "D-backs": "Arizona Diamondbacks",
+        "Dbacks": "Arizona Diamondbacks",
+        "Yanks": "New York Yankees",
+        "Yankees": "New York Yankees",
+        "Mets": "New York Mets",
+        "Pads": "San Diego Padres",
+        "Cards": "St. Louis Cardinals",
+        "Bravos": "Atlanta Braves",
+        "Dodgers": "Los Angeles Dodgers",
+        "Angels": "Los Angeles Angels",
+        "Rays": "Tampa Bay Rays",
+        "Nats": "Washington Nationals",
+        "D-Backs": "Arizona Diamondbacks",
+    }
+    return mapping.get(name, name)
+
+
+def _find_real_totals_for_game(lines_data: Dict[str, Any], away_team: str, home_team: str) -> Tuple[Optional[float], Optional[int], Optional[int]]:
+    """Given the real_betting_lines JSON and teams, return (line, over_odds, under_odds) if found.
+    Tries multiple key formats and basic normalization.
+    """
+    if not isinstance(lines_data, dict):
+        return None, None, None
+    book_lines = lines_data.get('lines') if 'lines' in lines_data else lines_data
+    if not isinstance(book_lines, dict):
+        return None, None, None
+
+    a = _normalize_team_for_lines(away_team)
+    h = _normalize_team_for_lines(home_team)
+
+    candidate_keys = [
+        f"{a} @ {h}",
+        f"{away_team} @ {home_team}",
+        f"{a} at {h}",
+        f"{away_team} at {home_team}",
+        f"{away_team} @ {h}",
+        f"{a} @ {home_team}",
+    ]
+
+    game_obj = None
+    for k in candidate_keys:
+        if k in book_lines:
+            game_obj = book_lines.get(k)
+            break
+
+    # Heuristic fallback: scan for a key containing both team tokens
+    if game_obj is None:
+        for k, v in book_lines.items():
+            if isinstance(k, str) and (a in k or away_team in k) and (h in k or home_team in k):
+                game_obj = v
+                break
+
+    if not isinstance(game_obj, dict):
+        return None, None, None
+
+    # Prefer explicit total_runs structure
+    if 'total_runs' in game_obj and isinstance(game_obj['total_runs'], dict):
+        tr = game_obj['total_runs']
+        line = tr.get('line')
+        over = tr.get('over')
+        under = tr.get('under')
+        try:
+            return (float(line) if line is not None else None,
+                    int(over) if over is not None else None,
+                    int(under) if under is not None else None)
+        except Exception:
+            return (line if isinstance(line, (int, float)) else None,
+                    over if isinstance(over, int) else None,
+                    under if isinstance(under, int) else None)
+
+    # Markets fallback: find a totals market and capture a line with both over/under odds
+    for m in game_obj.get('markets', []) if isinstance(game_obj.get('markets'), list) else []:
+        if m.get('key') == 'totals':
+            over_out = None
+            under_out = None
+            for out in m.get('outcomes', []) or []:
+                nm = str(out.get('name', '')).lower()
+                if 'over' in nm:
+                    over_out = out
+                elif 'under' in nm:
+                    under_out = out
+            if over_out and under_out:
+                try:
+                    line = float(over_out.get('point')) if over_out.get('point') is not None else None
+                except Exception:
+                    line = None
+                try:
+                    over = int(over_out.get('price')) if over_out.get('price') is not None else None
+                except Exception:
+                    over = None
+                try:
+                    under = int(under_out.get('price')) if under_out.get('price') is not None else None
+                except Exception:
+                    under = None
+                return line, over, under
+
+    return None, None, None
+
+
 def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
     # Load input data
     date_underscore = date_str.replace('-', '_')
@@ -234,7 +346,20 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
                 side, line = _parse_total_recommendation(rec)
                 if not side or line is None:
                     continue
-                bet_details = f"{side} {line}"
+                # Cross-check with REAL market totals and odds; override rec line if real exists
+                real_line = None
+                real_over = None
+                real_under = None
+                try:
+                    # Use teams from current game_data for best matching
+                    away_name = game_data.get('away_team') or ''
+                    home_name = game_data.get('home_team') or ''
+                    real_line, real_over, real_under = _find_real_totals_for_game(lines, away_name, home_name)
+                except Exception:
+                    pass
+
+                use_line = real_line if real_line is not None else line
+                bet_details = f"{side} {use_line}"
 
                 # Pull probability
                 win_prob = rec.get('win_probability')
@@ -249,6 +374,11 @@ def build_kelly_entries_for_date(date_str: str) -> List[Dict[str, Any]]:
                 # Prefer explicit kelly_fraction (0..1) or kelly_bet_size (percent 0..100)
                 kf = rec.get('kelly_fraction')
                 odds = rec.get('odds') or rec.get('american_odds')
+                # Prefer real market odds for the chosen side if available
+                if str(side).lower() == 'under' and real_under is not None:
+                    odds = real_under
+                elif str(side).lower() == 'over' and real_over is not None:
+                    odds = real_over
                 odds_int = _parse_american_odds(odds)
                 if kf is None:
                     # Check for kelly_bet_size in percent
@@ -365,7 +495,19 @@ def write_for_date(date_str: str) -> Dict[str, Any]:
         appended += 1
 
     _save_json(KELLY_FILE, existing)
-    return {'success': True, 'written': appended, 'total': len(existing)}
+
+    # Also persist a daily file for historical analysis convenience
+    try:
+        # Organize by year for cleanliness: data/kelly_daily/YYYY/kelly_bets_YYYY_MM_DD.json
+        dt = datetime.strptime(date_str, '%Y-%m-%d')
+        year_dir = DAILY_KELLY_DIR / f"{dt.year}"
+        year_dir.mkdir(parents=True, exist_ok=True)
+        daily_path = year_dir / f"kelly_bets_{dt.strftime('%Y_%m_%d')}.json"
+        _save_json(daily_path, new_entries)
+        daily_written = len(new_entries)
+    except Exception as e:
+        daily_written = 0
+    return {'success': True, 'written': appended, 'total': len(existing), 'daily_written': daily_written}
 
 
 def main():

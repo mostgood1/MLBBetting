@@ -1255,10 +1255,11 @@ def calculate_enhanced_betting_grade(away_win_prob, home_win_prob, predicted_tot
     
     # Only proceed if we have real betting lines
     if standard_total is None:
-        logger.warning("❌ CRITICAL: No real total line available - skipping enhanced grade calculation")
-        # Use predicted total as baseline comparison if no real line available
-        standard_total = 8.5  # Industry average, but this should rarely be used
-    total_edge = abs(predicted_total - standard_total)
+        logger.warning("❌ CRITICAL: No real total line available - skipping total-edge contribution")
+        # Do NOT substitute a default market line; simply contribute no total-edge points
+        total_edge = 0.0
+    else:
+        total_edge = abs(predicted_total - standard_total)
     
     # Pitcher quality differential (bigger differential = more predictable)
     pitcher_differential = abs(away_pitcher_factor - home_pitcher_factor)
@@ -1848,10 +1849,20 @@ def convert_betting_recommendations_to_frontend_format(game_recommendations, rea
         tr_rec = betting_recs['total_runs']
         
         # Get market line
-        market_line = tr_rec.get('line', 8.5)
+        market_line = tr_rec.get('line')
+        if market_line is None:
+            # Without a real market line, skip total bet generation in old format
+            return {
+                'value_bets': [],
+                'total_bets': 0,
+                'summary': 'No totals market line available',
+                'total_opportunities': 0
+            }
         
         # Use current predicted total if available, otherwise fall back to cached value
-        cached_predicted_total = tr_rec.get('predicted_total', 8.5)
+        cached_predicted_total = tr_rec.get('predicted_total')
+        if cached_predicted_total is None:
+            cached_predicted_total = current_predicted_total
         current_predicted_total_value = current_predicted_total if current_predicted_total is not None else cached_predicted_total
         
         # Recalculate recommendation based on current prediction
@@ -1904,7 +1915,9 @@ def convert_betting_recommendations_to_frontend_format(game_recommendations, rea
         display_line = tr_rec.get('line', market_line)
         
         # Use current predicted total if available, otherwise fall back to cached value
-        display_predicted_total = current_predicted_total if current_predicted_total is not None else tr_rec.get('predicted_total', 8.5)
+        display_predicted_total = current_predicted_total if current_predicted_total is not None else tr_rec.get('predicted_total')
+        if display_predicted_total is None:
+            display_predicted_total = current_predicted_total_value
         
         value_bets.append({
             'type': 'Total Runs',
@@ -3877,8 +3890,7 @@ def api_today_games():
             predicted_total_raw = (
                 game_data.get('predicted_total_runs', 0) or  # Primary source
                 predictions.get('predicted_total_runs', 0) or  # Secondary fallback
-                predicted_total or  # Calculated fallback
-                8.5  # Default fallback
+                predicted_total  # Calculated fallback
             )
             
             # If individual scores are missing but we have total runs, calculate them
@@ -4912,10 +4924,62 @@ def historical_kelly_performance_direct():
 
         # If Kelly file missing or failed, try a lightweight local file reader first, then Enhanced analytics
         if not result.get('success'):
-            # Attempt direct read of data/kelly_betting_recommendations.json to build daily summary
+            # Attempt direct read of per-day Kelly files first, then consolidated JSON, to build daily summary
             try:
                 from pathlib import Path as _P
-                kelly_fp = _P(__file__).parent / 'data' / 'kelly_betting_recommendations.json'
+                import glob as _glob
+                _base = _P(__file__).parent
+                _daily_dir = _base / 'data' / 'kelly_daily'
+                if _daily_dir.exists():
+                    _pattern = str(_daily_dir / '*' / 'kelly_bets_*.json')
+                    _files = _glob.glob(_pattern)
+                    _per_date = {}
+                    for _fp in _files:
+                        try:
+                            with open(_fp, 'r', encoding='utf-8') as _f:
+                                _items = json.load(_f) or []
+                            _bn = _P(_fp).name  # kelly_bets_YYYY_MM_DD.json
+                            _parts = _bn.replace('.json', '').split('_')
+                            _d = f"{_parts[2]}-{_parts[3]}-{_parts[4]}" if len(_parts) >= 5 else None
+                            if _d:
+                                _agg = _per_date.setdefault(_d, {'date': _d, 'total_bets': 0, 'wins': 0, 'losses': 0, 'pushes': 0, 'net_profit': 0.0})
+                                for _e in _items:
+                                    _agg['total_bets'] += 1
+                                    _out = str((_e or {}).get('outcome', '')).lower()
+                                    _pl = float((_e or {}).get('profit_loss', 0) or 0)
+                                    if _out == 'win':
+                                        _agg['wins'] += 1
+                                        _agg['net_profit'] += _pl
+                                    elif _out == 'loss':
+                                        _agg['losses'] += 1
+                                        _agg['net_profit'] += _pl
+                                    elif _out == 'push':
+                                        _agg['pushes'] += 1
+                        except Exception:
+                            continue
+                    if _per_date:
+                        _rows = sorted(list(_per_date.values()), key=lambda x: x['date'], reverse=True)
+                        # compute ROI where possible by inferring invested as $100 per bet
+                        for _r in _rows:
+                            _invested = _r.get('total_bets', 0) * 100
+                            _r['net_profit'] = round(_r.get('net_profit', 0.0), 2)
+                            _r['roi'] = round((_r['net_profit'] / _invested * 100.0), 2) if _invested > 0 else 0
+                        return jsonify({'success': True, 'data': {'daily_performance': {r['date']: {
+                            'total_bets': r['total_bets'],
+                            'wins': r['wins'],
+                            'losses': r['losses'],
+                            'roi': r['roi'],
+                            'net_profit': r['net_profit'],
+                            'invested': r['total_bets'] * 100
+                        } for r in _rows}, 'summary': {
+                            'total_bets': sum(r['total_bets'] for r in _rows),
+                            'win_rate': round((sum(r['wins'] for r in _rows) / max(1, sum(r['total_bets'] for r in _rows))) * 100.0, 2) if _rows else 0,
+                            'overall_roi': round((sum(r['net_profit'] for r in _rows) / max(1, sum(r['total_bets'] for r in _rows) * 100)) * 100.0, 2) if _rows else 0,
+                            'net_profit': round(sum(r['net_profit'] for r in _rows), 2)
+                        }} , 'fallback': 'kelly-daily'})
+
+                # Fallback to consolidated file
+                kelly_fp = _base / 'data' / 'kelly_betting_recommendations.json'
                 if kelly_fp.exists():
                     with open(kelly_fp, 'r', encoding='utf-8') as _kf:
                         _kelly = json.load(_kf) or []

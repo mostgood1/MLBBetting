@@ -1,0 +1,1188 @@
+{
+  "team_ratings": {
+    "Pittsburgh_Pirates": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Chicago Cubs": {
+      "elo_rating": 1516.0592256040832,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 8,
+      "losses": 6
+    },
+    "Miami Marlins": {
+      "elo_rating": 1465.9393905903105,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 5,
+      "losses": 9
+    },
+    "Seattle Mariners": {
+      "elo_rating": 1469.0892203759106,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 10,
+      "wins": 3,
+      "losses": 7
+    },
+    "Tampa Bay Rays": {
+      "elo_rating": 1496.835810219973,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 12,
+      "wins": 6,
+      "losses": 6
+    },
+    "Milwaukee Brewers": {
+      "elo_rating": 1513.8145322563566,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 16,
+      "wins": 9,
+      "losses": 7
+    },
+    "Boston Red Sox": {
+      "elo_rating": 1540.9751773239564,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 9,
+      "losses": 5
+    },
+    "Pittsburgh Pirates": {
+      "elo_rating": 1537.7796767161851,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 9,
+      "losses": 5
+    },
+    "Detroit Tigers": {
+      "elo_rating": 1550.405249078499,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 10,
+      "wins": 8,
+      "losses": 2
+    },
+    "Texas Rangers": {
+      "elo_rating": 1510.7019266132465,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 13,
+      "wins": 7,
+      "losses": 6
+    },
+    "Seattle_Mariners": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Philadelphia_Phillies": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Chicago White Sox": {
+      "elo_rating": 1452.5918242841954,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 4,
+      "losses": 10
+    },
+    "Los Angeles Dodgers": {
+      "elo_rating": 1532.5512250937593,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 9,
+      "losses": 5
+    },
+    "Minnesota Twins": {
+      "elo_rating": 1485.8550017353975,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 10,
+      "wins": 4,
+      "losses": 6
+    },
+    "New_York_Yankees": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Athletics": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Atlanta_Braves": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "St. Louis Cardinals": {
+      "elo_rating": 1487.7833156126771,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 6,
+      "losses": 8
+    },
+    "St._Louis_Cardinals": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Kansas City Royals": {
+      "elo_rating": 1528.991260644114,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 9,
+      "losses": 5
+    },
+    "Cleveland Guardians": {
+      "elo_rating": 1459.887089133827,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 13,
+      "wins": 4,
+      "losses": 9
+    },
+    "Chicago_White_Sox": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Toronto Blue Jays": {
+      "elo_rating": 1488.7628709570074,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 7,
+      "losses": 7
+    },
+    "San_Diego_Padres": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Chicago_Cubs": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Tampa_Bay_Rays": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Cincinnati_Reds": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Baltimore Orioles": {
+      "elo_rating": 1457.5119297270996,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 5,
+      "losses": 9
+    },
+    "Philadelphia Phillies": {
+      "elo_rating": 1530.6728299990568,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 9,
+      "losses": 5
+    },
+    "Washington Nationals": {
+      "elo_rating": 1458.6539353118465,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 13,
+      "wins": 4,
+      "losses": 9
+    },
+    "Los_Angeles_Dodgers": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Colorado Rockies": {
+      "elo_rating": 1474.9743044317,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 6,
+      "losses": 8
+    },
+    "Toronto_Blue_Jays": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Los_Angeles_Angels": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "San_Francisco_Giants": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "New York Mets": {
+      "elo_rating": 1533.5152528587348,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 9,
+      "losses": 5
+    },
+    "Baltimore_Orioles": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Houston_Astros": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Milwaukee_Brewers": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "New_York_Mets": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Kansas_City_Royals": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Colorado_Rockies": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Minnesota_Twins": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Houston Astros": {
+      "elo_rating": 1507.1141523423735,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 7,
+      "losses": 7
+    },
+    "Washington_Nationals": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Cleveland_Guardians": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Miami_Marlins": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Atlanta Braves": {
+      "elo_rating": 1512.202133093309,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 8,
+      "losses": 6
+    },
+    "Texas_Rangers": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "New York Yankees": {
+      "elo_rating": 1564.0205240274856,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 11,
+      "losses": 3
+    },
+    "Boston_Red_Sox": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Arizona Diamondbacks": {
+      "elo_rating": 1508.7076926620107,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 7,
+      "losses": 7
+    },
+    "Cincinnati Reds": {
+      "elo_rating": 1461.675848956601,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 13,
+      "wins": 4,
+      "losses": 9
+    },
+    "Detroit_Tigers": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "Los Angeles Angels": {
+      "elo_rating": 1445.8745199781833,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 10,
+      "wins": 2,
+      "losses": 8
+    },
+    "Arizona_Diamondbacks": {
+      "elo_rating": 1500,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    "San Diego Padres": {
+      "elo_rating": 1482.3726782144695,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 6,
+      "losses": 8
+    },
+    "San Francisco Giants": {
+      "elo_rating": 1524.6814021576313,
+      "recent_form": 0,
+      "home_advantage": 50,
+      "games_played": 14,
+      "wins": 8,
+      "losses": 6
+    }
+  },
+  "pitcher_stats": {
+    "Colorado Rockies_pitcher": {
+      "avg_factor": 1.2249999999999999,
+      "factor_consistency": 3.391489281841295,
+      "recent_form": 1.2249999999999999,
+      "games_started": 3,
+      "team": "Colorado Rockies"
+    },
+    "Pittsburgh Pirates_pitcher": {
+      "avg_factor": 1.1432,
+      "factor_consistency": 4.463990018352694,
+      "recent_form": 1.1432,
+      "games_started": 3,
+      "team": "Pittsburgh Pirates"
+    },
+    "Washington Nationals_pitcher": {
+      "avg_factor": 1.2816666666666665,
+      "factor_consistency": 2.907564268829432,
+      "recent_form": 1.2816666666666665,
+      "games_started": 3,
+      "team": "Washington Nationals"
+    },
+    "Philadelphia Phillies_pitcher": {
+      "avg_factor": 1.0036,
+      "factor_consistency": 9.413059685331778,
+      "recent_form": 1.0036,
+      "games_started": 3,
+      "team": "Philadelphia Phillies"
+    },
+    "Houston Astros_pitcher": {
+      "avg_factor": 1.0,
+      "factor_consistency": 10.0,
+      "recent_form": 1.0,
+      "games_started": 3,
+      "team": "Houston Astros"
+    },
+    "Baltimore Orioles_pitcher": {
+      "avg_factor": 1.1460666666666666,
+      "factor_consistency": 5.482820356731835,
+      "recent_form": 1.1460666666666666,
+      "games_started": 3,
+      "team": "Baltimore Orioles"
+    },
+    "Boston Red Sox_pitcher": {
+      "avg_factor": 0.9145,
+      "factor_consistency": 5.3839709447355215,
+      "recent_form": 0.9145,
+      "games_started": 3,
+      "team": "Boston Red Sox"
+    },
+    "New York Yankees_pitcher": {
+      "avg_factor": 1.1985,
+      "factor_consistency": 3.591938112410976,
+      "recent_form": 1.1985,
+      "games_started": 3,
+      "team": "New York Yankees"
+    },
+    "Kansas City Royals_pitcher": {
+      "avg_factor": 1.00775,
+      "factor_consistency": 9.094274622055414,
+      "recent_form": 1.00775,
+      "games_started": 3,
+      "team": "Kansas City Royals"
+    },
+    "Detroit Tigers_pitcher": {
+      "avg_factor": 1.2118333333333333,
+      "factor_consistency": 5.046693375718965,
+      "recent_form": 1.2118333333333333,
+      "games_started": 3,
+      "team": "Detroit Tigers"
+    },
+    "Toronto Blue Jays_pitcher": {
+      "avg_factor": 1.0656666666666668,
+      "factor_consistency": 6.374745745438069,
+      "recent_form": 1.0656666666666668,
+      "games_started": 3,
+      "team": "Toronto Blue Jays"
+    },
+    "Miami Marlins_pitcher": {
+      "avg_factor": 1.0413333333333334,
+      "factor_consistency": 7.364002520673252,
+      "recent_form": 1.0413333333333334,
+      "games_started": 3,
+      "team": "Miami Marlins"
+    },
+    "New York Mets_pitcher": {
+      "avg_factor": 1.0876666666666666,
+      "factor_consistency": 5.68435158109757,
+      "recent_form": 1.0876666666666666,
+      "games_started": 3,
+      "team": "New York Mets"
+    },
+    "Atlanta Braves_pitcher": {
+      "avg_factor": 1.2813999999999999,
+      "factor_consistency": 7.417615076959248,
+      "recent_form": 1.2813999999999999,
+      "games_started": 3,
+      "team": "Atlanta Braves"
+    },
+    "Minnesota Twins_pitcher": {
+      "avg_factor": 1.05025,
+      "factor_consistency": 5.346577073346462,
+      "recent_form": 1.05025,
+      "games_started": 3,
+      "team": "Minnesota Twins"
+    },
+    "Chicago White Sox_pitcher": {
+      "avg_factor": 1.1680666666666666,
+      "factor_consistency": 6.122374341722416,
+      "recent_form": 1.1680666666666666,
+      "games_started": 3,
+      "team": "Chicago White Sox"
+    },
+    "Cleveland Guardians_pitcher": {
+      "avg_factor": 1.1139333333333332,
+      "factor_consistency": 7.667161808692823,
+      "recent_form": 1.1139333333333332,
+      "games_started": 3,
+      "team": "Cleveland Guardians"
+    },
+    "Texas Rangers_pitcher": {
+      "avg_factor": 1.0043333333333333,
+      "factor_consistency": 3.122471503606055,
+      "recent_form": 1.0043333333333333,
+      "games_started": 3,
+      "team": "Texas Rangers"
+    },
+    "San Francisco Giants_pitcher": {
+      "avg_factor": 1.009,
+      "factor_consistency": 9.276934513765136,
+      "recent_form": 1.009,
+      "games_started": 3,
+      "team": "San Francisco Giants"
+    },
+    "Milwaukee Brewers_pitcher": {
+      "avg_factor": 1.0073999999999999,
+      "factor_consistency": 7.948648106563846,
+      "recent_form": 1.0073999999999999,
+      "games_started": 3,
+      "team": "Milwaukee Brewers"
+    },
+    "Chicago Cubs_pitcher": {
+      "avg_factor": 1.0071999999999999,
+      "factor_consistency": 9.413059685331778,
+      "recent_form": 1.0071999999999999,
+      "games_started": 3,
+      "team": "Chicago Cubs"
+    },
+    "Los Angeles Angels_pitcher": {
+      "avg_factor": 1.0,
+      "factor_consistency": 10.0,
+      "recent_form": 1.0,
+      "games_started": 3,
+      "team": "Los Angeles Angels"
+    },
+    "Cincinnati Reds_pitcher": {
+      "avg_factor": 0.9358333333333334,
+      "factor_consistency": 4.4906092607595145,
+      "recent_form": 0.9358333333333334,
+      "games_started": 3,
+      "team": "Cincinnati Reds"
+    },
+    "Arizona Diamondbacks_pitcher": {
+      "avg_factor": 0.9974999999999999,
+      "factor_consistency": 9.584959096413552,
+      "recent_form": 0.9974999999999999,
+      "games_started": 3,
+      "team": "Arizona Diamondbacks"
+    },
+    "Los Angeles Dodgers_pitcher": {
+      "avg_factor": 0.996,
+      "factor_consistency": 9.66518806416322,
+      "recent_form": 0.996,
+      "games_started": 3,
+      "team": "Los Angeles Dodgers"
+    },
+    "San Diego Padres_pitcher": {
+      "avg_factor": 1.0589166666666667,
+      "factor_consistency": 4.9493517963013245,
+      "recent_form": 1.0589166666666667,
+      "games_started": 3,
+      "team": "San Diego Padres"
+    },
+    "Athletics_pitcher": {
+      "avg_factor": 1.0656666666666668,
+      "factor_consistency": 6.374745745438069,
+      "recent_form": 1.0656666666666668,
+      "games_started": 3,
+      "team": "Athletics"
+    },
+    "Seattle Mariners_pitcher": {
+      "avg_factor": 1.0413333333333334,
+      "factor_consistency": 7.364002520673252,
+      "recent_form": 1.0413333333333334,
+      "games_started": 3,
+      "team": "Seattle Mariners"
+    }
+  },
+  "ballpark_factors": {
+    "Angels": 1.02,
+    "Astros": 0.98,
+    "Athletics": 0.95,
+    "Blue_Jays": 1.01,
+    "Braves": 1.03,
+    "Brewers": 0.99,
+    "Cardinals": 1.0,
+    "Cubs": 1.05,
+    "Diamondbacks": 1.04,
+    "Dodgers": 0.97,
+    "Giants": 0.94,
+    "Guardians": 0.98,
+    "Mariners": 0.96,
+    "Marlins": 0.97,
+    "Mets": 1.01,
+    "Nationals": 1.02,
+    "Orioles": 1.03,
+    "Padres": 0.96,
+    "Phillies": 1.04,
+    "Pirates": 0.99,
+    "Rangers": 1.06,
+    "Rays": 0.97,
+    "Red_Sox": 1.05,
+    "Reds": 1.02,
+    "Rockies": 1.15,
+    "Royals": 1.01,
+    "Tigers": 1.0,
+    "Twins": 1.02,
+    "White_Sox": 1.01,
+    "Yankees": 1.04
+  },
+  "momentum_features": {
+    "Pittsburgh_Pirates": {
+      "last_5_record": 0.4403074887923053,
+      "last_10_record": 0,
+      "recent_scoring": 0.4747145839895931,
+      "recent_pitching": 0.34287633697092407,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Chicago Cubs": {
+      "last_5_record": 0.5536724957194168,
+      "last_10_record": 0,
+      "recent_scoring": 0.46671683278205645,
+      "recent_pitching": 0.4570478030475781,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Miami Marlins": {
+      "last_5_record": 0.5184566856293137,
+      "last_10_record": 0,
+      "recent_scoring": 0.46102596179414285,
+      "recent_pitching": 0.571759631601019,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Seattle Mariners": {
+      "last_5_record": 0.4129942079961509,
+      "last_10_record": 0,
+      "recent_scoring": 0.3536664531013288,
+      "recent_pitching": 0.4304762070311615,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Tampa Bay Rays": {
+      "last_5_record": 0.4626622765860062,
+      "last_10_record": 0,
+      "recent_scoring": 0.4916617155183312,
+      "recent_pitching": 0.39588637002026744,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Milwaukee Brewers": {
+      "last_5_record": 0.539877999826617,
+      "last_10_record": 0,
+      "recent_scoring": 0.6303821348550281,
+      "recent_pitching": 0.4691467470247472,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Boston Red Sox": {
+      "last_5_record": 0.5990570464098026,
+      "last_10_record": 0,
+      "recent_scoring": 0.5492331958131389,
+      "recent_pitching": 0.5525767569796738,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Pittsburgh Pirates": {
+      "last_5_record": 0.5783387687747001,
+      "last_10_record": 0,
+      "recent_scoring": 0.6136989721363968,
+      "recent_pitching": 0.6477173991122552,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Detroit Tigers": {
+      "last_5_record": 0.754853145027438,
+      "last_10_record": 0,
+      "recent_scoring": 0.7763411185391196,
+      "recent_pitching": 0.7639981357353401,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Texas Rangers": {
+      "last_5_record": 0.5333479341223452,
+      "last_10_record": 0,
+      "recent_scoring": 0.49511555331912016,
+      "recent_pitching": 0.5334767560457649,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Seattle_Mariners": {
+      "last_5_record": 0.4153558842181825,
+      "last_10_record": 0,
+      "recent_scoring": 0.4652510215459988,
+      "recent_pitching": 0.40395492259972593,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Philadelphia_Phillies": {
+      "last_5_record": 0.558669508413473,
+      "last_10_record": 0,
+      "recent_scoring": 0.6366943679311822,
+      "recent_pitching": 0.5083791809251096,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Chicago White Sox": {
+      "last_5_record": 0.47042505570229665,
+      "last_10_record": 0,
+      "recent_scoring": 0.5692028926170429,
+      "recent_pitching": 0.5330497723316897,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Los Angeles Dodgers": {
+      "last_5_record": 0.44905745363939437,
+      "last_10_record": 0,
+      "recent_scoring": 0.5080022202733443,
+      "recent_pitching": 0.5021808975279761,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Minnesota Twins": {
+      "last_5_record": 0.42605487937842706,
+      "last_10_record": 0,
+      "recent_scoring": 0.5151065173770815,
+      "recent_pitching": 0.3363019181728038,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "New_York_Yankees": {
+      "last_5_record": 0.44124765498006435,
+      "last_10_record": 0,
+      "recent_scoring": 0.42715860900404756,
+      "recent_pitching": 0.3787089807480795,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Athletics": {
+      "last_5_record": 0.5308823639555877,
+      "last_10_record": 0,
+      "recent_scoring": 0.46015524693787463,
+      "recent_pitching": 0.4534442170075306,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Atlanta_Braves": {
+      "last_5_record": 0.4908609856750273,
+      "last_10_record": 0,
+      "recent_scoring": 0.4649636340576999,
+      "recent_pitching": 0.5839121884226776,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "St. Louis Cardinals": {
+      "last_5_record": 0.4652782729826332,
+      "last_10_record": 0,
+      "recent_scoring": 0.4754193343216556,
+      "recent_pitching": 0.3705199969647889,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "St._Louis_Cardinals": {
+      "last_5_record": 0.40124819621019203,
+      "last_10_record": 0,
+      "recent_scoring": 0.3720154078802604,
+      "recent_pitching": 0.42574773243292907,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Kansas City Royals": {
+      "last_5_record": 0.47059501670074716,
+      "last_10_record": 0,
+      "recent_scoring": 0.48853779690117216,
+      "recent_pitching": 0.5465538153756606,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Cleveland Guardians": {
+      "last_5_record": 0.46846501757865466,
+      "last_10_record": 0,
+      "recent_scoring": 0.388242858235178,
+      "recent_pitching": 0.42091943767092765,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Chicago_White_Sox": {
+      "last_5_record": 0.5330625471924937,
+      "last_10_record": 0,
+      "recent_scoring": 0.5122787333431185,
+      "recent_pitching": 0.5814577734246734,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Toronto Blue Jays": {
+      "last_5_record": 0.5530618596007779,
+      "last_10_record": 0,
+      "recent_scoring": 0.5905329078125923,
+      "recent_pitching": 0.5326508416469623,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "San_Diego_Padres": {
+      "last_5_record": 0.5592245093259481,
+      "last_10_record": 0,
+      "recent_scoring": 0.5634301034605022,
+      "recent_pitching": 0.5389468677027787,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Chicago_Cubs": {
+      "last_5_record": 0.45053781655082015,
+      "last_10_record": 0,
+      "recent_scoring": 0.37549689294920174,
+      "recent_pitching": 0.42796360305864395,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Tampa_Bay_Rays": {
+      "last_5_record": 0.5017860317370898,
+      "last_10_record": 0,
+      "recent_scoring": 0.600172670487688,
+      "recent_pitching": 0.49411109744675646,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Cincinnati_Reds": {
+      "last_5_record": 0.51378042718012,
+      "last_10_record": 0,
+      "recent_scoring": 0.4655796156842395,
+      "recent_pitching": 0.4160239962072143,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Baltimore Orioles": {
+      "last_5_record": 0.5813380057421084,
+      "last_10_record": 0,
+      "recent_scoring": 0.6388769309205972,
+      "recent_pitching": 0.4963983064523856,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Philadelphia Phillies": {
+      "last_5_record": 0.5027460886180826,
+      "last_10_record": 0,
+      "recent_scoring": 0.49215789457552295,
+      "recent_pitching": 0.4678930911646873,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Washington Nationals": {
+      "last_5_record": 0.4240017609362215,
+      "last_10_record": 0,
+      "recent_scoring": 0.410108537339554,
+      "recent_pitching": 0.4211180728488625,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Los_Angeles_Dodgers": {
+      "last_5_record": 0.4526659288976233,
+      "last_10_record": 0,
+      "recent_scoring": 0.3974418942088687,
+      "recent_pitching": 0.3935720983415891,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Colorado Rockies": {
+      "last_5_record": 0.49476908588440954,
+      "last_10_record": 0,
+      "recent_scoring": 0.582714312762662,
+      "recent_pitching": 0.45817974624965824,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Toronto_Blue_Jays": {
+      "last_5_record": 0.597747887624539,
+      "last_10_record": 0,
+      "recent_scoring": 0.607788828591637,
+      "recent_pitching": 0.5461819455920968,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Los_Angeles_Angels": {
+      "last_5_record": 0.4719230553599953,
+      "last_10_record": 0,
+      "recent_scoring": 0.5717801954567294,
+      "recent_pitching": 0.5375638837664428,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "San_Francisco_Giants": {
+      "last_5_record": 0.40152620475999967,
+      "last_10_record": 0,
+      "recent_scoring": 0.3898508429489957,
+      "recent_pitching": 0.478615464691177,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "New York Mets": {
+      "last_5_record": 0.5643316061810906,
+      "last_10_record": 0,
+      "recent_scoring": 0.4756267035692564,
+      "recent_pitching": 0.48029500835347905,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Baltimore_Orioles": {
+      "last_5_record": 0.5889140664014346,
+      "last_10_record": 0,
+      "recent_scoring": 0.6257135297396976,
+      "recent_pitching": 0.654043998334908,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Houston_Astros": {
+      "last_5_record": 0.5665594904664641,
+      "last_10_record": 0,
+      "recent_scoring": 0.6082010708940245,
+      "recent_pitching": 0.5115620999003955,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Milwaukee_Brewers": {
+      "last_5_record": 0.411391741220083,
+      "last_10_record": 0,
+      "recent_scoring": 0.3481963790905106,
+      "recent_pitching": 0.3829307154136057,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "New_York_Mets": {
+      "last_5_record": 0.554261655463284,
+      "last_10_record": 0,
+      "recent_scoring": 0.4951057067903932,
+      "recent_pitching": 0.46973706742998056,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Kansas_City_Royals": {
+      "last_5_record": 0.5845253186611475,
+      "last_10_record": 0,
+      "recent_scoring": 0.6178499483226921,
+      "recent_pitching": 0.5772295515830064,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Colorado_Rockies": {
+      "last_5_record": 0.5374555982503565,
+      "last_10_record": 0,
+      "recent_scoring": 0.5104853260574248,
+      "recent_pitching": 0.5195663250003416,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Minnesota_Twins": {
+      "last_5_record": 0.5374603538015825,
+      "last_10_record": 0,
+      "recent_scoring": 0.556207316847636,
+      "recent_pitching": 0.4635194918697443,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Houston Astros": {
+      "last_5_record": 0.4505627903380605,
+      "last_10_record": 0,
+      "recent_scoring": 0.4512431106331184,
+      "recent_pitching": 0.44359093217466805,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Washington_Nationals": {
+      "last_5_record": 0.5827881448851294,
+      "last_10_record": 0,
+      "recent_scoring": 0.5615181036581356,
+      "recent_pitching": 0.5533192076697174,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Cleveland_Guardians": {
+      "last_5_record": 0.4407980589069607,
+      "last_10_record": 0,
+      "recent_scoring": 0.39392562803165215,
+      "recent_pitching": 0.48332386670607386,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Miami_Marlins": {
+      "last_5_record": 0.5529670287549416,
+      "last_10_record": 0,
+      "recent_scoring": 0.49189089724854784,
+      "recent_pitching": 0.5689065627582766,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Atlanta Braves": {
+      "last_5_record": 0.41925321572241014,
+      "last_10_record": 0,
+      "recent_scoring": 0.40982991457871687,
+      "recent_pitching": 0.4164578921643842,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Texas_Rangers": {
+      "last_5_record": 0.45779022512654477,
+      "last_10_record": 0,
+      "recent_scoring": 0.4269913462847717,
+      "recent_pitching": 0.4741790691335901,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "New York Yankees": {
+      "last_5_record": 0.7229054550753483,
+      "last_10_record": 0,
+      "recent_scoring": 0.7111018585940696,
+      "recent_pitching": 0.7412226418773921,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Boston_Red_Sox": {
+      "last_5_record": 0.470331502636969,
+      "last_10_record": 0,
+      "recent_scoring": 0.42969036592544796,
+      "recent_pitching": 0.48623149089483964,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Arizona Diamondbacks": {
+      "last_5_record": 0.5554386470734303,
+      "last_10_record": 0,
+      "recent_scoring": 0.6475792235368316,
+      "recent_pitching": 0.49790954198011966,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Cincinnati Reds": {
+      "last_5_record": 0.4029718174838295,
+      "last_10_record": 0,
+      "recent_scoring": 0.4269273836813735,
+      "recent_pitching": 0.3608507415354002,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Detroit_Tigers": {
+      "last_5_record": 0.4360931149208263,
+      "last_10_record": 0,
+      "recent_scoring": 0.3888615365213445,
+      "recent_pitching": 0.4448992353104089,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Los Angeles Angels": {
+      "last_5_record": 0.207042402415333,
+      "last_10_record": 0,
+      "recent_scoring": 0.1906256067493039,
+      "recent_pitching": 0.14070060393810174,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "Arizona_Diamondbacks": {
+      "last_5_record": 0.5703991591663642,
+      "last_10_record": 0,
+      "recent_scoring": 0.6632646508787946,
+      "recent_pitching": 0.6368196991299925,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "San Diego Padres": {
+      "last_5_record": 0.47739004268894514,
+      "last_10_record": 0,
+      "recent_scoring": 0.43723028154529037,
+      "recent_pitching": 0.5694265064237825,
+      "home_momentum": 0,
+      "away_momentum": 0
+    },
+    "San Francisco Giants": {
+      "last_5_record": 0.4885455412062158,
+      "last_10_record": 0,
+      "recent_scoring": 0.5568588376588761,
+      "recent_pitching": 0.4973937405411267,
+      "home_momentum": 0,
+      "away_momentum": 0
+    }
+  },
+  "enhancement_factors": {
+    "team_strength_weight": 0.25,
+    "pitcher_quality_weight": 0.3,
+    "ballpark_factor_weight": 0.15,
+    "momentum_weight": 0.2,
+    "situational_weight": 0.1
+  },
+  "created_at": "2025-08-31T11:15:55.135789"
+}

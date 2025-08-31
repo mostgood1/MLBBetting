@@ -512,6 +512,13 @@ def complete_daily_automation():
         if writer.exists():
             logger.info("\n🎯 FINAL STEP: Writing Kelly 'Best of Best' entries for yesterday")
             run_script(writer, "Write Kelly Best of Best (yesterday)", logger, 180)
+            # Also write today's Kelly after recs so frontend shows correct totals immediately
+            try:
+                today_arg = f"--date={today}"
+                logger.info("🗓️ Writing Kelly 'Best of Best' entries for today as well")
+                subprocess.run([sys.executable, str(writer), today_arg], cwd=str(base_dir), check=False)
+            except Exception as e:
+                logger.debug(f"Could not write today's Kelly file: {e}")
         else:
             logger.warning("⚠️ Kelly writer script not found; skipping persistent Kelly output")
     except Exception as e:

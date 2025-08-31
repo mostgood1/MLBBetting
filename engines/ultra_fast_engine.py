@@ -151,19 +151,19 @@ class UltraFastSimEngine:
         return self._get_default_config()
     
     def _get_default_config(self):
-        """Get default configuration parameters - BALANCED BIAS CORRECTIONS"""
+        """Get default configuration parameters - tuned to reduce away bias and lift totals"""
         return {
             "engine_parameters": {
-                "home_field_advantage": 0.06,    # Moderate home advantage
-                "away_field_boost": 0.04,        # Moderate away boost  
-                "base_lambda": 4.0,              # Moderate variance
-                "team_strength_multiplier": 0.17, # Moderate team impact
-                "pitcher_era_weight": 0.78,      # Good ERA impact
-                "pitcher_whip_weight": 0.38,     # Good WHIP impact
-                "game_chaos_variance": 0.38,     # Moderate randomness
-                "total_scoring_adjustment": 0.9, # Reduce total by 10%
-                "home_scoring_boost": 0.92,      # Moderate home penalty
-                "away_scoring_boost": 1.05,      # Moderate away boost
+                "home_field_advantage": 0.08,    # Slightly stronger home edge
+                "away_field_boost": 0.01,        # Minimize away boost
+                "base_lambda": 4.2,              # Slightly higher base scoring
+                "team_strength_multiplier": 0.17, # Keep team impact stable
+                "pitcher_era_weight": 0.78,      # ERA impact
+                "pitcher_whip_weight": 0.38,     # WHIP impact
+                "game_chaos_variance": 0.35,     # Slightly less randomness
+                "total_scoring_adjustment": 1.03, # Lift totals ~3%
+                "home_scoring_boost": 1.02,      # Boost home scoring a bit
+                "away_scoring_boost": 0.99,      # Nudge away scoring down a touch
                 "bullpen_weight": 0.15           # Bullpen integration
             },
             "betting_parameters": {
@@ -302,15 +302,15 @@ class UltraFastSimEngine:
     def _setup_speed_cache(self):
         """Setup caching for maximum speed with balanced parameters"""
         engine_params = self.config.get('engine_parameters', {})
-        self.home_field_advantage = engine_params.get('home_field_advantage', 0.06)
-        self.away_field_boost = engine_params.get('away_field_boost', 0.04)
-        self.base_runs_per_team = 3.9  # Balanced from config
-        self.base_lambda = engine_params.get('base_lambda', 4.0)
+        self.home_field_advantage = engine_params.get('home_field_advantage', 0.08)
+        self.away_field_boost = engine_params.get('away_field_boost', 0.01)
+        self.base_runs_per_team = 4.1  # Slight lift to raise totals
+        self.base_lambda = engine_params.get('base_lambda', 4.2)
         self.team_strength_multiplier = engine_params.get('team_strength_multiplier', 0.17)
-        self.game_chaos_variance = engine_params.get('game_chaos_variance', 0.38)
-        self.total_scoring_adjustment = engine_params.get('total_scoring_adjustment', 0.9)
-        self.home_scoring_boost = engine_params.get('home_scoring_boost', 0.92)
-        self.away_scoring_boost = engine_params.get('away_scoring_boost', 1.05)
+        self.game_chaos_variance = engine_params.get('game_chaos_variance', 0.35)
+        self.total_scoring_adjustment = engine_params.get('total_scoring_adjustment', 1.03)
+        self.home_scoring_boost = engine_params.get('home_scoring_boost', 1.02)
+        self.away_scoring_boost = engine_params.get('away_scoring_boost', 0.99)
         self.bullpen_weight = engine_params.get('bullpen_weight', 0.15)
     
     def get_team_multiplier_with_pitchers(self, away_team: str, home_team: str, game_date: str = None) -> Tuple[float, float]:
