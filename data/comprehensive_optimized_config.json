@@ -1,6 +1,6 @@
 {
-  "home_field_advantage": 0.08,
-  "away_field_boost": 0.02,
+  "home_field_advantage": 0.06,
+  "away_field_boost": 0.04,
   "bullpen_weight": 0.15,
   "pitcher_weight": 0.35,
   "team_strength_weight": 0.3,
@@ -8,7 +8,7 @@
   "variance_factor": 0.88,
   "betting_integration": {
     "enabled": true,
-    "betting_weight": 0.25,
+    "betting_weight": 0.3,
     "line_confidence_threshold": 0.15,
     "moneyline_bias_correction": -0.0003382647636228309,
     "scoring_bias_correction": -0.17799999999999996
@@ -32,26 +32,17 @@
       "scoring_bias": 0.5933333333333333
     }
   },
-  "config_type": "balanced_road_correction",
-  "created_date": "2025-08-25T20:16:11.739007",
+  "config_type": "betting_integrated",
+  "created_date": "2025-08-25T16:42:18.184747",
   "optimization_metadata": {
-    "optimization_date": "2025-08-25T20:15:11.679628",
-    "games_analyzed": 15,
+    "optimization_date": "2025-08-31T10:50:17.203432",
+    "games_analyzed": 36,
     "performance_metrics": {
-      "home_accuracy": 0.6,
-      "total_runs_mae": 3.1866666666666665,
-      "scoring_bias": -1.4400000000000013,
-      "home_bias": 0.0037333333333332552
+      "home_accuracy": 0.4444444444444444,
+      "total_runs_mae": 4.025,
+      "scoring_bias": -1.908333333333334,
+      "home_bias": -0.22536111111111107
     },
-    "optimization_version": "3.0_comprehensive_with_integrations",
-    "balance_correction": {
-      "correction_date": "2025-08-25T20:16:11.739007",
-      "reason": "Reduce road team over-favoritism",
-      "changes": {
-        "home_field_advantage": "0.060 \u2192 0.080",
-        "away_field_boost": "0.040 \u2192 0.020",
-        "base_lambda": "4.620 \u2192 4.550"
-      }
-    }
+    "optimization_version": "3.0_comprehensive_with_integrations"
   }
 }

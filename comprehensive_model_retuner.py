@@ -66,11 +66,40 @@ class AdvancedModelRetuner:
             date = end_date - timedelta(days=i)
             date_str = date.strftime('%Y_%m_%d')
             
-            # Load final scores
+            # Load final scores (file or analyzer fallback)
             scores_file = os.path.join(self.data_dir, f'final_scores_{date_str}.json')
             if os.path.exists(scores_file):
                 print(f"📄 Loading scores: {scores_file}")
                 self._load_final_scores(scores_file, date_str)
+            else:
+                # Analyzer fallback to retrieve and use final scores if available
+                try:
+                    from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer
+                    analyzer = ComprehensiveHistoricalAnalyzer()
+                    # Convert date_str back to YYYY-MM-DD
+                    d_dash = date.strftime('%Y-%m-%d')
+                    scores_obj = analyzer.load_final_scores_for_date(d_dash) or {}
+                    if scores_obj:
+                        # Normalize to list shape expected by _load_final_scores
+                        games = scores_obj.get('games', scores_obj)
+                        if isinstance(games, dict):
+                            # Write a temporary in-memory list structure
+                            scores_list = []
+                            for gk, g in games.items():
+                                scores_list.append({
+                                    'away_team': g.get('away_team') or (gk.split(' vs ')[0] if ' vs ' in gk else None),
+                                    'home_team': g.get('home_team') or (gk.split(' vs ')[1] if ' vs ' in gk else None),
+                                    'away_score': g.get('away_score', 0),
+                                    'home_score': g.get('home_score', 0),
+                                })
+                        elif isinstance(games, list):
+                            scores_list = games
+                        else:
+                            scores_list = []
+                        # Directly ingest the list
+                        self._ingest_scores_list(scores_list)
+                except Exception as e:
+                    logger.debug(f"Analyzer fallback failed for scores {date_str}: {e}")
             
             # Load predictions
             predictions_file = os.path.join(self.data_dir, f'betting_recommendations_{date_str}.json')
@@ -88,21 +117,48 @@ class AdvancedModelRetuner:
         try:
             with open(scores_file, 'r') as f:
                 scores_data = json.load(f)
-            
-            for game in scores_data:
-                result = GameResult(
-                    away_team=game['away_team'],
-                    home_team=game['home_team'],
-                    away_score=game['away_score'],
-                    home_score=game['home_score'],
-                    total_runs=game['away_score'] + game['home_score'],
-                    home_won=game['home_score'] > game['away_score']
-                )
-                self.game_results.append(result)
+            # Support dict or list formats
+            if isinstance(scores_data, dict):
+                games = scores_data.get('games', scores_data)
+                if isinstance(games, dict):
+                    scores_list = []
+                    for gk, g in games.items():
+                        scores_list.append({
+                            'away_team': g.get('away_team') or (gk.split(' vs ')[0] if ' vs ' in gk else None),
+                            'home_team': g.get('home_team') or (gk.split(' vs ')[1] if ' vs ' in gk else None),
+                            'away_score': g.get('away_score', 0),
+                            'home_score': g.get('home_score', 0),
+                        })
+                elif isinstance(games, list):
+                    scores_list = games
+                else:
+                    scores_list = []
+            else:
+                scores_list = scores_data if isinstance(scores_data, list) else []
+
+            self._ingest_scores_list(scores_list)
                 
         except Exception as e:
             logger.warning(f"Could not load scores from {scores_file}: {e}")
             print(f"⚠️ Could not load scores from {scores_file}: {e}")
+
+    def _ingest_scores_list(self, scores_list):
+        """Ingest a list of score dicts into game_results"""
+        for game in scores_list:
+            if not game:
+                continue
+            try:
+                result = GameResult(
+                    away_team=game['away_team'],
+                    home_team=game['home_team'],
+                    away_score=int(game.get('away_score', 0)),
+                    home_score=int(game.get('home_score', 0)),
+                    total_runs=int(game.get('away_score', 0)) + int(game.get('home_score', 0)),
+                    home_won=int(game.get('home_score', 0)) > int(game.get('away_score', 0))
+                )
+                self.game_results.append(result)
+            except Exception:
+                continue
     
     def _load_predictions(self, predictions_file: str, date_str: str) -> None:
         """Load predictions from betting recommendations file"""
