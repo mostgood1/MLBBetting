@@ -292,6 +292,20 @@ class LiveMLBData:
             # Scores (if available)
             away_score = teams.get('away', {}).get('score')
             home_score = teams.get('home', {}).get('score')
+
+            # Fallback to linescore structure if team scores are not present
+            if away_score is None or home_score is None:
+                linescore_fallback = game_data.get('linescore', {}) or game.get('linescore', {})
+                try:
+                    if linescore_fallback and isinstance(linescore_fallback, dict):
+                        teams_ls = linescore_fallback.get('teams', {})
+                        if away_score is None:
+                            away_score = teams_ls.get('away', {}).get('runs', away_score)
+                        if home_score is None:
+                            home_score = teams_ls.get('home', {}).get('runs', home_score)
+                except Exception as e:
+                    # Non-fatal: keep scores as None if structure differs
+                    print(f"⚠️ Linescore fallback parsing issue: {e}")
             
             # Determine status
             # Initialize inning variables

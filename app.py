@@ -4144,8 +4144,8 @@ def api_live_status():
             live_game = {
                 'away_team': away_team,
                 'home_team': home_team,
-                'away_score': live_status.get('away_score'),
-                'home_score': live_status.get('home_score'),
+                'away_score': live_status.get('away_score', 0) if live_status.get('away_score') is not None else 0,
+                'home_score': live_status.get('home_score', 0) if live_status.get('home_score') is not None else 0,
                 'status': live_status.get('status', 'Scheduled'),
                 'badge_class': live_status.get('badge_class', 'scheduled'),
                 'is_live': live_status.get('is_live', False),
@@ -4828,6 +4828,24 @@ def todays_opportunities_direct():
                         except Exception:
                             pass
                     dedup_key = (game_label, bet_type, bet_details)
+                    # Build reasoning grounded to real market line for totals
+                    market_line = None
+                    if bet_type == 'Over/Under':
+                        try:
+                            market_line = (real_lines_map.get(game_label, {}) or {}).get('total_runs', {}).get('line')
+                        except Exception:
+                            market_line = None
+                        if market_line is None:
+                            market_line = rec.get('line') or rec.get('betting_line')
+                    model_pred = None
+                    if str(rec.get('type','')).lower() == 'total':
+                        model_pred = rec.get('predicted_total') or rec.get('model_total')
+                    computed_reason = rec.get('reasoning', '')
+                    if bet_type == 'Over/Under' and model_pred is not None and market_line is not None:
+                        try:
+                            computed_reason = f"Model: {float(model_pred):.1f} vs Line: {float(market_line):g}"
+                        except Exception:
+                            computed_reason = f"Model: {model_pred} vs Line: {market_line}"
                     candidate = {
                         'date': today_str,
                         'game': game_label,
@@ -4838,7 +4856,7 @@ def todays_opportunities_direct():
                         'recommended_bet': int(suggested_bet),
                         'expected_value': rec.get('expected_value', 0),
                         'edge': rec.get('edge', 0),
-                        'reasoning': rec.get('reasoning', ''),
+                        'reasoning': computed_reason,
                         'odds': odds_val,
                         'model_prediction': rec.get('predicted_total') or rec.get('model_total') if str(rec.get('type','')).lower() == 'total' else None
                     }
@@ -4878,6 +4896,24 @@ def todays_opportunities_direct():
                             game_label = f"{away} vs {home}"
                             bet_type, bet_details = _format_bet(rec, game_label)
                             dedup_key = (f"{away} vs {home}", bet_type, bet_details)
+                            # Build reasoning grounded to real market line for totals
+                            market_line = None
+                            if bet_type == 'Over/Under':
+                                try:
+                                    market_line = (real_lines_map.get(game_label, {}) or {}).get('total_runs', {}).get('line')
+                                except Exception:
+                                    market_line = None
+                                if market_line is None:
+                                    market_line = rec.get('line') or rec.get('betting_line')
+                            model_pred = None
+                            if str(rec.get('type','')).lower() == 'total':
+                                model_pred = rec.get('predicted_total') or rec.get('model_total')
+                            computed_reason = rec.get('reasoning', '')
+                            if bet_type == 'Over/Under' and model_pred is not None and market_line is not None:
+                                try:
+                                    computed_reason = f"Model: {float(model_pred):.1f} vs Line: {float(market_line):g}"
+                                except Exception:
+                                    computed_reason = f"Model: {model_pred} vs Line: {market_line}"
                             candidate = {
                                 'date': today_str,
                                 'game': game_label,
@@ -4888,7 +4924,7 @@ def todays_opportunities_direct():
                                 'recommended_bet': int(suggested_bet),
                                 'expected_value': rec.get('expected_value', 0),
                                 'edge': rec.get('edge', 0),
-                                'reasoning': rec.get('reasoning', ''),
+                                'reasoning': computed_reason,
                                 # Prefer real market odds for totals when available
                                 'odds': (real_lines_map.get(game_label, {}).get('total_runs', {}).get('under') if str(rec.get('side','')).lower()=='under' else real_lines_map.get(game_label, {}).get('total_runs', {}).get('over')) if bet_type=='Over/Under' else (rec.get('american_odds') or rec.get('odds', 0)),
                                 'model_prediction': rec.get('predicted_total') or rec.get('model_total') if str(rec.get('type','')).lower() == 'total' else None
