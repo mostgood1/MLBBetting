@@ -23,6 +23,48 @@ import subprocess
 import requests
 from collections import defaultdict, Counter
 
+# -------------------------------------------------------------
+# Lightweight response caching (in-memory, per-process)
+# -------------------------------------------------------------
+from threading import RLock
+
+_RESPONSE_CACHE = {}
+_CACHE_LOCK = RLock()
+
+def _cache_make_key(name: str, params: dict | None = None) -> str:
+    if not params:
+        return name
+    items = sorted((k, str(v)) for k, v in params.items())
+    return name + '|' + '&'.join(f"{k}={v}" for k, v in items)
+
+def cache_get(name: str, params: dict | None, ttl_seconds: int):
+    now = time.time()
+    key = _cache_make_key(name, params)
+    with _CACHE_LOCK:
+        entry = _RESPONSE_CACHE.get(key)
+        if entry:
+            ts, data = entry
+            if now - ts <= ttl_seconds:
+                return data
+            else:
+                _RESPONSE_CACHE.pop(key, None)
+    return None
+
+def cache_set(name: str, params: dict | None, data):
+    key = _cache_make_key(name, params)
+    with _CACHE_LOCK:
+        _RESPONSE_CACHE[key] = (time.time(), data)
+    return data
+
+# -------------------------------------------------------------
+# Optional compression (smaller payloads -> faster loads)
+# -------------------------------------------------------------
+try:
+    from flask_compress import Compress
+    _compress = Compress()
+except Exception:
+    _compress = None
+
 # --- FORCE LOGGING CONFIGURATION FOR DEBUG VISIBILITY (safe for Windows consoles) ---
 def setup_safe_logging():
     import sys
@@ -154,6 +196,13 @@ except ImportError as e:
     def get_live_game_status(away_team, home_team): return "Pre-Game"
 
 app = Flask(__name__)
+# Initialize response compression if available
+try:
+    _compress  # type: ignore[name-defined]
+    if _compress is not None:
+        _compress.init_app(app)  # type: ignore[call-arg]
+except NameError:
+    pass
 
 print("DEBUG: Flask app successfully created - all routes will now register properly")
 
@@ -3619,6 +3668,17 @@ def api_today_games():
         date_param = request.args.get('date', get_business_date())
         logger.info(f"API today-games called for date: {date_param}")
 
+        # Ultra-lightweight cache to reduce repeated heavy work
+        try:
+            cached = cache_get('today_games', {'date': date_param}, ttl_seconds=8)
+        except Exception:
+            cached = None
+        if cached is not None:
+            logger.info("📦 today-games cache HIT")
+            return jsonify(cached)
+        else:
+            logger.info("📦 today-games cache MISS")
+
         # Load unified cache 
         unified_cache = load_unified_cache()
 
@@ -4120,13 +4180,18 @@ def api_today_games():
         
         logger.info(f"API today-games: Successfully processed {len(enhanced_games)} games for {date_param}")
         
-        return jsonify({
+        response_payload = {
             'success': True,
             'date': date_param,
             'games': enhanced_games,
             'count': len(enhanced_games),
             'archaeological_note': f'Found {len(enhanced_games)} games with full predictions and pitching matchups'
-        })
+        }
+        try:
+            cache_set('today_games', {'date': date_param}, response_payload)
+        except Exception:
+            pass
+        return jsonify(response_payload)
     
     except Exception as e:
         logger.error(f"Error in API today-games: {e}")
@@ -4146,6 +4211,16 @@ def api_live_status():
     """API endpoint for live game status updates using MLB API"""
     try:
         date_param = request.args.get('date', get_business_date())
+        # Tiny cache to dampen polling load
+        try:
+            cached = cache_get('live_status', {'date': date_param}, ttl_seconds=3)
+        except Exception:
+            cached = None
+        if cached is not None:
+            logger.info("📦 live-status cache HIT")
+            return jsonify(cached)
+        else:
+            logger.info("📦 live-status cache MISS")
         
         # Import the live MLB data fetcher
         from live_mlb_data import live_mlb_data, get_live_game_status
@@ -4244,12 +4319,17 @@ def api_live_status():
         
         logger.info(f"📊 Live status updated for {len(live_games)} games on {date_param}")
         
-        return jsonify({
+        response_payload = {
             'success': True,
             'date': date_param,
             'games': live_games,
             'message': f'Live status for {len(live_games)} games via MLB API'
-        })
+        }
+        try:
+            cache_set('live_status', {'date': date_param}, response_payload)
+        except Exception:
+            pass
+        return jsonify(response_payload)
     
     except Exception as e:
         logger.error(f"Error in API live-status: {e}")

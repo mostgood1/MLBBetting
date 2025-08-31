@@ -7,3 +7,4 @@ schedule==1.2.0
 python-dotenv==1.0.0
 pytz==2023.3
 psutil==5.9.5
+flask-compress==1.15
