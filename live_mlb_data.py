@@ -8,6 +8,9 @@ import json
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_team_assets(team_abbreviation: str) -> Dict:
     """Get team assets (logo, colors) based on team abbreviation"""
@@ -227,7 +230,8 @@ class LiveMLBData:
             return response.json()
             
         except Exception as e:
-            print(f"❌ Error fetching MLB schedule: {e}")
+            # Avoid emojis/non-ASCII to prevent Windows console errors
+            logger.warning(f"Error fetching MLB schedule for date {date}: {e}")
             return {}
     
     def get_game_status(self, game_pk: str) -> Dict:
@@ -240,7 +244,7 @@ class LiveMLBData:
             return response.json()
             
         except Exception as e:
-            print(f"❌ Error fetching game status for {game_pk}: {e}")
+            logger.warning(f"Error fetching game status for {game_pk}: {e}")
             return {}
     
     def format_game_status(self, game_data: Dict) -> Dict:
@@ -305,7 +309,7 @@ class LiveMLBData:
                             home_score = teams_ls.get('home', {}).get('runs', home_score)
                 except Exception as e:
                     # Non-fatal: keep scores as None if structure differs
-                    print(f"⚠️ Linescore fallback parsing issue: {e}")
+                    logger.debug(f"Linescore fallback parsing issue: {e}")
             
             # Determine status
             # Initialize inning variables
@@ -367,7 +371,7 @@ class LiveMLBData:
             }
             
         except Exception as e:
-            print(f"❌ Error formatting game status: {e}")
+            logger.warning(f"Error formatting game status: {e}")
             return {
                 'status': 'Unknown',
                 'badge_class': 'unknown',
@@ -412,22 +416,21 @@ def get_live_game_status(away_team: str, home_team: str, date: str = None) -> Di
     normalized_away = normalize_team_name(away_team)
     normalized_home = normalize_team_name(home_team)
     
-    print(f"🔍 Looking for live status: {away_team} @ {home_team}")
-    print(f"   Normalized: {normalized_away} @ {normalized_home}")
+    logger.info(f"Looking for live status: {away_team} @ {home_team} (normalized: {normalized_away} @ {normalized_home})")
     
     for game in enhanced_games:
         game_away = normalize_team_name(game['away_team'])
         game_home = normalize_team_name(game['home_team'])
         
         if (game_away == normalized_away and game_home == normalized_home):
-            print(f"✅ Found live match: {game['away_team']} @ {game['home_team']} -> {game.get('status')}")
+            logger.info(f"Found live match: {game['away_team']} @ {game['home_team']} -> {game.get('status')}")
             return game
     
-    print(f"❌ No live match found. Available games:")
+    logger.info("No live match found in enhanced games list. Sample of available games:")
     for game in enhanced_games[:5]:
         game_away = normalize_team_name(game['away_team'])
         game_home = normalize_team_name(game['home_team'])
-        print(f"   {game['away_team']} @ {game['home_team']} (normalized: {game_away} @ {game_home})")
+        logger.info(f"   {game['away_team']} @ {game['home_team']} (normalized: {game_away} @ {game_home})")
     
     # Fallback: Create demo status based on current time and team names
     import hashlib

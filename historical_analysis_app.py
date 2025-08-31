@@ -24,12 +24,41 @@ from team_name_normalizer import normalize_team_name
 # Import enhanced betting analytics for three-view system
 from redesigned_betting_analytics import RedesignedBettingAnalytics
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Configure logging (Windows-safe)
+def setup_safe_logging():
+    import sys
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+    for h in list(root.handlers):
+        root.removeHandler(h)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    console.setFormatter(formatter)
+    enc = (getattr(sys.stdout, 'encoding', None) or '').lower()
+    if 'utf' not in enc:
+        class _AsciiSanitizer(logging.Filter):
+            def filter(self, record):
+                try:
+                    msg = record.getMessage()
+                    safe = msg.encode('ascii', 'ignore').decode('ascii')
+                    record.msg = safe
+                    record.args = ()
+                except Exception:
+                    pass
+                return True
+        console.addFilter(_AsciiSanitizer())
+    root.addHandler(console)
+    try:
+        fh = logging.FileHandler('historical_app.log', encoding='utf-8')
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(formatter)
+        root.addHandler(fh)
+    except Exception:
+        pass
+    return logging.getLogger(__name__)
+
+logger = setup_safe_logging()
 
 # Initialize Flask app
 app = Flask(__name__)

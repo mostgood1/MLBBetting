@@ -23,13 +23,58 @@ import subprocess
 import requests
 from collections import defaultdict, Counter
 
-# --- FORCE LOGGING CONFIGURATION FOR DEBUG VISIBILITY ---
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s %(message)s",
-    handlers=[logging.StreamHandler()]
-)
-logger = logging.getLogger(__name__)
+# --- FORCE LOGGING CONFIGURATION FOR DEBUG VISIBILITY (safe for Windows consoles) ---
+def setup_safe_logging():
+    import sys
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+
+    # Clear any pre-existing handlers to avoid duplicates
+    for h in list(root.handlers):
+        root.removeHandler(h)
+
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+
+    # If console encoding isn't UTF-8, strip non-ASCII to avoid charmap errors
+    try:
+        enc = (getattr(sys.stdout, 'encoding', None) or '').lower()
+    except Exception:
+        enc = ''
+
+    if 'utf' not in enc:
+        class _AsciiSanitizer(logging.Filter):
+            def filter(self, record):
+                try:
+                    msg = record.getMessage()
+                    safe = msg.encode('ascii', 'ignore').decode('ascii')
+                    record.msg = safe
+                    record.args = ()
+                except Exception:
+                    # If anything goes wrong, let the record pass through
+                    pass
+                return True
+        console_handler.addFilter(_AsciiSanitizer())
+
+    root.addHandler(console_handler)
+
+    # File handler with UTF-8
+    try:
+        file_handler = logging.FileHandler('monitoring_system.log', encoding='utf-8')
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(formatter)
+        root.addHandler(file_handler)
+    except Exception:
+        # If file handler fails, continue with console-only logging
+        pass
+
+    return logging.getLogger(__name__)
+
+logger = setup_safe_logging()
 
 # Try to import optional modules with fallbacks for Render deployment
 # Completely disable admin features for Render deployment to avoid engine dependency issues
@@ -211,8 +256,7 @@ def get_live_status_with_timeout(away_team, home_team, date_param, timeout_secon
         logger.warning(f"⚠️ Live status error for {away_team} @ {home_team}: {e}")
         return {'status': 'Scheduled', 'is_final': False, 'is_live': False}
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# Logging already configured via setup_safe_logging()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 

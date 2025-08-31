@@ -1253,36 +1253,30 @@
         }
 
         function updateGameCard(liveGame) {
-            // Find the corresponding game card by unique game ID
-            const gameId = `${liveGame.away_team}_${liveGame.home_team}_${new Date().toISOString().split('T')[0]}`;
+            // Find the corresponding game card by composite ID using the selected date
+            const dateStr = document.getElementById('game-date').value;
+            const compositeId = `${liveGame.away_team}_${liveGame.home_team}_${dateStr}`;
             
             // Debug logging
             console.log(`🔍 Looking for live game: ${liveGame.away_team} @ ${liveGame.home_team}`);
             console.log(`   Status: ${liveGame.status}, Live: ${liveGame.is_live}, Scores: ${liveGame.away_score}-${liveGame.home_score}`);
             
-            // Try multiple selection strategies for better team name matching
-            let card = document.querySelector(`[data-game-id*="${liveGame.away_team}_${liveGame.home_team}"]`);
+            // Primary: exact match on data-game-id
+            let card = document.querySelector(`[data-game-id="${compositeId}"]`);
             
-            // If not found, try with normalized team names (Athletics vs Oakland Athletics)
+            // Fallback: match by explicit team attributes
             if (!card) {
-                const normalizedAway = liveGame.away_team.replace('Oakland ', '').replace(' Athletics', '').replace('Athletics', 'Athletics');
-                const normalizedHome = liveGame.home_team.replace('Oakland ', '').replace(' Athletics', '').replace('Athletics', 'Athletics');
-                card = document.querySelector(`[data-game-id*="${normalizedAway}"][data-game-id*="${normalizedHome}"]`);
-                console.log(`   Trying normalized names: ${normalizedAway} @ ${normalizedHome}`);
+                const awayKey = (liveGame.away_team || '').toLowerCase();
+                const homeKey = (liveGame.home_team || '').toLowerCase();
+                card = document.querySelector(`.game-card[data-away-team="${awayKey}"][data-home-team="${homeKey}"]`);
             }
             
-            // If still not found, try broader search
+            // Fallback: normalized names in composite if formatting differs
             if (!card) {
-                // Look for cards containing both team names (partial match)
-                const allCards = document.querySelectorAll('.game-card[data-game-id]');
-                for (const gameCard of allCards) {
-                    const cardId = gameCard.getAttribute('data-game-id');
-                    if (cardId && cardId.includes('Tampa Bay') && cardId.includes('Athletics')) {
-                        card = gameCard;
-                        console.log(`   Found via partial match: ${cardId}`);
-                        break;
-                    }
-                }
+                const normalizedAway = liveGame.away_team.replace('Oakland ', '').replace(' Athletics', '');
+                const normalizedHome = liveGame.home_team.replace('Oakland ', '').replace(' Athletics', '');
+                card = document.querySelector(`[data-game-id*="${normalizedAway}"][data-game-id*="${normalizedHome}"]`);
+                console.log(`   Trying normalized names: ${normalizedAway} @ ${normalizedHome}`);
             }
             
             if (card) {
@@ -1307,11 +1301,11 @@
                 }
                 
                 const gameHeader = card.querySelector('.game-header');
-                if (liveGame.is_live && (liveGame.away_score !== undefined || liveGame.home_score !== undefined)) {
+                if (liveGame.is_live && (liveGame.away_score != null || liveGame.home_score != null)) {
                     const liveScoreHtml = createLiveScoreHtml(liveGame);
                     console.log(`   Adding live score HTML: ${liveScoreHtml}`);
                     gameHeader.insertAdjacentHTML('afterend', liveScoreHtml);
-                } else if (liveGame.is_final && (liveGame.away_score !== undefined || liveGame.home_score !== undefined)) {
+                } else if (liveGame.is_final && (liveGame.away_score != null || liveGame.home_score != null)) {
                     // Need to get prediction data for final analysis
                     const gameId = card.querySelector('[id^="summary-"]').id.replace('summary-', '');
                     const prediction = { /* We'd need to store this somehow */ };
@@ -1422,6 +1416,9 @@
                     container.style.display = 'none';
                     
                     console.log(`Loaded games: ${liveGames.length} live, ${upcomingGames.length} upcoming, ${completedGames.length} completed`);
+
+                    // Trigger an initial live update now that cards are rendered
+                    updateLiveGames();
                 } else {
                     container.innerHTML = '<div class="error">No games found for today.</div>';
                 }
@@ -1499,7 +1496,11 @@
         function createGameCard(game) {
             const card = document.createElement('div');
             card.className = 'game-card';
-            card.setAttribute('data-game-id', game.game_id); // Add unique identifier
+            // Use a composite key that matches live-status lookups and add explicit team attributes
+            const compositeId = `${game.away_team}_${game.home_team}_${game.date}`;
+            card.setAttribute('data-game-id', compositeId);
+            card.setAttribute('data-away-team', (game.away_team || '').toLowerCase());
+            card.setAttribute('data-home-team', (game.home_team || '').toLowerCase());
             card.onclick = () => loadPrediction(game.away_team, game.home_team, game.date);
             
             // Debug: log the entire game object
@@ -1738,7 +1739,8 @@
         }
 
         function createLiveScoreHtml(liveStatus, awayColors = null, homeColors = null) {
-            if (!liveStatus.away_score && !liveStatus.home_score) {
+            // Only hide if scores are truly missing; show 0-0 as valid
+            if (liveStatus.away_score == null && liveStatus.home_score == null) {
                 return '';
             }
             
@@ -1755,18 +1757,18 @@
             return `
                 <div class="live-score">
                     <div style="background: ${defaultAwayColors.primary}; color: ${defaultAwayColors.text}; padding: 4px 8px; border-radius: 4px; border: 1px solid ${defaultAwayColors.secondary};">
-                        <span class="team-score">${liveStatus.away_score || 0}</span>
+                        <span class="team-score">${liveStatus.away_score ?? 0}</span>
                     </div>
                     <div style="color: #dc3545; font-weight: bold; font-size: 0.9em;">${inningDisplay}</div>
                     <div style="background: ${defaultHomeColors.primary}; color: ${defaultHomeColors.text}; padding: 4px 8px; border-radius: 4px; border: 1px solid ${defaultHomeColors.secondary};">
-                        <span class="team-score">${liveStatus.home_score || 0}</span>
+                        <span class="team-score">${liveStatus.home_score ?? 0}</span>
                     </div>
                 </div>
             `;
         }
 
         function createFinalScoreHtml(liveStatus, game, awayColors = null, homeColors = null) {
-            if (!liveStatus.away_score && !liveStatus.home_score) {
+            if (liveStatus.away_score == null && liveStatus.home_score == null) {
                 return '';
             }
             
