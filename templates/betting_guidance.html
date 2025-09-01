@@ -32,13 +32,22 @@
         <a class="btn secondary" href="/" style="text-decoration:none;">⬅ Back to Main</a>
       </div>
       <div class="muted">Today’s opportunities and historical performance by bet type.</div>
+      <div style="margin-top:10px;">
+        <a class="btn" href="/kelly-guidance" style="text-decoration:none;">Open Kelly Guidance Page →</a>
+      </div>
     </div>
 
-    <div class="grid" id="perf"></div>
+  <div class="grid" id="perf"></div>
+
 
     <div class="card">
-      <h2>Today’s Kelly Opportunities</h2>
+      <h2>Today’s Recommendations (All)</h2>
+      <div class="muted" style="margin-bottom:8px;">Sorted by confidence, then EV. EV shown as percentage.</div>
       <div id="today"></div>
+      <div style="margin-top:16px;">
+        <h3 style="margin:8px 0;">Today Recap</h3>
+        <div class="grid" id="today-kpis"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -49,11 +58,121 @@
         <button class="btn" onclick="loadDayPerformance()">Load</button>
       </div>
       <div class="grid" id="day-grid"></div>
+      <div style="margin-top:16px;">
+        <h3 style="margin:8px 0;">Recommendations for Selected Day</h3>
+        <div id="day-recs"></div>
+      </div>
     </div>
   </div>
 
   <script>
     function fmtPct(n){ return (Number(n)||0).toFixed(1) + '%'; }
+    function fmtEV(n){ const v=Number(n); if(!isFinite(v)) return '-'; return (v*100).toFixed(1)+'%'; }
+    const confOrder = c => ({'HIGH':3,'MEDIUM':2,'LOW':1}[String(c||'').toUpperCase()]||0);
+    const checkIcon = ok => ok===true ? '✅' : ok===false ? '❌' : '';
+    function parseAmericanOdds(od){
+      try{
+        if(od===null || od===undefined) return -110;
+        if(typeof od==='number') return Math.trunc(od);
+        let s=String(od).trim();
+        if(!s || s.toUpperCase()==='N/A') return -110;
+        s=s.replace('−','-');
+        if(s.startsWith('+')) s=s.slice(1);
+        return Math.trunc(parseFloat(s));
+      }catch(_){ return -110; }
+    }
+    function parseSideLine(rec){
+      if(!rec) return { side:null, line:null };
+      const txt = String(rec).trim().toLowerCase();
+      let side = null;
+      // detect side anywhere in the string, including short forms
+      if(/\bover\b/.test(txt) || /\bo\b/.test(txt)) side = 'OVER';
+      if(/\bunder\b/.test(txt) || /\bu\b/.test(txt)) side = 'UNDER';
+      const m = txt.match(/(\d+\.?\d*)/);
+      const line = m ? Number(m[1]) : null;
+      return { side, line };
+    }
+    function normalizeTeamName(s){
+      return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+    }
+    // Canonicalize common aliases to improve cross-source matching
+    function canonTeam(s){
+      const t = normalizeTeamName(s);
+      const m = {
+        // LA teams
+        'laangels':'losangelesangels','losangelesangels':'losangelesangels','anaheimangels':'losangelesangels','laa':'losangelesangels',
+        'ladodgers':'losangelesdodgers','losangelesdodgers':'losangelesdodgers','lad':'losangelesdodgers',
+        // NY teams
+        'nyyankees':'newyorkyankees','newyorkyankees':'newyorkyankees','nyy':'newyorkyankees',
+        'nymets':'newyorkmets','newyorkmets':'newyorkmets','nym':'newyorkmets',
+        // Chicago
+        'chiwhitesox':'chicagowhitesox','chicagowhitesox':'chicagowhitesox','chw':'chicagowhitesox','cws':'chicagowhitesox',
+        'chicubs':'chicagocubs','chicagocubs':'chicagocubs','chc':'chicagocubs',
+        // St. Louis
+        'stlouiscardinals':'stlouiscardinals','saintlouiscardinals':'stlouiscardinals','stl':'stlouiscardinals',
+        // Boston
+        'bostonredsox':'bostonredsox','redsox':'bostonredsox','bos':'bostonredsox',
+        // Toronto
+        'torontobluejays':'torontobluejays','bluejays':'torontobluejays','tor':'torontobluejays','tbj':'torontobluejays',
+        // Tampa Bay
+        'tampabayrays':'tampabayrays','rays':'tampabayrays','tampabaydevilrays':'tampabayrays','tb':'tampabayrays','tbr':'tampabayrays',
+        // Baltimore
+        'baltimoreorioles':'baltimoreorioles','orioles':'baltimoreorioles','bal':'baltimoreorioles',
+        // Cleveland
+        'clevelandguardians':'clevelandguardians','guardians':'clevelandguardians','clevelandindians':'clevelandguardians','cle':'clevelandguardians','clg':'clevelandguardians',
+        // Detroit
+        'detroittigers':'detroittigers','tigers':'detroittigers','det':'detroittigers',
+        // Kansas City
+        'kansascityroyals':'kansascityroyals','royals':'kansascityroyals','kc':'kansascityroyals','kcr':'kansascityroyals',
+        // Minnesota
+        'minnesotatwins':'minnesotatwins','twins':'minnesotatwins','min':'minnesotatwins',
+        // Houston
+        'houstonastros':'houstonastros','astros':'houstonastros','hou':'houstonastros',
+        // Seattle
+        'seattlemariners':'seattlemariners','mariners':'seattlemariners','sea':'seattlemariners',
+        // Texas
+        'texasrangers':'texasrangers','rangers':'texasrangers','tex':'texasrangers',
+        // Atlanta
+        'atlantabraves':'atlantabraves','braves':'atlantabraves','atl':'atlantabraves',
+        // Miami
+        'miamimarlins':'miamimarlins','floridamarlins':'miamimarlins','marlins':'miamimarlins','mia':'miamimarlins','fla':'miamimarlins',
+        // Philadelphia
+        'philadelphiaphillies':'philadelphiaphillies','phillies':'philadelphiaphillies','phi':'philadelphiaphillies',
+        // Washington
+        'washingtonnationals':'washingtonnationals','nationals':'washingtonnationals','was':'washingtonnationals','wsn':'washingtonnationals',
+        // Arizona
+        'arizonadiamondbacks':'arizonadiamondbacks','diamondbacks':'arizonadiamondbacks','ari':'arizonadiamondbacks','az':'arizonadiamondbacks',
+        // Colorado
+        'coloradorockies':'coloradorockies','rockies':'coloradorockies','col':'coloradorockies',
+        // San Diego
+        'sandiegopadres':'sandiegopadres','padres':'sandiegopadres','sd':'sandiegopadres','sdp':'sandiegopadres',
+        // San Francisco
+        'sanfranciscogiants':'sanfranciscogiants','giants':'sanfranciscogiants','sf':'sanfranciscogiants','sfg':'sanfranciscogiants',
+        // Milwaukee
+        'milwaukeebrewers':'milwaukeebrewers','brewers':'milwaukeebrewers','mil':'milwaukeebrewers',
+        // Cincinnati
+        'cincinnatireds':'cincinnatireds','reds':'cincinnatireds','cin':'cincinnatireds',
+        // Pittsburgh
+        'pittsburghpirates':'pittsburghpirates','pirates':'pittsburghpirates','pit':'pittsburghpirates',
+  // Oakland
+  'oaklandathletics':'oaklandathletics','athletics':'oaklandathletics','oak':'oaklandathletics','as':'oaklandathletics','oaklandas':'oaklandathletics'
+      };
+      return m[t] || t;
+    }
+    function normGameKey(game){
+      const raw = String(game||'');
+      if(raw.includes('@')){
+        const parts = raw.split('@');
+        return `${canonTeam(parts[0])}@${canonTeam(parts[1])}`;
+      }
+      return normalizeTeamName(raw);
+    }
+    function parseMoneylineTeam(pick){
+      if(!pick) return null;
+      let t = String(pick).replace(/ml$/i,'').replace(/moneyline/i,'').trim();
+      return t;
+    }
+    function gameKey(away, home){ return `${away} @ ${home}`; }
     async function loadPerformance(){
       const res=await fetch('/api/betting-guidance/performance');
       const data=await res.json();
@@ -67,35 +186,429 @@
       });
     }
     async function loadToday(){
-      const res=await fetch('/api/kelly-betting-guidance');
-      const data=await res.json();
-      const div=document.getElementById('today');
-      const opps=data.opportunities||[];
-      if(!opps.length){ div.innerHTML='<div class="muted">No opportunities available.</div>'; return; }
-      div.innerHTML='<table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>Kelly %</th><th>Suggested</th><th>EV</th></tr></thead><tbody>'+opps.map(g=>g.bets.map(b=>`<tr><td>${g.game}</td><td>${b.bet_type} ${b.pick}</td><td>${b.odds}</td><td><span class="badge ${b.confidence}">${b.confidence}</span></td><td>${b.kelly_fraction}%</td><td>$${b.suggested_bet}</td><td>${b.expected_value}</td></tr>`).join('')).join('')+'</tbody></table>';
+      // Use the new endpoint to fetch ALL recommendations from today's betting_recommendations file
+      const today = todayISO();
+      const res = await fetch(`/api/betting-recommendations/date/${today}`);
+      const data = await res.json();
+      const div = document.getElementById('today');
+      const recs = data.recommendations || [];
+      if(!recs.length){ div.innerHTML='<div class="muted">No recommendations available.</div>'; return; }
+      // Normalize rows and sort by confidence then EV
+      const rows = recs.map(r=>({
+        game: r.game || `${r.away_team||''} @ ${r.home_team||''}`,
+        bet: `${String(r.type||'').replace('_',' ').toUpperCase()} ${r.recommendation||''}`.trim(),
+        odds: r.american_odds ?? r.odds,
+        conf: String(r.confidence||'').toUpperCase(),
+        ev: r.expected_value
+      }));
+      rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
+      div.innerHTML = '<table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th></tr></thead><tbody>'+
+        rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td></tr>`).join('')+
+      '</tbody></table>';
+
+      // Build Today Recap KPIs based on THESE recs only (so counts match what you see)
+      await loadTodayRecap(recs);
     }
     async function loadAvailableDates(){
       try{
-        const res=await fetch('/api/historical-analysis/dates');
+    const res=await fetch('/api/historical-analysis/available-dates');
         const data=await res.json();
-        const sel=document.getElementById('hist-day'); sel.innerHTML='';
-        (data.available_dates||[]).forEach(dt=>{ const o=document.createElement('option'); o.value=dt; o.textContent=dt; sel.appendChild(o); });
+  const sel=document.getElementById('hist-day'); sel.innerHTML='';
+  // Historical proxy returns { dates: [...] }
+  const dates = (data.dates || data.available_dates || []);
+  // Sort dates ascending to keep behavior stable, then select the latest
+  dates.sort();
+  dates.forEach(dt=>{ const o=document.createElement('option'); o.value=dt; o.textContent=dt; sel.appendChild(o); });
+  // Auto-select most recent date and preload KPIs
+  if(dates.length){ sel.value = dates[dates.length-1]; await loadDayPerformance(); }
       }catch(e){ console.warn('Failed to load available dates', e); }
+    }
+    function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+  // Kelly details now live on the dedicated page via link above
+  async function loadTodayRecap(recs){
+      const grid = document.getElementById('today-kpis'); grid.innerHTML='';
+      try{
+        // Pull historical analysis for today to evaluate correctness using final scores (and evaluated maps)
+        const res = await fetch(`/api/historical-analysis/date/${todayISO()}`);
+        const raw = await res.json();
+        const data = raw && raw.data ? raw.data : raw;
+
+        // Build evaluated correctness maps (type+side+line) and fallback final scores from ROI game results
+        const evalCorrectness = new Map();
+        const evalSideOnly = new Map();
+        const evals = (data.betting_recommendations && data.betting_recommendations.recommendations_evaluated) || [];
+        evals.forEach(e=>{
+          try{
+            const game = `${e.away_team} @ ${e.home_team}`;
+            let type = String(e.bet_type||'').toLowerCase();
+            if(type.startsWith('total')) type='total';
+            if(type.startsWith('moneyline')||type==='ml') type='moneyline';
+            if(type.startsWith('run')) type='run_line';
+            const recTxt = String(e.recommendation||'').trim();
+            let sideBase=null, lineVal=null;
+            if(type==='total'){
+              const parsed = parseSideLine(recTxt); sideBase=parsed.side; lineVal=parsed.line;
+            } else if(type==='moneyline'){
+              const teamPick = parseMoneylineTeam(recTxt);
+              const tp = canonTeam(teamPick);
+              if(tp){
+                if(tp===canonTeam(e.away_team)) sideBase='AWAY';
+                else if(tp===canonTeam(e.home_team)) sideBase='HOME';
+              }
+            }
+            const key = `${game}|${type}|${(sideBase||'').toUpperCase()}|${lineVal!=null? Number(lineVal): ''}`;
+            if(sideBase && (lineVal!=null || type!=='total')) evalCorrectness.set(key, !!e.bet_won);
+            const skey = `${game}|${type}|${(sideBase||'').toUpperCase()}|*`; if(sideBase) evalSideOnly.set(skey, !!e.bet_won);
+          }catch(_){ /* ignore */ }
+        });
+
+        const finalScores = new Map();
+        const gr = (data.roi_analysis && data.roi_analysis.game_results) || [];
+        gr.forEach(g=>{
+          const gname = `${g.away_team} @ ${g.home_team}`;
+          let away=0, home=0; if(g.final_score){ const p=String(g.final_score).split('-'); if(p.length===2){ away=Number(p[0]); home=Number(p[1]); } }
+          finalScores.set(gname, {away_team:g.away_team, home_team:g.home_team, away_score:away, home_score:home});
+        });
+
+        // Evaluate only the recs shown today
+        const unit=100;
+        let resolved=0, wins=0, profit=0;
+        recs.forEach(r=>{
+          const game = r.game || `${r.away_team||''} @ ${r.home_team||''}`;
+          let type = String(r.type||'').toLowerCase();
+          if(type==='over/under' || type.startsWith('total')) type='total';
+          if(type==='ml' || type.startsWith('moneyline')) type='moneyline';
+          if(type.startsWith('run')) type='run_line';
+          const pick = r.recommendation || '';
+          let side=null, line=null;
+          if(type==='total'){
+            const parsed = parseSideLine(pick); side=parsed.side; line = parsed.line ?? (r.betting_line!=null? Number(r.betting_line): null);
+          } else if(type==='moneyline'){
+            const teamPick = parseMoneylineTeam(pick);
+            if(teamPick){
+              const tp = canonTeam(teamPick);
+              const awayName = r.away_team ? canonTeam(r.away_team) : null;
+              const homeName = r.home_team ? canonTeam(r.home_team) : null;
+              if(awayName && tp===awayName) side='AWAY'; else if(homeName && tp===homeName) side='HOME';
+            }
+          }
+          const sideKey=(side||'').toUpperCase();
+          const key = `${game}|${type}|${sideKey}|${line!=null? Number(line): ''}`;
+          let correct = evalCorrectness.has(key) ? evalCorrectness.get(key) : undefined;
+          if(correct===undefined && type==='total'){ const wkey = `${game}|${type}|${sideKey}|*`; if(evalSideOnly.has(wkey)) correct = evalSideOnly.get(wkey); }
+          if(correct===undefined && finalScores.has(game)){
+            const fs = finalScores.get(game);
+            if(type==='total' && sideKey && (line!=null)){
+              const total = Number(fs.away_score)+Number(fs.home_score);
+              if(!isNaN(total)) correct = sideKey==='OVER' ? (total>Number(line)) : (total<Number(line));
+            } else if(type==='moneyline'){ const winner = (Number(fs.away_score) > Number(fs.home_score)) ? 'AWAY' : 'HOME'; if(sideKey==='AWAY'||sideKey==='HOME') correct = (sideKey===winner); }
+          }
+          if(correct!==undefined){
+            resolved += 1; if(correct) wins += 1;
+            const odds = parseAmericanOdds(r.american_odds ?? r.odds);
+            if(correct){ profit += odds>0 ? (unit * odds/100) : (unit * 100/Math.abs(odds)); } else { profit -= unit; }
+          }
+        });
+
+        const accPct = resolved ? (wins/resolved*100) : 0;
+        const totalBet = resolved * 100;
+        const roiPct = totalBet ? (profit/totalBet*100) : 0;
+        const tiles=[
+          {label:'Rec Accuracy', val: accPct.toFixed(1)+'%'},
+          {label:'Total Recs', val: (recs?.length||0)},
+          {label:'ROI %', val: roiPct.toFixed(1)+'%'},
+          {label:'Net Profit', val: '$'+profit.toFixed(2)}
+        ];
+        tiles.forEach(t=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${t.val}</div><div class='muted'>${t.label}</div>`; grid.appendChild(d); });
+      }catch(e){ console.warn('Failed to load today recap', e); }
     }
     async function loadDayPerformance(){
       const day=document.getElementById('hist-day').value; if(!day) return;
-      const res=await fetch(`/api/historical-analysis?date=${day}`);
-      const data=await res.json();
-      const grid=document.getElementById('day-grid'); grid.innerHTML='';
-      const bet = data.betting_recommendations || {};
-      const roi = data.roi_analysis || {};
-      const tiles=[
-        {label:'Rec Accuracy', val: (Number((bet.overall_accuracy||0)*100)).toFixed(1)+'%'},
-        {label:'Total Recs', val: (bet.total_recommendations||0)},
-        {label:'ROI %', val: (Number(roi.roi_percentage||0)).toFixed(1)+'%'},
-        {label:'Net Profit', val: '$'+(Number(roi.net_profit||0)).toFixed(2)}
-      ];
-      tiles.forEach(t=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${t.val}</div><div class='muted'>${t.label}</div>`; grid.appendChild(d); });
+      const res=await fetch(`/api/historical-analysis/date/${day}`);
+      const raw=await res.json();
+      const data = raw && raw.data ? raw.data : raw;
+  const grid=document.getElementById('day-grid'); grid.innerHTML='';
+
+      // Build recommendations table pulling directly from the per-day betting recommendations file
+      const recDiv = document.getElementById('day-recs');
+      try{
+        // 1) Primary source: evaluated recommendations from historical API
+        // Build correctness map from data.betting_recommendations.recommendations_evaluated
+        const evalCorrectness = new Map();
+        const evalSideOnly = new Map(); // key = game|type|SIDE|*
+        const evals = (data.betting_recommendations && data.betting_recommendations.recommendations_evaluated) || [];
+        evals.forEach(e=>{
+          try{
+            const game = `${e.away_team} @ ${e.home_team}`;
+            // Normalize type
+            let type = String(e.bet_type||'').toLowerCase();
+            if(type.startsWith('total')) type = 'total';
+            if(type.startsWith('moneyline') || type==='ml') type = 'moneyline';
+            if(type.startsWith('run')) type = 'run_line';
+            const recTxt = String(e.recommendation||'').trim();
+            let sideBase=null, lineVal=null;
+            if(type==='total'){
+              const parsed = parseSideLine(recTxt);
+              sideBase = parsed.side; lineVal = parsed.line;
+            } else if(type==='moneyline'){
+              const teamPick = parseMoneylineTeam(recTxt);
+              const tp = canonTeam(teamPick);
+              if(tp){
+                if(tp===canonTeam(e.away_team)) sideBase='AWAY';
+                else if(tp===canonTeam(e.home_team)) sideBase='HOME';
+              }
+            }
+            const key = `${game}|${type}|${(sideBase||'').toUpperCase()}|${lineVal!=null? Number(lineVal): ''}`;
+            const nkey = `${normGameKey(game)}|${type}|${(sideBase||'').toUpperCase()}|${lineVal!=null? Number(lineVal): ''}`;
+            if(sideBase && (lineVal!=null || type!=='total')){
+              evalCorrectness.set(key, !!e.bet_won);
+              evalCorrectness.set(nkey, !!e.bet_won);
+            }
+            const skey = `${game}|${type}|${(sideBase||'').toUpperCase()}|*`;
+            const nskey = `${normGameKey(game)}|${type}|${(sideBase||'').toUpperCase()}|*`;
+            if(sideBase){ evalSideOnly.set(skey, !!e.bet_won); evalSideOnly.set(nskey, !!e.bet_won); }
+          }catch(_){/* ignore single eval parse errors */}
+        });
+
+        // 2) Secondary source: game cards recommendations map
+        // Build correctness map from historical cards: key = game|type|SIDE|line and side-only wildcard
+        const correctness = new Map();
+        const sideOnlyCorrectness = new Map(); // key = game|type|SIDE|*
+        const cards = data.game_cards || [];
+        cards.forEach(card=>{
+          const g = gameKey(card.away_team, card.home_team);
+          const ng = normGameKey(g);
+          (card.recommendations||[]).forEach(r=>{
+            // Normalize type
+            let type = String(r.type||'').toLowerCase();
+            if(type.startsWith('total')) type = 'total';
+            if(type.startsWith('moneyline')) type = 'moneyline';
+            if(type.startsWith('run')) type = 'run_line';
+
+            // Normalize side and line from historical card
+      const rawSide = String((r.side!=null && r.side!=='') ? r.side : (r.pick!=null ? r.pick : r.recommendation||'')).trim();
+            let sideBase = null;
+            let lineVal = null;
+            // Try to parse totals
+            const parsed = parseSideLine(rawSide);
+            if(parsed.side){ sideBase = parsed.side; }
+            if(parsed.line != null){ lineVal = Number(parsed.line); }
+            // If still missing, use fields
+            if((lineVal==null || isNaN(lineVal)) && (r.line!=null && r.line!=='')) lineVal = Number(r.line);
+            // Moneyline: map team text to HOME/AWAY if present
+            if(type==='moneyline' && !sideBase){
+              const rsn = normalizeTeamName(rawSide);
+              if(rsn){
+                if(rsn === normalizeTeamName(card.away_team)) sideBase = 'AWAY';
+                else if(rsn === normalizeTeamName(card.home_team)) sideBase = 'HOME';
+              }
+              // Also accept explicit keywords
+              const low = rawSide.toLowerCase();
+              if(!sideBase && low.includes('away')) sideBase = 'AWAY';
+              if(!sideBase && low.includes('home')) sideBase = 'HOME';
+            }
+
+  const key = `${g}|${type}|${(sideBase||'').toUpperCase()}|${lineVal}`;
+  const nkey = `${ng}|${type}|${(sideBase||'').toUpperCase()}|${lineVal}`;
+  const hasLine = (lineVal!==null && !Number.isNaN(Number(lineVal)));
+  if(hasLine){ correctness.set(key, r.is_correct); correctness.set(nkey, r.is_correct); }
+    const skey = `${g}|${type}|${(sideBase||'').toUpperCase()}|*`;
+    const nskey = `${ng}|${type}|${(sideBase||'').toUpperCase()}|*`;
+  sideOnlyCorrectness.set(skey, r.is_correct);
+  sideOnlyCorrectness.set(nskey, r.is_correct);
+          });
+        });
+
+        const recRes = await fetch(`/api/betting-recommendations/date/${day}`);
+  if (recRes.ok) {
+          const recData = await recRes.json();
+          const recs = recData.recommendations || [];
+          // Build final scores map (prefer direct API, fallback to ROI game results and game cards)
+          const finalScores = new Map();
+          try{
+            const fsRes = await fetch(`/api/historical-analysis/final-scores/${day}`);
+            if(fsRes.ok){
+              const fsData = await fsRes.json();
+              const fs = fsData.final_scores || {};
+              Object.values(fs).forEach(s=>{
+                const awayName = s.away_team_display || s.away_team;
+                const homeName = s.home_team_display || s.home_team;
+                const gname = gameKey(awayName, homeName);
+                const a = Number(s.away_score), h = Number(s.home_score);
+                if(!isNaN(a) && !isNaN(h)){
+                  finalScores.set(gname, {away_team:awayName, home_team:homeName, away_score:a, home_score:h});
+                  finalScores.set(normGameKey(gname), {away_team:awayName, home_team:homeName, away_score:a, home_score:h});
+                }
+              });
+            }
+          }catch(_){ /* ignore and use fallbacks below */ }
+          const gr = (data.roi_analysis && data.roi_analysis.game_results) || [];
+          gr.forEach(g=>{
+            const gname = gameKey(g.away_team, g.home_team);
+            let away=0, home=0;
+            if (g.final_score) {
+              const parts = String(g.final_score).split('-');
+              if(parts.length===2){ away = Number(parts[0]); home = Number(parts[1]); }
+            }
+            if(!finalScores.has(gname)){
+              finalScores.set(gname, {away_team:g.away_team, home_team:g.home_team, away_score:away, home_score:home});
+              finalScores.set(normGameKey(gname), {away_team:g.away_team, home_team:g.home_team, away_score:away, home_score:home});
+            }
+          });
+          const cardsFs = data.game_cards || [];
+          cardsFs.forEach(card=>{
+            const fs = card.final_scores || {};
+            const a = Number(fs.away_score), h = Number(fs.home_score);
+            if(!isNaN(a) && !isNaN(h)){
+              const gname = gameKey(card.away_team, card.home_team);
+              if(!finalScores.has(gname)){
+                finalScores.set(gname, {away_team:card.away_team, home_team:card.home_team, away_score:a, home_score:h});
+                finalScores.set(normGameKey(gname), {away_team:card.away_team, home_team:card.home_team, away_score:a, home_score:h});
+              }
+              // Also add a '@'-key for compatibility with rec.game format
+              const compatKey = `${card.away_team} @ ${card.home_team}`;
+              if(!finalScores.has(compatKey)){
+                finalScores.set(compatKey, {away_team:card.away_team, home_team:card.home_team, away_score:a, home_score:h});
+                finalScores.set(normGameKey(compatKey), {away_team:card.away_team, home_team:card.home_team, away_score:a, home_score:h});
+              }
+            }
+          });
+
+          const rows = recs.map(r=>{
+            const game = r.game || `${r.away_team||''} @ ${r.home_team||''}`;
+            const ngame = normGameKey(game);
+            let type = String(r.type||'').toLowerCase();
+            if(type==='over/under' || type.startsWith('total')) type='total';
+            if(type==='ml' || type.startsWith('moneyline')) type='moneyline';
+            if(type.startsWith('run')) type='run_line';
+            const pick = r.recommendation || '';
+            let side=null, line=null;
+            if(type==='total'){
+              const parsed = parseSideLine(pick);
+              side = parsed.side; line = parsed.line ?? (r.betting_line!=null? Number(r.betting_line): null);
+              // If line still missing, try r.line or r.total_line
+              if(line==null && r.line!=null) line = Number(r.line);
+              if(line==null && r.total_line!=null) line = Number(r.total_line);
+            } else if(type==='moneyline'){
+              // Derive HOME/AWAY from team name match
+              const teamPick = parseMoneylineTeam(pick);
+              const fs = finalScores.get(game) || finalScores.get(ngame);
+              if(teamPick){
+                const tp = normalizeTeamName(teamPick);
+                // Prefer comparing to known away/home from rec when available
+                const awayName = r.away_team ? normalizeTeamName(r.away_team) : null;
+                const homeName = r.home_team ? normalizeTeamName(r.home_team) : null;
+                if(awayName && tp===awayName) side='AWAY';
+                else if(homeName && tp===homeName) side='HOME';
+                // Otherwise compare using finalScores mapping if present
+                if(!side && fs){
+                  const isAway = tp === normalizeTeamName(fs.away_team);
+                  const isHome = tp === normalizeTeamName(fs.home_team);
+                  if(isAway) side = 'AWAY'; else if(isHome) side = 'HOME';
+                }
+                // Last resort: parse from the game string
+                if(!side && game.includes('@')){
+                  const parts = game.split('@');
+                  const gAway = normalizeTeamName(parts[0].trim());
+                  const gHome = normalizeTeamName(parts[1].trim());
+                  if(tp===gAway) side='AWAY'; else if(tp===gHome) side='HOME';
+                }
+              }
+            }
+            const sideKey = (side||'').toUpperCase();
+            const key = `${game}|${type}|${sideKey}|${line!=null? Number(line): ''}`;
+            const nkey = `${ngame}|${type}|${sideKey}|${line!=null? Number(line): ''}`;
+            // Priority 1: evaluated recs
+            let correct = evalCorrectness.has(key) ? evalCorrectness.get(key) : (evalCorrectness.has(nkey) ? evalCorrectness.get(nkey) : undefined);
+            if(correct === undefined && type==='total'){
+              const wkey = `${game}|${type}|${sideKey}|*`;
+              const nwkey = `${ngame}|${type}|${sideKey}|*`;
+              if(evalSideOnly.has(wkey)) correct = evalSideOnly.get(wkey); else if(evalSideOnly.has(nwkey)) correct = evalSideOnly.get(nwkey);
+            }
+            // Priority 2: cards
+            if(correct === undefined) correct = correctness.has(key) ? correctness.get(key) : (correctness.has(nkey) ? correctness.get(nkey) : undefined);
+            if(correct === undefined && type==='total'){
+              const wkey = `${game}|${type}|${sideKey}|*`;
+              const nwkey = `${ngame}|${type}|${sideKey}|*`;
+              if(sideOnlyCorrectness.has(wkey)) correct = sideOnlyCorrectness.get(wkey); else if(sideOnlyCorrectness.has(nwkey)) correct = sideOnlyCorrectness.get(nwkey);
+            }
+            // Fallback correctness computation from final score when available
+            const fs = finalScores.get(game) || finalScores.get(ngame);
+            if(correct === undefined && fs){
+              if(type==='total' && sideKey && (line!=null)){
+                const total = Number(fs.away_score) + Number(fs.home_score);
+                if(!isNaN(total)){
+                  if(sideKey==='OVER') correct = total > Number(line);
+                  else if(sideKey==='UNDER') correct = total < Number(line);
+                }
+              } else if(type==='moneyline'){
+                const winner = (Number(fs.away_score) > Number(fs.home_score)) ? 'AWAY' : 'HOME';
+                if(sideKey==='AWAY' || sideKey==='HOME') correct = (sideKey === winner);
+              }
+            }
+            return {
+              game,
+              bet: `${String(r.type||'').replace('_',' ').toUpperCase()} ${pick}`.trim(),
+              odds: r.american_odds ?? r.odds,
+              conf: String(r.confidence||'').toUpperCase(),
+              ev: r.expected_value,
+              correct
+            };
+          });
+          rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
+          recDiv.innerHTML = rows.length ? ('<table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Correct</th></tr></thead><tbody>'+
+            rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class=\"badge ${r.conf}\">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('')+
+          '</tbody></table>') : '<div class="muted">No recommendations found for this date.</div>';
+
+          // Build recap tiles from the SAME recs we just rendered
+          const unit=100; let resolved=0, wins=0, profit=0;
+          rows.forEach(r=>{
+            if(r.correct===undefined) return;
+            resolved += 1; if(r.correct) wins += 1;
+            const odds = parseAmericanOdds(r.odds);
+            if(r.correct){ profit += odds>0 ? (unit*odds/100) : (unit*100/Math.abs(odds)); } else { profit -= unit; }
+          });
+          const accPct = resolved ? (wins/resolved*100) : 0;
+          const roiPct = resolved ? (profit/(resolved*unit)*100) : 0;
+          const tilesHtml = [
+            {label:'Rec Accuracy', val: accPct.toFixed(1)+'%'},
+            {label:'Total Recs', val: recs.length},
+            {label:'ROI %', val: roiPct.toFixed(1)+'%'},
+            {label:'Net Profit', val: '$'+profit.toFixed(2)}
+          ].map(t=>`<div class='stat'><div class='num'>${t.val}</div><div class='muted'>${t.label}</div></div>`).join('');
+          grid.innerHTML = tilesHtml;
+        } else {
+          // Fallback: use historical game cards (may be incomplete vs raw file)
+          const cards = data.game_cards || [];
+          const rows=[];
+          cards.forEach(card=>{
+            const game = `${card.away_team} @ ${card.home_team}`;
+            (card.recommendations||[]).forEach(r=>{
+              rows.push({
+                game,
+                bet:`${(r.type||'').replace('_',' ').toUpperCase()} ${r.pick||''}`,
+                odds:r.odds, conf:String(r.confidence||'').toUpperCase(), ev:r.expected_value, correct:r.is_correct
+              });
+            });
+          });
+          rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
+          recDiv.innerHTML = rows.length ? ('<table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Correct</th></tr></thead><tbody>'+
+            rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class=\"badge ${r.conf}\">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('')+
+          '</tbody></table>') : '<div class="muted">No recommendations found for this date.</div>';
+
+          // Recap from fallback rows
+          const unit=100; let resolved=0, wins=0, profit=0;
+          rows.forEach(r=>{ if(r.correct===undefined) return; resolved+=1; if(r.correct) wins+=1; const odds=parseAmericanOdds(r.odds); if(r.correct){ profit += odds>0 ? (unit*odds/100) : (unit*100/Math.abs(odds)); } else { profit -= unit; } });
+          const accPct = resolved ? (wins/resolved*100) : 0;
+          const roiPct = resolved ? (profit/(resolved*unit)*100) : 0;
+          grid.innerHTML = [
+            {label:'Rec Accuracy', val: accPct.toFixed(1)+'%'},
+            {label:'Total Recs', val: rows.length},
+            {label:'ROI %', val: roiPct.toFixed(1)+'%'},
+            {label:'Net Profit', val: '$'+profit.toFixed(2)}
+          ].map(t=>`<div class='stat'><div class='num'>${t.val}</div><div class='muted'>${t.label}</div></div>`).join('');
+        }
+      }catch(e){ recDiv.innerHTML='<div class="muted">Unable to load recommendations for this date.</div>'; }
     }
     loadPerformance(); loadToday(); loadAvailableDates();
   </script>

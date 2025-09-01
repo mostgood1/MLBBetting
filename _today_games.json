@@ -1,0 +1,1639 @@
+{
+  "archaeological_note": "Found 15 games with full predictions and pitching matchups",
+  "count": 15,
+  "date": "2025-08-31",
+  "games": [
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/stl.png",
+      "away_pitcher": "Andre Pallante",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "St. Louis Cardinals",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/stl.png",
+        "primary_color": "#C41E3A",
+        "secondary_color": "#FEDB00",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#C41E3A",
+        "secondary": "#FEDB00",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 46.6,
+      "bet_grade": "C",
+      "betting_recommendations": null,
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "St. Louis Cardinals_vs_Cincinnati Reds",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/cin.png",
+      "home_pitcher": "Brady Singer",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Cincinnati Reds",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/cin.png",
+        "primary_color": "#C6011F",
+        "secondary_color": "#000000",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#C6011F",
+        "secondary": "#000000",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 53.4,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "OVER",
+      "over_under_total": 8.0,
+      "predicted_away_score": 3.8,
+      "predicted_home_score": 4.1,
+      "predicted_total_runs": 8.1,
+      "predicted_winner": "Cincinnati Reds",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": 127,
+          "home": -156
+        },
+        "run_line": {
+          "away": -167,
+          "home": 137,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 8.0,
+          "over": -120,
+          "under": -101
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.466,
+        "home_prob": 0.534
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/sd.png",
+      "away_pitcher": "David Morgan",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "San Diego Padres",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/sd.png",
+        "primary_color": "#2F241D",
+        "secondary_color": "#FFC425",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#2F241D",
+        "secondary": "#FFC425",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 48.0,
+      "bet_grade": "C",
+      "betting_recommendations": {
+        "source": "Unified Engine v1.0",
+        "summary": "1 unified recommendations",
+        "total_bets": 1,
+        "value_bets": [
+          {
+            "american_odds": "-121",
+            "betting_line": 8.5,
+            "confidence": "medium",
+            "expected_value": 0.20545454545454533,
+            "kelly_bet_size": 24.9,
+            "predicted_total": 10.1,
+            "reasoning": "Predicted 10.1 vs line 8.5",
+            "recommendation": "Over 8.5",
+            "type": "total",
+            "win_probability": 0.6599999999999999
+          }
+        ]
+      },
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "San Diego Padres_vs_Minnesota Twins",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/min.png",
+      "home_pitcher": "Joe Ryan",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Minnesota Twins",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/min.png",
+        "primary_color": "#002B5C",
+        "secondary_color": "#D31145",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#002B5C",
+        "secondary": "#D31145",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 52.0,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "OVER",
+      "over_under_total": 8.5,
+      "predicted_away_score": 5.3,
+      "predicted_home_score": 5.5,
+      "predicted_total_runs": 10.1,
+      "predicted_winner": "Minnesota Twins",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": 101,
+          "home": -122
+        },
+        "run_line": {
+          "away": 159,
+          "home": -196,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -121,
+          "under": 100
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.48,
+        "home_prob": 0.52
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/pit.png",
+      "away_pitcher": "Mitch Keller",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Pittsburgh Pirates",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/pit.png",
+        "primary_color": "#FDB827",
+        "secondary_color": "#27251F",
+        "text_color": "#27251F"
+      },
+      "away_team_colors": {
+        "primary": "#FDB827",
+        "secondary": "#27251F",
+        "text": "#27251F"
+      },
+      "away_win_probability": 43.7,
+      "bet_grade": "C",
+      "betting_recommendations": {
+        "best_bet": {
+          "confidence": "MEDIUM",
+          "edge_rating": "\u2b50",
+          "estimated_odds": "-120",
+          "expected_value": 0.032,
+          "reasoning": "Model gives Boston Red Sox 56.3% chance to win",
+          "recommendation": "Boston Red Sox ML (56.3%)",
+          "type": "Moneyline",
+          "win_probability": 0.563
+        },
+        "summary": "2 betting opportunities identified",
+        "total_opportunities": 2,
+        "value_bets": [
+          {
+            "confidence": "MEDIUM",
+            "edge_rating": "\u2b50",
+            "estimated_odds": "-120",
+            "expected_value": 0.032,
+            "reasoning": "Model gives Boston Red Sox 56.3% chance to win",
+            "recommendation": "Boston Red Sox ML (56.3%)",
+            "type": "Moneyline",
+            "win_probability": 0.563
+          },
+          {
+            "confidence": "MEDIUM",
+            "edge_rating": "\u2b50",
+            "estimated_odds": "+120",
+            "expected_value": -0.071,
+            "reasoning": "Model favors Boston Red Sox with 56.3% win probability and 0.8 run margin",
+            "recommendation": "Boston Red Sox -1.5 (0.8 margin expected)",
+            "type": "Run Line",
+            "win_probability": 0.42224999999999996
+          }
+        ]
+      },
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Pittsburgh Pirates_vs_Boston Red Sox",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/bos.png",
+      "home_pitcher": "Lucas Giolito",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Boston Red Sox",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/bos.png",
+        "primary_color": "#BD3039",
+        "secondary_color": "#0C2340",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#BD3039",
+        "secondary": "#0C2340",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 56.3,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "UNDER",
+      "over_under_total": 8.5,
+      "predicted_away_score": 3.9,
+      "predicted_home_score": 4.4,
+      "predicted_total_runs": 8.4,
+      "predicted_winner": "Boston Red Sox",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": 148,
+          "home": -181
+        },
+        "run_line": {
+          "away": -137,
+          "home": 113,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -112,
+          "under": -108
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.437,
+        "home_prob": 0.563
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/tb.png",
+      "away_pitcher": "Ian Seymour",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Tampa Bay Rays",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/tb.png",
+        "primary_color": "#092C5C",
+        "secondary_color": "#8FBCE6",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#092C5C",
+        "secondary": "#8FBCE6",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 52.8,
+      "bet_grade": "C",
+      "betting_recommendations": null,
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Tampa Bay Rays_vs_Washington Nationals",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png",
+      "home_pitcher": "Brad Lord",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Washington Nationals",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png",
+        "primary_color": "#AB0003",
+        "secondary_color": "#14225A",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#AB0003",
+        "secondary": "#14225A",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 47.2,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "OVER",
+      "over_under_total": 8.0,
+      "predicted_away_score": 4.0,
+      "predicted_home_score": 3.9,
+      "predicted_total_runs": 8.1,
+      "predicted_winner": "Tampa Bay Rays",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": -144,
+          "home": 118
+        },
+        "run_line": {
+          "away": 118,
+          "home": -143,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 8.0,
+          "over": -114,
+          "under": -107
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.528,
+        "home_prob": 0.472
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/mil.png",
+      "away_pitcher": "Brandon Woodruff",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Milwaukee Brewers",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/mil.png",
+        "primary_color": "#FFC52F",
+        "secondary_color": "#12284B",
+        "text_color": "#12284B"
+      },
+      "away_team_colors": {
+        "primary": "#FFC52F",
+        "secondary": "#12284B",
+        "text": "#12284B"
+      },
+      "away_win_probability": 49.9,
+      "bet_grade": "C",
+      "betting_recommendations": null,
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Milwaukee Brewers_vs_Toronto Blue Jays",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/tor.png",
+      "home_pitcher": "Max Scherzer",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Toronto Blue Jays",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/tor.png",
+        "primary_color": "#134A8E",
+        "secondary_color": "#1D2D5C",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#134A8E",
+        "secondary": "#1D2D5C",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 50.1,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "UNDER",
+      "over_under_total": 8.0,
+      "predicted_away_score": 3.6,
+      "predicted_home_score": 3.5,
+      "predicted_total_runs": 7.5,
+      "predicted_winner": "Toronto Blue Jays",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": -111,
+          "home": -110
+        },
+        "run_line": {
+          "away": 146,
+          "home": -179,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 8.0,
+          "over": -112,
+          "under": -108
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.499,
+        "home_prob": 0.501
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/sea.png",
+      "away_pitcher": "Bryce Miller",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Seattle Mariners",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/sea.png",
+        "primary_color": "#0C2C56",
+        "secondary_color": "#005C5C",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#0C2C56",
+        "secondary": "#005C5C",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 47.0,
+      "bet_grade": "C",
+      "betting_recommendations": null,
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Seattle Mariners_vs_Cleveland Guardians",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/cle.png",
+      "home_pitcher": "Tanner Bibee",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Cleveland Guardians",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/cle.png",
+        "primary_color": "#E31937",
+        "secondary_color": "#0C2340",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#E31937",
+        "secondary": "#0C2340",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 53.0,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "OVER",
+      "over_under_total": 8.5,
+      "predicted_away_score": 4.3,
+      "predicted_home_score": 4.5,
+      "predicted_total_runs": 8.7,
+      "predicted_winner": "Cleveland Guardians",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": -111,
+          "home": -110
+        },
+        "run_line": {
+          "away": 148,
+          "home": -181,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -102,
+          "under": -119
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.47,
+        "home_prob": 0.53
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/mia.png",
+      "away_pitcher": "Sandy Alcantara",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Miami Marlins",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/mia.png",
+        "primary_color": "#00A3E0",
+        "secondary_color": "#EF3340",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#00A3E0",
+        "secondary": "#EF3340",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 44.3,
+      "bet_grade": "C",
+      "betting_recommendations": {
+        "source": "Unified Engine v1.0",
+        "summary": "1 unified recommendations",
+        "total_bets": 1,
+        "value_bets": [
+          {
+            "american_odds": "-103",
+            "betting_line": 8.0,
+            "confidence": "low",
+            "expected_value": 0.10368932038834944,
+            "kelly_bet_size": 10.7,
+            "predicted_total": 7.4,
+            "reasoning": "Predicted 7.4 vs line 8.0",
+            "recommendation": "Under 8.0",
+            "type": "total",
+            "win_probability": 0.5599999999999999
+          }
+        ]
+      },
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Miami Marlins_vs_New York Mets",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/nym.png",
+      "home_pitcher": "Kodai Senga",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "New York Mets",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/nym.png",
+        "primary_color": "#002D72",
+        "secondary_color": "#FF5910",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#002D72",
+        "secondary": "#FF5910",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 55.7,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "UNDER",
+      "over_under_total": 8.0,
+      "predicted_away_score": 3.3,
+      "predicted_home_score": 3.6,
+      "predicted_total_runs": 7.4,
+      "predicted_winner": "New York Mets",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": 146,
+          "home": -180
+        },
+        "run_line": {
+          "away": -144,
+          "home": 118,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 8.0,
+          "over": -118,
+          "under": -103
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.443,
+        "home_prob": 0.557
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/laa.png",
+      "away_pitcher": "Jos\u00e9 Soriano",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Los Angeles Angels",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/laa.png",
+        "primary_color": "#BA0021",
+        "secondary_color": "#003263",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#BA0021",
+        "secondary": "#003263",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 46.7,
+      "bet_grade": "C",
+      "betting_recommendations": null,
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Los Angeles Angels_vs_Houston Astros",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/hou.png",
+      "home_pitcher": "Hunter Brown",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Houston Astros",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/hou.png",
+        "primary_color": "#002D62",
+        "secondary_color": "#EB6E1F",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#002D62",
+        "secondary": "#EB6E1F",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 53.3,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "UNDER",
+      "over_under_total": 7.5,
+      "predicted_away_score": 3.4,
+      "predicted_home_score": 3.6,
+      "predicted_total_runs": 7.4,
+      "predicted_winner": "Houston Astros",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": 140,
+          "home": -172
+        },
+        "run_line": {
+          "away": -156,
+          "home": 128,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 7.5,
+          "over": -109,
+          "under": -111
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.467,
+        "home_prob": 0.533
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/det.png",
+      "away_pitcher": "Tarik Skubal",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Detroit Tigers",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/det.png",
+        "primary_color": "#0C2340",
+        "secondary_color": "#FA4616",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#0C2340",
+        "secondary": "#FA4616",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 48.3,
+      "bet_grade": "C",
+      "betting_recommendations": null,
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Detroit Tigers_vs_Kansas City Royals",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/kc.png",
+      "home_pitcher": "Michael Wacha",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Kansas City Royals",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/kc.png",
+        "primary_color": "#004687",
+        "secondary_color": "#BD9B60",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#004687",
+        "secondary": "#BD9B60",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 51.7,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "OVER",
+      "over_under_total": 7.0,
+      "predicted_away_score": 3.4,
+      "predicted_home_score": 3.4,
+      "predicted_total_runs": 7.3,
+      "predicted_winner": "Kansas City Royals",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": -175,
+          "home": 143
+        },
+        "run_line": {
+          "away": 104,
+          "home": -127,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 7.0,
+          "over": -125,
+          "under": 103
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.483,
+        "home_prob": 0.517
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png",
+      "away_pitcher": "Luis Gil",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "New York Yankees",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png",
+        "primary_color": "#132448",
+        "secondary_color": "#C4CED4",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#132448",
+        "secondary": "#C4CED4",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 52.1,
+      "bet_grade": "C",
+      "betting_recommendations": {
+        "source": "Unified Engine v1.0",
+        "summary": "1 unified recommendations",
+        "total_bets": 1,
+        "value_bets": [
+          {
+            "american_odds": "-101",
+            "betting_line": 8.5,
+            "confidence": "medium",
+            "expected_value": 0.21396039603960393,
+            "kelly_bet_size": 21.6,
+            "predicted_total": 7.4,
+            "reasoning": "Predicted 7.4 vs line 8.5",
+            "recommendation": "Under 8.5",
+            "type": "total",
+            "win_probability": 0.61
+          }
+        ]
+      },
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "New York Yankees_vs_Chicago White Sox",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/chw.png",
+      "home_pitcher": "Mart\u00edn P\u00e9rez",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Chicago White Sox",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/chw.png",
+        "primary_color": "#27251F",
+        "secondary_color": "#C4CED4",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#27251F",
+        "secondary": "#C4CED4",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 47.9,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "UNDER",
+      "over_under_total": 8.5,
+      "predicted_away_score": 3.5,
+      "predicted_home_score": 3.4,
+      "predicted_total_runs": 7.4,
+      "predicted_winner": "New York Yankees",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": -181,
+          "home": 148
+        },
+        "run_line": {
+          "away": -115,
+          "home": -105,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -120,
+          "under": -101
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.521,
+        "home_prob": 0.479
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/chc.png",
+      "away_pitcher": "Matthew Boyd",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Chicago Cubs",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/chc.png",
+        "primary_color": "#0E3386",
+        "secondary_color": "#CC3433",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#0E3386",
+        "secondary": "#CC3433",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 56.6,
+      "bet_grade": "C",
+      "betting_recommendations": {
+        "best_bet": {
+          "confidence": "MEDIUM",
+          "edge_rating": "\u2b50",
+          "estimated_odds": "+110",
+          "expected_value": 0.189,
+          "reasoning": "Model gives Chicago Cubs 56.6% chance to win",
+          "recommendation": "Chicago Cubs ML (56.6%)",
+          "type": "Moneyline",
+          "win_probability": 0.566
+        },
+        "summary": "3 betting opportunities identified",
+        "total_opportunities": 3,
+        "value_bets": [
+          {
+            "confidence": "MEDIUM",
+            "edge_rating": "\u2b50",
+            "estimated_odds": "+110",
+            "expected_value": 0.189,
+            "reasoning": "Model gives Chicago Cubs 56.6% chance to win",
+            "recommendation": "Chicago Cubs ML (56.6%)",
+            "type": "Moneyline",
+            "win_probability": 0.566
+          },
+          {
+            "confidence": "MEDIUM",
+            "edge_rating": "\u2b50",
+            "estimated_odds": "-110",
+            "expected_value": 0.088,
+            "reasoning": "Model predicts 10.3 runs vs line of 11.0",
+            "recommendation": "UNDER 11.0 (10.3 predicted)",
+            "type": "Total",
+            "win_probability": 0.57
+          },
+          {
+            "confidence": "MEDIUM",
+            "edge_rating": "\u2b50",
+            "estimated_odds": "+120",
+            "expected_value": -0.066,
+            "reasoning": "Model favors Chicago Cubs with 56.6% win probability and 1.1 run margin",
+            "recommendation": "Chicago Cubs -1.5 (1.1 margin expected)",
+            "type": "Run Line",
+            "win_probability": 0.4245
+          }
+        ]
+      },
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Chicago Cubs_vs_Colorado Rockies",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/col.png",
+      "home_pitcher": "Tanner Gordon",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Colorado Rockies",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/col.png",
+        "primary_color": "#33006F",
+        "secondary_color": "#C4CED4",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#33006F",
+        "secondary": "#C4CED4",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 43.4,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "UNDER",
+      "over_under_total": 11.0,
+      "predicted_away_score": 5.8,
+      "predicted_home_score": 5.3,
+      "predicted_total_runs": 10.3,
+      "predicted_winner": "Chicago Cubs",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": -246,
+          "home": 197
+        },
+        "run_line": {
+          "away": -169,
+          "home": 138,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 11.0,
+          "over": -109,
+          "under": -112
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.566,
+        "home_prob": 0.434
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/bal.png",
+      "away_pitcher": "Tomoyuki Sugano",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Baltimore Orioles",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/bal.png",
+        "primary_color": "#DF4601",
+        "secondary_color": "#000000",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#DF4601",
+        "secondary": "#000000",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 45.4,
+      "bet_grade": "C",
+      "betting_recommendations": {
+        "source": "Unified Engine v1.0",
+        "summary": "1 unified recommendations",
+        "total_bets": 1,
+        "value_bets": [
+          {
+            "american_odds": "-116",
+            "betting_line": 8.5,
+            "confidence": "low",
+            "expected_value": 0.09862068965517257,
+            "kelly_bet_size": 11.4,
+            "predicted_total": 9.4,
+            "reasoning": "Predicted 9.4 vs line 8.5",
+            "recommendation": "Over 8.5",
+            "type": "total",
+            "win_probability": 0.5900000000000001
+          }
+        ]
+      },
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Baltimore Orioles_vs_San Francisco Giants",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/sf.png",
+      "home_pitcher": "Justin Verlander",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "San Francisco Giants",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/sf.png",
+        "primary_color": "#FD5A1E",
+        "secondary_color": "#27251F",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#FD5A1E",
+        "secondary": "#27251F",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 54.6,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "OVER",
+      "over_under_total": 8.5,
+      "predicted_away_score": 4.8,
+      "predicted_home_score": 5.1,
+      "predicted_total_runs": 9.4,
+      "predicted_winner": "San Francisco Giants",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": 118,
+          "home": -143
+        },
+        "run_line": {
+          "away": -183,
+          "home": 149,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -116,
+          "under": -105
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.454,
+        "home_prob": 0.546
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/tex.png",
+      "away_pitcher": "Jacob deGrom",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Texas Rangers",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/tex.png",
+        "primary_color": "#003278",
+        "secondary_color": "#C0111F",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#003278",
+        "secondary": "#C0111F",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 50.6,
+      "bet_grade": "D",
+      "betting_recommendations": null,
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Texas Rangers_vs_Athletics",
+      "game_time": "TBD",
+      "has_real_betting_lines": false,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/oak.png",
+      "home_pitcher": "J.T. Ginn",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Athletics",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/oak.png",
+        "primary_color": "#003831",
+        "secondary_color": "#EFB21E",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#003831",
+        "secondary": "#EFB21E",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 49.4,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "N/A",
+      "over_under_total": null,
+      "predicted_away_score": 3.5,
+      "predicted_home_score": 3.4,
+      "predicted_total_runs": 7.4,
+      "predicted_winner": "Texas Rangers",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": null,
+      "recommendation": "Skip",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.506,
+        "home_prob": 0.494
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/ari.png",
+      "away_pitcher": "Brandon Pfaadt",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Arizona Diamondbacks",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/ari.png",
+        "primary_color": "#A71930",
+        "secondary_color": "#E3D4AD",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#A71930",
+        "secondary": "#E3D4AD",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 45.5,
+      "bet_grade": "C",
+      "betting_recommendations": {
+        "source": "Unified Engine v1.0",
+        "summary": "1 unified recommendations",
+        "total_bets": 1,
+        "value_bets": [
+          {
+            "american_odds": "-108",
+            "betting_line": 9.0,
+            "confidence": "low",
+            "expected_value": 0.15555555555555556,
+            "kelly_bet_size": 16.8,
+            "predicted_total": 10.0,
+            "reasoning": "Predicted 10.0 vs line 9.0",
+            "recommendation": "Over 9.0",
+            "type": "total",
+            "win_probability": 0.6
+          }
+        ]
+      },
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Arizona Diamondbacks_vs_Los Angeles Dodgers",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/lad.png",
+      "home_pitcher": "Yoshinobu Yamamoto",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Los Angeles Dodgers",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/lad.png",
+        "primary_color": "#005A9C",
+        "secondary_color": "#FFFFFF",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#005A9C",
+        "secondary": "#FFFFFF",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 54.5,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "OVER",
+      "over_under_total": 9.0,
+      "predicted_away_score": 5.1,
+      "predicted_home_score": 5.5,
+      "predicted_total_runs": 10.0,
+      "predicted_winner": "Los Angeles Dodgers",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": 182,
+          "home": -226
+        },
+        "run_line": {
+          "away": -109,
+          "home": -111,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 9.0,
+          "over": -108,
+          "under": -112
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.455,
+        "home_prob": 0.545
+      }
+    },
+    {
+      "away_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/atl.png",
+      "away_pitcher": "Hurston Waldrep",
+      "away_pitcher_factor": 1.0,
+      "away_score": 0,
+      "away_team": "Atlanta Braves",
+      "away_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/atl.png",
+        "primary_color": "#CE1141",
+        "secondary_color": "#13274F",
+        "text_color": "#FFFFFF"
+      },
+      "away_team_colors": {
+        "primary": "#CE1141",
+        "secondary": "#13274F",
+        "text": "#FFFFFF"
+      },
+      "away_win_probability": 44.0,
+      "bet_grade": "C",
+      "betting_recommendations": {
+        "best_bet": {
+          "confidence": "MEDIUM",
+          "edge_rating": "\u2b50",
+          "estimated_odds": "-120",
+          "expected_value": 0.027,
+          "reasoning": "Model gives Philadelphia Phillies 56.0% chance to win",
+          "recommendation": "Philadelphia Phillies ML (56.0%)",
+          "type": "Moneyline",
+          "win_probability": 0.56
+        },
+        "summary": "2 betting opportunities identified",
+        "total_opportunities": 2,
+        "value_bets": [
+          {
+            "confidence": "MEDIUM",
+            "edge_rating": "\u2b50",
+            "estimated_odds": "-120",
+            "expected_value": 0.027,
+            "reasoning": "Model gives Philadelphia Phillies 56.0% chance to win",
+            "recommendation": "Philadelphia Phillies ML (56.0%)",
+            "type": "Moneyline",
+            "win_probability": 0.56
+          },
+          {
+            "confidence": "MEDIUM",
+            "edge_rating": "\u2b50",
+            "estimated_odds": "+120",
+            "expected_value": -0.076,
+            "reasoning": "Model favors Philadelphia Phillies with 56.0% win probability and 0.9 run margin",
+            "recommendation": "Philadelphia Phillies -1.5 (0.9 margin expected)",
+            "type": "Run Line",
+            "win_probability": 0.42000000000000004
+          }
+        ]
+      },
+      "confidence": 50.0,
+      "date": "2025-08-31",
+      "game_id": "Atlanta Braves_vs_Philadelphia Phillies",
+      "game_time": "TBD",
+      "has_real_betting_lines": true,
+      "home_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/phi.png",
+      "home_pitcher": "Jes\u00fas Luzardo",
+      "home_pitcher_factor": 1.0,
+      "home_score": 0,
+      "home_team": "Philadelphia Phillies",
+      "home_team_assets": {
+        "logo_url": "https://a.espncdn.com/i/teamlogos/mlb/500/phi.png",
+        "primary_color": "#E81828",
+        "secondary_color": "#002D72",
+        "text_color": "#FFFFFF"
+      },
+      "home_team_colors": {
+        "primary": "#E81828",
+        "secondary": "#002D72",
+        "text": "#FFFFFF"
+      },
+      "home_win_probability": 56.0,
+      "inning": "",
+      "inning_state": "",
+      "is_final": false,
+      "is_live": false,
+      "live_status": {
+        "away_score": 0,
+        "badge_class": "scheduled",
+        "game_time": "TBD",
+        "home_score": 0,
+        "inning": "",
+        "inning_state": "",
+        "is_final": false,
+        "is_live": false,
+        "status": "Scheduled"
+      },
+      "over_probability": 0.5,
+      "over_under_recommendation": "OVER",
+      "over_under_total": 9.0,
+      "predicted_away_score": 4.5,
+      "predicted_home_score": 4.9,
+      "predicted_total_runs": 9.1,
+      "predicted_winner": "Philadelphia Phillies",
+      "prediction_details": {
+        "confidence_intervals": {},
+        "confidence_level": "MEDIUM",
+        "model_version": "comprehensive",
+        "moneyline_recommendation": "NEUTRAL",
+        "most_likely_range": "Unknown",
+        "prediction_time": "",
+        "simulation_count": 5000
+      },
+      "real_betting_lines": {
+        "moneyline": {
+          "away": 137,
+          "home": -167
+        },
+        "run_line": {
+          "away": -157,
+          "home": 129,
+          "line": 1.5
+        },
+        "total_runs": {
+          "line": 9.0,
+          "over": -101,
+          "under": -121
+        }
+      },
+      "recommendation": "Weak Value",
+      "status": "Scheduled",
+      "win_probabilities": {
+        "away_prob": 0.44,
+        "home_prob": 0.56
+      }
+    }
+  ],
+  "success": true
+}
+

@@ -358,21 +358,33 @@ class ComprehensiveHistoricalAnalyzer:
                 with open(cache_path, 'r') as f:
                     cached = json.load(f)
                 final_scores: Dict[str, Any] = {}
+                # Support both dict-of-objects and list-of-objects
+                items = []
                 if isinstance(cached, dict):
-                    for _, v in cached.items():
+                    items = list(cached.values())
+                elif isinstance(cached, list):
+                    items = cached
+                for v in items:
+                    try:
                         away_team = normalize_team_name(v.get('away_team', ''))
                         home_team = normalize_team_name(v.get('home_team', ''))
+                        if not away_team or not home_team:
+                            continue
                         key = f"{away_team}_vs_{home_team}"
+                        away_score = v.get('away_score', 0)
+                        home_score = v.get('home_score', 0)
                         final_scores[key] = {
                             'away_team': away_team,
                             'home_team': home_team,
-                            'away_score': v.get('away_score', 0),
-                            'home_score': v.get('home_score', 0),
-                            'total_runs': v.get('total_runs', v.get('away_score', 0) + v.get('home_score', 0)),
-                            'winner': v.get('winner', 'away' if v.get('away_score', 0) > v.get('home_score', 0) else 'home'),
+                            'away_score': away_score,
+                            'home_score': home_score,
+                            'total_runs': v.get('total_runs', (away_score or 0) + (home_score or 0)),
+                            'winner': v.get('winner', 'away' if (away_score or 0) > (home_score or 0) else 'home'),
                             'game_pk': v.get('game_pk', ''),
                             'is_final': True
                         }
+                    except Exception:
+                        continue
                 if final_scores:
                     logger.info(f"Loaded {len(final_scores)} final scores for {date} from disk cache")
                     self._final_scores_cache_by_date[date] = final_scores

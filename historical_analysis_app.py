@@ -744,7 +744,7 @@ def api_todays_opportunities():
                 'message': 'System initialization failed'
             }), 500
         
-        # Get today's date
+    # Get today's date
         today_str = datetime.now().strftime('%Y-%m-%d')
         
     # Get today's Kelly recommendations from unified cache
@@ -769,7 +769,10 @@ def api_todays_opportunities():
                 max_units = float(request.args.get('max_units') or 2)
             except Exception:
                 max_units = 2
-            bankroll_proxy = base_unit * 10  # align with prior guidance using ~$1,000 when unit=$100
+            try:
+                bankroll = float(request.args.get('bankroll') or request.args.get('bankroll_amount') or (base_unit * 10))
+            except Exception:
+                bankroll = base_unit * 10
             
             for game_key, game_data in today_games.items():
                 recommendations = game_data.get('recommendations', [])
@@ -782,8 +785,8 @@ def api_todays_opportunities():
                     if kelly_size >= 5.0 and confidence == 'HIGH':
                         # Convert Kelly % to fraction
                         kelly_fraction = (kelly_size or 0) / 100.0
-                        # Dollar sizing: fraction of bankroll proxy, rounded to $10s, capped to 2x unit
-                        kelly_amount = kelly_fraction * bankroll_proxy
+                        # Dollar sizing: fraction of bankroll, rounded to $10s, capped to max_units * unit
+                        kelly_amount = kelly_fraction * bankroll
                         suggested_bet = max(10, min(round(kelly_amount / 10) * 10, int(base_unit * max_units)))
                         opportunity = {
                             'date': today_str,

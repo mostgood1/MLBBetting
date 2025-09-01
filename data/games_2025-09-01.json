@@ -1,0 +1,132 @@
+[
+  {
+    "game_pk": 776498,
+    "game_time": "2025-09-01T17:05:00Z",
+    "away_team": "Miami Marlins",
+    "home_team": "Washington Nationals",
+    "away_pitcher": "Lake Bachar",
+    "home_pitcher": "Andrew Alvarez",
+    "away_probable_pitcher": "Lake Bachar",
+    "home_probable_pitcher": "Andrew Alvarez"
+  },
+  {
+    "game_pk": 776501,
+    "game_time": "2025-09-01T17:10:00Z",
+    "away_team": "New York Mets",
+    "home_team": "Detroit Tigers",
+    "away_pitcher": "Sean Manaea",
+    "home_pitcher": "Charlie Morton",
+    "away_probable_pitcher": "Sean Manaea",
+    "home_probable_pitcher": "Charlie Morton"
+  },
+  {
+    "game_pk": 776503,
+    "game_time": "2025-09-01T17:10:00Z",
+    "away_team": "Toronto Blue Jays",
+    "home_team": "Cincinnati Reds",
+    "away_pitcher": "Chris Bassitt",
+    "home_pitcher": "Hunter Greene",
+    "away_probable_pitcher": "Chris Bassitt",
+    "home_probable_pitcher": "Hunter Greene"
+  },
+  {
+    "game_pk": 776505,
+    "game_time": "2025-09-01T17:35:00Z",
+    "away_team": "Cleveland Guardians",
+    "home_team": "Boston Red Sox",
+    "away_pitcher": "Parker Messick",
+    "home_pitcher": "Brayan Bello",
+    "away_probable_pitcher": "Parker Messick",
+    "home_probable_pitcher": "Brayan Bello"
+  },
+  {
+    "game_pk": 776499,
+    "game_time": "2025-09-01T18:10:00Z",
+    "away_team": "Los Angeles Angels",
+    "home_team": "Houston Astros",
+    "away_pitcher": "Yusei Kikuchi",
+    "home_pitcher": "Luis Garcia",
+    "away_probable_pitcher": "Yusei Kikuchi",
+    "home_probable_pitcher": "Luis Garcia"
+  },
+  {
+    "game_pk": 776502,
+    "game_time": "2025-09-01T18:10:00Z",
+    "away_team": "Chicago White Sox",
+    "home_team": "Minnesota Twins",
+    "away_pitcher": "Aaron Civale",
+    "home_pitcher": "Bailey Ober",
+    "away_probable_pitcher": "Aaron Civale",
+    "home_probable_pitcher": "Bailey Ober"
+  },
+  {
+    "game_pk": 776497,
+    "game_time": "2025-09-01T18:15:00Z",
+    "away_team": "Athletics",
+    "home_team": "St. Louis Cardinals",
+    "away_pitcher": "Luis Morales",
+    "home_pitcher": "Sonny Gray",
+    "away_probable_pitcher": "Luis Morales",
+    "home_probable_pitcher": "Sonny Gray"
+  },
+  {
+    "game_pk": 776506,
+    "game_time": "2025-09-01T20:05:00Z",
+    "away_team": "Atlanta Braves",
+    "home_team": "Chicago Cubs",
+    "away_pitcher": "Spencer Strider",
+    "home_pitcher": "Colin Rea",
+    "away_probable_pitcher": "Spencer Strider",
+    "home_probable_pitcher": "Colin Rea"
+  },
+  {
+    "game_pk": 776492,
+    "game_time": "2025-09-01T20:10:00Z",
+    "away_team": "San Francisco Giants",
+    "home_team": "Colorado Rockies",
+    "away_pitcher": "Kai-Wei Teng",
+    "home_pitcher": "Chase Dollander",
+    "away_probable_pitcher": "Kai-Wei Teng",
+    "home_probable_pitcher": "Chase Dollander"
+  },
+  {
+    "game_pk": 776500,
+    "game_time": "2025-09-01T20:10:00Z",
+    "away_team": "Philadelphia Phillies",
+    "home_team": "Milwaukee Brewers",
+    "away_pitcher": "Taijuan Walker",
+    "home_pitcher": "Jacob Misiorowski",
+    "away_probable_pitcher": "Taijuan Walker",
+    "home_probable_pitcher": "Jacob Misiorowski"
+  },
+  {
+    "game_pk": 776494,
+    "game_time": "2025-09-01T22:40:00Z",
+    "away_team": "Baltimore Orioles",
+    "home_team": "San Diego Padres",
+    "away_pitcher": "Kyle Bradish",
+    "home_pitcher": "Dylan Cease",
+    "away_probable_pitcher": "Kyle Bradish",
+    "home_probable_pitcher": "Dylan Cease"
+  },
+  {
+    "game_pk": 776504,
+    "game_time": "2025-09-01T23:35:00Z",
+    "away_team": "Seattle Mariners",
+    "home_team": "Tampa Bay Rays",
+    "away_pitcher": "Luis Castillo",
+    "home_pitcher": "Shane Baz",
+    "away_probable_pitcher": "Luis Castillo",
+    "home_probable_pitcher": "Shane Baz"
+  },
+  {
+    "game_pk": 776495,
+    "game_time": "2025-09-02T00:10:00Z",
+    "away_team": "Texas Rangers",
+    "home_team": "Arizona Diamondbacks",
+    "away_pitcher": "Patrick Corbin",
+    "home_pitcher": "Ryne Nelson",
+    "away_probable_pitcher": "Patrick Corbin",
+    "home_probable_pitcher": "Ryne Nelson"
+  }
+]

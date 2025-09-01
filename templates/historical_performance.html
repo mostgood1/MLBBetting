@@ -19,6 +19,15 @@
     .btn.secondary { background:#2a74dc; }
     .table { width:100%; border-collapse: collapse; }
     .table th, .table td { border-bottom:1px solid #eee; padding:10px; text-align:left; }
+  /* Minimal styling for historic game cards */
+  .game-cards-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:14px; }
+  .game-card { background:#f8fbff; border:1px solid #e2ecf7; border-radius:12px; padding:12px; }
+  .game-title { font-weight:700; color:#163a6b; margin:0 0 6px 0; font-size:16px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .game-subtle { color:#355a87; font-size:12px; }
+  .ok { color:#1a7f37; font-weight:600; }
+  .bad { color:#c0362c; font-weight:600; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #cfe1f8; background:#eef6ff; color:#163a6b; }
+  .team-chip { display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid transparent; font-size:12px; }
   </style>
 </head>
 <body>
@@ -55,15 +64,47 @@
       <h2 id="single-day-title">Single Day</h2>
       <div class="grid" id="single-day-grid"></div>
     </div>
+
+    <div class="card" id="historic-cards-wrap" style="display:none;">
+      <h2>Historic Game Cards</h2>
+      <div id="historic-cards" class="game-cards-grid"></div>
+      <div id="historic-cards-empty" class="muted" style="display:none;">No game cards found for this date.</div>
+    </div>
   </div>
 
   <script>
-    function fmtPct(n){ return (n*100).toFixed(1)+'%'; }
+  function fmtPct(n){ return (n*100).toFixed(1)+'%'; } // for fractions 0-1
+  function fmtPct100(n){ return (Number(n)||0).toFixed(1)+'%'; } // for values already 0-100
+  // Team colors cache and helpers
+  let TEAM_COLORS = { byName: new Map(), byLower: new Map(), ready: false };
+  async function loadTeamColors(){
+    if(TEAM_COLORS.ready) return;
+    try{
+      const res = await fetch('/api/all-team-colors');
+      if(!res.ok) throw new Error('colors http '+res.status);
+      const data = await res.json();
+      const tc = data.team_colors || {};
+      TEAM_COLORS.byName.clear(); TEAM_COLORS.byLower.clear();
+      Object.keys(tc).forEach(name=>{
+        TEAM_COLORS.byName.set(name, tc[name]);
+        TEAM_COLORS.byLower.set(name.toLowerCase(), tc[name]);
+      });
+      TEAM_COLORS.ready = true;
+    }catch(_){ TEAM_COLORS.ready = true; }
+  }
+  function getTeamColors(name){
+    const defC = { primary:'#333333', secondary:'#666666', text:'#FFFFFF' };
+    if(!name) return defC;
+    const exact = TEAM_COLORS.byName.get(name);
+    if(exact) return exact;
+    const low = TEAM_COLORS.byLower.get(String(name).toLowerCase());
+    return low || defC;
+  }
     async function setDefaultDates(){
       const d=new Date(); const y=new Date(d.getTime()-14*86400000);
       document.getElementById('start').value = y.toISOString().slice(0,10);
       document.getElementById('end').value = d.toISOString().slice(0,10);
-      await loadAvailableDates();
+      await Promise.all([loadAvailableDates(), loadTeamColors()]);
     }
     async function loadAvailableDates(){
       try{
@@ -85,25 +126,50 @@
     async function loadSingleDay(){
       const day=(document.getElementById('day').value)||'';
       if(!day){ return; }
-      const res = await fetch(`/api/historical-analysis?date=${day}`);
+      const res = await fetch(`/api/historical-analysis?type=single&date=${day}`);
       const data = await res.json();
       renderSingleDay(day, data);
     }
     function render(data){
+      // Handle error payloads
+      if(data && data.error){
+        const s=document.getElementById('summary');
+        s.innerHTML = `<div class='stat'><div class='num'>No data</div><div class='muted'>${data.error}</div></div>`;
+        document.getElementById('daily').innerHTML = '';
+        return;
+      }
+
+      const cp = data.cumulative_performance || {};
+      const ds = data.data_summary || {};
       const s=document.getElementById('summary');
       s.innerHTML = '';
       const cards=[
-        {label:'Winner Accuracy', val: fmtPct((data.model_predictability||{}).winner_accuracy||0)},
-        {label:'Avg Team Score Error', val: ((data.model_predictability||{}).avg_team_score_error||0).toFixed(2)},
-        {label:'Avg Total Score Error', val: ((data.model_predictability||{}).avg_total_score_error||0).toFixed(2)},
-        {label:'Coverage', val: fmtPct((data.model_predictability||{}).coverage_rate||0)},
-        {label:'Games Analyzed', val: (data.model_predictability||{}).matched_games||0}
+        {label:'Winner Accuracy', val: fmtPct(cp.winner_accuracy||0)},
+        {label:'Avg Team Score Error', val: (cp.avg_team_score_error||0).toFixed(2)},
+        {label:'Avg Total Score Error', val: (cp.avg_total_score_error||0).toFixed(2)},
+        {label:'Avg Away Score Error', val: (cp.avg_away_score_error||0).toFixed(2)},
+        {label:'Avg Home Score Error', val: (cp.avg_home_score_error||0).toFixed(2)},
+        {label:'% Total ±1', val: fmtPct100(cp.percent_total_within_1||0)},
+        {label:'% Total ±2', val: fmtPct100(cp.percent_total_within_2||0)},
+        {label:'Coverage', val: fmtPct(ds.coverage_rate||0)},
+        {label:'Games Analyzed', val: (ds.total_games_matched||0)}
       ];
       for(const c of cards){ const div=document.createElement('div'); div.className='stat'; div.innerHTML=`<div class='num'>${c.val}</div><div class='muted'>${c.label}</div>`; s.appendChild(div); }
+
       const daily=document.getElementById('daily');
-      const dailyData=((data.detailed||{}).daily || []);
-      daily.innerHTML = '<tr><th>Date</th><th>Games</th><th>Winner Acc</th><th>Avg Team Err</th><th>Avg Total Err</th></tr>' +
-        dailyData.map(d=>`<tr><td>${d.date}</td><td>${d.model_predictability?.matched_games||0}</td><td>${fmtPct(d.model_predictability?.winner_accuracy||0)}</td><td>${(d.model_predictability?.avg_team_score_error||0).toFixed(2)}</td><td>${(d.model_predictability?.avg_total_score_error||0).toFixed(2)}</td></tr>`).join('');
+      const dailyData = data.daily_summaries || [];
+      daily.innerHTML = '<tr><th>Date</th><th>Games</th><th>Winner Acc</th><th>Avg Team Err</th><th>Avg Total Err</th><th>Away Err</th><th>Home Err</th><th>% Total ±1</th><th>% Total ±2</th></tr>' +
+        dailyData.map(d=>`<tr>
+          <td>${d.date}</td>
+          <td>${d.games}</td>
+          <td>${fmtPct(d.winner_accuracy||0)}</td>
+          <td>${(Number(d.avg_team_score_error)||0).toFixed(2)}</td>
+          <td>${(Number(d.avg_total_score_error)||0).toFixed(2)}</td>
+          <td>${(Number(d.avg_away_score_error)||0).toFixed(2)}</td>
+          <td>${(Number(d.avg_home_score_error)||0).toFixed(2)}</td>
+          <td>${fmtPct100(d.percent_total_within_1||0)}</td>
+          <td>${fmtPct100(d.percent_total_within_2||0)}</td>
+        </tr>`).join('');
     }
     function renderSingleDay(day, data){
       const card=document.getElementById('single-day-card');
@@ -114,9 +180,13 @@
 
       const mp = data.model_predictability || data.predictability || {};
       const summary = data.summary || {};
-      const winnerAcc = mp.winner_accuracy ?? (summary.model_winner_accuracy ?? 0);
-      const teamErr = mp.avg_team_score_error ?? 0;
-      const totalErr = mp.avg_total_score_error ?? 0;
+  const winnerAcc = mp.winner_accuracy ?? (summary.model_winner_accuracy ?? 0);
+  const teamErr = mp.avg_team_score_error ?? 0;
+  const totalErr = mp.avg_total_score_error ?? 0;
+  const awayErr = mp.avg_away_score_error ?? 0;
+  const homeErr = mp.avg_home_score_error ?? 0;
+  const within1 = mp.percent_total_within_1 ?? 0;
+  const within2 = mp.percent_total_within_2 ?? 0;
       const matched = mp.matched_games ?? 0;
 
       grid.innerHTML='';
@@ -124,9 +194,74 @@
         {label:'Winner Accuracy', val: fmtPct(winnerAcc)},
         {label:'Avg Team Score Error', val: (Number(teamErr)||0).toFixed(2)},
         {label:'Avg Total Score Error', val: (Number(totalErr)||0).toFixed(2)},
+        {label:'Avg Away Score Error', val: (Number(awayErr)||0).toFixed(2)},
+        {label:'Avg Home Score Error', val: (Number(homeErr)||0).toFixed(2)},
+        {label:'% Total ±1', val: fmtPct100(within1)},
+        {label:'% Total ±2', val: fmtPct100(within2)},
         {label:'Matched Games', val: matched}
       ];
       for(const c of items){ const div=document.createElement('div'); div.className='stat'; div.innerHTML=`<div class='num'>${c.val}</div><div class='muted'>${c.label}</div>`; grid.appendChild(div); }
+
+      // Render historic game cards for this day
+      const wrap = document.getElementById('historic-cards-wrap');
+      const cardsDiv = document.getElementById('historic-cards');
+      const emptyDiv = document.getElementById('historic-cards-empty');
+      const cards = Array.isArray(data.game_cards) ? data.game_cards : [];
+      cardsDiv.innerHTML = '';
+      if(cards.length === 0){
+        wrap.style.display = 'block';
+        emptyDiv.style.display = 'block';
+        return;
+      }
+      emptyDiv.style.display = 'none';
+      wrap.style.display = 'block';
+
+      cards.forEach(gc => {
+        const predA = (gc.predicted_scores && gc.predicted_scores.away!=null) ? Number(gc.predicted_scores.away).toFixed(1) : '—';
+        const predH = (gc.predicted_scores && gc.predicted_scores.home!=null) ? Number(gc.predicted_scores.home).toFixed(1) : '—';
+        const predT = (gc.predicted_scores && gc.predicted_scores.total!=null) ? Number(gc.predicted_scores.total).toFixed(1) : '—';
+        const fs = gc.final_scores || {};
+        const hasFS = !!gc.has_final_score && fs.away_score!=null && fs.home_score!=null;
+        const finA = hasFS ? Number(fs.away_score) : null;
+        const finH = hasFS ? Number(fs.home_score) : null;
+        const finT = (hasFS && !isNaN(finA) && !isNaN(finH)) ? (finA + finH) : null;
+        const pred = gc.predictability || {};
+        const winOK = pred.winner_correct === true;
+        const errA = pred.away_score_error!=null ? Number(pred.away_score_error).toFixed(1) : '—';
+        const errH = pred.home_score_error!=null ? Number(pred.home_score_error).toFixed(1) : '—';
+        const errT = pred.total_score_error!=null ? Number(pred.total_score_error).toFixed(1) : '—';
+
+        const roi = gc.roi || {};
+        const bets = roi.total_bets || 0;
+        const winRate = roi.win_rate!=null ? (Number(roi.win_rate)*100).toFixed(0)+'%' : '—';
+        const profit = roi.total_profit!=null ? Number(roi.total_profit).toFixed(2) : null;
+
+        const awayC = getTeamColors(gc.away_team);
+        const homeC = getTeamColors(gc.home_team);
+
+        const el = document.createElement('div');
+        el.className = 'game-card';
+        el.innerHTML = `
+          <div class="game-title">
+            <span class="team-chip" style="background:${awayC.primary}; color:${awayC.text}; border-color:${awayC.secondary};">${gc.away_team}</span>
+            <span>@</span>
+            <span class="team-chip" style="background:${homeC.primary}; color:${homeC.text}; border-color:${homeC.secondary};">${gc.home_team}</span>
+          </div>
+          <div class="game-subtle">Pitchers: ${gc.away_pitcher || 'TBD'} vs ${gc.home_pitcher || 'TBD'}</div>
+          <div style="margin:8px 0;">
+            <div><span class="pill">Pred</span> ${predA} - ${predH} (T ${predT})</div>
+            <div>${hasFS ? `<span class="pill">Final</span> ${finA} - ${finH} ${finT!=null? `(T ${finT})` : ''}` : '<span class="pill">Final</span> TBD'}</div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <div>Winner: <span class="${winOK? 'ok':'bad'}">${winOK? 'Correct':'Wrong'}</span></div>
+            <div>A Err: <strong>${errA}</strong></div>
+            <div>H Err: <strong>${errH}</strong></div>
+            <div>T Err: <strong>${errT}</strong></div>
+          </div>
+          ${bets? `<div class="game-subtle" style="margin-top:6px;">Recs: ${bets}, Win%: ${winRate}${profit!=null? `, Profit: $${profit}`:''}</div>`: ''}
+        `;
+        cardsDiv.appendChild(el);
+      });
     }
     setDefaultDates().then(loadCumulative);
   </script>

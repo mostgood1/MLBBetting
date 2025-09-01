@@ -251,24 +251,43 @@ try:
 except ImportError as e:
     logging.warning(f"Historical analysis endpoint not available: {e}")
 
-# Initialize redesigned analytics and comprehensive analyzer for direct API use (Render-safe)
+# Initialize comprehensive historical analyzer independently so fallbacks work even if other imports fail
+try:
+    from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer
+    direct_historical_analyzer = ComprehensiveHistoricalAnalyzer()
+    logging.info("✅ Historical analyzer initialized for in-process APIs")
+except Exception as e:
+    direct_historical_analyzer = None
+    logging.error(f"❌ Failed to initialize historical analyzer: {e}")
+
+# Initialize redesigned/enhanced analytics separately (non-fatal if they fail)
 try:
     from redesigned_betting_analytics import RedesignedBettingAnalytics
     from enhanced_betting_analytics import EnhancedBettingAnalytics
-    from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer
     redesigned_analytics = RedesignedBettingAnalytics()
     enhanced_analytics = EnhancedBettingAnalytics()
-    direct_historical_analyzer = ComprehensiveHistoricalAnalyzer()
-    logging.info("✅ Direct analytics initialized for in-process APIs")
+    logging.info("✅ Redesigned/enhanced analytics initialized")
 except Exception as e:
     redesigned_analytics = None
     enhanced_analytics = None
-    direct_historical_analyzer = None
-    logging.error(f"❌ Failed to initialize direct analytics: {e}")
+    logging.warning(f"⚠️ Failed to initialize redesigned/enhanced analytics: {e}")
 
 import threading
 import queue
 from datetime import timedelta
+
+def get_or_create_historical_analyzer():
+    """Ensure a ComprehensiveHistoricalAnalyzer instance is available for fallback routes."""
+    global direct_historical_analyzer
+    if direct_historical_analyzer is None:
+        try:
+            from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer as _CHA
+            direct_historical_analyzer = _CHA()
+            logging.info("✅ Lazily initialized historical analyzer for fallback routes")
+        except Exception as e:
+            logging.error(f"❌ Unable to initialize historical analyzer lazily: {e}")
+            return None
+    return direct_historical_analyzer
 
 def get_business_date():
     """
@@ -626,8 +645,13 @@ def get_team_logo_url(team_name):
     return team_logos.get(normalized_name, 'https://a.espncdn.com/i/teamlogos/mlb/500/mlb.png')
 
 def normalize_team_name(team_name):
-    """Normalize team names by replacing underscores with spaces"""
-    return team_name.replace('_', ' ')
+    """Normalize team names using the canonical normalizer (handles Athletics, etc.)."""
+    try:
+        from team_name_normalizer import normalize_team_name as _canon
+        s = (team_name or '').replace('_', ' ').strip()
+        return _canon(s)
+    except Exception:
+        return (team_name or '').replace('_', ' ').strip()
 
 # Global cache for unified cache to avoid repeated file loading
 _unified_cache = None
@@ -2518,24 +2542,370 @@ def betting_guidance_page():
     """Betting guidance page with Kelly recommendations and performance"""
     return render_template('betting_guidance.html')
 
+@app.route('/kelly-guidance')
+def kelly_guidance_page():
+    """Dedicated Kelly Guidance page with sizing controls and opportunities"""
+    return render_template('kelly_guidance.html')
+
 @app.route('/api/betting-guidance/performance')
 def api_betting_guidance_performance():
     """Historical performance by bet type for betting guidance page"""
-    try:
-        from betting_guidance_system import BettingGuidanceSystem
-        guidance = BettingGuidanceSystem()
-        performance = guidance.get_historical_performance_by_bet_type()
+    # Define analysis window: from 2025-08-15 through yesterday
+    from datetime import datetime, timedelta
+    START_DATE_STR = '2025-08-15'
+    END_DATE_STR = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+
+    # Prefer computing from local historical analyzer with per-bet aggregation
+    def parse_american_odds(od):
+        try:
+            s = str(od).strip()
+            if s.upper() == 'N/A' or s == '':
+                return -110
+            return int(s.replace('+',''))
+        except Exception:
+            return -110
+
+    def payout_for_win(odds_american: int, stake: float = 100.0) -> float:
+        if odds_american >= 0:
+            return stake + (stake * odds_american / 100.0)
+        else:
+            return stake + (stake * 100.0 / abs(odds_american))
+
+    def norm_type(t: str) -> str:
+        t = (t or '').lower()
+        if t.startswith('money') or t == 'ml':
+            return 'moneyline'
+        if t.startswith('run') or t == 'rl' or t == 'runline':
+            return 'run_line'
+        if t.startswith('total') or t in ('over','under','ou'):
+            return 'total'
+        return t or 'other'
+
+        perf = {}
+        totals = {}
+        corrects = {}
+        invested = {}
+        winnings = {}
+
+        if direct_historical_analyzer:
+            dates = direct_historical_analyzer.get_available_dates() or []
+            # Normalize and filter dates to [START_DATE_STR .. END_DATE_STR]
+            def norm_date(ds: str) -> str:
+                try:
+                    d = ds.replace('_','-')
+                    # Ensure it's YYYY-MM-DD
+                    if len(d) == 10 and d[4] == '-' and d[7] == '-':
+                        return d
+                    # Attempt parsing common variants
+                    from datetime import datetime as _dt
+                    return _dt.strptime(ds, '%Y_%m_%d').strftime('%Y-%m-%d')
+                except Exception:
+                    return ds
+
+            filtered_dates = [d for d in dates if START_DATE_STR <= norm_date(d) <= END_DATE_STR]
+            filtered_dates.sort()
+
+            for d in filtered_dates:
+                try:
+                    day = direct_historical_analyzer.get_date_analysis(d) or {}
+                    bp = day.get('betting_performance') or {}
+                    bets = bp.get('detailed_bets') or []
+                    # Support dicts and serialized strings
+                    for b in bets:
+                        try:
+                            if isinstance(b, str):
+                                # Parse '@{k=v; k2=v2}' into dict
+                                s = b.strip()
+                                if s.startswith('@{') and s.endswith('}'):
+                                    s = s[2:-1]
+                                parts = [p.strip() for p in s.split(';') if p.strip()]
+                                bd = {}
+                                for p in parts:
+                                    if '=' in p:
+                                        k, v = p.split('=', 1)
+                                        bd[k.strip()] = v.strip()
+                                bobj = bd
+                            else:
+                                bobj = b
+                            btype = norm_type(bobj.get('bet_type'))
+                            if not btype:
+                                continue
+                            totals[btype] = totals.get(btype, 0) + 1
+                            won_val = bobj.get('bet_won')
+                            if isinstance(won_val, str):
+                                won = won_val.lower() == 'true'
+                            else:
+                                won = bool(won_val)
+                            if won:
+                                corrects[btype] = corrects.get(btype, 0) + 1
+                            stake = 100.0
+                            invested[btype] = invested.get(btype, 0.0) + stake
+                            odds = parse_american_odds(bobj.get('american_odds'))
+                            if won:
+                                winnings[btype] = winnings.get(btype, 0.0) + payout_for_win(odds, stake)
+                        except Exception:
+                            continue
+                except Exception:
+                    continue
+
+        # Build summary
+        for btype in sorted(set(list(totals.keys()) + list(corrects.keys()))):
+            total = totals.get(btype, 0)
+            correct = corrects.get(btype, 0)
+            inv = invested.get(btype, 0.0)
+            win_amt = winnings.get(btype, 0.0)
+            net = win_amt - inv
+            acc = (correct/total*100.0) if total else 0.0
+            roi = (net/inv*100.0) if inv else 0.0
+            perf[btype] = {
+                'total_bets': total,
+                'correct_bets': correct,
+                'accuracy': round(acc, 1),
+                'total_invested': round(inv, 2),
+                'total_winnings': round(win_amt, 2),
+                'net_profit': round(net, 2),
+                'roi': round(roi, 1)
+            }
+
         return jsonify({
             'success': True,
-            'performance_by_bet_type': performance
+            'performance_by_bet_type': perf,
+            'date_range': {
+                'start_date': START_DATE_STR,
+                'end_date': END_DATE_STR
+            }
         })
+
+@app.route('/api/betting-recommendations/date/<date>')
+def api_betting_recommendations_by_date(date):
+    """Return ALL betting recommendations from the per-day JSON file for a given date (YYYY-MM-DD)."""
+    try:
+        # Normalize date formats and build potential file paths
+        import os, json
+        date_clean = date.strip()
+        date_underscore = date_clean.replace('-', '_')
+        candidates = [
+            os.path.join('data', f'betting_recommendations_{date_underscore}_enhanced.json'),
+            os.path.join('data', f'betting_recommendations_{date_clean}_enhanced.json'),
+            os.path.join('data', f'betting_recommendations_{date_underscore}.json'),
+            os.path.join('data', f'betting_recommendations_{date_clean}.json')
+        ]
+
+        file_path = next((p for p in candidates if os.path.exists(p)), None)
+        if not file_path:
+            return jsonify({'success': False, 'error': f'No betting recommendations file found for {date}', 'recommendations': []}), 404
+
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+
+        games = data.get('games', {})
+        recs = []
+        seen = set()  # to deduplicate (game_key, type, recommendation)
+        for game_key, game_data in games.items():
+            away = game_data.get('away_team')
+            home = game_data.get('home_team')
+            display_game = f"{away} @ {home}" if away and home else game_key.replace('_vs_', ' @ ')
+            # Primary source: value_bets (preferred)
+            for vb in game_data.get('value_bets', []) or []:
+                # Extract odds as int if possible (keep original string too)
+                odds_raw = vb.get('american_odds', vb.get('odds', -110))
+                try:
+                    odds_int = int(str(odds_raw).replace('+', '')) if odds_raw != 'N/A' else -110
+                except Exception:
+                    odds_int = -110
+                key = (game_key, vb.get('type', 'unknown'), vb.get('recommendation'))
+                if key in seen:
+                    continue
+                seen.add(key)
+                recs.append({
+                    'game': display_game,
+                    'game_key': game_key,
+                    'away_team': away,
+                    'home_team': home,
+                    'type': vb.get('type', 'unknown'),
+                    'recommendation': vb.get('recommendation'),
+                    'expected_value': vb.get('expected_value', 0),
+                    'win_probability': vb.get('win_probability'),
+                    'american_odds': odds_raw,
+                    'odds': odds_int,
+                    'confidence': str(vb.get('confidence', 'UNKNOWN')).upper(),
+                    'kelly_bet_size': vb.get('kelly_bet_size'),
+                    'predicted_total': vb.get('predicted_total'),
+                    'betting_line': vb.get('betting_line'),
+                    'reasoning': vb.get('reasoning', '')
+                })
+
+            # Also support unified_value_bets if present
+            for vb in game_data.get('unified_value_bets', []) or []:
+                odds_raw = vb.get('american_odds', vb.get('odds', -110))
+                try:
+                    odds_int = int(str(odds_raw).replace('+', '')) if odds_raw != 'N/A' else -110
+                except Exception:
+                    odds_int = -110
+                key = (game_key, vb.get('type', 'unknown'), vb.get('recommendation'))
+                if key in seen:
+                    continue
+                seen.add(key)
+                recs.append({
+                    'game': display_game,
+                    'game_key': game_key,
+                    'away_team': away,
+                    'home_team': home,
+                    'type': vb.get('type', 'unknown'),
+                    'recommendation': vb.get('recommendation'),
+                    'expected_value': vb.get('expected_value', 0),
+                    'win_probability': vb.get('win_probability'),
+                    'american_odds': odds_raw,
+                    'odds': odds_int,
+                    'confidence': str(vb.get('confidence', 'UNKNOWN')).upper(),
+                    'kelly_bet_size': vb.get('kelly_bet_size'),
+                    'predicted_total': vb.get('predicted_total'),
+                    'betting_line': vb.get('betting_line'),
+                    'reasoning': vb.get('reasoning', '')
+                })
+
+            # Also support nested predictions.recommendations (older 8/22-8/23 format)
+            try:
+                preds = (game_data.get('predictions') or {}).get('recommendations') or []
+                for pr in preds:
+                    rec_type = pr.get('type', 'unknown')
+                    side = pr.get('side')
+                    line = pr.get('line')
+                    # Compose recommendation text
+                    rec_pick = pr.get('recommendation')
+                    if not rec_pick:
+                        if str(rec_type).lower().startswith('total') and side and line is not None:
+                            rec_pick = f"{str(side).title()} {line}"
+                        elif str(rec_type).lower().startswith('moneyline') and side:
+                            rec_pick = str(side)
+                    odds_raw = pr.get('american_odds', pr.get('odds', -110))
+                    try:
+                        odds_int = int(str(odds_raw).replace('+', '')) if odds_raw != 'N/A' else -110
+                    except Exception:
+                        odds_int = -110
+                    key = (game_key, rec_type, rec_pick)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    recs.append({
+                        'game': display_game,
+                        'game_key': game_key,
+                        'away_team': away,
+                        'home_team': home,
+                        'type': rec_type,
+                        'recommendation': rec_pick,
+                        'expected_value': pr.get('expected_value', 0),
+                        'win_probability': pr.get('win_probability'),
+                        'american_odds': odds_raw,
+                        'odds': odds_int,
+                        'confidence': str(pr.get('confidence', 'UNKNOWN')).upper(),
+                        'kelly_bet_size': pr.get('kelly_bet_size'),
+                        'predicted_total': pr.get('model_total'),
+                        'betting_line': line,
+                        'reasoning': pr.get('reasoning', '')
+                    })
+            except Exception:
+                pass
+
+            # Fallback source: recommendations (if present and not 'none'/'market analysis')
+            for rb in game_data.get('recommendations', []) or []:
+                rec_type = rb.get('type')
+                rec_pick = rb.get('recommendation') or rb.get('pick')
+                rtype = str(rec_type).lower() if rec_type is not None else ''
+                rpick = str(rec_pick).lower() if rec_pick is not None else ''
+                # Skip generic market notes
+                if (not rec_type or rtype in ('none','market analysis','market_analysis','marketanalysis') or
+                    'no strong value' in rpick or 'no clear value' in rpick):
+                    continue
+                key = (game_key, rec_type, rec_pick)
+                if key in seen:
+                    continue
+                seen.add(key)
+                # Odds may not be provided; try to infer from betting_lines if available
+                odds_raw = rb.get('american_odds') or rb.get('odds')
+                if odds_raw is None:
+                    # Try basic mapping from game's betting_lines
+                    bl = game_data.get('betting_lines') or {}
+                    if str(rec_type).lower() == 'total':
+                        # choose over/under odds based on text prefix
+                        if rec_pick and str(rec_pick).strip().lower().startswith('over'):
+                            odds_raw = bl.get('over_odds')
+                        elif rec_pick and str(rec_pick).strip().lower().startswith('under'):
+                            odds_raw = bl.get('under_odds')
+                    # moneyline or run_line could be added later
+                try:
+                    odds_int = int(str(odds_raw).replace('+', '')) if odds_raw not in (None, 'N/A') else -110
+                except Exception:
+                    odds_int = -110
+                # Derive betting_line from pick text when missing (e.g., "Over 8.5" or "Under 9.0")
+                betting_line = rb.get('betting_line') or (game_data.get('betting_lines') or {}).get('total_line')
+                if betting_line is None and rec_pick:
+                    import re
+                    m = re.search(r"(\d+\.?\d*)", str(rec_pick))
+                    if m:
+                        try:
+                            betting_line = float(m.group(1))
+                        except Exception:
+                            pass
+                # Try to infer missing recommendation for totals using reasoning/model vs line
+                inferred_pick = rec_pick
+                if (not inferred_pick) and str(rec_type).lower() == 'total':
+                    try:
+                        import re
+                        # extract numbers from reasoning like "Model: 6.0 vs Line: 8.5"
+                        model_val = None
+                        line_val = betting_line
+                        reason = rb.get('reasoning') or ''
+                        m = re.findall(r"(\d+\.?\d*)", reason)
+                        if m and len(m) >= 2:
+                            model_val = float(m[0])
+                            if line_val is None:
+                                line_val = float(m[1])
+                        if (model_val is not None) and (line_val is not None):
+                            inferred_pick = ('Under ' if model_val < line_val else 'Over ') + str(line_val)
+                    except Exception:
+                        pass
+
+                recs.append({
+                    'game': display_game,
+                    'game_key': game_key,
+                    'away_team': away,
+                    'home_team': home,
+                    'type': rec_type,
+                    'recommendation': inferred_pick,
+                    'expected_value': rb.get('expected_value', 0),
+                    'win_probability': rb.get('win_probability'),
+                    'american_odds': odds_raw,
+                    'odds': odds_int,
+                    'confidence': str(rb.get('confidence', 'UNKNOWN')).upper(),
+                    'kelly_bet_size': rb.get('kelly_bet_size'),
+                    'predicted_total': rb.get('predicted_total'),
+                    'betting_line': betting_line,
+                    'reasoning': rb.get('reasoning', '')
+                })
+
+        # Sort recs by confidence then EV
+        conf_rank = {'HIGH': 3, 'MEDIUM': 2, 'LOW': 1}
+        recs.sort(key=lambda r: (
+            conf_rank.get(str(r.get('confidence', '')).upper(), 0),
+            float(r.get('expected_value', 0) or 0)
+        ), reverse=True)
+
+        # Build summary
+        summary = {
+            'date': data.get('date', date_clean),
+            'total_recommendations': len(recs),
+            'high_confidence': sum(1 for r in recs if r.get('confidence') == 'HIGH'),
+            'medium_confidence': sum(1 for r in recs if r.get('confidence') == 'MEDIUM'),
+            'low_confidence': sum(1 for r in recs if r.get('confidence') == 'LOW'),
+            'source': data.get('source', 'unknown')
+        }
+
+        return jsonify({'success': True, 'date': summary['date'], 'summary': summary, 'recommendations': recs})
     except Exception as e:
-        logger.error(f"Error building betting guidance performance: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e),
-            'performance_by_bet_type': {}
-        }), 500
+        logger.error(f"Error loading betting recommendations for {date}: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({'success': False, 'error': str(e), 'recommendations': []}), 500
 
 @app.route('/api/historical-filtered/<filter_type>')
 def api_historical_filtered(filter_type):
@@ -3392,10 +3762,28 @@ def api_kelly_betting_guidance():
                 'roi_percentage': -54.0
             }
         
+        # Read optional sizing params
+        try:
+            bankroll = float(request.args.get('bankroll') or request.args.get('bankroll_amount') or 1000)
+        except Exception:
+            bankroll = 1000.0
+        try:
+            base_unit = int(request.args.get('unit') or request.args.get('unit_size') or 100)
+        except Exception:
+            base_unit = 100
+        try:
+            max_units = float(request.args.get('maxUnits') or request.args.get('max_units') or 2)
+        except Exception:
+            max_units = 2.0
+        try:
+            kelly_cap = float(request.args.get('kellyCap') or request.args.get('kelly_cap') or 0.25)
+        except Exception:
+            kelly_cap = 0.25
+
         # Calculate Kelly Criterion for each opportunity
         opportunities = []
         total_kelly_investment = 0
-        base_unit = 100  # $100 base unit
+        # base_unit already set from params
         
         for game_key, game_data in betting_recs.items():
             if not isinstance(game_data, dict):
@@ -3433,13 +3821,13 @@ def api_kelly_betting_guidance():
                 # Use the actual win probability from the model
                 adjusted_win_prob = win_probability
                 
-                # Calculate Kelly Criterion
-                kelly_fraction = calculate_kelly_criterion(adjusted_win_prob, odds)
+                # Calculate Kelly Criterion (respect optional cap)
+                kelly_fraction = calculate_kelly_criterion(adjusted_win_prob, odds, cap=kelly_cap)
                 
-                # Calculate suggested bet (cap at 2x base unit for risk management)
+                # Calculate suggested bet using bankroll; cap at max_units * base_unit
                 if kelly_fraction > 0:
-                    kelly_amount = kelly_fraction * 1000  # Assuming $1000 bankroll
-                    suggested_bet = max(10, min(round(kelly_amount / 10) * 10, base_unit * 2))
+                    kelly_amount = kelly_fraction * bankroll
+                    suggested_bet = max(10, min(round(kelly_amount / 10) * 10, int(base_unit * max_units)))
                 else:
                     suggested_bet = 0
                 
@@ -3489,13 +3877,13 @@ def api_kelly_betting_guidance():
             'opportunities': opportunities,
             'kelly_guidelines': {
                 'base_unit': base_unit,
-                'recommended_bankroll': max(1000, total_kelly_investment * 5),
-                'max_single_bet': base_unit * 2,
-                'kelly_cap': '25% (for risk management)',
+                'bankroll': bankroll,
+                'recommended_bankroll': max(bankroll, total_kelly_investment * 5),
+                'max_single_bet': int(base_unit * max_units),
+                'kelly_cap': f"{int(kelly_cap*100)}% (cap)",
                 'notes': [
                     'Kelly Criterion optimizes long-term growth',
-                    'Suggested amounts assume $1000+ bankroll',
-                    'Scale proportionally for your actual bankroll',
+                    'Amounts scale with bankroll and unit size parameters',
                     'Never bet more than you can afford to lose'
                 ]
             },
@@ -3520,7 +3908,7 @@ def api_kelly_betting_guidance():
             'message': 'Failed to generate Kelly Criterion betting guidance'
         })
 
-def calculate_kelly_criterion(win_probability: float, odds_american: int) -> float:
+def calculate_kelly_criterion(win_probability: float, odds_american: int, cap: float = 0.25) -> float:
     """Calculate Kelly Criterion betting percentage"""
     try:
         # Convert American odds to decimal
@@ -3536,8 +3924,12 @@ def calculate_kelly_criterion(win_probability: float, odds_american: int) -> flo
         
         kelly_fraction = (b * p - q) / b
         
-        # Cap at 25% for risk management
-        return max(0, min(kelly_fraction, 0.25))
+        # Cap for risk management
+        try:
+            cap_val = float(cap)
+        except Exception:
+            cap_val = 0.25
+        return max(0, min(kelly_fraction, cap_val))
         
     except Exception:
         return 0.0
@@ -4658,6 +5050,19 @@ def proxy_available_dates():
         return jsonify(response.json()), response.status_code
     except Exception as e:
         logger.error(f"Failed to proxy available-dates request: {e}")
+        # Fallback: compute available dates locally if analyzer is available
+        try:
+            analyzer = get_or_create_historical_analyzer()
+            if analyzer:
+                dates = analyzer.get_available_dates() or []
+                return jsonify({
+                    'success': True,
+                    'dates': dates,
+                    'count': len(dates),
+                    'message': f'Found {len(dates)} dates (local fallback)'
+                }), 200
+        except Exception as _e:
+            logger.error(f"Local fallback failed for available-dates: {_e}")
         return jsonify({
             'success': False,
             'error': 'Historical analysis service unavailable',
@@ -4672,6 +5077,18 @@ def proxy_cumulative():
         return jsonify(response.json()), response.status_code
     except Exception as e:
         logger.error(f"Failed to proxy cumulative request: {e}")
+        # Fallback: compute cumulative locally
+        try:
+            analyzer = get_or_create_historical_analyzer()
+            if analyzer:
+                stats = analyzer.get_cumulative_analysis()
+                return jsonify({
+                    'success': True,
+                    'data': stats,
+                    'message': 'Cumulative analysis (local fallback)'
+                }), 200
+        except Exception as _e:
+            logger.error(f"Local fallback failed for cumulative: {_e}")
         return jsonify({
             'success': False,
             'error': 'Historical analysis service unavailable',
@@ -4686,6 +5103,24 @@ def proxy_date_analysis(date):
         return jsonify(response.json()), response.status_code
     except Exception as e:
         logger.error(f"Failed to proxy date analysis request for {date}: {e}")
+        # Fallback: compute date analysis locally
+        try:
+            analyzer = get_or_create_historical_analyzer()
+            if analyzer:
+                date_analysis = analyzer.get_date_analysis(date)
+                if 'error' in (date_analysis or {}):
+                    return jsonify({
+                        'success': False,
+                        'error': date_analysis.get('error'),
+                        'date': date
+                    }), 404
+                return jsonify({
+                    'success': True,
+                    'data': date_analysis,
+                    'message': f'Analysis complete for {date} (local fallback)'
+                }), 200
+        except Exception as _e:
+            logger.error(f"Local fallback failed for date {date}: {_e}")
         return jsonify({
             'success': False,
             'error': 'Historical analysis service unavailable',
@@ -4701,6 +5136,33 @@ def proxy_today_games(date):
         return jsonify(response.json()), response.status_code
     except Exception as e:
         logger.error(f"Failed to proxy today-games request for {date}: {e}")
+        # Fallback: construct a minimal games list locally
+        try:
+            analyzer = get_or_create_historical_analyzer()
+            if analyzer:
+                predictions = analyzer.load_predictions_for_date(date) or {}
+                games = []
+                for _, pred in predictions.items():
+                    away = pred.get('away_team') or pred.get('away') or ''
+                    home = pred.get('home_team') or pred.get('home') or ''
+                    if not away or not home:
+                        continue
+                    games.append({
+                        'away_team': away,
+                        'home_team': home,
+                        'betting_recommendations': pred.get('value_bets') or pred.get('recommendations') or [],
+                        'date': date,
+                        'game_status': 'Scheduled'
+                    })
+                return jsonify({
+                    'success': True,
+                    'games': games,
+                    'count': len(games),
+                    'date': date,
+                    'message': f'Found {len(games)} games for {date} (local fallback)'
+                }), 200
+        except Exception as _e:
+            logger.error(f"Local fallback failed for today-games {date}: {_e}")
         return jsonify({
             'success': False,
             'error': 'Historical analysis service unavailable',
