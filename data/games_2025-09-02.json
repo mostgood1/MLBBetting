@@ -1,0 +1,142 @@
+[
+  {
+    "game_pk": 776490,
+    "game_time": "2025-09-02T22:40:00Z",
+    "away_team": "New York Mets",
+    "home_team": "Detroit Tigers",
+    "away_pitcher": "Nolan McLean",
+    "home_pitcher": "Sawyer Gipson-Long",
+    "away_probable_pitcher": "Nolan McLean",
+    "home_probable_pitcher": "Sawyer Gipson-Long"
+  },
+  {
+    "game_pk": 776496,
+    "game_time": "2025-09-02T22:40:00Z",
+    "away_team": "Los Angeles Dodgers",
+    "home_team": "Pittsburgh Pirates",
+    "away_pitcher": "Clayton Kershaw",
+    "home_pitcher": "Carmen Mlodzinski",
+    "away_probable_pitcher": "Clayton Kershaw",
+    "home_probable_pitcher": "Carmen Mlodzinski"
+  },
+  {
+    "game_pk": 776491,
+    "game_time": "2025-09-02T22:40:00Z",
+    "away_team": "Toronto Blue Jays",
+    "home_team": "Cincinnati Reds",
+    "away_pitcher": "Jos\u00e9 Berr\u00edos",
+    "home_pitcher": "Nick Lodolo",
+    "away_probable_pitcher": "Jos\u00e9 Berr\u00edos",
+    "home_probable_pitcher": "Nick Lodolo"
+  },
+  {
+    "game_pk": 776493,
+    "game_time": "2025-09-02T22:45:00Z",
+    "away_team": "Cleveland Guardians",
+    "home_team": "Boston Red Sox",
+    "away_pitcher": "Slade Cecconi",
+    "home_pitcher": "Garrett Crochet",
+    "away_probable_pitcher": "Slade Cecconi",
+    "home_probable_pitcher": "Garrett Crochet"
+  },
+  {
+    "game_pk": 776482,
+    "game_time": "2025-09-02T22:45:00Z",
+    "away_team": "Miami Marlins",
+    "home_team": "Washington Nationals",
+    "away_pitcher": "Adam Mazur",
+    "home_pitcher": "Cade Cavalli",
+    "away_probable_pitcher": "Adam Mazur",
+    "home_probable_pitcher": "Cade Cavalli"
+  },
+  {
+    "game_pk": 776485,
+    "game_time": "2025-09-02T23:35:00Z",
+    "away_team": "Seattle Mariners",
+    "home_team": "Tampa Bay Rays",
+    "away_pitcher": "Bryan Woo",
+    "home_pitcher": "Drew Rasmussen",
+    "away_probable_pitcher": "Bryan Woo",
+    "home_probable_pitcher": "Drew Rasmussen"
+  },
+  {
+    "game_pk": 776488,
+    "game_time": "2025-09-02T23:40:00Z",
+    "away_team": "Los Angeles Angels",
+    "home_team": "Kansas City Royals",
+    "away_pitcher": "TBD",
+    "home_pitcher": "Michael Lorenzen",
+    "home_probable_pitcher": "Michael Lorenzen",
+    "away_probable_pitcher": "TBD"
+  },
+  {
+    "game_pk": 776487,
+    "game_time": "2025-09-02T23:40:00Z",
+    "away_team": "Atlanta Braves",
+    "home_team": "Chicago Cubs",
+    "away_pitcher": "Joey Wentz",
+    "home_pitcher": "Shota Imanaga",
+    "away_probable_pitcher": "Joey Wentz",
+    "home_probable_pitcher": "Shota Imanaga"
+  },
+  {
+    "game_pk": 776484,
+    "game_time": "2025-09-02T23:40:00Z",
+    "away_team": "Chicago White Sox",
+    "home_team": "Minnesota Twins",
+    "away_pitcher": "Davis Martin",
+    "home_pitcher": "Simeon Woods Richardson",
+    "away_probable_pitcher": "Davis Martin",
+    "home_probable_pitcher": "Simeon Woods Richardson"
+  },
+  {
+    "game_pk": 776483,
+    "game_time": "2025-09-02T23:45:00Z",
+    "away_team": "Athletics",
+    "home_team": "St. Louis Cardinals",
+    "away_pitcher": "Luis Severino",
+    "home_pitcher": "Miles Mikolas",
+    "away_probable_pitcher": "Luis Severino",
+    "home_probable_pitcher": "Miles Mikolas"
+  },
+  {
+    "game_pk": 776489,
+    "game_time": "2025-09-03T00:10:00Z",
+    "away_team": "New York Yankees",
+    "home_team": "Houston Astros",
+    "away_pitcher": "Max Fried",
+    "home_pitcher": "Framber Valdez",
+    "away_probable_pitcher": "Max Fried",
+    "home_probable_pitcher": "Framber Valdez"
+  },
+  {
+    "game_pk": 776486,
+    "game_time": "2025-09-03T00:40:00Z",
+    "away_team": "San Francisco Giants",
+    "home_team": "Colorado Rockies",
+    "away_pitcher": "Logan Webb",
+    "home_pitcher": "Kyle Freeland",
+    "away_probable_pitcher": "Logan Webb",
+    "home_probable_pitcher": "Kyle Freeland"
+  },
+  {
+    "game_pk": 776480,
+    "game_time": "2025-09-03T01:40:00Z",
+    "away_team": "Baltimore Orioles",
+    "home_team": "San Diego Padres",
+    "away_pitcher": "Tyler Wells",
+    "home_pitcher": "Yu Darvish",
+    "away_probable_pitcher": "Tyler Wells",
+    "home_probable_pitcher": "Yu Darvish"
+  },
+  {
+    "game_pk": 776481,
+    "game_time": "2025-09-03T01:40:00Z",
+    "away_team": "Texas Rangers",
+    "home_team": "Arizona Diamondbacks",
+    "away_pitcher": "TBD",
+    "home_pitcher": "Nabil Crismatt",
+    "home_probable_pitcher": "Nabil Crismatt",
+    "away_probable_pitcher": "TBD"
+  }
+]
