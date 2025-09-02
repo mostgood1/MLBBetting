@@ -493,12 +493,16 @@ class HistoricalAnalyzer:
     def load_final_scores_for_date(self, target_date: str) -> Dict:
         """Load final scores for specific date (robust to dict or list JSON).
 
-        Tries the per-date file data/final_scores_YYYY_MM_DD.json first.
-        If missing or empty, falls back to data/historical_final_scores_cache.json[YYYY-MM-DD].
+        Order of attempts:
+        1) Local file data/final_scores_YYYY_MM_DD.json (underscore)
+        2) Local file data/final_scores_YYYY-MM-DD.json (dash)
+        3) Bundle cache data/historical_final_scores_cache.json[YYYY-MM-DD]
+        4) Fallback to comprehensive loader (live fetch or disk) and persist
         """
         # Convert date format: 2025-08-20 -> 2025_08_20
         date_formatted = target_date.replace('-', '_')
         scores_path = self.base_scores_path.format(date=date_formatted)
+        scores_path_alt = f"data/final_scores_{target_date}.json"
 
         def _normalize_items_to_scores(items: List[Dict]) -> Dict[str, Dict]:
             scores_dict: Dict[str, Dict] = {}
@@ -541,7 +545,10 @@ class HistoricalAnalyzer:
 
         def _load_from_per_date_file() -> Dict[str, Dict]:
             try:
-                with open(scores_path, 'r') as f:
+                path_to_use = scores_path if os.path.exists(scores_path) else (scores_path_alt if os.path.exists(scores_path_alt) else None)
+                if not path_to_use:
+                    raise FileNotFoundError(scores_path)
+                with open(path_to_use, 'r') as f:
                     raw = json.load(f)
                 # Normalize to iterable of score dicts
                 if isinstance(raw, dict):
@@ -552,7 +559,7 @@ class HistoricalAnalyzer:
                     items = []
                 return _normalize_items_to_scores(items)
             except FileNotFoundError:
-                logger.warning(f"Final scores not found: {scores_path}")
+                logger.warning(f"Final scores not found: {scores_path} or {scores_path_alt}")
                 return {}
             except Exception as e:
                 logger.error(f"Error loading final scores from per-date file for {target_date}: {e}")
@@ -587,6 +594,24 @@ class HistoricalAnalyzer:
         if not scores_dict:
             # Fallback to cache
             scores_dict = _load_from_cache_file()
+
+        # Last resort: comprehensive loader (live/disk) to hydrate
+        if not scores_dict:
+            try:
+                from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer
+                cha = ComprehensiveHistoricalAnalyzer()
+                scores_dict = cha.load_final_scores_for_date(target_date) or {}
+                if scores_dict:
+                    # Persist to underscore-style per-date file for future fast loads
+                    try:
+                        out_path = f"data/final_scores_{date_formatted}.json"
+                        with open(out_path, 'w') as f:
+                            json.dump(scores_dict, f, indent=2)
+                        logger.info(f"Persisted {len(scores_dict)} final scores to {out_path}")
+                    except Exception as _pe:
+                        logger.warning(f"Could not persist final scores for {target_date}: {_pe}")
+            except Exception as _fe:
+                logger.warning(f"Comprehensive fallback failed for {target_date}: {_fe}")
 
         logger.info(f"Loaded {len(scores_dict)} final scores for {target_date}")
         return scores_dict
