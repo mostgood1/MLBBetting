@@ -306,7 +306,15 @@ class HistoricalAnalyzer:
                                 # NEW: Copy nested predictions from per-day structure if present
                                 try:
                                     per_day_pred_block = egd.get('predictions') or {}
-                                    inner_preds = per_day_pred_block.get('predictions') if isinstance(per_day_pred_block, dict) else None
+                                    # Support both shapes:
+                                    # 1) {'predictions': { ...fields }}
+                                    # 2) {'away_win_prob': .., 'predicted_away_score': .., ...}
+                                    inner_preds = None
+                                    if isinstance(per_day_pred_block, dict):
+                                        if isinstance(per_day_pred_block.get('predictions'), dict):
+                                            inner_preds = per_day_pred_block.get('predictions')
+                                        else:
+                                            inner_preds = per_day_pred_block
                                     if isinstance(inner_preds, dict) and inner_preds:
                                         # Ensure a 'prediction' container exists on the unified game
                                         g_prediction = g.get('prediction')
@@ -330,6 +338,7 @@ class HistoricalAnalyzer:
                                             ('home_score', 'home_score'),
                                             ('away_runs', 'away_runs'),
                                             ('home_runs', 'home_runs'),
+                                            ('confidence', 'confidence'),
                                         ]:
                                             if inner_preds.get(src_key) is not None and pred_container.get(dst_key) is None:
                                                 pred_container[dst_key] = inner_preds.get(src_key)
@@ -366,7 +375,7 @@ class HistoricalAnalyzer:
                                 if isinstance(egd.get('predicted_score'), str):
                                     g['predicted_score'] = egd['predicted_score']
                                     enriched_any = True
-                                # Also copy explicit predicted score numbers if present
+                                # Also copy explicit predicted score numbers if present at top level (legacy)
                                 for k in ('predicted_away_score','predicted_home_score','away_score','home_score','away_runs','home_runs'):
                                     if k in egd and g.get(k) is None:
                                         g[k] = egd[k]
