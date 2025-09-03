@@ -706,6 +706,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description="MLB Betting Recommendations Engine")
     parser.add_argument('--date', type=str, help='Date for recommendations (YYYY-MM-DD)', default=None)
+    parser.add_argument('--only-game', action='append', help='Only process this matchup (Away Team @ Home Team). Can be repeated.')
     args = parser.parse_args()
     
     # Initialize enhanced engine
@@ -724,6 +725,22 @@ def main():
     
     # Generate recommendations
     recommendations = engine.generate_betting_recommendations()
+
+    # If filtering to specific games, subset the output
+    def _norm(s: str) -> str:
+        return (s or '').lower().replace(' vs ', ' @ ').strip()
+
+    if args.only_game and recommendations and 'games' in recommendations:
+        targets = {_norm(x) for x in args.only_game}
+        filtered = {}
+        for k, v in recommendations['games'].items():
+            away = v.get('away_team') or k.split('_vs_')[0].replace('_',' ')
+            home = v.get('home_team') or k.split('_vs_')[-1].replace('_',' ')
+            key1 = _norm(f"{away} @ {home}")
+            key2 = _norm(f"{away} vs {home}")
+            if key1 in targets or key2 in targets:
+                filtered[k] = v
+        recommendations['games'] = filtered
     
     # Apply enhancements to each game
     if recommendations and 'games' in recommendations and engine.advanced_mode:
@@ -739,10 +756,25 @@ def main():
         logger.info("✅ Enhanced betting recommendations generated successfully!")
         output_path = f"data/betting_recommendations_{engine.current_date.replace('-', '_')}.json"
         try:
-            with open(output_path, "w") as f:
-                import json
-                json.dump(recommendations, f, indent=2)
-            logger.info(f"💾 Enhanced recommendations saved to {output_path}")
+            # If only subset is present, merge into existing file to preserve other games
+            if args.only_game and os.path.exists(output_path):
+                import json as _json
+                try:
+                    with open(output_path, 'r') as rf:
+                        existing = _json.load(rf)
+                except Exception:
+                    existing = {}
+                if 'games' not in existing:
+                    existing['games'] = {}
+                existing['games'].update(recommendations.get('games', {}))
+                with open(output_path, 'w') as f:
+                    _json.dump(existing, f, indent=2)
+                logger.info(f"💾 Merged {len(recommendations.get('games', {}))} games into {output_path}")
+            else:
+                with open(output_path, "w") as f:
+                    import json
+                    json.dump(recommendations, f, indent=2)
+                logger.info(f"💾 Enhanced recommendations saved to {output_path}")
         except Exception as e:
             logger.error(f"❌ Failed to write recommendations file: {e}")
     else:

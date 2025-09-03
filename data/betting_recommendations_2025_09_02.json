@@ -110,28 +110,50 @@
     "Los Angeles Angels_vs_Kansas City Royals": {
       "away_team": "Los Angeles Angels",
       "home_team": "Kansas City Royals",
-      "away_pitcher": null,
-      "home_pitcher": null,
-      "predicted_score": "5.1-5.5",
-      "predicted_total_runs": 9.9,
-      "win_probabilities": {
-        "away_prob": 0.462,
-        "home_prob": 0.538
+      "game_date": "2025-09-02",
+      "away_pitcher": "Mitch Farris",
+      "home_pitcher": "Michael Lorenzen",
+      "predictions": {
+        "home_win_prob": 0.545,
+        "away_win_prob": 0.455,
+        "predicted_home_score": 4.4,
+        "predicted_away_score": 4.0,
+        "predicted_total_runs": 8.4,
+        "home_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "total_runs_range": [
+          5.0,
+          12.0
+        ],
+        "confidence": 59.6
       },
-      "value_bets": [
+      "betting_lines": {
+        "home_ml": -164,
+        "away_ml": 134,
+        "total_line": 9.0,
+        "over_odds": -105,
+        "under_odds": -115,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
         {
-          "type": "total",
-          "recommendation": "Over 9.0",
-          "expected_value": 0.151904761904762,
-          "win_probability": 0.5900000000000001,
-          "american_odds": "-105",
-          "confidence": "low",
-          "kelly_bet_size": 16.0,
-          "predicted_total": 9.9,
-          "betting_line": 9.0,
-          "reasoning": "Predicted 9.9 vs line 9.0"
+          "type": "none",
+          "recommendation": "No recommendations"
         }
-      ]
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": null,
+        "home_pitcher_name": null,
+        "away_pitcher_factor": 1.0,
+        "home_pitcher_factor": 1.0
+      }
     },
     "Atlanta Braves_vs_Chicago Cubs": {
       "away_team": "Atlanta Braves",

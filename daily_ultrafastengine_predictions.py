@@ -18,10 +18,16 @@ sys.path.insert(0, str(current_dir / "engines"))
 
 import argparse
 
+def _norm_matchup(s: str) -> str:
+    """Normalize matchup string like 'Away @ Home' or 'Away vs Home' for comparison."""
+    s = (s or '').lower().replace(' vs ', ' @ ').replace('  ', ' ').strip()
+    return s
+
 def main():
     """Generate predictions for a given date using UltraFast engine"""
     parser = argparse.ArgumentParser(description="MLB UltraFast Prediction Engine")
     parser.add_argument('--date', type=str, help='Date for predictions (YYYY-MM-DD)', default=None)
+    parser.add_argument('--only-game', action='append', help="Only generate for this matchup (Away Team @ Home Team). Can be passed multiple times.")
     args = parser.parse_args()
 
     if args.date:
@@ -44,6 +50,17 @@ def main():
         if not games:
             print(f"No games found for {prediction_date}")
             return False
+        # Optional filter to specific matchups
+        if args.only_game:
+            targets = {_norm_matchup(x) for x in args.only_game}
+            def is_target(g):
+                k1 = _norm_matchup(f"{g.get('away_team')} @ {g.get('home_team')}")
+                k2 = _norm_matchup(f"{g.get('away_team')} vs {g.get('home_team')}")
+                return k1 in targets or k2 in targets
+            games = [g for g in games if is_target(g)]
+            if not games:
+                print("No matching games found for filters; nothing to do.")
+                return True
         predictions_by_game = {}
         for game in games:
             away_team = game.get('away_team')
@@ -75,17 +92,23 @@ def main():
             existing_cache = {}
         if 'predictions_by_date' not in existing_cache:
             existing_cache['predictions_by_date'] = {}
-        existing_cache['predictions_by_date'][prediction_date] = {
-            'games': predictions_by_game,
-            'metadata': {
-                'engine': 'UltraFast',
-                'generated_at': datetime.now().isoformat(),
-                'game_count': len(predictions_by_game)
-            }
-        }
+        # Merge into existing date data without wiping other games
+        date_entry = existing_cache['predictions_by_date'].get(prediction_date, {})
+        existing_games = date_entry.get('games', {})
+        existing_games.update(predictions_by_game)
+        date_entry['games'] = existing_games
+        md = date_entry.get('metadata', {})
+        md.update({
+            'engine': 'UltraFast',
+            'generated_at': datetime.now().isoformat(),
+            'last_update_type': 'partial' if args.only_game else 'full',
+        })
+        md['game_count'] = len(existing_games)
+        date_entry['metadata'] = md
+        existing_cache['predictions_by_date'][prediction_date] = date_entry
         with open(cache_path, 'w') as f:
             json.dump(existing_cache, f, indent=2)
-        print(f"Generated {len(predictions_by_game)} predictions and appended to {cache_path}")
+        print(f"Generated {len(predictions_by_game)} predictions and merged into {cache_path}")
         return True
     except Exception as e:
         print(f"Error generating UltraFast predictions: {e}")

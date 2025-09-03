@@ -1,6 +1,6 @@
 {
   "date": "2025-09-02",
-  "fetched_at": "2025-09-02T08:13:02.971459",
+  "fetched_at": "2025-09-02T17:37:26.367339",
   "games": [
     {
       "away_team": "New York Mets",
@@ -20,7 +20,7 @@
       "away_team": "Toronto Blue Jays",
       "home_team": "Cincinnati Reds",
       "away_pitcher": "Jos\u00e9 Berr\u00edos",
-      "home_pitcher": "Nick Lodolo",
+      "home_pitcher": "Scott Barlow",
       "game_key": "Toronto Blue Jays @ Cincinnati Reds"
     },
     {
@@ -47,7 +47,7 @@
     {
       "away_team": "Los Angeles Angels",
       "home_team": "Kansas City Royals",
-      "away_pitcher": "TBD",
+      "away_pitcher": "Mitch Farris",
       "home_pitcher": "Michael Lorenzen",
       "game_key": "Los Angeles Angels @ Kansas City Royals"
     },
@@ -96,7 +96,7 @@
     {
       "away_team": "Texas Rangers",
       "home_team": "Arizona Diamondbacks",
-      "away_pitcher": "TBD",
+      "away_pitcher": "Jacob Latz",
       "home_pitcher": "Nabil Crismatt",
       "game_key": "Texas Rangers @ Arizona Diamondbacks"
     }

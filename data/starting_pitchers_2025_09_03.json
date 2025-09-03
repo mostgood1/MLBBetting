@@ -1,0 +1,111 @@
+{
+  "date": "2025-09-03",
+  "fetched_at": "2025-09-03T08:06:41.144428",
+  "games": [
+    {
+      "away_team": "Miami Marlins",
+      "home_team": "Washington Nationals",
+      "away_pitcher": "Eury P\u00e9rez",
+      "home_pitcher": "Mitchell Parker",
+      "game_key": "Miami Marlins @ Washington Nationals"
+    },
+    {
+      "away_team": "New York Mets",
+      "home_team": "Detroit Tigers",
+      "away_pitcher": "Clay Holmes",
+      "home_pitcher": "Casey Mize",
+      "game_key": "New York Mets @ Detroit Tigers"
+    },
+    {
+      "away_team": "Texas Rangers",
+      "home_team": "Arizona Diamondbacks",
+      "away_pitcher": "Jack Leiter",
+      "home_pitcher": "Zac Gallen",
+      "game_key": "Texas Rangers @ Arizona Diamondbacks"
+    },
+    {
+      "away_team": "Baltimore Orioles",
+      "home_team": "San Diego Padres",
+      "away_pitcher": "Cade Povich",
+      "home_pitcher": "Nestor Cortes",
+      "game_key": "Baltimore Orioles @ San Diego Padres"
+    },
+    {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Pittsburgh Pirates",
+      "away_pitcher": "Shohei Ohtani",
+      "home_pitcher": "Braxton Ashcraft",
+      "game_key": "Los Angeles Dodgers @ Pittsburgh Pirates"
+    },
+    {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Cincinnati Reds",
+      "away_pitcher": "Shane Bieber",
+      "home_pitcher": "Zack Littell",
+      "game_key": "Toronto Blue Jays @ Cincinnati Reds"
+    },
+    {
+      "away_team": "Cleveland Guardians",
+      "home_team": "Boston Red Sox",
+      "away_pitcher": "Joey Cantillo",
+      "home_pitcher": "Brennan Bernardino",
+      "game_key": "Cleveland Guardians @ Boston Red Sox"
+    },
+    {
+      "away_team": "Seattle Mariners",
+      "home_team": "Tampa Bay Rays",
+      "away_pitcher": "George Kirby",
+      "home_pitcher": "Adrian Houser",
+      "game_key": "Seattle Mariners @ Tampa Bay Rays"
+    },
+    {
+      "away_team": "Los Angeles Angels",
+      "home_team": "Kansas City Royals",
+      "away_pitcher": "Caden Dana",
+      "home_pitcher": "Ryan Bergert",
+      "game_key": "Los Angeles Angels @ Kansas City Royals"
+    },
+    {
+      "away_team": "Atlanta Braves",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": "Bryce Elder",
+      "home_pitcher": "Cade Horton",
+      "game_key": "Atlanta Braves @ Chicago Cubs"
+    },
+    {
+      "away_team": "Chicago White Sox",
+      "home_team": "Minnesota Twins",
+      "away_pitcher": "Yoendrys G\u00f3mez",
+      "home_pitcher": "Zebby Matthews",
+      "game_key": "Chicago White Sox @ Minnesota Twins"
+    },
+    {
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": "Aaron Nola",
+      "home_pitcher": "Jose Quintana",
+      "game_key": "Philadelphia Phillies @ Milwaukee Brewers"
+    },
+    {
+      "away_team": "Athletics",
+      "home_team": "St. Louis Cardinals",
+      "away_pitcher": "Jeffrey Springs",
+      "home_pitcher": "Matthew Liberatore",
+      "game_key": "Athletics @ St. Louis Cardinals"
+    },
+    {
+      "away_team": "New York Yankees",
+      "home_team": "Houston Astros",
+      "away_pitcher": "Will Warren",
+      "home_pitcher": "Jason Alexander",
+      "game_key": "New York Yankees @ Houston Astros"
+    },
+    {
+      "away_team": "San Francisco Giants",
+      "home_team": "Colorado Rockies",
+      "away_pitcher": "Robbie Ray",
+      "home_pitcher": "Germ\u00e1n M\u00e1rquez",
+      "game_key": "San Francisco Giants @ Colorado Rockies"
+    }
+  ]
+}
