@@ -1,28 +1,7 @@
 {
   "api_predictions_2025-08-19": [
     {
-      "timestamp": "2025-09-03T08:18:29.895882",
-      "function": "api_predictions_2025-08-19",
-      "execution_time": 0.0,
-      "success": false,
-      "error": "'str' object has no attribute 'get'"
-    },
-    {
-      "timestamp": "2025-09-03T08:21:11.582232",
-      "function": "api_predictions_2025-08-19",
-      "execution_time": 0.023,
-      "success": false,
-      "error": "'str' object has no attribute 'get'"
-    },
-    {
-      "timestamp": "2025-09-03T08:23:35.115197",
-      "function": "api_predictions_2025-08-19",
-      "execution_time": 0.019,
-      "success": false,
-      "error": "'str' object has no attribute 'get'"
-    },
-    {
-      "timestamp": "2025-09-03T08:26:16.713947",
+      "timestamp": "2025-09-03T22:53:07.240070",
       "function": "api_predictions_2025-08-19",
       "execution_time": 0.0,
       "success": false,

@@ -1,0 +1,103 @@
+{
+  "date": "2025-09-04",
+  "fetched_at": "2025-09-04T08:41:07.992703",
+  "source": "OddsAPI_live",
+  "lines": {
+    "Philadelphia Phillies @ Milwaukee Brewers": {
+      "moneyline": {
+        "away": 105,
+        "home": -127
+      },
+      "total_runs": {
+        "line": 8.0,
+        "over": -102,
+        "under": -119
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -199,
+        "home": 160
+      }
+    },
+    "Los Angeles Dodgers @ Pittsburgh Pirates": {
+      "moneyline": {
+        "away": -123,
+        "home": 101
+      },
+      "total_runs": {
+        "line": 7.0,
+        "over": -115,
+        "under": -105
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 143,
+        "home": -175
+      }
+    },
+    "Cleveland Guardians @ Tampa Bay Rays": {
+      "moneyline": {
+        "away": 133,
+        "home": -163
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -105,
+        "under": -116
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -151,
+        "home": 124
+      }
+    },
+    "Chicago White Sox @ Minnesota Twins": {
+      "moneyline": {
+        "away": 129,
+        "home": -157
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -108,
+        "under": -112
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -164,
+        "home": 134
+      }
+    },
+    "New York Yankees @ Houston Astros": {
+      "moneyline": {
+        "away": -144,
+        "home": 118
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -118,
+        "under": -103
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 114,
+        "home": -139
+      }
+    },
+    "Los Angeles Angels @ Kansas City Royals": {
+      "moneyline": {
+        "away": 129,
+        "home": -158
+      },
+      "total_runs": {
+        "line": 9.0,
+        "over": -119,
+        "under": -102
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -157,
+        "home": 128
+      }
+    }
+  }
+}

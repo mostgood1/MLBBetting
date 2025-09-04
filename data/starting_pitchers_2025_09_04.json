@@ -1,0 +1,48 @@
+{
+  "date": "2025-09-04",
+  "fetched_at": "2025-09-04T08:35:59.231182",
+  "games": [
+    {
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": "Ranger Su\u00e1rez",
+      "home_pitcher": "Freddy Peralta",
+      "game_key": "Philadelphia Phillies @ Milwaukee Brewers"
+    },
+    {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Pittsburgh Pirates",
+      "away_pitcher": "Blake Snell",
+      "home_pitcher": "Paul Skenes",
+      "game_key": "Los Angeles Dodgers @ Pittsburgh Pirates"
+    },
+    {
+      "away_team": "Cleveland Guardians",
+      "home_team": "Tampa Bay Rays",
+      "away_pitcher": "Logan Allen",
+      "home_pitcher": "Ryan Pepiot",
+      "game_key": "Cleveland Guardians @ Tampa Bay Rays"
+    },
+    {
+      "away_team": "Los Angeles Angels",
+      "home_team": "Kansas City Royals",
+      "away_pitcher": "Kyle Hendricks",
+      "home_pitcher": "Noah Cameron",
+      "game_key": "Los Angeles Angels @ Kansas City Royals"
+    },
+    {
+      "away_team": "Chicago White Sox",
+      "home_team": "Minnesota Twins",
+      "away_pitcher": "Fraser Ellard",
+      "home_pitcher": "Taj Bradley",
+      "game_key": "Chicago White Sox @ Minnesota Twins"
+    },
+    {
+      "away_team": "New York Yankees",
+      "home_team": "Houston Astros",
+      "away_pitcher": "Carlos Rod\u00f3n",
+      "home_pitcher": "Cristian Javier",
+      "game_key": "New York Yankees @ Houston Astros"
+    }
+  ]
+}
