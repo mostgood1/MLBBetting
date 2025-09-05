@@ -101,12 +101,21 @@
     function parseSideLine(rec){
       if(!rec) return { side:null, line:null };
       const txt = String(rec).trim().toLowerCase();
-      let side = null;
-      // detect side anywhere in the string, including short forms
-      if(/\bover\b/.test(txt) || /\bo\b/.test(txt)) side = 'OVER';
-      if(/\bunder\b/.test(txt) || /\bu\b/.test(txt)) side = 'UNDER';
-      const m = txt.match(/(\d+\.?\d*)/);
-      const line = m ? Number(m[1]) : null;
+      let side = null; let line = null;
+      // Prefer explicit words
+      if(/\bover\b/.test(txt)) side = 'OVER';
+      else if(/\bunder\b/.test(txt)) side = 'UNDER';
+      // Compact formats like "O9", "O 9", "U8.5", "U 8.5"
+      if(!side){
+        const mo = txt.match(/(^|[^a-z])o\s*(\d+(?:\.\d+)?)/i);
+        if(mo){ side='OVER'; line = Number(mo[2]); }
+      }
+      if(!side){
+        const mu = txt.match(/(^|[^a-z])u\s*(\d+(?:\.\d+)?)/i);
+        if(mu){ side='UNDER'; line = Number(mu[2]); }
+      }
+      // If line still missing, grab the first number
+      if(line==null){ const m = txt.match(/(\d+\.?\d*)/); if(m) line = Number(m[1]); }
       return { side, line };
     }
     function normalizeTeamName(s){
