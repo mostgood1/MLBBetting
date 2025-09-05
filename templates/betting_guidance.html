@@ -355,39 +355,6 @@
       const raw=await res.json();
       const data = raw && raw.data ? raw.data : raw;
   const grid=document.getElementById('day-grid'); grid.innerHTML='';
-
-
-    async function loadRangePerformance(){
-      const start = document.getElementById('range-start').value;
-      const end = document.getElementById('range-end').value;
-      if(!start || !end) return;
-      try{
-        const res = await fetch(`/api/historical-analysis?type=cumulative&start_date=${start}&end_date=${end}`);
-        const data = await res.json();
-        // KPIs
-        const k = data.cumulative_performance || data.summary || {};
-        const tiles=[
-          {label:'Model Winner Acc', val: (k.winner_accuracy!=null? (k.winner_accuracy*100).toFixed(1)+'%' : '-')},
-          {label:'Rec Accuracy', val: (k.recommendation_accuracy!=null? (k.recommendation_accuracy*100).toFixed(1)+'%' : '-')},
-          {label:'ROI %', val: (k.roi_percentage!=null? Number(k.roi_percentage).toFixed(1)+'%' : '-')},
-          {label:'Win Rate', val: (k.win_rate!=null? (k.win_rate*100).toFixed(1)+'%' : '-')}
-        ];
-        const grid=document.getElementById('range-kpis'); grid.innerHTML='';
-        tiles.forEach(t=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${t.val}</div><div class='muted'>${t.label}</div>`; grid.appendChild(d); });
-
-        // Daily summaries table
-        const dailies = data.daily_summaries || [];
-        const target=document.getElementById('range-dailies');
-        if(!dailies.length){ target.innerHTML = '<div class="muted">No daily summaries in this range.</div>'; return; }
-        const headers=['date','games','winner_accuracy','avg_team_score_error','avg_total_score_error','avg_away_score_error','avg_home_score_error','percent_total_within_1','percent_total_within_2'];
-        target.innerHTML = '<table class="table"><thead><tr>' + headers.map(h=>`<th>${h.replaceAll('_',' ')}</th>`).join('') + '</tr></thead><tbody>' +
-          dailies.map(d=>`<tr>${headers.map(h=>{
-            const v=d[h];
-            if(h.includes('accuracy')||h.includes('percent')) return `<td>${(Number(v)*100).toFixed(1)}%</td>`;
-            return `<td>${v!=null? v : '-'}</td>`;
-          }).join('')}</tr>`).join('') + '</tbody></table>';
-      }catch(e){ console.warn('Failed to load range performance', e); }
-    }
       // Build recommendations table pulling directly from the per-day betting recommendations file
       const recDiv = document.getElementById('day-recs');
       try{
@@ -668,6 +635,38 @@
           ].map(t=>`<div class='stat'><div class='num'>${t.val}</div><div class='muted'>${t.label}</div></div>`).join('');
         }
       }catch(e){ recDiv.innerHTML='<div class="muted">Unable to load recommendations for this date.</div>'; }
+    }
+    // Expose range loader at global scope
+    async function loadRangePerformance(){
+      const start = document.getElementById('range-start').value;
+      const end = document.getElementById('range-end').value;
+      if(!start || !end) return;
+      try{
+        const res = await fetch(`/api/historical-analysis?type=cumulative&start_date=${start}&end_date=${end}`);
+        const data = await res.json();
+        // KPIs
+        const k = data.cumulative_performance || data.summary || {};
+        const tiles=[
+          {label:'Model Winner Acc', val: (k.winner_accuracy!=null? (k.winner_accuracy*100).toFixed(1)+'%' : '-')},
+          {label:'Rec Accuracy', val: (k.recommendation_accuracy!=null? (k.recommendation_accuracy*100).toFixed(1)+'%' : '-')},
+          {label:'ROI %', val: (k.roi_percentage!=null? Number(k.roi_percentage).toFixed(1)+'%' : '-')},
+          {label:'Win Rate', val: (k.win_rate!=null? (k.win_rate*100).toFixed(1)+'%' : '-')}
+        ];
+        const grid=document.getElementById('range-kpis'); grid.innerHTML='';
+        tiles.forEach(t=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${t.val}</div><div class='muted'>${t.label}</div>`; grid.appendChild(d); });
+
+        // Daily summaries table
+        const dailies = data.daily_summaries || [];
+        const target=document.getElementById('range-dailies');
+        if(!dailies.length){ target.innerHTML = '<div class="muted">No daily summaries in this range.</div>'; return; }
+        const headers=['date','games','winner_accuracy','avg_team_score_error','avg_total_score_error','avg_away_score_error','avg_home_score_error','percent_total_within_1','percent_total_within_2'];
+        target.innerHTML = '<table class="table"><thead><tr>' + headers.map(h=>`<th>${h.replaceAll('_',' ')}</th>`).join('') + '</tr></thead><tbody>' +
+          dailies.map(d=>`<tr>${headers.map(h=>{
+            const v=d[h];
+            if(h.includes('accuracy')||h.includes('percent')) return `<td>${(Number(v)*100).toFixed(1)}%</td>`;
+            return `<td>${v!=null? v : '-'}</td>`;
+          }).join('')}</tr>`).join('') + '</tbody></table>';
+      }catch(e){ console.warn('Failed to load range performance', e); }
     }
     loadPerformance(); loadToday(); loadAvailableDates();
   </script>
