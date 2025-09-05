@@ -604,6 +604,15 @@
                 fs = finalScores.get(altKey) || finalScores.get(normGameKey(altKey));
               }
             }
+            // Last resort: scan the map for normalized away/home match
+            if(!fs && game.includes('@')){
+              const parts = game.split('@');
+              const wantAway = normalizeTeamName(parts[0].trim());
+              const wantHome = normalizeTeamName(parts[1].trim());
+              for(const v of finalScores.values()){
+                if(v && normalizeTeamName(v.away_team||'')===wantAway && normalizeTeamName(v.home_team||'')===wantHome){ fs = v; break; }
+              }
+            }
             if(correct === undefined && fs){
               if(type==='total' && sideKey && (line!=null)){
                 const total = Number(fs.away_score) + Number(fs.home_score);
@@ -616,6 +625,12 @@
                 const winner = (Number(fs.away_score) > Number(fs.home_score)) ? 'AWAY' : 'HOME';
                 if(sideKey==='AWAY' || sideKey==='HOME') correct = (sideKey === winner);
               }
+            }
+            // Debug aid: surface unresolved totals to console
+            if(correct === undefined && type==='total'){
+              const sideKeyDbg = (side||'').toUpperCase();
+              // eslint-disable-next-line no-console
+              console.debug('Unresolved total rec', { game, side: sideKeyDbg, line, hasFS: !!fs });
             }
             return {
               game,
