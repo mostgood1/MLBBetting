@@ -86,7 +86,7 @@
     function fmtPct(n){ return (Number(n)||0).toFixed(1) + '%'; }
     function fmtEV(n){ const v=Number(n); if(!isFinite(v)) return '-'; return (v*100).toFixed(1)+'%'; }
     const confOrder = c => ({'HIGH':3,'MEDIUM':2,'LOW':1}[String(c||'').toUpperCase()]||0);
-    const checkIcon = ok => ok===true ? '✅' : ok===false ? '❌' : '';
+  const checkIcon = ok => ok===true ? '✅' : ok===false ? '❌' : (ok==='PUSH' ? '➖' : '');
     function parseAmericanOdds(od){
       try{
         if(od===null || od===undefined) return -110;
@@ -342,13 +342,17 @@
             const fs = finalScores.get(game);
             if(type==='total' && sideKey && (line!=null)){
               const total = Number(fs.away_score)+Number(fs.home_score);
-              if(!isNaN(total)) correct = sideKey==='OVER' ? (total>Number(line)) : (total<Number(line));
+              if(!isNaN(total)){
+                const ln = Number(line);
+                if(total===ln) correct = 'PUSH'; else correct = sideKey==='OVER' ? (total>ln) : (total<ln);
+              }
             } else if(type==='moneyline'){ const winner = (Number(fs.away_score) > Number(fs.home_score)) ? 'AWAY' : 'HOME'; if(sideKey==='AWAY'||sideKey==='HOME') correct = (sideKey===winner); }
           }
           if(correct!==undefined){
-            resolved += 1; if(correct) wins += 1;
+            if(correct!=='PUSH'){ resolved += 1; if(correct===true) wins += 1; }
             const odds = parseAmericanOdds(r.american_odds ?? r.odds);
-            if(correct){ profit += odds>0 ? (unit * odds/100) : (unit * 100/Math.abs(odds)); } else { profit -= unit; }
+            if(correct===true){ profit += odds>0 ? (unit * odds/100) : (unit * 100/Math.abs(odds)); }
+            else if (correct===false) { profit -= unit; }
           }
         });
 
