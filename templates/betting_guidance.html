@@ -247,7 +247,22 @@
     const o1=document.createElement('option'); o1.value=dt; o1.textContent=dt; rs.appendChild(o1);
     const o2=document.createElement('option'); o2.value=dt; o2.textContent=dt; re.appendChild(o2);
   });
-  if(dates.length){ rs.value = dates[0]; re.value = dates[dates.length-1]; await loadRangePerformance(); }
+  if(dates.length){
+    // Default to current month range if available
+    const now = new Date();
+    const z = n=>String(n).padStart(2,'0');
+    const prefix = `${now.getFullYear()}-${z(now.getMonth()+1)}-`;
+    const monthDates = dates.filter(d=> d.startsWith(prefix));
+    if(monthDates.length){
+      rs.value = monthDates[0];
+      re.value = monthDates[monthDates.length-1];
+    } else {
+      // Fallback to full available range
+      rs.value = dates[0];
+      re.value = dates[dates.length-1];
+    }
+    await loadRangePerformance();
+  }
       }catch(e){ console.warn('Failed to load available dates', e); }
     }
     function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
