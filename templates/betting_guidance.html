@@ -721,6 +721,7 @@
             const recRes = await fetch(`/api/betting-recommendations/date/${entry.date}`);
             if(recRes.ok){ const recData = await recRes.json(); recs = recData.recommendations || []; }
           }catch(_){ /* ignore */ }
+          const currentDate = entry.date;
           const addRow = (game, typeNorm, pick, odds, conf, ev, lineHint=null)=>{
             // typeNorm must already be one of: total | moneyline | run_line | other
             const parsed = parseSideLine(pick);
@@ -752,6 +753,7 @@
               }
             }
             rows.push({
+              date: currentDate,
               game,
               bet: `${String(typeNorm||'').replace('_',' ').toUpperCase()} ${pick}`.trim(),
               odds,
@@ -796,8 +798,8 @@
         // Sort and render rows
         rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
         const recDiv = document.getElementById('range-recs');
-        recDiv.innerHTML = rows.length ? ('<table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Correct</th></tr></thead><tbody>'+
-          rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds||''}</td><td><span class=\"badge ${r.conf}\">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('')+
+        recDiv.innerHTML = rows.length ? ('<table class="table"><thead><tr><th>Date</th><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Correct</th></tr></thead><tbody>'+
+          rows.map(r=>`<tr><td>${r.date||''}</td><td>${r.game}</td><td>${r.bet}</td><td>${r.odds||''}</td><td><span class=\"badge ${r.conf}\">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('')+
         '</tbody></table>') : '<div class="muted">No recommendations in this range.</div>';
 
         // Compute KPI tiles using the same rows shown
