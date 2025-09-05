@@ -5170,6 +5170,48 @@ def proxy_today_games(date):
             'message': 'Make sure historical_analysis_app.py is running on port 5001'
         }), 503
 
+@app.route('/api/historical-analysis/final-scores/<date>')
+def proxy_final_scores(date):
+    """Proxy route for final scores with local fallback"""
+    # Try dedicated service first
+    try:
+        response = requests.get(f'http://localhost:5001/api/final-scores/{date}', timeout=10)
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        logger.error(f"Failed to proxy final-scores for {date}: {e}")
+        # Local fallback using analyzer
+        try:
+            analyzer = get_or_create_historical_analyzer()
+            if not analyzer:
+                raise RuntimeError('historical analyzer not available')
+            scores = analyzer.get_final_scores_for_date(date) if hasattr(analyzer, 'get_final_scores_for_date') else None
+            # Normalize to the UI's expected shape
+            final_scores = {}
+            if scores:
+                for gkey, s in (scores or {}).items():
+                    try:
+                        away = s.get('away_team_display') or s.get('away_team') or s.get('away')
+                        home = s.get('home_team_display') or s.get('home_team') or s.get('home')
+                        final_scores[gkey] = {
+                            'away_team_display': away,
+                            'home_team_display': home,
+                            'away_team': away,
+                            'home_team': home,
+                            'away_score': s.get('away_score') or s.get('away_runs') or 0,
+                            'home_score': s.get('home_score') or s.get('home_runs') or 0
+                        }
+                    except Exception:
+                        continue
+            return jsonify({ 'success': True, 'final_scores': final_scores, 'date': date, 'source': 'local' }), 200
+        except Exception as _e:
+            logger.error(f"Local fallback failed for final-scores {date}: {_e}")
+            return jsonify({
+                'success': False,
+                'error': 'Historical analysis service unavailable',
+                'date': date,
+                'message': 'Make sure historical_analysis_app.py is running on port 5001'
+            }), 503
+
 @app.route('/api/system-performance-overview')
 def system_performance_overview_direct():
     """Direct system performance overview using in-process analytics"""

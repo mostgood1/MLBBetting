@@ -272,6 +272,17 @@
       try{
         // Pull historical analysis for today to evaluate correctness using final scores (and evaluated maps)
         const res = await fetch(`/api/historical-analysis/date/${todayISO()}`);
+        if(!res.ok){
+          // If historical API not available for today yet, show neutral tiles based on rec count only
+          const tiles=[
+            {label:'Rec Accuracy', val:'0.0%'},
+            {label:'Total Recs', val: (recs?.length||0)},
+            {label:'ROI %', val:'0.0%'},
+            {label:'Net Profit', val:'$0.00'}
+          ];
+          tiles.forEach(t=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${t.val}</div><div class='muted'>${t.label}</div>`; grid.appendChild(d); });
+          return;
+        }
         const raw = await res.json();
         const data = raw && raw.data ? raw.data : raw;
 
@@ -371,8 +382,14 @@
     async function loadDayPerformance(){
       const day=document.getElementById('hist-day').value; if(!day) return;
       const res=await fetch(`/api/historical-analysis/date/${day}`);
-      const raw=await res.json();
-      const data = raw && raw.data ? raw.data : raw;
+      let data = {};
+      if(res.ok){
+        const raw=await res.json();
+        data = raw && raw.data ? raw.data : raw;
+      } else {
+        // Proceed with minimal data; we'll rely on per-day recs and final-scores route if present
+        data = {};
+      }
   const grid=document.getElementById('day-grid'); grid.innerHTML='';
       // Build recommendations table pulling directly from the per-day betting recommendations file
       const recDiv = document.getElementById('day-recs');
@@ -705,6 +722,11 @@
       try{
         // We'll aggregate by fetching per-day rec files and final scores for all days in range
         const datesRes = await fetch('/api/historical-analysis/available-dates');
+        if(!datesRes.ok){
+          document.getElementById('range-grid').innerHTML='';
+          document.getElementById('range-recs').innerHTML='<div class="muted">Historical service unavailable.</div>';
+          return;
+        }
         const datesData = await datesRes.json();
         const allDates = (datesData.dates || datesData.available_dates || []).filter(d=> d>=start && d<=end);
         if(!allDates.length){
@@ -717,9 +739,10 @@
     const dayAnalyses = await Promise.all(allDates.map(async d=>{
           try{
             const r = await fetch(`/api/historical-analysis/date/${d}`);
+            if(!r.ok) return { date: d, data: null };
             const j = await r.json();
-      return { date: d, data: (j && j.data ? j.data : j) };
-          }catch(_){ return null; }
+            return { date: d, data: (j && j.data ? j.data : j) };
+          }catch(_){ return { date: d, data: null }; }
         }));
 
         // Build KPI aggregation and rows list
