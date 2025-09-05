@@ -582,9 +582,10 @@
             if(correct === undefined && fs){
               if(type==='total' && sideKey && (line!=null)){
                 const total = Number(fs.away_score) + Number(fs.home_score);
-                if(!isNaN(total)){
-                  if(sideKey==='OVER') correct = total > Number(line);
-                  else if(sideKey==='UNDER') correct = total < Number(line);
+                const ln = Number(line);
+                if(!isNaN(total) && !isNaN(ln)){
+                  if(total===ln) correct = 'PUSH';
+                  else correct = sideKey==='OVER' ? (total>ln) : (total<ln);
                 }
               } else if(type==='moneyline'){
                 const winner = (Number(fs.away_score) > Number(fs.home_score)) ? 'AWAY' : 'HOME';
@@ -608,10 +609,11 @@
           // Build recap tiles from the SAME recs we just rendered
           const unit=100; let resolved=0, wins=0, profit=0;
           rows.forEach(r=>{
-            if(r.correct===undefined) return;
-            resolved += 1; if(r.correct) wins += 1;
+            if(r.correct===undefined || r.correct==='PUSH') return;
+            resolved += 1; if(r.correct===true) wins += 1;
             const odds = parseAmericanOdds(r.odds);
-            if(r.correct){ profit += odds>0 ? (unit*odds/100) : (unit*100/Math.abs(odds)); } else { profit -= unit; }
+            if(r.correct===true){ profit += odds>0 ? (unit*odds/100) : (unit*100/Math.abs(odds)); }
+            else if(r.correct===false) { profit -= unit; }
           });
           const accPct = resolved ? (wins/resolved*100) : 0;
           const roiPct = resolved ? (profit/(resolved*unit)*100) : 0;
@@ -643,7 +645,7 @@
 
           // Recap from fallback rows
           const unit=100; let resolved=0, wins=0, profit=0;
-          rows.forEach(r=>{ if(r.correct===undefined) return; resolved+=1; if(r.correct) wins+=1; const odds=parseAmericanOdds(r.odds); if(r.correct){ profit += odds>0 ? (unit*odds/100) : (unit*100/Math.abs(odds)); } else { profit -= unit; } });
+          rows.forEach(r=>{ if(r.correct===undefined || r.correct==='PUSH') return; resolved+=1; if(r.correct===true) wins+=1; const odds=parseAmericanOdds(r.odds); if(r.correct===true){ profit += odds>0 ? (unit*odds/100) : (unit*100/Math.abs(odds)); } else if(r.correct===false) { profit -= unit; } });
           const accPct = resolved ? (wins/resolved*100) : 0;
           const roiPct = resolved ? (profit/(resolved*unit)*100) : 0;
           grid.innerHTML = [
@@ -749,7 +751,11 @@
               if(fs){
                 if(typeNorm==='total' && sideKey && (line!=null)){
                   const total = Number(fs.away_score)+Number(fs.home_score);
-                  if(!isNaN(total)) correct = sideKey==='OVER' ? (total>Number(line)) : (total<Number(line));
+                  const ln = Number(line);
+                  if(!isNaN(total) && !isNaN(ln)){
+                    if(total===ln) correct = 'PUSH';
+                    else correct = sideKey==='OVER' ? (total>ln) : (total<ln);
+                  }
                 } else if(typeNorm==='moneyline'){
                   const winner = (Number(fs.away_score)>Number(fs.home_score)) ? 'AWAY' : 'HOME';
                   if(sideKey==='AWAY'||sideKey==='HOME') correct = (sideKey===winner);
@@ -806,8 +812,8 @@
           rows.map(r=>`<tr><td>${r.date||''}</td><td>${r.game}</td><td>${r.bet}</td><td>${r.odds||''}</td><td><span class=\"badge ${r.conf}\">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('')+
         '</tbody></table>') : '<div class="muted">No recommendations in this range.</div>';
 
-        // Compute KPI tiles using the same rows shown
-        rows.forEach(r=>{ if(r.correct===undefined) return; resolved+=1; if(r.correct) wins+=1; const odds=parseAmericanOdds(r.odds); if(r.correct){ profit += odds>0 ? (unit*odds/100) : (unit*100/Math.abs(odds)); } else { profit -= unit; } });
+  // Compute KPI tiles using the same rows shown
+  rows.forEach(r=>{ if(r.correct===undefined || r.correct==='PUSH') return; resolved+=1; if(r.correct===true) wins+=1; const odds=parseAmericanOdds(r.odds); if(r.correct===true){ profit += odds>0 ? (unit*odds/100) : (unit*100/Math.abs(odds)); } else if(r.correct===false) { profit -= unit; } });
         const accPct = resolved ? (wins/resolved*100) : 0;
         const roiPct = resolved ? (profit/(resolved*unit)*100) : 0;
         const grid=document.getElementById('range-grid'); grid.innerHTML='';
