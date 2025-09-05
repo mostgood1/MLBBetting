@@ -667,20 +667,21 @@
           return;
         }
 
-        // Parallel fetch of day analyses for evaluated correctness + recs
-        const dayAnalyses = await Promise.all(allDates.map(async d=>{
+    // Parallel fetch of day analyses for evaluated correctness and final scores
+    const dayAnalyses = await Promise.all(allDates.map(async d=>{
           try{
             const r = await fetch(`/api/historical-analysis/date/${d}`);
             const j = await r.json();
-            return j && j.data ? j.data : j;
+      return { date: d, data: (j && j.data ? j.data : j) };
           }catch(_){ return null; }
         }));
 
         // Build KPI aggregation and rows list
         let resolved=0, wins=0, profit=0; const unit=100;
         const rows=[];
-        dayAnalyses.forEach(data=>{
-          if(!data) return;
+        for (const entry of dayAnalyses){
+          if(!entry || !entry.data) continue;
+          const data = entry.data;
           // Use evaluated recs when available; else fall back to cards
           const evals = (data.betting_recommendations && data.betting_recommendations.recommendations_evaluated) || [];
           const cards = data.game_cards || [];
@@ -689,6 +690,11 @@
           const gr = (data.roi_analysis && data.roi_analysis.game_results) || [];
           gr.forEach(g=>{ const gname = `${g.away_team} @ ${g.home_team}`; let a=0,h=0; if(g.final_score){ const p=String(g.final_score).split('-'); if(p.length===2){ a=Number(p[0]); h=Number(p[1]); } } finalScores.set(gname,{away_team:g.away_team,home_team:g.home_team,away_score:a,home_score:h}); finalScores.set(normGameKey(gname),{away_team:g.away_team,home_team:g.home_team,away_score:a,home_score:h}); });
           cards.forEach(c=>{ const fs=c.final_scores||{}; const a=Number(fs.away_score), h=Number(fs.home_score); if(!isNaN(a)&&!isNaN(h)){ const g=`${c.away_team} @ ${c.home_team}`; finalScores.set(g,{away_team:c.away_team,home_team:c.home_team,away_score:a,home_score:h}); finalScores.set(normGameKey(g),{away_team:c.away_team,home_team:c.home_team,away_score:a,home_score:h}); } });
+          // Also try normalized final scores API per date
+          try{
+            const fsRes = await fetch(`/api/historical-analysis/final-scores/${entry.date}`);
+            if(fsRes.ok){ const fsData = await fsRes.json(); const fs = fsData.final_scores || {}; Object.values(fs).forEach(s=>{ const awayName = s.away_team_display || s.away_team; const homeName = s.home_team_display || s.home_team; const gname = `${awayName} @ ${homeName}`; const a = Number(s.away_score), h = Number(s.home_score); if(!isNaN(a)&&!isNaN(h)){ finalScores.set(gname, {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); finalScores.set(normGameKey(gname), {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); } }); }
+          }catch(_){ /* optional */ }
 
           // Build evaluated correctness map
           const evalCorrectness=new Map(); const evalSideOnly=new Map();
@@ -709,21 +715,25 @@
             }catch(_){ }
           });
 
-          // Build rows from cards' recs as the pooled recommendation list for UI
-          cards.forEach(card=>{
-            const game = `${card.away_team} @ ${card.home_team}`;
-            (card.recommendations||[]).forEach(r=>{
+          // Try to fetch per-day recommendations (primary source for list)
+          let recs = [];
+          try{
+            const recRes = await fetch(`/api/betting-recommendations/date/${entry.date}`);
+            if(recRes.ok){ const recData = await recRes.json(); recs = recData.recommendations || []; }
+          }catch(_){ /* ignore */ }
+          const addRow = (game, type, pick, odds, conf, ev)=>{
               let type=String(r.type||'').toLowerCase();
               if(type.startsWith('total')) type='total';
               if(type.startsWith('moneyline')) type='moneyline';
               if(type.startsWith('run')) type='run_line';
-              const pick = String((r.side!=null && r.side!=='') ? r.side : (r.pick!=null ? r.pick : r.recommendation||''));
               const parsed = parseSideLine(pick);
               let side = parsed.side; let line = parsed.line ?? (r.line!=null? Number(r.line): null);
               if(type==='moneyline' && !side){
                 const rsn = normalizeTeamName(pick);
-                if(rsn===normalizeTeamName(card.away_team)) side='AWAY';
-                else if(rsn===normalizeTeamName(card.home_team)) side='HOME';
+                const parts = game.split('@');
+                const awayT = normalizeTeamName(parts[0].trim());
+                const homeT = normalizeTeamName(parts[1].trim());
+                if(rsn===awayT) side='AWAY'; else if(rsn===homeT) side='HOME';
               }
               const sideKey=(side||'').toUpperCase();
               const key = `${game}|${type}|${sideKey}|${line!=null? Number(line): ''}`;
@@ -743,15 +753,47 @@
               }
               rows.push({
                 game,
-                bet: `${String(r.type||'').replace('_',' ').toUpperCase()} ${pick}`.trim(),
-                odds: r.american_odds ?? r.odds,
-                conf: String(r.confidence||'').toUpperCase(),
-                ev: r.expected_value,
+                bet: `${String(type||'').replace('_',' ').toUpperCase()} ${pick}`.trim(),
+                odds,
+                conf: String(conf||'').toUpperCase(),
+                ev,
                 correct
               });
+          };
+
+          if(recs.length){
+            // Build rows from per-day recommendations (preferred)
+            recs.forEach(r=>{
+              const game = r.game || `${r.away_team||''} @ ${r.home_team||''}`;
+              let type = String(r.type||'').toLowerCase();
+              if(type==='over/under' || type.startsWith('total')) type='total';
+              if(type==='ml' || type.startsWith('moneyline')) type='moneyline';
+              if(type.startsWith('run')) type='run_line';
+              const pick = r.recommendation || '';
+              let lineHint = null;
+              if(type==='total') lineHint = (r.betting_line!=null? Number(r.betting_line): (r.line!=null? Number(r.line): (r.total_line!=null? Number(r.total_line): null)));
+              // Use helper adding function
+              // Temporarily set r fields for addRow compatibility
+              const rwrap = { type, line: lineHint };
+              const odds = r.american_odds ?? r.odds;
+              const conf = r.confidence;
+              const ev = r.expected_value;
+              // Shadow r in closure
+              const oldr = r; r = rwrap; addRow(game, type, pick, odds, conf, ev); r = oldr; // restore
             });
-          });
-        });
+          } else {
+            // Fallback to cards' recs if recs file missing
+            cards.forEach(card=>{
+              const game = `${card.away_team} @ ${card.home_team}`;
+              (card.recommendations||[]).forEach(r=>{
+                let type=String(r.type||'').toLowerCase(); if(type.startsWith('total')) type='total'; if(type.startsWith('moneyline')) type='moneyline'; if(type.startsWith('run')) type='run_line';
+                const pick = String((r.side!=null && r.side!=='') ? r.side : (r.pick!=null ? r.pick : r.recommendation||''));
+                const odds = r.american_odds ?? r.odds; const conf = r.confidence; const ev = r.expected_value;
+                addRow(game, type, pick, odds, conf, ev);
+              });
+            });
+          }
+        }
 
         // Sort and render rows
         rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
