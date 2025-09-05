@@ -58,6 +58,8 @@
         <button class="btn" onclick="loadDayPerformance()">Load</button>
       </div>
       <div class="grid" id="day-grid"></div>
+  <div class="muted" style="margin:8px 0 4px;">By Confidence (variable stake)</div>
+  <div class="grid" id="day-level-grid"></div>
       <div style="margin-top:16px;">
         <h3 style="margin:8px 0;">Recommendations for Selected Day</h3>
         <div id="day-recs"></div>
@@ -75,6 +77,8 @@
         <button class="btn" onclick="loadRangePerformance()">Load Range</button>
       </div>
       <div class="grid" id="range-grid"></div>
+  <div class="muted" style="margin:8px 0 4px;">By Confidence (variable stake)</div>
+  <div class="grid" id="range-level-grid"></div>
       <div style="margin-top:16px;">
         <h3 style="margin:8px 0;">Recommendations for Selected Range</h3>
         <div id="range-recs"></div>
@@ -719,17 +723,31 @@
             rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class=\"badge ${r.conf}\">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('')+
           '</tbody></table>') : '<div class="muted">No recommendations found for this date.</div>';
 
-          // Build recap tiles from the SAME recs we just rendered
-          const unit=100; let resolved=0, wins=0, profit=0;
+          // Build recap tiles using variable stake by confidence
+          const stakeByConf = { HIGH: 100, MEDIUM: 50, LOW: 25 };
+          let resolved=0, wins=0, totalStake=0, profit=0;
+          const level = {
+            HIGH: { resolved:0, wins:0, stake:0, profit:0 },
+            MEDIUM: { resolved:0, wins:0, stake:0, profit:0 },
+            LOW: { resolved:0, wins:0, stake:0, profit:0 }
+          };
           rows.forEach(r=>{
             if(r.correct===undefined || r.correct==='PUSH') return;
-            resolved += 1; if(r.correct===true) wins += 1;
+            const stake = stakeByConf[r.conf] ?? 0;
             const odds = parseAmericanOdds(r.odds);
-            if(r.correct===true){ profit += odds>0 ? (unit*odds/100) : (unit*100/Math.abs(odds)); }
-            else if(r.correct===false) { profit -= unit; }
+            resolved += 1; wins += (r.correct===true ? 1 : 0); totalStake += stake;
+            if(r.correct===true){ profit += odds>0 ? (stake*odds/100) : (stake*100/Math.abs(odds)); }
+            else if(r.correct===false) { profit -= stake; }
+            if(level[r.conf]){
+              level[r.conf].resolved += 1;
+              level[r.conf].wins += (r.correct===true ? 1 : 0);
+              level[r.conf].stake += stake;
+              if(r.correct===true){ level[r.conf].profit += odds>0 ? (stake*odds/100) : (stake*100/Math.abs(odds)); }
+              else if(r.correct===false) { level[r.conf].profit -= stake; }
+            }
           });
           const accPct = resolved ? (wins/resolved*100) : 0;
-          const roiPct = resolved ? (profit/(resolved*unit)*100) : 0;
+          const roiPct = totalStake ? (profit/totalStake*100) : 0;
           const tilesHtml = [
             {label:'Rec Accuracy', val: accPct.toFixed(1)+'%'},
             {label:'Total Recs', val: recs.length},
@@ -737,6 +755,20 @@
             {label:'Net Profit', val: '$'+profit.toFixed(2)}
           ].map(t=>`<div class='stat'><div class='num'>${t.val}</div><div class='muted'>${t.label}</div></div>`).join('');
           grid.innerHTML = tilesHtml;
+
+          // Render by-confidence KPIs
+          const levelGrid = document.getElementById('day-level-grid');
+          const levelStats = [
+            { key:'HIGH', label:'High' },
+            { key:'MEDIUM', label:'Medium' },
+            { key:'LOW', label:'Low' }
+          ].map(({key,label})=>{
+            const m = level[key];
+            const acc = m.resolved ? (m.wins/m.resolved*100) : 0;
+            const roi = m.stake ? (m.profit/m.stake*100) : 0;
+            return `<div class='stat'><div class='num'>${acc.toFixed(1)}%</div><div class='muted'>${label} Accuracy</div><div class='muted'>ROI: ${roi.toFixed(1)}% • Profit: $${m.profit.toFixed(2)}</div><div class='muted'>${m.resolved} bets</div></div>`;
+          }).join('');
+          levelGrid.innerHTML = levelStats;
         } else {
           // Fallback: use historical game cards (may be incomplete vs raw file)
           const cards = data.game_cards || [];
@@ -756,16 +788,16 @@
             rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class=\"badge ${r.conf}\">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('')+
           '</tbody></table>') : '<div class="muted">No recommendations found for this date.</div>';
 
-          // Recap from fallback rows
-          const unit=100; let resolved=0, wins=0, profit=0;
-          rows.forEach(r=>{ if(r.correct===undefined || r.correct==='PUSH') return; resolved+=1; if(r.correct===true) wins+=1; const odds=parseAmericanOdds(r.odds); if(r.correct===true){ profit += odds>0 ? (unit*odds/100) : (unit*100/Math.abs(odds)); } else if(r.correct===false) { profit -= unit; } });
-          const accPct = resolved ? (wins/resolved*100) : 0;
-          const roiPct = resolved ? (profit/(resolved*unit)*100) : 0;
+          // Recap from fallback rows (constant stake to avoid colliding identifiers)
+          const unitFB=100; let resolvedFB=0, winsFB=0, profitFB=0;
+          rows.forEach(r=>{ if(r.correct===undefined || r.correct==='PUSH') return; resolvedFB+=1; if(r.correct===true) winsFB+=1; const odds=parseAmericanOdds(r.odds); if(r.correct===true){ profitFB += odds>0 ? (unitFB*odds/100) : (unitFB*100/Math.abs(odds)); } else if(r.correct===false) { profitFB -= unitFB; } });
+          const accPct = resolvedFB ? (winsFB/resolvedFB*100) : 0;
+          const roiPct = resolvedFB ? (profitFB/(resolvedFB*unitFB)*100) : 0;
           grid.innerHTML = [
             {label:'Rec Accuracy', val: accPct.toFixed(1)+'%'},
             {label:'Total Recs', val: rows.length},
             {label:'ROI %', val: roiPct.toFixed(1)+'%'},
-            {label:'Net Profit', val: '$'+profit.toFixed(2)}
+            {label:'Net Profit', val: '$'+profitFB.toFixed(2)}
           ].map(t=>`<div class='stat'><div class='num'>${t.val}</div><div class='muted'>${t.label}</div></div>`).join('');
         }
       }catch(e){ recDiv.innerHTML='<div class="muted">Unable to load recommendations for this date.</div>'; }
@@ -801,8 +833,7 @@
           }catch(_){ return { date: d, data: null }; }
         }));
 
-        // Build KPI aggregation and rows list
-        let resolved=0, wins=0, profit=0; const unit=100;
+  // Build KPI aggregation and rows list
         const rows=[];
         for (const entry of dayAnalyses){
           if(!entry || !entry.data) continue;
@@ -951,17 +982,52 @@
           rows.map(r=>`<tr><td>${r.date||''}</td><td>${r.game}</td><td>${r.bet}</td><td>${r.odds||''}</td><td><span class=\"badge ${r.conf}\">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('')+
         '</tbody></table>') : '<div class="muted">No recommendations in this range.</div>';
 
-  // Compute KPI tiles using the same rows shown
-  rows.forEach(r=>{ if(r.correct===undefined || r.correct==='PUSH') return; resolved+=1; if(r.correct===true) wins+=1; const odds=parseAmericanOdds(r.odds); if(r.correct===true){ profit += odds>0 ? (unit*odds/100) : (unit*100/Math.abs(odds)); } else if(r.correct===false) { profit -= unit; } });
-        const accPct = resolved ? (wins/resolved*100) : 0;
-        const roiPct = resolved ? (profit/(resolved*unit)*100) : 0;
-        const grid=document.getElementById('range-grid'); grid.innerHTML='';
-        [
-          {label:'Rec Accuracy', val: accPct.toFixed(1)+'%'},
-          {label:'Total Recs', val: rows.length},
-          {label:'ROI %', val: roiPct.toFixed(1)+'%'},
-          {label:'Net Profit', val: '$'+profit.toFixed(2)}
-        ].forEach(t=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${t.val}</div><div class='muted'>${t.label}</div>`; grid.appendChild(d); });
+  // Compute KPI tiles using variable stake by confidence
+  const stakeByConfR = { HIGH: 100, MEDIUM: 50, LOW: 25 };
+  let resolved=0, wins=0, totalStake=0, profit=0;
+  const levelR = {
+    HIGH: { resolved:0, wins:0, stake:0, profit:0 },
+    MEDIUM: { resolved:0, wins:0, stake:0, profit:0 },
+    LOW: { resolved:0, wins:0, stake:0, profit:0 }
+  };
+  rows.forEach(r=>{
+    if(r.correct===undefined || r.correct==='PUSH') return;
+    const stake = stakeByConfR[r.conf] ?? 0;
+    const odds = parseAmericanOdds(r.odds);
+    resolved += 1; wins += (r.correct===true ? 1 : 0); totalStake += stake;
+    if(r.correct===true){ profit += odds>0 ? (stake*odds/100) : (stake*100/Math.abs(odds)); }
+    else if(r.correct===false) { profit -= stake; }
+    if(levelR[r.conf]){
+      levelR[r.conf].resolved += 1;
+      levelR[r.conf].wins += (r.correct===true ? 1 : 0);
+      levelR[r.conf].stake += stake;
+      if(r.correct===true){ levelR[r.conf].profit += odds>0 ? (stake*odds/100) : (stake*100/Math.abs(odds)); }
+      else if(r.correct===false) { levelR[r.conf].profit -= stake; }
+    }
+  });
+  const accPct = resolved ? (wins/resolved*100) : 0;
+  const roiPct = totalStake ? (profit/totalStake*100) : 0;
+  const grid=document.getElementById('range-grid'); grid.innerHTML='';
+  [
+    {label:'Rec Accuracy', val: accPct.toFixed(1)+'%'},
+    {label:'Total Recs', val: rows.length},
+    {label:'ROI %', val: roiPct.toFixed(1)+'%'},
+    {label:'Net Profit', val: '$'+profit.toFixed(2)}
+  ].forEach(t=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${t.val}</div><div class='muted'>${t.label}</div>`; grid.appendChild(d); });
+
+  // Render by-confidence KPIs for range
+  const levelGridR = document.getElementById('range-level-grid');
+  const levelStatsR = [
+    { key:'HIGH', label:'High' },
+    { key:'MEDIUM', label:'Medium' },
+    { key:'LOW', label:'Low' }
+  ].map(({key,label})=>{
+    const m = levelR[key];
+    const acc = m.resolved ? (m.wins/m.resolved*100) : 0;
+    const roi = m.stake ? (m.profit/m.stake*100) : 0;
+    return `<div class='stat'><div class='num'>${acc.toFixed(1)}%</div><div class='muted'>${label} Accuracy</div><div class='muted'>ROI: ${roi.toFixed(1)}% • Profit: $${m.profit.toFixed(2)}</div><div class='muted'>${m.resolved} bets</div></div>`;
+  }).join('');
+  levelGridR.innerHTML = levelStatsR;
       }catch(e){ console.warn('Failed to load range performance', e); }
     }
     loadPerformance(); loadToday(); loadAvailableDates();
