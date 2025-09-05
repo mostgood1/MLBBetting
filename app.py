@@ -5181,28 +5181,70 @@ def proxy_final_scores(date):
         logger.error(f"Failed to proxy final-scores for {date}: {e}")
         # Local fallback using analyzer
         try:
+            # 1) Disk file: data/final_scores_YYYY_MM_DD.json
+            try:
+                safe_date = date.replace('-', '_')
+                cache_path = os.path.join(os.path.dirname(__file__), 'data', f'final_scores_{safe_date}.json')
+                if os.path.exists(cache_path):
+                    with open(cache_path, 'r', encoding='utf-8') as f:
+                        cached = json.load(f)
+                    final_scores = {}
+                    items = []
+                    if isinstance(cached, dict):
+                        items = list(cached.values())
+                    elif isinstance(cached, list):
+                        items = cached
+                    for idx, s in enumerate(items):
+                        try:
+                            away = s.get('away_team_display') or s.get('away_team') or s.get('away')
+                            home = s.get('home_team_display') or s.get('home_team') or s.get('home')
+                            a = s.get('away_score'); h = s.get('home_score')
+                            a = int(a) if a is not None else 0
+                            h = int(h) if h is not None else 0
+                            final_scores[str(idx)] = {
+                                'away_team_display': away,
+                                'home_team_display': home,
+                                'away_team': away,
+                                'home_team': home,
+                                'away_score': a,
+                                'home_score': h
+                            }
+                        except Exception:
+                            continue
+                    return jsonify({ 'success': True, 'final_scores': final_scores, 'date': date, 'source': 'disk' }), 200
+            except Exception as _disk_err:
+                logger.debug(f"Final-scores disk read failed for {date}: {_disk_err}")
+
+            # 2) Analyzer (normalized names)
             analyzer = get_or_create_historical_analyzer()
             if not analyzer:
                 raise RuntimeError('historical analyzer not available')
-            scores = analyzer.get_final_scores_for_date(date) if hasattr(analyzer, 'get_final_scores_for_date') else None
-            # Normalize to the UI's expected shape
+            # Prefer load_final_scores_for_date when available
+            scores = None
+            if hasattr(analyzer, 'load_final_scores_for_date'):
+                scores = analyzer.load_final_scores_for_date(date)
+            elif hasattr(analyzer, 'get_final_scores_for_date'):
+                scores = analyzer.get_final_scores_for_date(date)
+
             final_scores = {}
-            if scores:
-                for gkey, s in (scores or {}).items():
-                    try:
-                        away = s.get('away_team_display') or s.get('away_team') or s.get('away')
-                        home = s.get('home_team_display') or s.get('home_team') or s.get('home')
-                        final_scores[gkey] = {
-                            'away_team_display': away,
-                            'home_team_display': home,
-                            'away_team': away,
-                            'home_team': home,
-                            'away_score': s.get('away_score') or s.get('away_runs') or 0,
-                            'home_score': s.get('home_score') or s.get('home_runs') or 0
-                        }
-                    except Exception:
-                        continue
-            return jsonify({ 'success': True, 'final_scores': final_scores, 'date': date, 'source': 'local' }), 200
+            for idx, (gkey, s) in enumerate((scores or {}).items()):
+                try:
+                    # These may be normalized identifiers; still useful for totals resolution
+                    away = s.get('away_team') or s.get('away')
+                    home = s.get('home_team') or s.get('home')
+                    a = s.get('away_score') or s.get('away_runs') or 0
+                    h = s.get('home_score') or s.get('home_runs') or 0
+                    final_scores[str(idx)] = {
+                        'away_team_display': away,
+                        'home_team_display': home,
+                        'away_team': away,
+                        'home_team': home,
+                        'away_score': int(a),
+                        'home_score': int(h)
+                    }
+                except Exception:
+                    continue
+            return jsonify({ 'success': True, 'final_scores': final_scores, 'date': date, 'source': 'analyzer' }), 200
         except Exception as _e:
             logger.error(f"Local fallback failed for final-scores {date}: {_e}")
             return jsonify({
