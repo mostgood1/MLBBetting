@@ -529,11 +529,22 @@
             const pick = r.recommendation || '';
             let side=null, line=null;
             if(type==='total'){
+              // Primary parse from recommendation
               const parsed = parseSideLine(pick);
-              side = parsed.side; line = parsed.line ?? (r.betting_line!=null? Number(r.betting_line): null);
-              // If line still missing, try r.line or r.total_line
+              side = parsed.side; line = parsed.line;
+              // Supplemental: common fields from rec object
+              if(!side && r.side){ const ps = parseSideLine(String(r.side)); if(ps.side) side = ps.side; if(ps.line!=null && line==null) line = Number(ps.line); }
+              if(!side && r.pick){ const ps = parseSideLine(String(r.pick)); if(ps.side) side = ps.side; if(ps.line!=null && line==null) line = Number(ps.line); }
+              if(line==null && r.betting_line!=null) line = Number(r.betting_line);
               if(line==null && r.line!=null) line = Number(r.line);
               if(line==null && r.total_line!=null) line = Number(r.total_line);
+              // Last resort: infer side from bet text itself (e.g., "TOTAL Under 9.0" style already handled), else from fields casing
+              if(!side){
+                const betTxt = String(r.type||'') + ' ' + String(r.recommendation||'') + ' ' + String(r.side||'') + ' ' + String(r.pick||'');
+                const low = betTxt.toLowerCase();
+                if(low.includes(' under ')) side = 'UNDER';
+                else if(low.includes(' over ')) side = 'OVER';
+              }
             } else if(type==='moneyline'){
               // Derive HOME/AWAY from team name match
               const teamPick = parseMoneylineTeam(pick);
@@ -742,11 +753,18 @@
             if(recRes.ok){ const recData = await recRes.json(); recs = recData.recommendations || []; }
           }catch(_){ /* ignore */ }
           const currentDate = entry.date;
-          const addRow = (game, typeNorm, pick, odds, conf, ev, lineHint=null)=>{
+          const addRow = (game, typeNorm, pick, odds, conf, ev, lineHint=null, extraFields={})=>{
             // typeNorm must already be one of: total | moneyline | run_line | other
             const parsed = parseSideLine(pick);
             let side = parsed.side;
             let line = parsed.line != null ? Number(parsed.line) : (lineHint!=null ? Number(lineHint) : null);
+            if(typeNorm==='total'){
+              if(!side && extraFields.side){ const ps = parseSideLine(String(extraFields.side)); if(ps.side) side = ps.side; if(ps.line!=null && line==null) line = Number(ps.line); }
+              if(!side && extraFields.pick){ const ps = parseSideLine(String(extraFields.pick)); if(ps.side) side = ps.side; if(ps.line!=null && line==null) line = Number(ps.line); }
+              if(line==null && extraFields.total_line!=null) line = Number(extraFields.total_line);
+              if(line==null && extraFields.line!=null) line = Number(extraFields.line);
+              if(line==null && extraFields.betting_line!=null) line = Number(extraFields.betting_line);
+            }
             if(typeNorm==='moneyline' && !side){
               const rsn = normalizeTeamName(pick);
               const parts = game.split('@');
@@ -801,7 +819,7 @@
               const odds = r.american_odds ?? r.odds;
               const conf = r.confidence;
               const ev = r.expected_value;
-              addRow(game, type, pick, odds, conf, ev, lineHint);
+              addRow(game, type, pick, odds, conf, ev, lineHint, { side: r.side, pick: r.pick, line: r.line, total_line: r.total_line, betting_line: r.betting_line });
             });
           } else {
             // Fallback to cards' recs if recs file missing
@@ -813,7 +831,7 @@
                 const pick = String((r.side!=null && r.side!=='') ? r.side : (r.pick!=null ? r.pick : r.recommendation||''));
                 const odds = r.american_odds ?? r.odds; const conf = r.confidence; const ev = r.expected_value;
                 const lineHint = (r.line!=null? Number(r.line): null);
-                addRow(game, type, pick, odds, conf, ev, lineHint);
+                addRow(game, type, pick, odds, conf, ev, lineHint, { side: r.side, pick: r.pick, line: r.line, total_line: r.total_line, betting_line: r.betting_line });
               });
             });
           }
