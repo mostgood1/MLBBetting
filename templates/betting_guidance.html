@@ -570,15 +570,29 @@
               const nwkey = `${ngame}|${type}|${sideKey}|*`;
               if(evalSideOnly.has(wkey)) correct = evalSideOnly.get(wkey); else if(evalSideOnly.has(nwkey)) correct = evalSideOnly.get(nwkey);
             }
-            // Priority 2: cards
-            if(correct === undefined) correct = correctness.has(key) ? correctness.get(key) : (correctness.has(nkey) ? correctness.get(nkey) : undefined);
+            // Priority 2: cards (only accept boolean or 'PUSH'; ignore null to allow fallback)
+            if(correct === undefined){
+              let v = correctness.has(key) ? correctness.get(key) : (correctness.has(nkey) ? correctness.get(nkey) : undefined);
+              if(v === true || v === false || v === 'PUSH') correct = v;
+            }
             if(correct === undefined && type==='total'){
               const wkey = `${game}|${type}|${sideKey}|*`;
               const nwkey = `${ngame}|${type}|${sideKey}|*`;
-              if(sideOnlyCorrectness.has(wkey)) correct = sideOnlyCorrectness.get(wkey); else if(sideOnlyCorrectness.has(nwkey)) correct = sideOnlyCorrectness.get(nwkey);
+              let v = sideOnlyCorrectness.has(wkey) ? sideOnlyCorrectness.get(wkey) : (sideOnlyCorrectness.has(nwkey) ? sideOnlyCorrectness.get(nwkey) : undefined);
+              if(v === true || v === false || v === 'PUSH') correct = v;
             }
             // Fallback correctness computation from final score when available
-            const fs = finalScores.get(game) || finalScores.get(ngame);
+            let fs = finalScores.get(game) || finalScores.get(ngame);
+            // If not found, try building an alternate key from rec away/home when present
+            if(!fs){
+              const parts = game.includes('@') ? game.split('@') : [];
+              const altAway = (r.away_team || (parts[0] ? parts[0].trim() : null));
+              const altHome = (r.home_team || (parts[1] ? parts[1].trim() : null));
+              if(altAway && altHome){
+                const altKey = `${altAway} @ ${altHome}`;
+                fs = finalScores.get(altKey) || finalScores.get(normGameKey(altKey));
+              }
+            }
             if(correct === undefined && fs){
               if(type==='total' && sideKey && (line!=null)){
                 const total = Number(fs.away_score) + Number(fs.home_score);
