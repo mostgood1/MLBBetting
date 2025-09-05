@@ -497,6 +497,7 @@
           // Build final scores map (prefer direct API, fallback to ROI game results and game cards)
           const finalScores = new Map();
           try{
+            // Fetch same-day final scores
             const fsRes = await fetch(`/api/historical-analysis/final-scores/${day}`);
             if(fsRes.ok){
               const fsData = await fsRes.json();
@@ -504,11 +505,35 @@
               Object.values(fs).forEach(s=>{
                 const awayName = s.away_team_display || s.away_team;
                 const homeName = s.home_team_display || s.home_team;
+                if(!awayName || !homeName) return;
                 const gname = gameKey(awayName, homeName);
                 const a = Number(s.away_score), h = Number(s.home_score);
                 if(!isNaN(a) && !isNaN(h)){
                   finalScores.set(gname, {away_team:awayName, home_team:homeName, away_score:a, home_score:h});
                   finalScores.set(normGameKey(gname), {away_team:awayName, home_team:homeName, away_score:a, home_score:h});
+                }
+              });
+            }
+            // Merge next-day finals for late games crossing midnight
+            const d = new Date(day + 'T00:00:00Z');
+            const next = new Date(d.getTime() + 24*60*60*1000);
+            const z = n=> String(n).padStart(2,'0');
+            const nextStr = `${next.getUTCFullYear()}-${z(next.getUTCMonth()+1)}-${z(next.getUTCDate())}`;
+            const fsResNext = await fetch(`/api/historical-analysis/final-scores/${nextStr}`);
+            if(fsResNext.ok){
+              const fsDataN = await fsResNext.json();
+              const fsN = fsDataN.final_scores || {};
+              Object.values(fsN).forEach(s=>{
+                const awayName = s.away_team_display || s.away_team;
+                const homeName = s.home_team_display || s.home_team;
+                if(!awayName || !homeName) return;
+                const gname = gameKey(awayName, homeName);
+                const a = Number(s.away_score), h = Number(s.home_score);
+                if(!isNaN(a) && !isNaN(h)){
+                  if(!finalScores.has(gname) && !finalScores.has(normGameKey(gname))){
+                    finalScores.set(gname, {away_team:awayName, home_team:homeName, away_score:a, home_score:h});
+                    finalScores.set(normGameKey(gname), {away_team:awayName, home_team:homeName, away_score:a, home_score:h});
+                  }
                 }
               });
             }
