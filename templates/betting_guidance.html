@@ -514,16 +514,38 @@
                 }
               });
             }
-            // Merge next-day finals for late games crossing midnight
-            const d = new Date(day + 'T00:00:00Z');
-            const next = new Date(d.getTime() + 24*60*60*1000);
+            // Merge next-day finals first (common for late games saved under next calendar date)
+            const d0 = new Date(day + 'T00:00:00Z');
             const z = n=> String(n).padStart(2,'0');
+            const next = new Date(d0.getTime() + 24*60*60*1000);
             const nextStr = `${next.getUTCFullYear()}-${z(next.getUTCMonth()+1)}-${z(next.getUTCDate())}`;
             const fsResNext = await fetch(`/api/historical-analysis/final-scores/${nextStr}`);
             if(fsResNext.ok){
               const fsDataN = await fsResNext.json();
               const fsN = fsDataN.final_scores || {};
               Object.values(fsN).forEach(s=>{
+                const awayName = s.away_team_display || s.away_team;
+                const homeName = s.home_team_display || s.home_team;
+                if(!awayName || !homeName) return;
+                const gname = gameKey(awayName, homeName);
+                const a = Number(s.away_score), h = Number(s.home_score);
+                if(!isNaN(a) && !isNaN(h)){
+                  if(!finalScores.has(gname) && !finalScores.has(normGameKey(gname))){
+                    finalScores.set(gname, {away_team:awayName, home_team:homeName, away_score:a, home_score:h});
+                    finalScores.set(normGameKey(gname), {away_team:awayName, home_team:homeName, away_score:a, home_score:h});
+                  }
+                }
+              });
+            }
+
+            // Then merge previous-day finals
+            const prev = new Date(d0.getTime() - 24*60*60*1000);
+            const prevStr = `${prev.getUTCFullYear()}-${z(prev.getUTCMonth()+1)}-${z(prev.getUTCDate())}`;
+            const fsResPrev = await fetch(`/api/historical-analysis/final-scores/${prevStr}`);
+            if(fsResPrev.ok){
+              const fsDataP = await fsResPrev.json();
+              const fsP = fsDataP.final_scores || {};
+              Object.values(fsP).forEach(s=>{
                 const awayName = s.away_team_display || s.away_team;
                 const homeName = s.home_team_display || s.home_team;
                 if(!awayName || !homeName) return;
@@ -793,10 +815,23 @@
           const gr = (data.roi_analysis && data.roi_analysis.game_results) || [];
           gr.forEach(g=>{ const gname = `${g.away_team} @ ${g.home_team}`; let a=0,h=0; if(g.final_score){ const p=String(g.final_score).split('-'); if(p.length===2){ a=Number(p[0]); h=Number(p[1]); } } finalScores.set(gname,{away_team:g.away_team,home_team:g.home_team,away_score:a,home_score:h}); finalScores.set(normGameKey(gname),{away_team:g.away_team,home_team:g.home_team,away_score:a,home_score:h}); });
           cards.forEach(c=>{ const fs=c.final_scores||{}; const a=Number(fs.away_score), h=Number(fs.home_score); if(!isNaN(a)&&!isNaN(h)){ const g=`${c.away_team} @ ${c.home_team}`; finalScores.set(g,{away_team:c.away_team,home_team:c.home_team,away_score:a,home_score:h}); finalScores.set(normGameKey(g),{away_team:c.away_team,home_team:c.home_team,away_score:a,home_score:h}); } });
-          // Also try normalized final scores API per date
+          // Also try normalized final scores API per date and adjacent days (next first, then prev)
           try{
+            const z = n=> String(n).padStart(2,'0');
+            // Same day
             const fsRes = await fetch(`/api/historical-analysis/final-scores/${entry.date}`);
             if(fsRes.ok){ const fsData = await fsRes.json(); const fs = fsData.final_scores || {}; Object.values(fs).forEach(s=>{ const awayName = s.away_team_display || s.away_team; const homeName = s.home_team_display || s.home_team; const gname = `${awayName} @ ${homeName}`; const a = Number(s.away_score), h = Number(s.home_score); if(!isNaN(a)&&!isNaN(h)){ finalScores.set(gname, {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); finalScores.set(normGameKey(gname), {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); } }); }
+            // Next day
+            const d0 = new Date(entry.date + 'T00:00:00Z');
+            const next = new Date(d0.getTime() + 24*60*60*1000);
+            const nextStr = `${next.getUTCFullYear()}-${z(next.getUTCMonth()+1)}-${z(next.getUTCDate())}`;
+            const fsResNext = await fetch(`/api/historical-analysis/final-scores/${nextStr}`);
+            if(fsResNext.ok){ const fsDataN = await fsResNext.json(); const fsN = fsDataN.final_scores || {}; Object.values(fsN).forEach(s=>{ const awayName = s.away_team_display || s.away_team; const homeName = s.home_team_display || s.home_team; if(!awayName||!homeName) return; const gname = `${awayName} @ ${homeName}`; const a = Number(s.away_score), h = Number(s.home_score); if(!isNaN(a)&&!isNaN(h)){ if(!finalScores.has(gname) && !finalScores.has(normGameKey(gname))){ finalScores.set(gname, {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); finalScores.set(normGameKey(gname), {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); } } }); }
+            // Previous day
+            const prev = new Date(d0.getTime() - 24*60*60*1000);
+            const prevStr = `${prev.getUTCFullYear()}-${z(prev.getUTCMonth()+1)}-${z(prev.getUTCDate())}`;
+            const fsResPrev = await fetch(`/api/historical-analysis/final-scores/${prevStr}`);
+            if(fsResPrev.ok){ const fsDataP = await fsResPrev.json(); const fsP = fsDataP.final_scores || {}; Object.values(fsP).forEach(s=>{ const awayName = s.away_team_display || s.away_team; const homeName = s.home_team_display || s.home_team; if(!awayName||!homeName) return; const gname = `${awayName} @ ${homeName}`; const a = Number(s.away_score), h = Number(s.home_score); if(!isNaN(a)&&!isNaN(h)){ if(!finalScores.has(gname) && !finalScores.has(normGameKey(gname))){ finalScores.set(gname, {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); finalScores.set(normGameKey(gname), {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); } } }); }
           }catch(_){ /* optional */ }
 
           // Build evaluated correctness map
