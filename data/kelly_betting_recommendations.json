@@ -505,5 +505,57 @@
     "outcome": "pending",
     "profit_loss": 0.0,
     "roi": 0.0
+  },
+  {
+    "date": "2025-09-06",
+    "game": "Chicago White Sox vs Detroit Tigers",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.0",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -123,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-06",
+    "game": "Los Angeles Dodgers vs Baltimore Orioles",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.0",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -103,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-06",
+    "game": "Houston Astros vs Texas Rangers",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.0",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -104,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-06",
+    "game": "Minnesota Twins vs Kansas City Royals",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.0",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -111,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
   }
 ]
