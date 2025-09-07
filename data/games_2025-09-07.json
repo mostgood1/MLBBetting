@@ -1,0 +1,152 @@
+[
+  {
+    "game_pk": 776428,
+    "game_time": "2025-09-07T16:05:00Z",
+    "away_team": "Seattle Mariners",
+    "home_team": "Atlanta Braves",
+    "away_pitcher": "Luis Castillo",
+    "home_pitcher": "Joey Wentz",
+    "away_probable_pitcher": "Luis Castillo",
+    "home_probable_pitcher": "Joey Wentz"
+  },
+  {
+    "game_pk": 776421,
+    "game_time": "2025-09-07T16:10:00Z",
+    "away_team": "Cleveland Guardians",
+    "home_team": "Tampa Bay Rays",
+    "away_pitcher": "Parker Messick",
+    "home_pitcher": "Drew Rasmussen",
+    "away_probable_pitcher": "Parker Messick",
+    "home_probable_pitcher": "Drew Rasmussen"
+  },
+  {
+    "game_pk": 776427,
+    "game_time": "2025-09-07T17:35:00Z",
+    "away_team": "Los Angeles Dodgers",
+    "home_team": "Baltimore Orioles",
+    "away_pitcher": "Clayton Kershaw",
+    "home_pitcher": "Tomoyuki Sugano",
+    "away_probable_pitcher": "Clayton Kershaw",
+    "home_probable_pitcher": "Tomoyuki Sugano"
+  },
+  {
+    "game_pk": 776423,
+    "game_time": "2025-09-07T17:35:00Z",
+    "away_team": "Toronto Blue Jays",
+    "home_team": "New York Yankees",
+    "away_pitcher": "Max Scherzer",
+    "home_pitcher": "Max Fried",
+    "away_probable_pitcher": "Max Scherzer",
+    "home_probable_pitcher": "Max Fried"
+  },
+  {
+    "game_pk": 776419,
+    "game_time": "2025-09-07T17:35:00Z",
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Pittsburgh Pirates",
+    "away_pitcher": "Jacob Misiorowski",
+    "home_pitcher": "Bubba Chandler",
+    "away_probable_pitcher": "Jacob Misiorowski",
+    "home_probable_pitcher": "Bubba Chandler"
+  },
+  {
+    "game_pk": 776429,
+    "game_time": "2025-09-07T17:40:00Z",
+    "away_team": "New York Mets",
+    "home_team": "Cincinnati Reds",
+    "away_pitcher": "Brandon Sproat",
+    "home_pitcher": "Hunter Greene",
+    "away_probable_pitcher": "Brandon Sproat",
+    "home_probable_pitcher": "Hunter Greene"
+  },
+  {
+    "game_pk": 776425,
+    "game_time": "2025-09-07T17:40:00Z",
+    "away_team": "Chicago White Sox",
+    "home_team": "Detroit Tigers",
+    "away_pitcher": "Davis Martin",
+    "home_pitcher": "Charlie Morton",
+    "away_probable_pitcher": "Davis Martin",
+    "home_probable_pitcher": "Charlie Morton"
+  },
+  {
+    "game_pk": 776426,
+    "game_time": "2025-09-07T17:40:00Z",
+    "away_team": "Philadelphia Phillies",
+    "home_team": "Miami Marlins",
+    "away_pitcher": "Taijuan Walker",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Taijuan Walker",
+    "home_probable_pitcher": "TBD"
+  },
+  {
+    "game_pk": 776422,
+    "game_time": "2025-09-07T18:10:00Z",
+    "away_team": "Minnesota Twins",
+    "home_team": "Kansas City Royals",
+    "away_pitcher": "Bailey Ober",
+    "home_pitcher": "Michael Lorenzen",
+    "away_probable_pitcher": "Bailey Ober",
+    "home_probable_pitcher": "Michael Lorenzen"
+  },
+  {
+    "game_pk": 776416,
+    "game_time": "2025-09-07T18:15:00Z",
+    "away_team": "San Francisco Giants",
+    "home_team": "St. Louis Cardinals",
+    "away_pitcher": "Kai-Wei Teng",
+    "home_pitcher": "Sonny Gray",
+    "away_probable_pitcher": "Kai-Wei Teng",
+    "home_probable_pitcher": "Sonny Gray"
+  },
+  {
+    "game_pk": 776420,
+    "game_time": "2025-09-07T18:20:00Z",
+    "away_team": "Washington Nationals",
+    "home_team": "Chicago Cubs",
+    "away_pitcher": "Andrew Alvarez",
+    "home_pitcher": "Drew Pomeranz",
+    "away_probable_pitcher": "Andrew Alvarez",
+    "home_probable_pitcher": "Drew Pomeranz"
+  },
+  {
+    "game_pk": 776418,
+    "game_time": "2025-09-07T18:35:00Z",
+    "away_team": "Houston Astros",
+    "home_team": "Texas Rangers",
+    "away_pitcher": "Framber Valdez",
+    "home_pitcher": "Patrick Corbin",
+    "away_probable_pitcher": "Framber Valdez",
+    "home_probable_pitcher": "Patrick Corbin"
+  },
+  {
+    "game_pk": 776417,
+    "game_time": "2025-09-07T19:10:00Z",
+    "away_team": "San Diego Padres",
+    "home_team": "Colorado Rockies",
+    "away_pitcher": "Dylan Cease",
+    "home_pitcher": "Tanner Gordon",
+    "away_probable_pitcher": "Dylan Cease",
+    "home_probable_pitcher": "Tanner Gordon"
+  },
+  {
+    "game_pk": 776414,
+    "game_time": "2025-09-07T20:07:00Z",
+    "away_team": "Athletics",
+    "home_team": "Los Angeles Angels",
+    "away_pitcher": "Luis Severino",
+    "home_pitcher": "Mitch Farris",
+    "away_probable_pitcher": "Luis Severino",
+    "home_probable_pitcher": "Mitch Farris"
+  },
+  {
+    "game_pk": 776415,
+    "game_time": "2025-09-07T20:10:00Z",
+    "away_team": "Boston Red Sox",
+    "home_team": "Arizona Diamondbacks",
+    "away_pitcher": "Brayan Bello",
+    "home_pitcher": "Ryne Nelson",
+    "away_probable_pitcher": "Brayan Bello",
+    "home_probable_pitcher": "Ryne Nelson"
+  }
+]
