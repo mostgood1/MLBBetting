@@ -165,23 +165,44 @@ class AdvancedModelRetuner:
         try:
             with open(predictions_file, 'r') as f:
                 pred_data = json.load(f)
-            
             games = pred_data.get('games', {})
             for game_id, game_data in games.items():
-                # Navigate nested prediction structure
                 predictions = game_data.get('predictions', {})
                 if isinstance(predictions, dict) and 'predictions' in predictions:
                     pred = predictions['predictions']
                 else:
                     pred = predictions
-                
+                # Fallback if top-level fields present but no nested predictions
+                if (not pred) and ( 'predicted_total_runs' in game_data or 'predicted_score' in game_data or 'win_probabilities' in game_data ):
+                    pred = {}
+                    away_ps = home_ps = None
+                    ps = game_data.get('predicted_score')
+                    if isinstance(ps, str) and '-' in ps:
+                        try:
+                            parts = ps.split('-')
+                            if len(parts) == 2:
+                                away_ps = float(parts[0])
+                                home_ps = float(parts[1])
+                        except Exception:
+                            pass
+                    pred['predicted_away_score'] = away_ps if away_ps is not None else game_data.get('predicted_away_score') or 0
+                    pred['predicted_home_score'] = home_ps if home_ps is not None else game_data.get('predicted_home_score') or 0
+                    if (pred['predicted_away_score'] == 0 and pred['predicted_home_score'] == 0 and game_data.get('predicted_total_runs')):
+                        try:
+                            tot = float(game_data.get('predicted_total_runs'))
+                            pred['predicted_away_score'] = round(tot / 2, 2)
+                            pred['predicted_home_score'] = round(tot / 2, 2)
+                        except Exception:
+                            pass
+                    pred['predicted_total_runs'] = game_data.get('predicted_total_runs', (pred['predicted_away_score'] + pred['predicted_home_score']))
+                    win_probs = game_data.get('win_probabilities', {})
+                    if isinstance(win_probs, dict):
+                        pred['home_win_prob'] = win_probs.get('home_prob', 0.5)
+                    predictions = {'betting_lines': game_data.get('betting_lines', {})}
                 if not pred:
                     continue
-                
-                # Extract park/weather factor if available
                 park_weather_factor = 1.0
                 try:
-                    # Try to get from park weather data
                     date_formatted = date_str
                     park_file = os.path.join(self.data_dir, f'park_weather_factors_{date_formatted}.json')
                     if os.path.exists(park_file):
@@ -192,7 +213,6 @@ class AdvancedModelRetuner:
                                 park_weather_factor = park_data['teams'][home_team].get('total_factor', 1.0)
                 except:
                     pass
-                
                 prediction = GamePrediction(
                     away_team=game_data.get('away_team'),
                     home_team=game_data.get('home_team'),
@@ -204,7 +224,6 @@ class AdvancedModelRetuner:
                     betting_lines=predictions.get('betting_lines', {})
                 )
                 self.game_predictions.append(prediction)
-                
         except Exception as e:
             logger.warning(f"Could not load predictions from {predictions_file}: {e}")
             print(f"⚠️ Could not load predictions from {predictions_file}: {e}")

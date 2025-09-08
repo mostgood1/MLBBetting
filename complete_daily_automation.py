@@ -524,6 +524,19 @@ def complete_daily_automation():
     except Exception as e:
         logger.warning(f"⚠️ Kelly writer step failed: {e}")
 
+    # Optional: If Sunday, run weekly retune after core pipeline
+    try:
+        from datetime import date
+        if datetime.now().weekday() == 6:  # Sunday
+            logger.info("\n🔁 SUNDAY DETECTED: Triggering weekly_retune.py for rolling optimization")
+            retune_script = Path(__file__).parent / 'weekly_retune.py'
+            if retune_script.exists():
+                run_script(retune_script, 'Weekly Retune (auto Sunday)', logger, 600)
+            else:
+                logger.warning("⚠️ weekly_retune.py not found; skipping auto weekly retune")
+    except Exception as e:
+        logger.warning(f"⚠️ Weekly retune auto-trigger failed: {e}")
+
     if all_success:
         logger.info("\n🎉 ALL STEPS COMPLETED SUCCESSFULLY!")
         logger.info(f"🎯 Ready for MLB betting analysis on {today}")

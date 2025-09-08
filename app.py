@@ -239,6 +239,57 @@ def debug_routes():
 
 print("DEBUG: Debug routes route added")
 
+# ----------------------------------------------------------------------------
+# ROI Metrics & Optimization History Endpoint
+# ----------------------------------------------------------------------------
+@app.route('/api/optimization/roi-metrics')
+def api_roi_metrics():
+    """Return latest ROI metrics from comprehensive_optimized_config plus history.
+    Structure:
+      {
+        'success': bool,
+        'timestamp': ISO,
+        'roi_metrics': {...} | None,
+        'history_events': [...],
+        'latest_weekly_comparison': {...} | None
+      }
+    """
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    config_path = os.path.join(data_dir, 'comprehensive_optimized_config.json')
+    roi_metrics = None
+    latest_cmp = None
+    history_events = []
+    try:
+        if os.path.exists(config_path):
+            with open(config_path, 'r') as f:
+                cfg = json.load(f)
+            roi_metrics = cfg.get('optimization_metadata', {}).get('roi_metrics')
+    except Exception as e:
+        logger.warning(f"ROI metrics load error: {e}")
+    # Load optimization history
+    try:
+        hist_path = os.path.join(data_dir, 'optimization_history.json')
+        if os.path.exists(hist_path):
+            with open(hist_path, 'r') as f:
+                history_events = json.load(f)
+    except Exception as e:
+        logger.warning(f"Optimization history load error: {e}")
+    # Find latest weekly comparison file
+    try:
+        cmp_files = sorted(glob.glob(os.path.join(data_dir, 'weekly_retune_comparison_*.json')))
+        if cmp_files:
+            with open(cmp_files[-1], 'r') as f:
+                latest_cmp = json.load(f)
+    except Exception as e:
+        logger.warning(f"Weekly comparison load error: {e}")
+    return jsonify({
+        'success': True,
+        'timestamp': datetime.now().isoformat(),
+        'roi_metrics': roi_metrics,
+        'history_events': history_events[-20:],  # Trim to last 20 for payload size
+        'latest_weekly_comparison': latest_cmp
+    })
+
 # Register admin blueprint if available
 if ADMIN_TUNING_AVAILABLE and admin_bp:
     app.register_blueprint(admin_bp)

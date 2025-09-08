@@ -39,6 +39,12 @@
 
   <div class="grid" id="perf"></div>
 
+  <div class="card" id="roi-metrics-card" style="margin-top:18px;">
+    <h2>Recent ROI & Efficiency</h2>
+    <div class="muted" style="margin-bottom:8px;">Derived from latest weekly retune (rolling 7-day window). Efficiency = profit / sqrt(total stake). Kelly comparison uses recorded Kelly bet sizes vs fixed_stake model.</div>
+    <div id="roi-metrics-content" class="grid"></div>
+  </div>
+
 
     <div class="card">
       <h2>Today’s Recommendations (All)</h2>
@@ -214,6 +220,40 @@
         div.innerHTML=`<div class='num'>${fmtPct(stats.accuracy)}</div><div class='muted'>${type.replace('_',' ').toUpperCase()}</div><div class='muted'>ROI: ${stats.roi?.toFixed(1)||0}% | Profit: $${stats.net_profit?.toFixed(2)||0}</div><div class='muted'>${stats.total_bets} bets (${stats.correct_bets} wins)</div>`;
         grid.appendChild(div);
       });
+      loadROIMetricsPanel();
+    }
+
+    async function loadROIMetricsPanel(){
+      try{
+        const res = await fetch('/api/optimization/roi-metrics');
+        const data = await res.json();
+        const cont = document.getElementById('roi-metrics-content');
+        cont.innerHTML='';
+        if(!data.roi_metrics){ cont.innerHTML='<div class="muted">No ROI metrics available yet.</div>'; return; }
+        const rm = data.roi_metrics;
+        // Build cards for each confidence
+        const confMap = rm.by_confidence || {};
+        Object.entries(confMap).forEach(([conf,vals])=>{
+          const eff = vals.total_stake>0 ? (vals.total_profit/Math.sqrt(vals.total_stake)) : 0;
+          const div=document.createElement('div'); div.className='stat';
+          div.innerHTML = `<div class='num'>${(vals.roi*100).toFixed(1)}%</div>
+            <div class='muted'>${conf.toUpperCase()} ROI</div>
+            <div class='muted'>Profit $${vals.total_profit.toFixed(2)} / Stake $${vals.total_stake.toFixed(0)}</div>
+            <div class='muted'>Eff: ${eff.toFixed(3)} | W:${vals.wins} L:${vals.losses} P:${vals.pushes}</div>`;
+          cont.appendChild(div);
+        });
+        // Kelly vs Fixed Stake summary if present
+        if(rm.kelly_comparison){
+          const kc = rm.kelly_comparison;
+            const div=document.createElement('div'); div.className='stat';
+            div.style.background='#eef7ff';
+            div.innerHTML = `<div class='num'>Kelly vs Fixed</div>
+              <div class='muted'>Kelly ROI: ${(kc.kelly_roi*100).toFixed(1)}% ($${kc.kelly_profit.toFixed(2)})</div>
+              <div class='muted'>Fixed ROI: ${(kc.fixed_roi*100).toFixed(1)}% ($${kc.fixed_profit.toFixed(2)})</div>
+              <div class='muted'>Edge: ${( (kc.kelly_roi-kc.fixed_roi)*100).toFixed(1)} pts</div>`;
+            cont.appendChild(div);
+        }
+      }catch(e){ console.error('ROI metrics panel error', e); }
     }
     async function loadToday(){
       // Use the new endpoint to fetch ALL recommendations from today's betting_recommendations file
