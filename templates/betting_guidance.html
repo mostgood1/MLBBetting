@@ -253,7 +253,13 @@
               <div class='muted'>Edge: ${( (kc.kelly_roi-kc.fixed_roi)*100).toFixed(1)} pts</div>`;
             cont.appendChild(div);
         }
-      }catch(e){ console.error('ROI metrics panel error', e); }
+      }catch(e){
+        console.error('ROI metrics panel error', e);
+        const cont = document.getElementById('roi-metrics-content');
+        if(cont && (!cont.innerHTML || !cont.innerHTML.trim())){
+          cont.innerHTML = '<div class="muted">ROI metrics failed to load. Check /api/optimization/roi-metrics and /api/debug-data-files.</div>';
+        }
+      }
     }
     async function loadToday(){
       // Use the new endpoint to fetch ALL recommendations from today's betting_recommendations file

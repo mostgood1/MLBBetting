@@ -260,10 +260,25 @@ def api_roi_metrics():
     latest_cmp = None
     history_events = []
     try:
+        if not os.path.exists(config_path):
+            # Fallback search: sometimes Render deploy root differs, try a few alternate locations
+            root_dir = os.path.abspath(os.path.dirname(__file__))
+            candidate_paths = [
+                os.path.join(root_dir, 'comprehensive_optimized_config.json'),
+                os.path.join(os.path.dirname(root_dir), 'data', 'comprehensive_optimized_config.json'),
+                os.path.join(os.path.dirname(root_dir), 'comprehensive_optimized_config.json')
+            ]
+            for p in candidate_paths:
+                if os.path.exists(p):
+                    logger.info(f"ROI metrics: using fallback config path {p}")
+                    config_path = p
+                    break
         if os.path.exists(config_path):
-            with open(config_path, 'r') as f:
+            with open(config_path, 'r', encoding='utf-8') as f:
                 cfg = json.load(f)
             roi_metrics = cfg.get('optimization_metadata', {}).get('roi_metrics')
+        else:
+            logger.warning(f"ROI metrics config file not found at {config_path}")
     except Exception as e:
         logger.warning(f"ROI metrics load error: {e}")
     # Load optimization history
@@ -289,6 +304,37 @@ def api_roi_metrics():
         'history_events': history_events[-20:],  # Trim to last 20 for payload size
         'latest_weekly_comparison': latest_cmp
     })
+
+# Lightweight debug endpoint to inspect presence of data files (useful on Render)
+@app.route('/api/debug-data-files')
+def api_debug_data_files():
+    try:
+        root_dir = os.path.abspath(os.path.dirname(__file__))
+        data_dir = os.path.join(root_dir, 'data')
+        files = []
+        if os.path.isdir(data_dir):
+            for name in os.listdir(data_dir):
+                p = os.path.join(data_dir, name)
+                try:
+                    info = {
+                        'name': name,
+                        'size': os.path.getsize(p) if os.path.isfile(p) else None,
+                        'modified': datetime.fromtimestamp(os.path.getmtime(p)).isoformat() if os.path.exists(p) else None,
+                        'is_dir': os.path.isdir(p)
+                    }
+                    files.append(info)
+                except Exception:
+                    files.append({'name': name, 'error': 'stat_failed'})
+        config_present = any(f['name'] == 'comprehensive_optimized_config.json' for f in files)
+        return jsonify({
+            'success': True,
+            'data_dir': data_dir,
+            'config_present': config_present,
+            'file_count': len(files),
+            'files': sorted(files, key=lambda x: x['name'])[:100]
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 # Register admin blueprint if available
 if ADMIN_TUNING_AVAILABLE and admin_bp:
