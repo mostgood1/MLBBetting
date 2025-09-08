@@ -1,0 +1,19 @@
+{
+  "date": "2025-09-08",
+  "generated_at": "2025-09-08T08:27:44.737927",
+  "total_games": 11,
+  "high_confidence_games": 0,
+  "betting_recommendations": 0,
+  "average_confidence": 0.0,
+  "high_confidence_details": [],
+  "system_enhancements": {
+    "active": true,
+    "features": [
+      "Enhanced pitcher factor validation",
+      "Improved confidence calculation",
+      "Kelly Criterion bet sizing",
+      "Advanced feature engineering",
+      "Ensemble model integration"
+    ]
+  }
+}

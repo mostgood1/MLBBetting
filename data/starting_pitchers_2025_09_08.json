@@ -1,0 +1,83 @@
+{
+  "date": "2025-09-08",
+  "fetched_at": "2025-09-08T08:22:31.172920",
+  "games": [
+    {
+      "away_team": "Kansas City Royals",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": "Ryan Bergert",
+      "home_pitcher": "Slade Cecconi",
+      "game_key": "Kansas City Royals @ Cleveland Guardians"
+    },
+    {
+      "away_team": "Washington Nationals",
+      "home_team": "Miami Marlins",
+      "away_pitcher": "Cade Cavalli",
+      "home_pitcher": "Janson Junk",
+      "game_key": "Washington Nationals @ Miami Marlins"
+    },
+    {
+      "away_team": "New York Mets",
+      "home_team": "Philadelphia Phillies",
+      "away_pitcher": "Nolan McLean",
+      "home_pitcher": "Aaron Nola",
+      "game_key": "New York Mets @ Philadelphia Phillies"
+    },
+    {
+      "away_team": "Chicago Cubs",
+      "home_team": "Atlanta Braves",
+      "away_pitcher": "Shota Imanaga",
+      "home_pitcher": "Bryce Elder",
+      "game_key": "Chicago Cubs @ Atlanta Braves"
+    },
+    {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Texas Rangers",
+      "away_pitcher": "Jose Quintana",
+      "home_pitcher": "Jacob Latz",
+      "game_key": "Milwaukee Brewers @ Texas Rangers"
+    },
+    {
+      "away_team": "Minnesota Twins",
+      "home_team": "Los Angeles Angels",
+      "away_pitcher": "Simeon Woods Richardson",
+      "home_pitcher": "Caden Dana",
+      "game_key": "Minnesota Twins @ Los Angeles Angels"
+    },
+    {
+      "away_team": "Cincinnati Reds",
+      "home_team": "San Diego Padres",
+      "away_pitcher": "Nick Lodolo",
+      "home_pitcher": "Yu Darvish",
+      "game_key": "Cincinnati Reds @ San Diego Padres"
+    },
+    {
+      "away_team": "St. Louis Cardinals",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "Miles Mikolas",
+      "home_pitcher": "Bryan Woo",
+      "game_key": "St. Louis Cardinals @ Seattle Mariners"
+    },
+    {
+      "away_team": "Arizona Diamondbacks",
+      "home_team": "San Francisco Giants",
+      "away_pitcher": "Nabil Crismatt",
+      "home_pitcher": "Logan Webb",
+      "game_key": "Arizona Diamondbacks @ San Francisco Giants"
+    },
+    {
+      "away_team": "Boston Red Sox",
+      "home_team": "Athletics",
+      "away_pitcher": "Garrett Crochet",
+      "home_pitcher": "Luis Morales",
+      "game_key": "Boston Red Sox @ Athletics"
+    },
+    {
+      "away_team": "Colorado Rockies",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Chase Dollander",
+      "home_pitcher": "TBD",
+      "game_key": "Colorado Rockies @ Los Angeles Dodgers"
+    }
+  ]
+}
