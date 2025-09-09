@@ -893,9 +893,13 @@ class FastPredictionEngine:
         total_runs = [r.total_runs for r in results]
         home_wins = sum(r.home_wins for r in results)
         
-        avg_away = float(np.mean(away_scores))
-        avg_home = float(np.mean(home_scores))
-        avg_total = float(np.mean(total_runs))
+        avg_away_raw = float(np.mean(away_scores))
+        avg_home_raw = float(np.mean(home_scores))
+        avg_total_raw = float(np.mean(total_runs))
+        avg_away = avg_away_raw
+        avg_home = avg_home_raw
+        avg_total = avg_total_raw
+        blend_meta = None
         if self._integrate_daily_pitchers and home_pitching_plan and away_pitching_plan:
             # Expected runs for away offense is home pitching plan total_runs_allowed
             away_expected = home_pitching_plan['total_runs_allowed']
@@ -907,6 +911,21 @@ class FastPredictionEngine:
             avg_away = max(0.1, blended_away)
             avg_home = max(0.1, blended_home)
             avg_total = avg_away + avg_home
+            blend_meta = {
+                'projection_components': {
+                    'away_pitching_expected_runs': away_expected,
+                    'home_pitching_expected_runs': home_expected
+                },
+                'simulation_components': {
+                    'away_sim_mean': avg_away_raw,
+                    'home_sim_mean': avg_home_raw
+                },
+                'blended': {
+                    'away_final_mean': avg_away,
+                    'home_final_mean': avg_home,
+                    'total_final_mean': avg_total
+                }
+            }
         home_win_prob = home_wins / sim_count
         away_win_prob = 1 - home_win_prob
         
@@ -966,7 +985,9 @@ class FastPredictionEngine:
                 'away_pitching_plan': away_pitching_plan,
                 'blend_weights': {'projection':self._blend_projection_w,'simulation':self._blend_sim_w} if (self._integrate_daily_pitchers and home_pitching_plan and away_pitching_plan) else None,
                 'home_pitcher_id': home_pid,
-                'away_pitcher_id': away_pid
+                'away_pitcher_id': away_pid,
+                'run_blend_audit': blend_meta,
+                'raw_sim_means': {'away': avg_away_raw, 'home': avg_home_raw, 'total': avg_total_raw}
             },
             'meta': {
                 'simulations_run': sim_count,

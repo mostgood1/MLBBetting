@@ -9,6 +9,7 @@ import sys
 import subprocess
 import logging
 import shutil
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -241,11 +242,16 @@ def complete_daily_automation():
     logger.info("🌐 Updating comprehensive daily data...")
     daily_updater = base_dir / "daily_data_updater.py"
     if daily_updater.exists():
-        success_daily = run_script(daily_updater, "Update Daily Data", logger, 300)  # Increased timeout to 300s
+        success_daily = run_script(daily_updater, "Update Daily Data", logger, 420)
+        if not success_daily:
+            # Retry shorter segments if available (optional future segmentation)
+            logger.warning("⏪ Retrying daily data update after initial failure (short backoff)...")
+            time.sleep(5)
+            success_daily = run_script(daily_updater, "Retry Daily Data Update", logger, 420)
         if success_daily:
             logger.info("✅ Daily data updated (bullpen, weather factors)")
         else:
-            logger.warning("⚠️ Daily data update failed - using cached data")
+            logger.warning("⚠️ Daily data update failed after retry - using cached data")
     else:
         logger.warning("⚠️ Daily data updater not found - using cached daily data")
 

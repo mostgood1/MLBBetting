@@ -3544,6 +3544,35 @@ def api_pitcher_projections():
         logger.exception("pitcher projections failure")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/pitcher-validation')
+def api_pitcher_validation():
+    """Return daily pitcher validation summary (team/opponent mapping health)."""
+    try:
+        # Determine today's date (UTC) consistent with projections file naming
+        today_iso = datetime.utcnow().strftime('%Y-%m-%d')
+        today_us = today_iso.replace('-', '_')
+        data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
+        val_path = os.path.join(data_dir, f'pitcher_validation_{today_us}.json')
+        if os.path.exists(val_path):
+            with open(val_path,'r') as f:
+                val = json.load(f)
+            return jsonify({'success': True, 'validation': val})
+        # If file missing, compute projections (this will also generate the validation file)
+        proj = compute_pitcher_projections()
+        # Build minimal validation snippet from projection result
+        val = {
+            'date': proj.get('date'),
+            'pitcher_count': proj.get('count'),
+            'team_mismatches': proj.get('adjustment_meta',{}).get('team_mismatches'),
+            'opponent_validation_mismatches': proj.get('adjustment_meta',{}).get('opponent_validation_mismatches'),
+            'opponent_corrections': proj.get('adjustment_meta',{}).get('opponent_corrections_count'),
+            'generated_at': proj.get('generated_at')
+        }
+        return jsonify({'success': True, 'validation': val, 'generated_now': True})
+    except Exception as e:
+        logger.exception("pitcher validation endpoint failure")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/pitcher-prop-plays')
 def api_pitcher_prop_plays():
     """Summarized pitcher prop betting plays grouped by confidence.
