@@ -22,6 +22,29 @@
   .input { padding:8px 10px; border-radius:8px; border:1px solid #cfe1f8; }
     .table { width:100%; border-collapse: collapse; }
     .table th, .table td { border-bottom:1px solid #eee; padding:10px; text-align:left; }
+    .table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    /* Responsive enhancements */
+    @media (max-width: 700px){
+      body { font-size:14px; }
+      .container { padding:16px; }
+      h1 { font-size:22px; }
+      h2 { font-size:18px; }
+      .grid { grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap:12px; }
+      .stat { padding:12px; }
+      .stat .num { font-size:22px; }
+      .btn { padding:8px 12px; font-size:13px; }
+      .input { padding:6px 8px; font-size:13px; }
+      .table th, .table td { padding:6px 8px; font-size:12px; }
+      #roi-metrics-card .grid { grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); }
+      .card { padding:16px; }
+      .muted { font-size:12px; }
+    }
+    /* Very small screens */
+    @media (max-width:480px){
+      h1 { font-size:19px; }
+      .grid { grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); }
+      .stat .num { font-size:20px; }
+    }
   </style>
 </head>
 <body>
@@ -278,9 +301,9 @@
         ev: r.expected_value
       }));
       rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
-      div.innerHTML = '<table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th></tr></thead><tbody>'+
-        rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td></tr>`).join('')+
-      '</tbody></table>';
+      div.innerHTML = '<div class="table-wrap"><table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th></tr></thead><tbody>' +
+        rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td></tr>`).join('') +
+      '</tbody></table></div>';
 
       // Build Today Recap KPIs based on THESE recs only (so counts match what you see)
       await loadTodayRecap(recs);
@@ -765,9 +788,9 @@
             };
           });
           rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
-          recDiv.innerHTML = rows.length ? ('<table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Correct</th></tr></thead><tbody>'+
-            rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class=\"badge ${r.conf}\">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('')+
-          '</tbody></table>') : '<div class="muted">No recommendations found for this date.</div>';
+          recDiv.innerHTML = rows.length ? ('<div class="table-wrap"><table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Correct</th></tr></thead><tbody>' +
+            rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('') +
+          '</tbody></table></div>') : '<div class="muted">No recommendations found for this date.</div>';
 
           // Build recap tiles using variable stake by confidence
           const stakeByConf = { HIGH: 100, MEDIUM: 50, LOW: 25 };
@@ -830,9 +853,9 @@
             });
           });
           rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
-          recDiv.innerHTML = rows.length ? ('<table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Correct</th></tr></thead><tbody>'+
-            rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class=\"badge ${r.conf}\">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('')+
-          '</tbody></table>') : '<div class="muted">No recommendations found for this date.</div>';
+          recDiv.innerHTML = rows.length ? ('<div class="table-wrap"><table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Correct</th></tr></thead><tbody>' +
+            rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('') +
+          '</tbody></table></div>') : '<div class="muted">No recommendations found for this date.</div>';
 
           // Recap from fallback rows (constant stake to avoid colliding identifiers)
           const unitFB=100; let resolvedFB=0, winsFB=0, profitFB=0;
@@ -1024,9 +1047,9 @@
         // Sort and render rows
         rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
         const recDiv = document.getElementById('range-recs');
-        recDiv.innerHTML = rows.length ? ('<table class="table"><thead><tr><th>Date</th><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Correct</th></tr></thead><tbody>'+
-          rows.map(r=>`<tr><td>${r.date||''}</td><td>${r.game}</td><td>${r.bet}</td><td>${r.odds||''}</td><td><span class=\"badge ${r.conf}\">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('')+
-        '</tbody></table>') : '<div class="muted">No recommendations in this range.</div>';
+  recDiv.innerHTML = rows.length ? ('<div class="table-wrap"><table class="table"><thead><tr><th>Date</th><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Correct</th></tr></thead><tbody>' +
+    rows.map(r=>`<tr><td>${r.date||''}</td><td>${r.game}</td><td>${r.bet}</td><td>${r.odds||''}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('') +
+  '</tbody></table></div>') : '<div class="muted">No recommendations in this range.</div>';
 
   // Compute KPI tiles using variable stake by confidence
   const stakeByConfR = { HIGH: 100, MEDIUM: 50, LOW: 25 };
