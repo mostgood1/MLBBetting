@@ -1090,6 +1090,19 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
         }
         with open(os.path.join(out_dir, f'adjustment_summary_{date_us}.json'),'w') as f:
             json.dump(summary, f, indent=2)
+        # validation export focusing on team/opponent mapping health
+        validation = {
+            'date': date_iso,
+            'generated_at': result['generated_at'],
+            'pitcher_count': result.get('count'),
+            'team_mismatches': result['adjustment_meta'].get('team_mismatches'),
+            'opponent_validation_mismatches': result['adjustment_meta'].get('opponent_validation_mismatches'),
+            'opponent_corrections': result['adjustment_meta'].get('opponent_corrections_count'),
+            'sample_team_mismatches': result.get('team_validation', [])[:10] if result.get('team_validation') else [],
+            'sample_opponent_mismatches': result.get('opponent_validation_mismatches', [])[:10] if result.get('opponent_validation_mismatches') else [],
+        }
+        with open(os.path.join(out_dir, f'pitcher_validation_{date_us}.json'),'w') as f:
+            json.dump(validation, f, indent=2)
     except Exception:
         pass
     return result
