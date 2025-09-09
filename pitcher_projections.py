@@ -399,6 +399,17 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
     else:
         pitcher_names = derived_pitchers
 
+    # Remove placeholder / TBD pitchers early
+    def _is_placeholder(name: str) -> bool:
+        if not name: return True
+        nl = name.lower().strip()
+        if nl in {'tbd','probable','unknown'}: return True
+        if nl.startswith('tbd') or nl.startswith('probable'): return True
+        if len(nl) <= 2: return True
+        return False
+
+    pitcher_names = [p for p in pitcher_names if not _is_placeholder(p)]
+
     projections = []
     line_map = fetch_bovada_pitcher_props(pitcher_names=pitcher_names) if include_lines else {}
 

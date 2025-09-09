@@ -33,6 +33,20 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <a class="btn" href="/">⬅ Main</a>
         <button class="btn" onclick="exportJSON()">💾 Export JSON</button>
+        <label style="font-size:12px;display:flex;align-items:center;gap:4px;color:#163a6b;background:#fff;padding:4px 8px;border-radius:6px;">
+          <input type="checkbox" id="toggle-nolines" onchange="renderRows()" /> Hide no-line rows
+        </label>
+        <label style="font-size:12px;display:flex;align-items:center;gap:4px;color:#163a6b;background:#fff;padding:4px 8px;border-radius:6px;">
+          Sort:
+          <select id="sort-edge" onchange="renderRows()" style="font-size:12px;">
+            <option value="">None</option>
+            <option value="strikeouts">Edge K</option>
+            <option value="outs">Edge Outs</option>
+            <option value="hits_allowed">Edge Hits</option>
+            <option value="walks">Edge Walks</option>
+            <option value="earned_runs">Edge ER</option>
+          </select>
+        </label>
       </div>
     </div>
     <div class="muted" id="meta"></div>
@@ -66,7 +80,28 @@ async function loadProjections(){
   const d = js.data;
   document.getElementById('meta').textContent = `Date ${d.date} • ${d.count} pitchers`;
   const tbody = document.querySelector('#proj-table tbody');
-  tbody.innerHTML = d.pitchers.map(p=>`<tr>
+  window._pitcherData = d.pitchers;
+  renderRows();
+}
+function altKTooltip(p){
+  const alts = (p.lines.strikeouts_alts||[]);
+  if(!alts.length) return '';
+  const rows = alts.map(a=>`${a.threshold}+ (${a.odds>0?'+':''}${a.odds})`).join('\n');
+  return rows;
+}
+function renderRows(){
+  const tbody = document.querySelector('#proj-table tbody');
+  if(!window._pitcherData){ tbody.innerHTML=''; return; }
+  const hideNo = document.getElementById('toggle-nolines').checked;
+  const sortKey = document.getElementById('sort-edge').value;
+  let data = window._pitcherData.slice();
+  if(hideNo){
+    data = data.filter(p=> p.lines && Object.values(p.lines).some(v=>v && v.line!=null));
+  }
+  if(sortKey){
+    data.sort((a,b)=>{ const da = Math.abs((a.diffs||{})[sortKey]||0); const db = Math.abs((b.diffs||{})[sortKey]||0); return db-da; });
+  }
+  tbody.innerHTML = data.map(p=>`<tr>
     <td>${p.pitcher_name}</td>
     <td>${p.team||''}</td>
     <td>${p.opponent||''}</td>
@@ -75,8 +110,8 @@ async function loadProjections(){
   <td class="${edgeClass(p,'outs')}">${p.recommendations.outs??''}${edgeDiff(p,'outs')}</td>
   <td>${p.projected_strikeouts}</td>
   <td>${formatLine(p.lines.strikeouts)}</td>
-  <td class="${edgeClass(p,'strikeouts')}">${p.recommendations.strikeouts??''}${edgeDiff(p,'strikeouts')}</td>
-  <td>${(p.lines.strikeouts_alts||p.strikeouts_alts||[]).map(a=>a.threshold).join(', ')}</td>
+    <td class="${edgeClass(p,'strikeouts')}">${p.recommendations.strikeouts??''}${edgeDiff(p,'strikeouts')}</td>
+    <td title="${altKTooltip(p)}">${(p.lines.strikeouts_alts||p.strikeouts_alts||[]).map(a=>a.threshold).join(', ')}</td>
   <td>${p.projected_earned_runs}</td>
   <td>${formatLine(p.lines.earned_runs)}</td>
   <td class="${edgeClass(p,'earned_runs')}">${p.recommendations.earned_runs??''}${edgeDiff(p,'earned_runs')}</td>
