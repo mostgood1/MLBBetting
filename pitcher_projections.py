@@ -706,6 +706,7 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
 
     # Limit number of on-demand API calls per run
     on_demand_calls_allowed = 5
+    team_validation: list[dict[str, Any]] = []
     for pname in pitcher_names:
         key = normalize_name(pname)
         pid = None
@@ -794,31 +795,52 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
 
         opponent = None
         venue = None
+        resolved_team = None
+        team_source = 'master_stats'
         game_keys = pitcher_game_index.get(key, [])
         if game_keys:
             g, side = game_keys[0]
             home_team = g.get('home_team') or g.get('homeTeam')
             away_team = g.get('away_team') or g.get('awayTeam')
             if side == 'away':
+                resolved_team = away_team
                 opponent = home_team
             else:
+                resolved_team = home_team
                 opponent = away_team
             venue = home_team
-        # fallback: attempt to infer from team field if opponent still None
+            team_source = 'game_match'
+        # fallback: attempt to infer from master stats team field
         if (not opponent) and stats.get('team'):
             pteam = stats.get('team')
-            # scan games list once (could optimize with pre-index but small list OK)
+            # scan games to locate that team
             for g in games:
                 at = g.get('away_team') or g.get('awayTeam')
                 ht = g.get('home_team') or g.get('homeTeam')
                 if at == pteam:
+                    resolved_team = at
                     opponent = ht
                     venue = ht
                     break
                 if ht == pteam:
+                    resolved_team = ht
                     opponent = at
                     venue = ht
                     break
+        # If still unresolved, default resolved_team to master stats team
+        if not resolved_team:
+            resolved_team = stats.get('team')
+
+        # Track team mismatch between master stats and resolved team
+        master_team = stats.get('team')
+        if master_team and resolved_team and master_team != resolved_team:
+            team_validation.append({
+                'pitcher_name': stats.get('name', pname),
+                'pitcher_id': pid,
+                'master_team': master_team,
+                'resolved_team': resolved_team,
+                'team_source': team_source
+            })
 
         reliability = 'LOW'
         if gs >= 10 and ip >= 50:
@@ -926,9 +948,10 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
         projections.append({
             'pitcher_id': pid,
             'pitcher_name': stats.get('name', pname),
-            'team': stats.get('team'),
+            'team': resolved_team,
             'opponent': opponent,
             'venue_home_team': venue,
+            'team_source': team_source,
             'projected_outs': projected_outs,
             'projected_innings': round(projected_ip,1),
             'projected_strikeouts': projected_ks,
@@ -1011,6 +1034,40 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
                     'old_opponent': current_opp,
                     'new_opponent': mapped_opp
                 })
+    # Add team validation report
+    if team_validation:
+        result['team_validation'] = team_validation
+        result['adjustment_meta']['team_mismatches'] = len(team_validation)
+    else:
+        result['adjustment_meta']['team_mismatches'] = 0
+
+    # Opponent validation summary: verify each pitcher team maps to correct opponent from team_opponent_map
+    opponent_mismatches = []
+    if team_opponent_map:
+        for p in projections:
+            t = p.get('team')
+            if not t:
+                continue
+            expected_opp = team_opponent_map.get(normalize_name(t))
+            actual_opp = p.get('opponent')
+            if expected_opp and actual_opp and expected_opp != actual_opp:
+                opponent_mismatches.append({
+                    'pitcher_id': p.get('pitcher_id'),
+                    'pitcher_name': p.get('pitcher_name'),
+                    'team': t,
+                    'expected_opponent': expected_opp,
+                    'actual_opponent': actual_opp
+                })
+                # Auto-correct
+                p['opponent_corrected_from'] = actual_opp
+                p['opponent'] = expected_opp
+                p['opponent_corrected'] = True
+    if opponent_mismatches:
+        result['opponent_validation_mismatches'] = opponent_mismatches
+        result['adjustment_meta']['opponent_validation_mismatches'] = len(opponent_mismatches)
+    else:
+        result['adjustment_meta']['opponent_validation_mismatches'] = 0
+
     if opponent_corrections:
         result['opponent_corrections'] = opponent_corrections
         result['adjustment_meta']['opponent_corrections_count'] = len(opponent_corrections)
