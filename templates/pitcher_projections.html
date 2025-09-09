@@ -18,6 +18,10 @@
  .badge.LOW { background:#eab308; color:#111; }
  .table-wrap { overflow-x:auto; }
  .btn { background:#163a6b; color:#fff; padding:8px 14px; border:none; border-radius:8px; cursor:pointer; text-decoration:none; display:inline-block; }
+ .edge-pos { background:rgba(34,197,94,0.18); }
+ .edge-neg { background:rgba(239,68,68,0.18); }
+ .edge-strong { outline:2px solid #16a34a; }
+ .edge-strong-neg { outline:2px solid #ef4444; }
  @media (max-width:760px){ th,td { font-size:11px; padding:6px 6px; } }
 </style>
 </head>
@@ -26,18 +30,27 @@
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
       <h1>Pitcher Projections (Daily)</h1>
-      <a class="btn" href="/">⬅ Main</a>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <a class="btn" href="/">⬅ Main</a>
+        <button class="btn" onclick="exportJSON()">💾 Export JSON</button>
+      </div>
     </div>
     <div class="muted" id="meta"></div>
   </div>
   <div class="card">
     <h2 style="margin-top:0;">Projected Stats</h2>
-    <div class="muted" style="margin-bottom:8px;">Season-average derived estimates. Lines integration forthcoming.</div>
+  <div class="muted" style="margin-bottom:8px;">Season-average derived estimates with live Bovada lines (if available). Alt K ladder thresholds displayed.</div>
     <div class="table-wrap">
       <table id="proj-table">
         <thead>
           <tr>
-            <th>Pitcher</th><th>Team</th><th>Opp</th><th>Outs</th><th>K</th><th>ER</th><th>Hits</th><th>Conf</th>
+            <th>Pitcher</th><th>Team</th><th>Opp</th>
+            <th>Outs</th><th>Line</th><th>Rec</th>
+            <th>K</th><th>Line (Odds)</th><th>Rec</th><th>Alt K</th>
+            <th>ER</th><th>Line</th><th>Rec</th>
+            <th>Hits</th><th>Line</th><th>Rec</th>
+            <th>Walks</th><th>Line</th><th>Rec</th>
+            <th>Conf</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -57,14 +70,56 @@ async function loadProjections(){
     <td>${p.pitcher_name}</td>
     <td>${p.team||''}</td>
     <td>${p.opponent||''}</td>
-    <td>${p.projected_outs}</td>
-    <td>${p.projected_strikeouts}</td>
-    <td>${p.projected_earned_runs}</td>
-    <td>${p.projected_hits_allowed}</td>
+  <td>${p.projected_outs}</td>
+  <td>${formatLine(p.lines.outs)}</td>
+  <td class="${edgeClass(p,'outs')}">${p.recommendations.outs??''}${edgeDiff(p,'outs')}</td>
+  <td>${p.projected_strikeouts}</td>
+  <td>${formatLine(p.lines.strikeouts)}</td>
+  <td class="${edgeClass(p,'strikeouts')}">${p.recommendations.strikeouts??''}${edgeDiff(p,'strikeouts')}</td>
+  <td>${(p.lines.strikeouts_alts||p.strikeouts_alts||[]).map(a=>a.threshold).join(', ')}</td>
+  <td>${p.projected_earned_runs}</td>
+  <td>${formatLine(p.lines.earned_runs)}</td>
+  <td class="${edgeClass(p,'earned_runs')}">${p.recommendations.earned_runs??''}${edgeDiff(p,'earned_runs')}</td>
+  <td>${p.projected_hits_allowed}</td>
+    <td>${formatLine(p.lines.hits_allowed)}</td>
+    <td class="${edgeClass(p,'hits_allowed')}">${p.recommendations.hits_allowed??''}${edgeDiff(p,'hits_allowed')}</td>
+  <td>${p.projected_walks??''}</td>
+  <td>${formatLine(p.lines.walks)}</td>
+  <td class="${edgeClass(p,'walks')}">${p.recommendations.walks??''}${edgeDiff(p,'walks')}</td>
     <td><span class="badge ${p.confidence}">${p.confidence}</span></td>
   </tr>`).join('');
 }
 loadProjections();
+function formatLine(obj){
+  if(!obj || obj.line==null) return '';
+  const over = obj.over_odds!=null ? `O${obj.over_odds>0?'+':''}${obj.over_odds}` : '';
+  const under = obj.under_odds!=null ? `U${obj.under_odds>0?'+':''}${obj.under_odds}` : '';
+  return `${obj.line}${(over||under)?` (${over}${(over&&under?'/':'')}${under})`:''}`;
+}
+function edgeDiff(p, stat){
+  if(!p.diffs || p.diffs[stat]==null) return '';
+  const v = p.diffs[stat];
+  const sign = v>0?'+':'';
+  return ` <span style="font-size:10px;color:#555;">${sign}${stat==='outs'?v.toFixed(0):v.toFixed(1)}</span>`;
+}
+function edgeClass(p, stat){
+  if(!p.recommendations || !p.recommendations[stat]) return '';
+  const diff = p.diffs && p.diffs[stat]!=null ? Math.abs(p.diffs[stat]) : 0;
+  const strong = (stat==='outs' && diff>=3) || (stat!=='outs' && diff>=1.2);
+  if(p.recommendations[stat]==='OVER') return strong?'edge-pos edge-strong':'edge-pos';
+  if(p.recommendations[stat]==='UNDER') return strong?'edge-neg edge-strong-neg':'edge-neg';
+  return '';
+}
+function exportJSON(){
+  fetch('/api/pitcher-projections').then(r=>r.json()).then(js=>{
+    if(!js.success) return;
+    const blob = new Blob([JSON.stringify(js.data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `pitcher_projections_${(js.data.date||'today')}.json`;
+    document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url);a.remove();}, 300);
+  });
+}
 </script>
 </body>
 </html>
