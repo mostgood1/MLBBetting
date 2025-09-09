@@ -52,6 +52,97 @@ def load_starting_pitchers(date_us: str) -> List[Dict[str, Any]]:
                 pass
     return []
 
+def load_team_batting_k_rates() -> Dict[str, float]:
+    """Load team batting strikeout rate (K%) if available.
+    Expected file: data/team_batting_stats.json with structure like:
+      {
+         "Atlanta Braves": {"k_rate": 0.211},
+         "New York Yankees": {"k_rate": 0.225},
+         ...
+      }
+    k_rate may also appear as 'k_percent' (e.g. 21.1 meaning 21.1%).
+    Returns mapping normalized_team_name -> k_rate (decimal fraction).
+    """
+    path = os.path.join(DATA_DIR, 'team_batting_stats.json')
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path,'r') as f:
+            raw = json.load(f)
+        out = {}
+        if isinstance(raw, dict):
+            for team, vals in raw.items():
+                if not isinstance(vals, dict):
+                    continue
+                kr = vals.get('k_rate')
+                if kr is None:
+                    # maybe percent form
+                    kr = vals.get('k_percent')
+                    if isinstance(kr,(int,float)) and kr > 1.5:  # assume percent like 21.3
+                        kr = kr / 100.0
+                if isinstance(kr,(int,float)) and 0 < kr < 1:
+                    out[normalize_name(team)] = float(kr)
+        return out
+    except Exception:
+        return {}
+
+def load_team_patience_stats() -> Dict[str, Dict[str, float]]:
+    """Load team plate discipline (pitches_per_pa, bb_rate) from team_batting_stats.json if present."""
+    path = os.path.join(DATA_DIR, 'team_batting_stats.json')
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path,'r') as f:
+            raw = json.load(f)
+        out: Dict[str, Dict[str,float]] = {}
+        if isinstance(raw, dict):
+            for team, vals in raw.items():
+                if not isinstance(vals, dict):
+                    continue
+                ppa = vals.get('pitches_per_pa') or vals.get('pitches_per_plate_appearance')
+                bb = vals.get('bb_rate') or vals.get('walk_rate') or vals.get('bb_percent')
+                if isinstance(bb,(int,float)) and bb > 1.5:
+                    bb = bb/100.0
+                rec: Dict[str,float] = {}
+                if isinstance(ppa,(int,float)) and ppa>2:
+                    rec['pitches_per_pa'] = float(ppa)
+                if isinstance(bb,(int,float)) and 0 < bb < 0.3:
+                    rec['bb_rate'] = float(bb)
+                if rec:
+                    out[normalize_name(team)] = rec
+        return out
+    except Exception:
+        return {}
+
+def load_recent_pitcher_stats() -> Dict[str, Dict[str, float]]:
+    """Load recent pitcher form stats from recent_pitcher_stats.json if present."""
+    path = os.path.join(DATA_DIR, 'recent_pitcher_stats.json')
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path,'r') as f:
+            raw = json.load(f)
+        out: Dict[str, Dict[str,float]] = {}
+        if isinstance(raw, dict):
+            for name, vals in raw.items():
+                if not isinstance(vals, dict):
+                    continue
+                fixed_name = name.replace('φ','í')  # repair common corruption
+                out[normalize_name(fixed_name)] = vals
+        # If any corrupted forms existed, optionally persist a cleaned file (non-fatal)
+        try:
+            cleaned_keys_original = set(raw.keys()) if isinstance(raw, dict) else set()
+            cleaned_keys_new = set(out.keys())
+            if cleaned_keys_original and cleaned_keys_new and cleaned_keys_original != cleaned_keys_new:
+                repair_path = os.path.join(DATA_DIR, 'recent_pitcher_stats_cleaned.json')
+                with open(repair_path,'w') as cf:
+                    json.dump({k: out[k] for k in cleaned_keys_new}, cf, indent=2)
+        except Exception:
+            pass
+        return out
+    except Exception:
+        return {}
+
 def load_today_games() -> List[Dict[str, Any]]:
     # There is a root _today_games.json in repo snapshot.
     for name in ['_today_games.json','today_games.json']:
@@ -70,18 +161,64 @@ def load_today_games() -> List[Dict[str, Any]]:
     return []
 
 def _index_games_by_pitcher(games: List[Dict[str, Any]]):
-    idx = {}
+    """Build index pitcher_name -> list of (game, side).
+
+    Handles multiple potential key variants and nested structures.
+    Expected primary keys in game objects (from `_today_games.json`):
+      away_pitcher, home_pitcher, away_team, home_team
+    Fallback nested: pitcher_info.away_pitcher_name, pitcher_info.home_pitcher_name
+    """
+    idx: Dict[str, List[tuple[Dict[str,Any], str]]] = {}
     for g in games:
+        # Primary extraction
         away_pitcher = g.get('away_pitcher') or g.get('pitcher_info',{}).get('away_pitcher_name')
         home_pitcher = g.get('home_pitcher') or g.get('pitcher_info',{}).get('home_pitcher_name')
+        # Some data may store probable labels
+        if not away_pitcher:
+            away_pitcher = g.get('away_probable_pitcher')
+        if not home_pitcher:
+            home_pitcher = g.get('home_probable_pitcher')
         if away_pitcher:
-            idx.setdefault(away_pitcher.lower(), []).append((g,'away'))
+            idx.setdefault(normalize_name(away_pitcher), []).append((g, 'away'))
         if home_pitcher:
-            idx.setdefault(home_pitcher.lower(), []).append((g,'home'))
+            idx.setdefault(normalize_name(home_pitcher), []).append((g, 'home'))
     return idx
 
 _BOVADA_CACHE: dict[str, Any] = {}
 _BOVADA_CACHE_EXPIRY: float = 0.0
+_RECENT_ON_DEMAND_CACHE: dict[str, dict[str, float]] = {}
+
+# Common manual name aliases (mismatched spellings between sources)
+NAME_ALIASES = {
+    'zack littell': 'zach littell',
+    'zac littell': 'zach littell',
+    'german marquez': 'germán márquez',
+    'yoendrys gomez': 'yoendrys gómez',
+    # Common accent simplifications & corrupted forms
+    'luis garcia': 'luis garcía',
+    'luis garcφa': 'luis garcía',
+    'martin perez': 'martín pérez',
+    'martin pérez': 'martín pérez',
+    'martín perez': 'martín pérez',
+    'jesus luzardo': 'jesús luzardo',
+    'jose soriano': 'josé soriano',
+}
+
+def normalize_name(name: str) -> str:
+    """Full normalization pipeline: lower, strip accents, collapse spaces, apply alias."""
+    if not name:
+        return ''
+    # Replace known stray characters before accent strip (e.g., Greek phi in corrupted feeds)
+    trans_table = str.maketrans({
+        'φ': 'i',  # corrupted 'í'
+    })
+    name = name.translate(trans_table)
+    base = _strip_accents(name).lower().strip()
+    base = re.sub(r'\s+', ' ', base)
+    # apply alias mapping on accent-stripped version
+    if base in NAME_ALIASES:
+        return _strip_accents(NAME_ALIASES[base]).lower()
+    return base
 
 def fetch_bovada_pitcher_props(ttl_seconds: int = 300, pitcher_names: Optional[List[str]] = None) -> Dict[str, Dict[str, Any]]:
     """Fetch pitcher prop lines from Bovada with broader endpoint coverage & parsing.
@@ -171,7 +308,7 @@ def fetch_bovada_pitcher_props(ttl_seconds: int = 300, pitcher_names: Optional[L
     def record_prop(pitcher: str, stat_key: str, line_val, over_o, under_o):
         if pitcher is None or stat_key is None:
             return
-        pkey = pitcher.lower()
+        pkey = normalize_name(pitcher)
         entry = props.setdefault(pkey, {})
         # only set if not present (first seen wins)
         if stat_key not in entry:
@@ -240,7 +377,7 @@ def fetch_bovada_pitcher_props(ttl_seconds: int = 300, pitcher_names: Optional[L
                         if pitcher_name:
                             record_prop(pitcher_name, stat_key, line_val, over_o, under_o)
                             if is_alt_strikeouts and alt_ladder:
-                                props.setdefault(pitcher_name.lower(), {}).setdefault('strikeouts_alts', alt_ladder)
+                                props.setdefault(normalize_name(pitcher_name), {}).setdefault('strikeouts_alts', alt_ladder)
                         # If no pitcher name and this looks like aggregate market, skip for now
     # Deep fetch individual event details for player outcome parsing if we still lack props
     if pitcher_names and len(props) < len(pitcher_names):
@@ -260,8 +397,8 @@ def fetch_bovada_pitcher_props(ttl_seconds: int = 300, pitcher_names: Optional[L
                 continue
             fetched += 1
             # Structure could be a list with a single block
-            blocks = detail if isinstance(detail, list) else [detail]
-            for blk in blocks:
+            detail_blocks = detail if isinstance(detail, list) else [detail]
+            for blk in detail_blocks:
                 for event in blk.get('events', []) or []:
                     dgs = event.get('displayGroups', []) or []
                     for dg in dgs:
@@ -294,13 +431,13 @@ def fetch_bovada_pitcher_props(ttl_seconds: int = 300, pitcher_names: Optional[L
                                 if player_name:
                                     player_name = norm_pitcher_name(player_name)
                                 # Determine if this is OVER or UNDER style or a combined listing
-                                american = price.get('american')
                                 is_over = ' over ' in f' {o_desc} ' or o_desc.startswith('over ')
                                 is_under = ' under ' in f' {o_desc} ' or o_desc.startswith('under ')
                                 # If both not present treat as neutral listing (store only line w/ odds sign meaning Over maybe)
-                                if player_name and player_name.lower() not in props:
+                                norm_player = normalize_name(player_name) if player_name else None
+                                if norm_player and norm_player not in props:
                                     # Need counterpart outcome to fill both over/under; accumulate temp store
-                                    entry = props.setdefault(player_name.lower(), {})
+                                    entry = props.setdefault(norm_player, {})
                                     stat_entry = entry.setdefault(stat_key, {'line': line_val, 'over_odds': None, 'under_odds': None})
                                     if line_val is not None and stat_entry['line'] is None:
                                         stat_entry['line'] = line_val
@@ -310,9 +447,9 @@ def fetch_bovada_pitcher_props(ttl_seconds: int = 300, pitcher_names: Optional[L
                                     if is_under and stat_entry['under_odds'] is None and american:
                                         try: stat_entry['under_odds'] = int(american)
                                         except Exception: pass
-                                elif player_name:
+                                elif norm_player:
                                     # Merge into existing
-                                    stat_entry = props[player_name.lower()].setdefault(stat_key, {'line': line_val, 'over_odds': None, 'under_odds': None})
+                                    stat_entry = props[norm_player].setdefault(stat_key, {'line': line_val, 'over_odds': None, 'under_odds': None})
                                     if stat_entry['line'] is None and line_val is not None:
                                         stat_entry['line'] = line_val
                                     if is_over and stat_entry['over_odds'] is None and american:
@@ -371,11 +508,9 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
     name_lookup: Dict[str, tuple[str, Dict[str, Any]]] = {}
     for pid, info in master_stats.items():
         nm = info.get('name','')
-        low = nm.lower()
-        name_lookup[low] = (pid, info)
-        no_acc = _strip_accents(nm).lower()
-        if no_acc not in name_lookup:
-            name_lookup[no_acc] = (pid, info)
+        norm = normalize_name(nm)
+        if norm:
+            name_lookup[norm] = (pid, info)
 
     games = load_today_games()
     pitcher_game_index = _index_games_by_pitcher(games)
@@ -421,15 +556,15 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
             if nm and nm not in game_pitchers:
                 game_pitchers.append(nm)
     for gp in game_pitchers:
-        if gp not in pitcher_names and gp.lower() in line_map:
+        if gp not in pitcher_names and normalize_name(gp) in line_map:
             pitcher_names.append(gp)
 
     # Track unmatched for logging
     unmatched_starters = []
     for nm in pitcher_names:
-        if nm.lower() not in line_map:
+        if normalize_name(nm) not in line_map:
             unmatched_starters.append(nm)
-    extra_props = [orig for orig in line_map.keys() if orig not in [p.lower() for p in pitcher_names]]
+    extra_props = [orig for orig in line_map.keys() if orig not in [normalize_name(p) for p in pitcher_names]]
     unmatched_starting_pitchers = unmatched_starters  # alias for final output
     props_without_start_flag = extra_props
     try:
@@ -449,8 +584,121 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
     except Exception:
         pass
 
+    # Attempt to load park factors (optional)
+    park_factors = {}
+    pf_path = os.path.join(DATA_DIR, 'park_factors.json')
+    if os.path.exists(pf_path):
+        try:
+            with open(pf_path,'r') as f:
+                pf_data = json.load(f)
+            if isinstance(pf_data, dict):
+                park_factors = {normalize_name(k): float(v) for k,v in pf_data.items() if isinstance(v,(int,float,str)) and str(v).replace('.','',1).replace('-','').isdigit()}
+        except Exception:
+            park_factors = {}
+
+    batting_k_rates = load_team_batting_k_rates()
+    patience_stats = load_team_patience_stats()
+    recent_pitcher_stats = load_recent_pitcher_stats()
+    league_avg_k_factor = 1.0
+    if batting_k_rates:
+        try:
+            vals = [v for v in batting_k_rates.values() if 0 < v < 1]
+            if vals:
+                league_avg_k_factor = sum(vals)/len(vals)
+        except Exception:
+            pass
+
+    recent_used = 0
+    recent_on_demand_used = 0
+    synthetic_recent_count = 0
+    patience_used = 0
+    # Track missing adjustment inputs for audit
+    missing_inputs = {
+        'opponent': [],
+        'park_factor': [],
+        'opponent_k_rate': [],
+        'patience_stats': [],
+        'recent_form': []
+    }
+    # Helper: on-demand recent form fetch (uses MLB Stats API game logs)
+    def _fetch_recent_form_for_pitcher(name: str) -> Optional[Dict[str, float]]:
+        norm = normalize_name(name)
+        if norm in _RECENT_ON_DEMAND_CACHE:
+            return _RECENT_ON_DEMAND_CACHE[norm]
+        # People search
+        q = requests.utils.quote(name)
+        try:
+            resp = requests.get(f'https://statsapi.mlb.com/api/v1/people/search?names={q}', timeout=10)
+            if resp.status_code != 200:
+                return None
+            pdata = resp.json()
+            people = pdata.get('people') or []
+            pid = None
+            for p in people:
+                pos = (p.get('primaryPosition') or {}).get('code')
+                if pos == '1':  # pitcher
+                    pid = p.get('id')
+                    break
+            if not pid and people:
+                pid = people[0].get('id')
+            if not pid:
+                return None
+            # game log
+            gl = requests.get(f'https://statsapi.mlb.com/api/v1/people/{pid}/stats?stats=gameLog&group=pitching', timeout=12)
+            if gl.status_code != 200:
+                return None
+            gdata = gl.json()
+            splits = gdata.get('stats',[{}])[0].get('splits', [])
+            starts = []
+            for sp in splits:
+                st = sp.get('stat',{})
+                if st.get('gamesStarted') in ('1',1):
+                    starts.append(st)
+            def _d(st):
+                return st.get('gameDate') or st.get('date') or ''
+            starts.sort(key=_d)
+            recent = starts[-5:]
+            if not recent:
+                return None
+            innings_total = 0.0
+            so_total = 0
+            for st in recent:
+                ip = st.get('inningsPitched')
+                # reuse logic from build script: parse ip like 5.2 -> 5.6667
+                conv = 0.0
+                if ip is not None:
+                    try:
+                        s = str(ip)
+                        if '.' in s:
+                            whole, frac = s.split('.',1)
+                            outs = int(frac)
+                            if outs in (0,1,2):
+                                conv = int(whole) + outs/3.0
+                            else:
+                                conv = float(s)
+                        else:
+                            conv = float(s)
+                    except Exception:
+                        conv = 0.0
+                innings_total += conv
+                try:
+                    so_total += int(st.get('strikeOuts') or 0)
+                except Exception:
+                    pass
+            rec = {
+                'last5_games_started': len(recent),
+                'last5_innings': round(innings_total,1),
+                'last5_strikeouts': so_total
+            }
+            _RECENT_ON_DEMAND_CACHE[norm] = rec
+            return rec
+        except Exception:
+            return None
+
+    # Limit number of on-demand API calls per run
+    on_demand_calls_allowed = 5
     for pname in pitcher_names:
-        key = pname.lower()
+        key = normalize_name(pname)
         pid = None
         stats = None
         # try direct match
@@ -475,7 +723,56 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
         so = int(stats.get('strikeouts', stats.get('strikeOuts', 0) or 0))
         bb = int(stats.get('walks', stats.get('baseOnBalls', 0) or 0))
         avg_ip = ip/gs if gs>0 else 5.0
-        projected_ip = max(3.0, min(8.0, avg_ip))
+        recent_stats = recent_pitcher_stats.get(key)
+        weighted_ip = None
+        recent_ip_per_start = None
+        if recent_stats and isinstance(recent_stats, dict):
+            last_gs = recent_stats.get('last5_games_started') or recent_stats.get('last5_gs')
+            last_ip = recent_stats.get('last5_innings') or recent_stats.get('last5_ip')
+            if isinstance(last_gs,(int,float)) and last_gs and isinstance(last_ip,(int,float)) and last_ip>0:
+                try:
+                    recent_ip_per_start = last_ip / max(1.0, last_gs)
+                    if last_gs >= 3:
+                        weighted_ip = 0.6*avg_ip + 0.4*recent_ip_per_start
+                        recent_used += 1
+                except Exception:
+                    pass
+        else:
+            # Attempt on-demand fetch if limit not exceeded
+            if on_demand_calls_allowed > 0:
+                fetched = _fetch_recent_form_for_pitcher(pname)
+                if fetched:
+                    recent_stats = fetched
+                    last_gs = fetched.get('last5_games_started')
+                    last_ip = fetched.get('last5_innings')
+                    if isinstance(last_gs,(int,float)) and isinstance(last_ip,(int,float)) and last_gs > 0 and last_ip>0:
+                        try:
+                            recent_ip_per_start = last_ip / max(1.0, last_gs)
+                            if last_gs >= 3:
+                                weighted_ip = 0.6*avg_ip + 0.4*recent_ip_per_start
+                                recent_on_demand_used += 1
+                        except Exception:
+                            pass
+                    on_demand_calls_allowed -= 1
+            # If still no stats, synthetic fallback
+            if not recent_stats:
+                synth_starts = min(5, gs if gs else 0)
+                if synth_starts > 0:
+                    synth_ip = synth_starts * avg_ip
+                    synth_ks = round(k_per_ip * synth_ip)
+                    recent_stats = {
+                        'last5_games_started': synth_starts,
+                        'last5_innings': round(synth_ip,1),
+                        'last5_strikeouts': synth_ks,
+                        'synthetic': True
+                    }
+                    synthetic_recent_count += 1
+                    # Use weighting if enough synthetic starts
+                    if synth_starts >= 3:
+                        recent_ip_per_start = synth_ip / synth_starts
+                        weighted_ip = 0.6*avg_ip + 0.4*recent_ip_per_start
+        base_ip_for_proj = weighted_ip if weighted_ip else avg_ip
+        projected_ip = max(3.0, min(8.1, base_ip_for_proj))
         projected_outs = round(projected_ip * 3)
         k_per_ip = (so/ip) if ip>0 else 0.9
         projected_ks = round(k_per_ip * projected_ip, 1)
@@ -491,8 +788,28 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
         game_keys = pitcher_game_index.get(key, [])
         if game_keys:
             g, side = game_keys[0]
-            opponent = g.get('home_team') if side=='away' else g.get('away_team')
-            venue = g.get('home_team')
+            home_team = g.get('home_team') or g.get('homeTeam')
+            away_team = g.get('away_team') or g.get('awayTeam')
+            if side == 'away':
+                opponent = home_team
+            else:
+                opponent = away_team
+            venue = home_team
+        # fallback: attempt to infer from team field if opponent still None
+        if (not opponent) and stats.get('team'):
+            pteam = stats.get('team')
+            # scan games list once (could optimize with pre-index but small list OK)
+            for g in games:
+                at = g.get('away_team') or g.get('awayTeam')
+                ht = g.get('home_team') or g.get('homeTeam')
+                if at == pteam:
+                    opponent = ht
+                    venue = ht
+                    break
+                if ht == pteam:
+                    opponent = at
+                    venue = ht
+                    break
 
         reliability = 'LOW'
         if gs >= 10 and ip >= 50:
@@ -517,6 +834,74 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
         rec_hits = _edge_recommendation('hits_allowed', projected_hits, line_hits)
         rec_walks = _edge_recommendation('walks', projected_walks, line_walks)
 
+        # Adjustments (opponent K rate & park) - placeholders if data unavailable
+        park_factor = None
+        if venue:
+            vkey = normalize_name(venue)
+            park_factor = park_factors.get(vkey)
+            if park_factor is None:
+                # try last word (nickname) heuristic e.g. "Atlanta Braves" -> "braves"
+                parts = vkey.split()
+                if parts:
+                    park_factor = park_factors.get(parts[-1])
+        opp_k_rate = None
+        if opponent:
+            opp_k_rate = batting_k_rates.get(normalize_name(opponent))
+        k_factor = 1.0
+        if opp_k_rate and league_avg_k_factor:
+            try:
+                k_factor *= (opp_k_rate / league_avg_k_factor)
+            except Exception:
+                pass
+        if park_factor and isinstance(park_factor,(int,float)):
+            # assume >1 favors hitters (reduce Ks slightly), <1 favors pitchers (increase Ks)
+            try:
+                k_factor *= (1 - ((park_factor - 1) * 0.5))
+            except Exception:
+                pass
+        # Patience-based outs factor
+        outs_factor = 1.0
+        if opponent:
+            ps = patience_stats.get(normalize_name(opponent))
+            if ps:
+                ppa = ps.get('pitches_per_pa')
+                bb_rate = ps.get('bb_rate')
+                try:
+                    ppa_vals = [v.get('pitches_per_pa') for v in patience_stats.values() if isinstance(v.get('pitches_per_pa'), (int,float))]
+                    bb_vals = [v.get('bb_rate') for v in patience_stats.values() if isinstance(v.get('bb_rate'), (int,float))]
+                    league_ppa = sum(ppa_vals)/len(ppa_vals) if ppa_vals else None
+                    league_bb = sum(bb_vals)/len(bb_vals) if bb_vals else None
+                except Exception:
+                    league_ppa = league_bb = None
+                patience_index = 1.0
+                comps = []
+                if ppa and league_ppa:
+                    comps.append((ppa/league_ppa, 0.6))
+                if bb_rate and league_bb and league_bb>0:
+                    comps.append((bb_rate/league_bb, 0.4))
+                if comps:
+                    try:
+                        patience_index = sum(v*w for v,w in comps) / sum(w for _,w in comps)
+                        outs_factor = max(0.85, min(1.10, 1 - (patience_index-1)*0.18))
+                        patience_used += 1
+                    except Exception:
+                        pass
+        adjusted_ks = round(projected_ks * k_factor, 1)
+        adjusted_outs = round(projected_outs * outs_factor)
+
+        # Record missing inputs
+        pname_out = stats.get('name', pname)
+        if opponent is None:
+            missing_inputs['opponent'].append(pname_out)
+        if park_factor is None:
+            missing_inputs['park_factor'].append(pname_out)
+        if opponent is not None and opp_k_rate is None:
+            missing_inputs['opponent_k_rate'].append(pname_out)
+        if opponent is not None and patience_stats and outs_factor == 1.0:
+            missing_inputs['patience_stats'].append(pname_out)
+        if recent_stats is None:
+            missing_inputs['recent_form'].append(pname_out)
+
         # Edge diffs (projection - line)
         diffs = {
             'outs': projected_outs - line_outs if line_outs is not None else None,
@@ -524,6 +909,10 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
             'earned_runs': projected_er - line_er if line_er is not None else None,
             'hits_allowed': projected_hits - line_hits if line_hits is not None else None,
             'walks': projected_walks - line_walks if line_walks is not None else None,
+        }
+        diffs_adjusted = {
+            'outs': adjusted_outs - line_outs if line_outs is not None else None,
+            'strikeouts': adjusted_ks - line_ks if line_ks is not None else None,
         }
         projections.append({
             'pitcher_id': pid,
@@ -537,6 +926,17 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
             'projected_earned_runs': projected_er,
             'projected_hits_allowed': projected_hits,
             'projected_walks': projected_walks,
+            'adjusted_projections': {
+                'strikeouts': adjusted_ks,
+                'outs': adjusted_outs,
+                'k_factor': round(k_factor,3),
+                'park_factor_used': park_factor,
+                'opponent_k_rate': opp_k_rate,
+                'league_avg_k_rate': league_avg_k_factor if batting_k_rates else None,
+                'outs_factor': outs_factor if outs_factor != 1.0 else None,
+                'recent_ip_weighted': round(weighted_ip,2) if weighted_ip else None,
+                'recent_ip_per_start': round(recent_ip_per_start,2) if recent_ip_per_start else None,
+            },
             'confidence': reliability,
             'lines': {
                 'outs': p_lines.get('outs'),
@@ -553,18 +953,52 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
                 'hits_allowed': rec_hits,
                 'walks': rec_walks
             },
-            'diffs': diffs
+            'diffs': diffs,
+            'diffs_adjusted': diffs_adjusted
         })
-
-    return {
+    # end for pitchers loop
+    result = {
         'date': date_iso,
         'generated_at': datetime.utcnow().isoformat(),
         'pitchers': projections,
         'count': len(projections),
-        'notes': 'Projections derived from season averages; Bovada lines integrated when available.',
+        'notes': 'Season averages baseline + opponent K-rate, park factor, patience (outs), recent form weighted IP when data available.',
         'unmatched_starting_pitchers': unmatched_starting_pitchers,
-        'props_without_start_flag': props_without_start_flag
+        'props_without_start_flag': props_without_start_flag,
+        'adjustment_meta': {
+            'recent_form_pitchers_used': recent_used,
+            'patience_adjustments_used': patience_used,
+            'total_pitchers': len(pitcher_names),
+            'park_factors_count': len(park_factors),
+            'batting_k_rates_count': len(batting_k_rates),
+            'patience_teams_count': len(patience_stats),
+            'recent_pitchers_count': len(recent_pitcher_stats),
+            'park_factor_example_keys': list(park_factors.keys())[:8],
+            'missing_counts': {k: len(v) for k,v in missing_inputs.items()},
+            'recent_form_on_demand_used': recent_on_demand_used,
+            'synthetic_recent_form_count': synthetic_recent_count
+        }
     }
+    # Add truncated lists (first 12 names) for quick inspection
+    result['adjustment_gaps'] = {k: v[:12] for k,v in missing_inputs.items()}
+    # Persist enriched features snapshot (non-fatal on failure)
+    try:
+        out_dir = os.path.join(DATA_DIR, 'daily_bovada')
+        os.makedirs(out_dir, exist_ok=True)
+        with open(os.path.join(out_dir, f'projection_features_{date_us}.json'),'w') as f:
+            json.dump(result, f, indent=2)
+        # concise summary file
+        summary = {
+            'date': date_iso,
+            'generated_at': result['generated_at'],
+            'counts': result['adjustment_meta'],
+            'missing_sample': result['adjustment_gaps']
+        }
+        with open(os.path.join(out_dir, f'adjustment_summary_{date_us}.json'),'w') as f:
+            json.dump(summary, f, indent=2)
+    except Exception:
+        pass
+    return result
 
 if __name__ == '__main__':
     import pprint
