@@ -3575,61 +3575,128 @@ def api_pitcher_validation():
 
 @app.route('/api/pitcher-prop-plays')
 def api_pitcher_prop_plays():
-    """Summarized pitcher prop betting plays grouped by confidence.
+    """Return pitcher prop plays.
 
-    Uses existing compute_pitcher_projections() output. Each play requires:
-      - A sportsbook line present
-      - A model recommendation (OVER/UNDER)
-
-    Grouping relies on the existing per-pitcher confidence classification.
+    Query params:
+      - date=YYYY-MM-DD : single day (default today)
+      - start=YYYY-MM-DD&end=YYYY-MM-DD : inclusive range
+      - month=YYYY-MM (ignored if start/end provided) aggregates entire calendar month
+      - aggregate=1 : if present, returns flat list instead of nested by stat
     """
     try:
-        data = compute_pitcher_projections()
+        from datetime import datetime, timedelta
         stats = ['strikeouts','outs','earned_runs','hits_allowed','walks']
+        date_param = request.args.get('date')
+        start_param = request.args.get('start')
+        end_param = request.args.get('end')
+        month_param = request.args.get('month')
+        aggregate = request.args.get('aggregate') is not None
+        data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
+
+        def _load_day(diso: str):
+            fn = f"pitcher_projections_{diso.replace('-', '_')}.json"
+            path = os.path.join(data_dir, fn)
+            if os.path.exists(path):
+                try:
+                    with open(path,'r') as f:
+                        return json.load(f)
+                except Exception:
+                    return None
+            # Fallback: compute if today
+            if diso == datetime.utcnow().strftime('%Y-%m-%d'):
+                try:
+                    return compute_pitcher_projections()
+                except Exception:
+                    return None
+            return None
+
+        days = []
+        today_iso = datetime.utcnow().strftime('%Y-%m-%d')
+        if start_param and end_param:
+            try:
+                start_dt = datetime.strptime(start_param, '%Y-%m-%d').date()
+                end_dt = datetime.strptime(end_param, '%Y-%m-%d').date()
+                if end_dt < start_dt:
+                    start_dt, end_dt = end_dt, start_dt
+                cur = start_dt
+                while cur <= end_dt:
+                    days.append(cur.strftime('%Y-%m-%d'))
+                    cur += timedelta(days=1)
+            except Exception:
+                pass
+        elif month_param:
+            try:
+                mdt = datetime.strptime(month_param+'-01','%Y-%m-%d').date()
+                # iterate until next month
+                cur = mdt
+                while cur.month == mdt.month:
+                    if cur <= datetime.utcnow().date():
+                        days.append(cur.strftime('%Y-%m-%d'))
+                    cur += timedelta(days=1)
+            except Exception:
+                pass
+        else:
+            diso = date_param if date_param else today_iso
+            days.append(diso)
+
+        all_entries = []
+        for diso in days:
+            day_data = _load_day(diso)
+            if not day_data:
+                continue
+            for p in day_data.get('pitchers', []):
+                conf = (p.get('confidence') or 'LOW').upper()
+                if conf not in ('HIGH','MEDIUM','LOW'):
+                    conf = 'LOW'
+                recs = p.get('recommendations') or {}
+                diffs_adj = p.get('diffs_adjusted') or {}
+                diffs_raw = p.get('diffs') or {}
+                lines = p.get('lines') or {}
+                adj_proj = p.get('adjusted_projections') or {}
+                for stat in stats:
+                    rec = recs.get(stat)
+                    if rec not in ('OVER','UNDER'):
+                        continue
+                    line_obj = lines.get(stat) or {}
+                    line = line_obj.get('line')
+                    if line is None:
+                        continue
+                    diff = diffs_adj.get(stat)
+                    if diff is None:
+                        diff = diffs_raw.get(stat)
+                    entry = {
+                        'date': diso,
+                        'pitcher_name': p.get('pitcher_name'),
+                        'team': p.get('team'),
+                        'opponent': p.get('opponent'),
+                        'stat': stat,
+                        'recommendation': rec,
+                        'line': line,
+                        'projection': p.get(f'projected_{stat}') if stat != 'outs' else p.get('projected_outs'),
+                        'adjusted_projection': adj_proj.get(stat),
+                        'diff': diff,
+                        'confidence': conf,
+                        'over_odds': line_obj.get('over_odds'),
+                        'under_odds': line_obj.get('under_odds')
+                    }
+                    all_entries.append(entry)
+
+        # Group or aggregate
+        if aggregate:
+            return jsonify({'success': True, 'mode': 'aggregate', 'count': len(all_entries), 'plays': all_entries})
         plays_by_stat = {}
-        for p in data.get('pitchers', []):
-            conf = (p.get('confidence') or 'LOW').upper()
-            if conf not in ('HIGH','MEDIUM','LOW'):
-                conf = 'LOW'
-            recs = p.get('recommendations') or {}
-            diffs_adj = p.get('diffs_adjusted') or {}
-            diffs_raw = p.get('diffs') or {}
-            lines = p.get('lines') or {}
-            adj_proj = p.get('adjusted_projections') or {}
-            for stat in stats:
-                rec = recs.get(stat)
-                if rec not in ('OVER','UNDER'):
-                    continue
-                line_obj = lines.get(stat) or {}
-                line = line_obj.get('line')
-                if line is None:
-                    continue
-                diff = diffs_adj.get(stat)
-                if diff is None:
-                    diff = diffs_raw.get(stat)
-                entry = {
-                    'pitcher_name': p.get('pitcher_name'),
-                    'team': p.get('team'),
-                    'opponent': p.get('opponent'),
-                    'stat': stat,
-                    'recommendation': rec,
-                    'line': line,
-                    'projection': p.get(f'projected_{stat}') if stat != 'outs' else p.get('projected_outs'),
-                    'adjusted_projection': adj_proj.get(stat),
-                    'diff': diff,
-                    'confidence': conf,
-                    'over_odds': line_obj.get('over_odds'),
-                    'under_odds': line_obj.get('under_odds')
-                }
-                plays_by_stat.setdefault(stat, {'HIGH': [], 'MEDIUM': [], 'LOW': []})[conf].append(entry)
+        for e in all_entries:
+            stat = e['stat']
+            conf = e['confidence']
+            plays_by_stat.setdefault(stat, {'HIGH': [], 'MEDIUM': [], 'LOW': []})[conf].append(e)
         counts = {'high':0,'medium':0,'low':0}
         for stat_groups in plays_by_stat.values():
             counts['high'] += len(stat_groups['HIGH'])
             counts['medium'] += len(stat_groups['MEDIUM'])
             counts['low'] += len(stat_groups['LOW'])
-        return jsonify({'success': True, 'date': data.get('date'), 'counts': counts, 'plays': plays_by_stat})
+        return jsonify({'success': True, 'dates': days, 'counts': counts, 'plays': plays_by_stat})
     except Exception as e:
-        logger.exception("pitcher prop plays failure")
+        logger.exception('pitcher prop plays failure')
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/pitcher-projections')

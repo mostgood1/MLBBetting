@@ -1139,6 +1139,17 @@ def compute_pitcher_projections(include_lines: bool = True, force_refresh: bool 
             json.dump(validation, f, indent=2)
     except Exception:
         pass
+    # Persist full daily projections snapshot so historical prop queries can be served without recomputation.
+    try:
+        out_dir = os.path.join(DATA_DIR, 'daily_bovada')
+        os.makedirs(out_dir, exist_ok=True)
+        date_us = date_iso.replace('-', '_')
+        snap_path = os.path.join(out_dir, f'pitcher_projections_{date_us}.json')
+        if force_refresh or not os.path.exists(snap_path):
+            with open(snap_path, 'w') as f:
+                json.dump(result, f, indent=2)
+    except Exception:
+        pass
     return result
 
 if __name__ == '__main__':
