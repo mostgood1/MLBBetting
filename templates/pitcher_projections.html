@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pitcher Projections</title>
+<style>
+ body { font-family: Inter, Arial, sans-serif; background:#0b1e39; margin:0; color:#111; }
+ .container { max-width:1200px; margin:0 auto; padding:24px; }
+ .card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:18px; }
+ h1 { color:#163a6b; margin:0 0 10px; }
+ table { width:100%; border-collapse:collapse; }
+ th,td { padding:8px 10px; border-bottom:1px solid #eee; font-size:13px; text-align:left; }
+ .muted { color:#555; font-size:12px; }
+ .badge { padding:3px 7px; border-radius:999px; font-size:11px; font-weight:600; }
+ .badge.HIGH { background:#16a34a; color:#fff; }
+ .badge.MEDIUM { background:#2563eb; color:#fff; }
+ .badge.LOW { background:#eab308; color:#111; }
+ .table-wrap { overflow-x:auto; }
+ .btn { background:#163a6b; color:#fff; padding:8px 14px; border:none; border-radius:8px; cursor:pointer; text-decoration:none; display:inline-block; }
+ @media (max-width:760px){ th,td { font-size:11px; padding:6px 6px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <h1>Pitcher Projections (Daily)</h1>
+      <a class="btn" href="/">⬅ Main</a>
+    </div>
+    <div class="muted" id="meta"></div>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0;">Projected Stats</h2>
+    <div class="muted" style="margin-bottom:8px;">Season-average derived estimates. Lines integration forthcoming.</div>
+    <div class="table-wrap">
+      <table id="proj-table">
+        <thead>
+          <tr>
+            <th>Pitcher</th><th>Team</th><th>Opp</th><th>Outs</th><th>K</th><th>ER</th><th>Hits</th><th>Conf</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+async function loadProjections(){
+  const res = await fetch('/api/pitcher-projections');
+  const js = await res.json();
+  if(!js.success){ document.getElementById('meta').textContent = 'Error loading projections'; return; }
+  const d = js.data;
+  document.getElementById('meta').textContent = `Date ${d.date} • ${d.count} pitchers`;
+  const tbody = document.querySelector('#proj-table tbody');
+  tbody.innerHTML = d.pitchers.map(p=>`<tr>
+    <td>${p.pitcher_name}</td>
+    <td>${p.team||''}</td>
+    <td>${p.opponent||''}</td>
+    <td>${p.projected_outs}</td>
+    <td>${p.projected_strikeouts}</td>
+    <td>${p.projected_earned_runs}</td>
+    <td>${p.projected_hits_allowed}</td>
+    <td><span class="badge ${p.confidence}">${p.confidence}</span></td>
+  </tr>`).join('');
+}
+loadProjections();
+</script>
+</body>
+</html>

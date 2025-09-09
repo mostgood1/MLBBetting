@@ -175,6 +175,8 @@ import schedule
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from pitcher_projections import compute_pitcher_projections  # new import
+
 try:
     from team_assets_utils import get_team_assets, get_team_primary_color, get_team_secondary_color
     TEAM_ASSETS_AVAILABLE = True
@@ -3532,6 +3534,20 @@ def api_stats():
 @app.route('/api/simple-test')
 def simple_test():
     return "Hello World"
+
+@app.route('/api/pitcher-projections')
+def api_pitcher_projections():
+    try:
+        data = compute_pitcher_projections()
+        return jsonify({'success': True, 'data': data})
+    except Exception as e:
+        logger.exception("pitcher projections failure")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/pitcher-projections')
+def pitcher_projections_page():
+    # Simple template-less page using JSON fetch for now
+    return render_template('pitcher_projections.html')
 
 @app.route('/api/betting-analysis-test')
 def betting_analysis_test():
