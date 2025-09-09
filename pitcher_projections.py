@@ -513,6 +513,22 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
             name_lookup[norm] = (pid, info)
 
     games = load_today_games()
+    # Attempt to load canonical schedule file to avoid timezone drift / stale root file
+    schedule_path = os.path.join(DATA_DIR, f'games_{date_iso}.json')
+    if os.path.exists(schedule_path):
+        try:
+            with open(schedule_path,'r') as sf:
+                sched_data = json.load(sf)
+            if isinstance(sched_data, list):
+                # Prefer canonical schedule if it contains more games
+                if len(sched_data) >= len(games):
+                    games = sched_data
+            elif isinstance(sched_data, dict) and 'games' in sched_data:
+                gl = sched_data['games']
+                if isinstance(gl, list) and len(gl) >= len(games):
+                    games = gl
+        except Exception:
+            pass
     pitcher_game_index = _index_games_by_pitcher(games)
 
     # Build team->opponent map from games for cross-reference validation
@@ -523,6 +539,14 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
         if at and ht:
             team_opponent_map[normalize_name(at)] = ht
             team_opponent_map[normalize_name(ht)] = at
+    # Build a set of valid matchup tuples for validation
+    valid_matchups = set()
+    for g in games:
+        at = g.get('away_team') or g.get('awayTeam')
+        ht = g.get('home_team') or g.get('homeTeam')
+        if at and ht:
+            valid_matchups.add((normalize_name(at), normalize_name(ht)))
+            valid_matchups.add((normalize_name(ht), normalize_name(at)))
 
     starting_pitcher_games = load_starting_pitchers(date_us)
     # fallback: derive from games if starting pitcher file missing
@@ -1050,7 +1074,12 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
                 continue
             expected_opp = team_opponent_map.get(normalize_name(t))
             actual_opp = p.get('opponent')
-            if expected_opp and actual_opp and expected_opp != actual_opp:
+            # If opponent missing OR not a valid matchup, correct
+            invalid_pair = False
+            if actual_opp:
+                if (normalize_name(t), normalize_name(actual_opp)) not in valid_matchups:
+                    invalid_pair = True
+            if (expected_opp and actual_opp and expected_opp != actual_opp) or (expected_opp and (not actual_opp)) or invalid_pair:
                 opponent_mismatches.append({
                     'pitcher_id': p.get('pitcher_id'),
                     'pitcher_name': p.get('pitcher_name'),
