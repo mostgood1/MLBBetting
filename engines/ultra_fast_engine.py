@@ -11,6 +11,8 @@ import json
 import os
 import logging
 from datetime import datetime, date
+from typing import Dict
+import numpy as np
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -626,6 +628,160 @@ class FastPredictionEngine:
         self.sim_engine = UltraFastSimEngine(self.data_dir, self.config)
         self.betting_analyzer = SmartBettingAnalyzer(self.config)
         self._load_master_data()
+        # Caches for daily pitcher projection integration
+        self._daily_proj_cache: dict[str, dict] = {}
+        self._bullpen_cache = None
+        self._league_avg_k9 = 8.7  # Approx baseline
+        self._league_avg_bullpen_era = 4.15
+        # Config flags
+        try:
+            from engine_config import config_manager
+            bet_cfg = config_manager.get_betting_config()
+            self._integrate_daily_pitchers = bet_cfg.get('INTEGRATE_DAILY_PITCHERS', True)
+            bw = bet_cfg.get('PITCHER_BLEND_WEIGHTS', (0.6,0.4))
+            if isinstance(bw, (list, tuple)) and len(bw)==2:
+                self._blend_projection_w, self._blend_sim_w = float(bw[0]), float(bw[1])
+            else:
+                self._blend_projection_w, self._blend_sim_w = 0.6, 0.4
+        except Exception:
+            self._integrate_daily_pitchers = True
+            self._blend_projection_w, self._blend_sim_w = 0.6, 0.4
+
+    # ================= Pitcher Projection Integration ==================
+    def _normalize_pitcher_name(self, name: str) -> str:
+        if not name:
+            return ''
+        try:
+            import unicodedata, re
+            name = name.replace('φ','í')
+            base = ''.join(c for c in unicodedata.normalize('NFD', name) if unicodedata.category(c) != 'Mn')
+            base = re.sub(r'\s+',' ', base).strip().lower()
+            return base
+        except Exception:
+            return name.lower().strip()
+
+    def _load_bullpen_stats(self):
+        if self._bullpen_cache is not None:
+            return self._bullpen_cache
+        path = os.path.join(self.data_dir, 'bullpen_stats.json')
+        if os.path.exists(path):
+            try:
+                with open(path,'r') as f:
+                    self._bullpen_cache = json.load(f) or {}
+            except Exception:
+                self._bullpen_cache = {}
+        else:
+            self._bullpen_cache = {}
+        return self._bullpen_cache
+
+    def _load_daily_pitcher_projections(self, game_date: str) -> dict:
+        if game_date in self._daily_proj_cache:
+            return self._daily_proj_cache[game_date]
+        # Prefer existing json artifact to avoid recomputation
+        date_token = game_date.replace('-','_')
+        path = os.path.join(self.data_dir, 'daily_bovada', f'projection_features_{date_token}.json')
+        proj_map = {}
+        data = None
+        if os.path.exists(path):
+            try:
+                with open(path,'r') as f:
+                    data = json.load(f)
+            except Exception:
+                data = None
+        if not data:
+            # As fallback, try live computation (may be slower)
+            try:
+                from pitcher_projections import compute_pitcher_projections
+                data = compute_pitcher_projections(game_date)
+            except Exception:
+                data = None
+        if data and isinstance(data, dict) and 'pitchers' in data:
+            for p in data['pitchers']:
+                nm = self._normalize_pitcher_name(p.get('pitcher_name'))
+                if nm:
+                    proj_map[nm] = p
+        self._daily_proj_cache[game_date] = proj_map
+        return proj_map
+
+    def _lookup_pitcher_projection(self, name: str, game_date: str):
+        mp = self._load_daily_pitcher_projections(game_date)
+        return mp.get(self._normalize_pitcher_name(name))
+
+    def _get_pitcher_id_from_projection(self, name: str, game_date: str) -> str | None:
+        p = self._lookup_pitcher_projection(name, game_date)
+        if p:
+            return str(p.get('pitcher_id')) if p.get('pitcher_id') else None
+        # Fallback: scan master pitcher stats
+        for pid, info in getattr(self.sim_engine, 'pitcher_stats', {}).items():
+            if isinstance(info, dict) and info.get('name','').lower() == (name or '').lower():
+                return str(pid)
+        return None
+
+    def _expected_runs_allowed_plan(self, pitcher_name: str, team_name: str, game_date: str) -> dict:
+        """Compute expected runs allowed by full game pitching plan using daily projections.
+
+        Returns dict with keys: starter_ip, starter_er, strikeout_factor, bullpen_ip, bullpen_era, bullpen_runs, total_runs_allowed
+        """
+        proj = self._lookup_pitcher_projection(pitcher_name, game_date)
+        bullpen_stats = self._load_bullpen_stats()
+        bullpen = bullpen_stats.get(team_name, {}) if isinstance(bullpen_stats, dict) else {}
+        bullpen_era = None
+        for k in ('era','bullpen_era','adjusted_era'):
+            v = bullpen.get(k)
+            if isinstance(v,(int,float)) and v>0:
+                bullpen_era = float(v)
+                break
+        if bullpen_era is None:
+            bullpen_era = self._league_avg_bullpen_era
+        starter_ip = None
+        starter_er = None
+        projected_k = None
+        if proj:
+            outs = proj.get('projected_outs') or proj.get('adjusted_projections', {}).get('outs')
+            if isinstance(outs,(int,float)) and outs>0:
+                starter_ip = float(outs)/3.0
+            starter_er = proj.get('projected_earned_runs') or proj.get('adjusted_projections', {}).get('earned_runs')
+            projected_k = proj.get('projected_strikeouts') or proj.get('adjusted_projections', {}).get('strikeouts')
+        # Fallbacks
+        if starter_ip is None or starter_ip<=0:
+            # Use average from master stats if available
+            starter_ip = 5.2  # default average
+        if starter_er is None:
+            # Approx from pitcher ERA in master stats
+            # Find pitcher in master stats
+            era = None
+            for pid, info in getattr(self.sim_engine, 'pitcher_stats', {}).items():
+                if isinstance(info, dict) and info.get('name','').lower() == (pitcher_name or '').lower():
+                    try:
+                        era = float(info.get('era'))
+                    except Exception:
+                        era = None
+                    break
+            if era is None:
+                era = 4.30
+            starter_er = era/9.0 * starter_ip
+        # Strikeout run suppression factor
+        strikeout_factor = 1.0
+        if projected_k and starter_ip>0 and isinstance(projected_k,(int,float)):
+            k9 = (projected_k / starter_ip) * 9.0
+            try:
+                ratio = max(0.4, min(2.0, k9 / self._league_avg_k9))
+                # Higher K9 reduces runs: inverse power
+                strikeout_factor = max(0.9, min(1.1, (1/ratio)**0.25))
+            except Exception:
+                pass
+        bullpen_ip = max(0.0, 9.0 - starter_ip)
+        bullpen_runs = bullpen_era/9.0 * bullpen_ip
+        total = starter_er * strikeout_factor + bullpen_runs
+        return {
+            'starter_ip': round(starter_ip,2),
+            'starter_er': round(starter_er,2),
+            'strikeout_factor': round(strikeout_factor,4),
+            'bullpen_ip': round(bullpen_ip,2),
+            'bullpen_era': round(bullpen_era,2),
+            'bullpen_runs': round(bullpen_runs,2),
+            'total_runs_allowed': round(total,2)
+        }
     
     def _load_config(self):
         """Load configuration from file with comprehensive optimization priority"""
@@ -715,6 +871,15 @@ class FastPredictionEngine:
         results, pitcher_info = self.sim_engine.simulate_game_vectorized(
             away_team, home_team, sim_count, game_date, away_pitcher, home_pitcher
         )
+
+        # ================= New Pitcher Projection Integration Phase =================
+        try:
+            home_pitching_plan = self._expected_runs_allowed_plan(pitcher_info.get('home_pitcher_name'), home_team, game_date)
+            away_pitching_plan = self._expected_runs_allowed_plan(pitcher_info.get('away_pitcher_name'), away_team, game_date)
+        except Exception:
+            home_pitching_plan = away_pitching_plan = None
+        # If plans available, blend their totals with simulated Poisson base expectation
+        # Derive original lambdas from sample means (will compute later). We'll blend on means after calculation.
         
         # Calculate statistics
         away_scores = [r.away_score for r in results]
@@ -722,9 +887,20 @@ class FastPredictionEngine:
         total_runs = [r.total_runs for r in results]
         home_wins = sum(r.home_wins for r in results)
         
-        avg_away = np.mean(away_scores)
-        avg_home = np.mean(home_scores)
-        avg_total = np.mean(total_runs)
+        avg_away = float(np.mean(away_scores))
+        avg_home = float(np.mean(home_scores))
+        avg_total = float(np.mean(total_runs))
+        if self._integrate_daily_pitchers and home_pitching_plan and away_pitching_plan:
+            # Expected runs for away offense is home pitching plan total_runs_allowed
+            away_expected = home_pitching_plan['total_runs_allowed']
+            home_expected = away_pitching_plan['total_runs_allowed']
+            # Blend: weight projection 0.6, simulation 0.4
+            blended_away = self._blend_projection_w*away_expected + self._blend_sim_w*avg_away
+            blended_home = self._blend_projection_w*home_expected + self._blend_sim_w*avg_home
+            # Ensure non-negative
+            avg_away = max(0.1, blended_away)
+            avg_home = max(0.1, blended_home)
+            avg_total = avg_away + avg_home
         home_win_prob = home_wins / sim_count
         away_win_prob = 1 - home_win_prob
         
@@ -757,6 +933,10 @@ class FastPredictionEngine:
         all_recommendations = ml_recs + total_recs
         execution_time = (datetime.now() - start_time).total_seconds() * 1000
         
+        # Pitcher IDs for audit
+        home_pid = self._get_pitcher_id_from_projection(pitcher_info.get('home_pitcher_name'), game_date)
+        away_pid = self._get_pitcher_id_from_projection(pitcher_info.get('away_pitcher_name'), game_date)
+
         return {
             'away_team': away_team,
             'home_team': home_team,
@@ -775,6 +955,13 @@ class FastPredictionEngine:
             'betting_lines': betting_lines,
             'recommendations': all_recommendations,
             'pitcher_info': pitcher_info,
+            'pitching_integration': {
+                'home_pitching_plan': home_pitching_plan,
+                'away_pitching_plan': away_pitching_plan,
+                'blend_weights': {'projection':self._blend_projection_w,'simulation':self._blend_sim_w} if (self._integrate_daily_pitchers and home_pitching_plan and away_pitching_plan) else None,
+                'home_pitcher_id': home_pid,
+                'away_pitcher_id': away_pid
+            },
             'meta': {
                 'simulations_run': sim_count,
                 'execution_time_ms': round(execution_time, 1),

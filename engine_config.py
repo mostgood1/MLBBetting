@@ -40,7 +40,11 @@ class EngineConfigManager:
                 "kelly_fraction": 0.25,
                 "max_kelly_bet": 10.0,
                 "high_confidence_ev": 0.10,
-                "medium_confidence_ev": 0.05
+                "medium_confidence_ev": 0.05,
+                # New: toggle for integrated daily pitcher projection blending
+                'INTEGRATE_DAILY_PITCHERS': True,
+                # Weight of projection vs simulation when blending expected runs (projection, simulation)
+                'PITCHER_BLEND_WEIGHTS': [0.6, 0.4]
             },
             "simulation_parameters": {
                 "default_sim_count": 2000,
