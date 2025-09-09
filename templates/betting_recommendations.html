@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Daily Betting Recommendations</title>
+<title>Daily Pitcher Prop Recommendations</title>
 <style>
  body { font-family: Inter, Arial, sans-serif; background:#0b1e39; margin:0; color:#111; }
  .container { max-width:1250px; margin:0 auto; padding:24px; }
@@ -34,7 +34,7 @@
   <div class="card">
     <div class="flex" style="justify-content:space-between;">
       <div>
-        <h1>Daily Betting Recommendations</h1>
+  <h1>Daily Pitcher Prop Recommendations</h1>
         <div class="muted" id="meta">Loading...</div>
       </div>
       <div class="flex">
@@ -43,12 +43,40 @@
         <a href="/betting-guidance" class="pill">Kelly Guidance</a>
       </div>
     </div>
-    <div style="margin-top:8px;" class="muted">Stake sizing: HIGH $100 • MEDIUM $50 • LOW $25. EV = expected value edge. Sorted by confidence then EV.</div>
+  <div style="margin-top:8px;" class="muted">Stake sizing: HIGH $100 • MEDIUM $50 • LOW $25. Sorted by confidence then edge (projection vs line).</div>
   </div>
 
   <div class="card" id="summary-card">
-    <h2>Summary</h2>
-    <div class="grid" id="summary-grid"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+      <div style="flex:1;min-width:260px;">
+        <h2 style="margin-top:0;">Summary</h2>
+        <div class="grid" id="summary-grid"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:300px;">
+        <div class="flex" style="gap:6px;">
+          <label class="muted" style="display:flex;align-items:center;gap:4px;font-size:12px;"><input type="checkbox" id="hide-low"/> Hide LOW</label>
+          <label class="muted" style="display:flex;align-items:center;gap:4px;font-size:12px;">
+            Stat:
+            <select id="stat-filter" style="padding:4px 6px;border-radius:6px;border:1px solid #cfe1f8;font-size:12px;">
+              <option value="">All</option>
+              <option value="strikeouts">Strikeouts</option>
+              <option value="outs">Outs</option>
+              <option value="earned_runs">Earned Runs</option>
+              <option value="hits_allowed">Hits Allowed</option>
+              <option value="walks">Walks</option>
+            </select>
+          </label>
+        </div>
+        <div class="flex" style="gap:6px;">
+          <input id="search" placeholder="Search pitcher/team" style="flex:1;padding:6px 8px;border:1px solid #cfe1f8;border-radius:6px;font-size:12px;"/>
+          <button class="pill" onclick="reloadCurrent()">Reload</button>
+        </div>
+        <div class="flex" style="gap:6px;flex-wrap:wrap;">
+          <a href="#" onclick="downloadJSON();return false;" class="pill" style="background:#2563eb;">JSON</a>
+          <a href="#" onclick="downloadCSV();return false;" class="pill" style="background:#0891b2;">CSV</a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -57,89 +85,109 @@
   </div>
 
   <div class="card">
-    <h2>All Recommendations (Table)</h2>
-    <div class="muted" style="margin-bottom:6px;">Download raw: <a href="#" onclick="downloadJSON();return false;">JSON</a></div>
+    <h2>All Pitcher Prop Plays</h2>
     <div class="table-wrap">
       <table id="recs-table">
         <thead>
           <tr>
-            <th>Conf</th><th>Game</th><th>Bet</th><th>Odds</th><th>EV%</th><th>Model Win%</th><th>Stake</th><th>Reason</th>
+            <th>Conf</th><th>Pitcher</th><th>Team</th><th>Opp</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th><th>Stake</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
   </div>
+  <!-- Audit modal removed for pitcher-only view -->
 </div>
 <script>
 const STAKES = { HIGH:100, MEDIUM:50, LOW:25 };
-function fmtEV(v){ if(v==null) return ''; return (Number(v)*100).toFixed(1); }
-function fmtPct(v){ if(v==null) return ''; return (Number(v)*100).toFixed(1)+'%'; }
-function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+let RAW_PROPS = [];
 function confRank(c){ return {HIGH:3, MEDIUM:2, LOW:1}[c]||0; }
-async function loadRecs(){
-  const d = todayISO();
-  const r = await fetch(`/api/betting-recommendations/date/${d}`);
-  const js = await r.json();
-  if(!js.success){ document.getElementById('meta').textContent = 'No recommendations available.'; return; }
-  const recs = js.recommendations || [];
-  document.getElementById('meta').textContent = `Date ${js.date} • ${recs.length} recommendations`;
-  // Sort
-  recs.sort((a,b)=> confRank(b.confidence)-confRank(a.confidence) || (Number(b.expected_value||0)-Number(a.expected_value||0)) );
-  // Summary counts
-  const high = recs.filter(r=>r.confidence==='HIGH');
-  const med = recs.filter(r=>r.confidence==='MEDIUM');
-  const low = recs.filter(r=>r.confidence==='LOW');
+function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+function reloadCurrent(){ loadProps(); }
+function filterProps(){
+  const hideLow = document.getElementById('hide-low').checked;
+  const statFilter = document.getElementById('stat-filter').value;
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  return RAW_PROPS.filter(p=>{
+    if(hideLow && p.confidence==='LOW') return false;
+    if(statFilter && p.stat!==statFilter) return false;
+    if(q){
+      const blob = `${p.pitcher_name} ${p.team} ${p.opponent} ${p.stat} ${p.recommendation}`.toLowerCase();
+      if(!blob.includes(q)) return false;
+    }
+    return true;
+  });
+}
+function renderAll(){
+  const props = filterProps();
+  document.getElementById('meta').textContent = `Date ${todayISO()} • ${props.length} plays (raw ${RAW_PROPS.length})`;
+  props.sort((a,b)=> confRank(b.confidence)-confRank(a.confidence) || (Math.abs(b.diff||0)-Math.abs(a.diff||0)) );
+  const high = props.filter(p=>p.confidence==='HIGH');
+  const med = props.filter(p=>p.confidence==='MEDIUM');
+  const low = props.filter(p=>p.confidence==='LOW');
   const totalStake = high.length*STAKES.HIGH + med.length*STAKES.MEDIUM + low.length*STAKES.LOW;
-  const sg = document.getElementById('summary-grid');
-  sg.innerHTML = '';
-  const blocks = [
-    ['High Conf', high.length],
-    ['Medium Conf', med.length],
-    ['Low Conf', low.length],
-    ['Total Stake', `$${totalStake}`],
-    ['Source', js.summary?.source || 'engine']
-  ];
+  const sg = document.getElementById('summary-grid'); sg.innerHTML='';
+  const blocks = [ ['High', high.length], ['Medium', med.length], ['Low', low.length], ['Total Plays', props.length], ['Total Stake', `$${totalStake}`] ];
   blocks.forEach(b=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${b[1]}</div><div class='muted'>${b[0]}</div>`; sg.appendChild(d); });
   // Grouped section
   const grouped = { HIGH: high, MEDIUM: med, LOW: low };
   const gdiv = document.getElementById('recs-grouped');
   gdiv.innerHTML = Object.keys(grouped).map(conf=>{
-     const arr = grouped[conf];
-     if(!arr.length) return `<div style='margin-bottom:12px;'><h3 style='margin:4px 0;'>${conf}</h3><div class='muted'>None</div></div>`;
-     return `<div style='margin-bottom:18px;'>
-       <h3 style='margin:4px 0;'>${conf} <span class='badge ${conf}' style='vertical-align:middle;'>${conf}</span> <span class='muted' style='font-weight:400;'>(${arr.length} bets • Stake $${STAKES[conf]})</span></h3>
-       <table style='width:100%; border-collapse:collapse;'>
-         <thead><tr><th style='text-align:left;'>Game</th><th>Bet</th><th>Odds</th><th>EV%</th><th>Model%</th><th>Stake</th></tr></thead>
-         <tbody>
-           ${arr.map(r=>`<tr>
-             <td>${r.game}</td>
-             <td>${r.type.toUpperCase()} ${r.recommendation}</td>
-             <td>${r.american_odds}</td>
-             <td class='ev-pos'>${fmtEV(r.expected_value)}</td>
-             <td>${fmtPct(r.win_probability)}</td>
-             <td class='stake'>$${STAKES[conf]}</td>
-           </tr>`).join('')}
-         </tbody>
-       </table>
-     </div>`;
+    const arr = grouped[conf];
+    if(!arr.length) return `<div style='margin-bottom:12px;'><h3 style='margin:4px 0;'>${conf}</h3><div class='muted'>None</div></div>`;
+    return `<div style='margin-bottom:18px;'>
+      <h3 style='margin:4px 0;'>${conf} <span class='badge ${conf}' style='vertical-align:middle;'>${conf}</span> <span class='muted' style='font-weight:400;'>(${arr.length} plays • Stake $${STAKES[conf]})</span></h3>
+      <table style='width:100%; border-collapse:collapse;'>
+        <thead><tr><th>Pitcher</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th><th>Stake</th></tr></thead>
+        <tbody>
+          ${arr.map(p=>`<tr>
+            <td>${p.pitcher_name}</td>
+            <td>${prettyStat(p.stat)}</td>
+            <td>${formatLine(p)}</td>
+            <td>${fmtVal(p.projection)}</td>
+            <td>${fmtVal(p.adjusted_projection)}</td>
+            <td>${fmtDiff(p.diff, p.stat)}</td>
+            <td>${p.recommendation}</td>
+            <td>${p.odds_display||''}</td>
+            <td class='stake'>$${STAKES[conf]}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
   }).join('');
   // Full table
   const tbody = document.querySelector('#recs-table tbody');
-  tbody.innerHTML = recs.map(r=>`<tr>
-    <td><span class='badge ${r.confidence}'>${r.confidence}</span></td>
-    <td>${r.game}</td>
-    <td>${r.type.toUpperCase()} ${r.recommendation}</td>
-    <td>${r.american_odds}</td>
-    <td class='ev-pos'>${fmtEV(r.expected_value)}</td>
-    <td>${fmtPct(r.win_probability)}</td>
-    <td>$${STAKES[r.confidence]||0}</td>
-    <td>${r.reasoning||''}</td>
+  tbody.innerHTML = props.map(p=>`<tr>
+    <td><span class='badge ${p.confidence}'>${p.confidence}</span></td>
+    <td>${p.pitcher_name}</td>
+    <td>${p.team||''}</td>
+    <td>${p.opponent||''}</td>
+    <td>${prettyStat(p.stat)}</td>
+    <td>${formatLine(p)}</td>
+    <td>${fmtVal(p.projection)}</td>
+    <td>${fmtVal(p.adjusted_projection)}</td>
+    <td>${fmtDiff(p.diff, p.stat)}</td>
+    <td>${p.recommendation}</td>
+    <td>${p.odds_display||''}</td>
+    <td>$${STAKES[p.confidence]||0}</td>
   </tr>`).join('');
-  window._bettingRecs = recs;
 }
-function downloadJSON(){ if(!window._bettingRecs) return; const blob=new Blob([JSON.stringify(window._bettingRecs,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`betting_recommendations_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},300); }
-loadRecs();
+function fmtVal(v){ if(v==null) return ''; return (typeof v==='number')? (Number.isInteger(v)? v : v.toFixed(1)) : v; }
+function fmtDiff(d, stat){ if(d==null) return ''; const sign = d>0?'+':''; const prec = stat==='outs'?0:1; return `${sign}${d.toFixed(prec)}`; }
+function prettyStat(s){ return {strikeouts:'K', outs:'Outs', earned_runs:'ER', hits_allowed:'Hits', walks:'BB'}[s]||s; }
+function formatLine(p){ if(p.line==null) return ''; return p.line; }
+async function loadProps(){
+  try{ const r = await fetch('/api/pitcher-prop-plays'); const js = await r.json(); if(!js.success){ document.getElementById('meta').textContent='No data'; return; }
+    const plays = js.plays || {}; const flat=[]; Object.keys(plays).forEach(stat=>{ const grp=plays[stat]; ['HIGH','MEDIUM','LOW'].forEach(conf=>{ (grp[conf]||[]).forEach(item=>{ const odds = item.recommendation==='OVER'? item.over_odds : item.under_odds; item.odds_display = odds!=null ? (odds>0?`+${odds}`:odds) : ''; flat.push(item); }); }); }); RAW_PROPS = flat; renderAll(); }
+  catch(e){ console.warn('loadProps failed', e); document.getElementById('meta').textContent='Error loading'; }
+}
+document.getElementById('hide-low').addEventListener('change', renderAll);
+document.getElementById('stat-filter').addEventListener('change', renderAll);
+document.getElementById('search').addEventListener('input', function(){ clearTimeout(this._t); this._t=setTimeout(renderAll,200); });
+function downloadJSON(){ if(!RAW_PROPS.length) return; const blob=new Blob([JSON.stringify(RAW_PROPS,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`pitcher_prop_recs_${todayISO()}.json`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},300); }
+function downloadCSV(){ if(!RAW_PROPS.length) return; const headers=['date','confidence','pitcher','team','opponent','stat','recommendation','line','projection','adjusted_projection','diff','odds','stake']; const lines=[headers.join(',')]; RAW_PROPS.forEach(p=>{ const stake=STAKES[p.confidence]||0; lines.push([todayISO(),p.confidence,p.pitcher_name,p.team,p.opponent,p.stat,p.recommendation,p.line,p.projection,p.adjusted_projection,p.diff,p.odds_display,stake].map(x=>`"${(x??'').toString().replace(/"/g,'""')}"`).join(',')); }); const blob=new Blob([lines.join('\n')],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`pitcher_prop_recs_${todayISO()}.csv`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},300); }
+loadProps();
 </script>
 </body>
 </html>

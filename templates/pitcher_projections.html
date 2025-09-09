@@ -16,7 +16,14 @@
  .badge.HIGH { background:#16a34a; color:#fff; }
  .badge.MEDIUM { background:#2563eb; color:#fff; }
  .badge.LOW { background:#eab308; color:#111; }
- .table-wrap { overflow-x:hidden; }
+ .table-wrap { overflow-x:auto; overflow-y:visible; position:relative; -webkit-overflow-scrolling:touch; }
+ /* Dynamic width so advanced columns aren't clipped */
+ .table-wrap:not(.hide-adv) #proj-table { min-width:1800px; }
+ .table-wrap.hide-adv #proj-table { min-width:1100px; }
+ /* Keep header row readable while scrolling */
+ #proj-table thead th { position:sticky; top:0; background:#f3f6fa; z-index:5; }
+ /* Freeze first column (Pitcher) */
+ #proj-table th:first-child, #proj-table td:first-child { position:sticky; left:0; background:#fff; z-index:6; box-shadow:2px 0 4px rgba(0,0,0,0.06); }
  .compact th, .compact td { white-space:nowrap; }
  .hide-adv .col-adv { display:none; }
  .col-group { background:#f5f7fb; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; }

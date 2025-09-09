@@ -3642,6 +3642,130 @@ def betting_recommendations_page():
     """Daily betting recommendations page (confidence grouped)."""
     return render_template('betting_recommendations.html')
 
+@app.route('/api/betting-recommendations/available-dates')
+def api_betting_recommendations_available_dates():
+    """List dates for which betting recommendations files exist."""
+    try:
+        dates = []
+        data_dir = os.path.join(os.path.dirname(__file__), 'data')
+        for fname in os.listdir(data_dir):
+            if fname.startswith('betting_recommendations_') and fname.endswith('.json'):
+                core = fname[len('betting_recommendations_'):-len('.json')]
+                core = core.replace('_enhanced','')
+                # normalize underscores
+                core = core.rstrip('_enhanced')
+                if '_' in core:
+                    parts = core.split('_')
+                    if len(parts)==3 and all(p.isdigit() for p in parts):
+                        dates.append(f"{parts[0]}-{parts[1]}-{parts[2]}")
+                elif '-' in core:
+                    dates.append(core)
+        dates = sorted(set(dates))
+        return jsonify({'success': True, 'dates': dates})
+    except Exception as e:
+        logger.exception('available dates failure')
+        return jsonify({'success': False, 'error': str(e), 'dates': []}), 500
+
+@app.route('/api/betting-recommendations/confidence-history')
+def api_betting_recommendations_confidence_history():
+    """Return expected profit history (EV * stake) by confidence over last N days (default 30)."""
+    try:
+        from datetime import datetime, timedelta
+        days = int(request.args.get('days', 30))
+        now = datetime.utcnow().date()
+        start = now - timedelta(days=days-1)
+        stk = {'HIGH':100,'MEDIUM':50,'LOW':25}
+        data_dir = os.path.join(os.path.dirname(__file__), 'data')
+        history = []
+        for fname in os.listdir(data_dir):
+            if not fname.startswith('betting_recommendations_') or not fname.endswith('.json'):
+                continue
+            core = fname[len('betting_recommendations_'):-len('.json')]
+            core = core.replace('_enhanced','')
+            dt = None
+            if '_' in core:
+                parts = core.split('_')
+                if len(parts)==3 and all(p.isdigit() for p in parts):
+                    try:
+                        dt = datetime(int(parts[0]), int(parts[1]), int(parts[2])).date()
+                    except Exception:
+                        continue
+            elif '-' in core:
+                try:
+                    dt = datetime.strptime(core, '%Y-%m-%d').date()
+                except Exception:
+                    continue
+            if not dt or dt < start or dt > now:
+                continue
+            fpath = os.path.join(data_dir, fname)
+            try:
+                with open(fpath,'r') as f:
+                    js = json.load(f)
+            except Exception:
+                continue
+            games = js.get('games', {})
+            recs = []
+            for gdat in games.values():
+                for vb in gdat.get('value_bets', []) or []:
+                    recs.append(vb)
+            totals = {'HIGH':0.0,'MEDIUM':0.0,'LOW':0.0}
+            counts = {'HIGH':0,'MEDIUM':0,'LOW':0}
+            for r in recs:
+                conf = str(r.get('confidence','')).upper()
+                if conf not in totals:
+                    continue
+                ev = r.get('expected_value') or 0.0
+                try:
+                    evf = float(ev)
+                except Exception:
+                    evf = 0.0
+                totals[conf] += evf * stk[conf]
+                counts[conf] += 1
+            history.append({
+                'date': dt.isoformat(),
+                'expected_profit': totals,
+                'counts': counts
+            })
+        history.sort(key=lambda x: x['date'])
+        return jsonify({'success': True, 'history': history})
+    except Exception as e:
+        logger.exception('confidence history failure')
+        return jsonify({'success': False, 'error': str(e), 'history': []}), 500
+
+@app.route('/api/betting-recommendations/game-audit/<date>/<path:game_display>')
+def api_betting_recommendations_game_audit(date, game_display):
+    """Return run blend audit for a game (date format YYYY-MM-DD, game_display like 'Away @ Home')."""
+    try:
+        game_key = game_display.replace(' @ ', '_vs_')
+        # Load predictions cache
+        cache_path = os.path.join(os.path.dirname(__file__), 'data', 'unified_predictions_cache.json')
+        if not os.path.exists(cache_path):
+            return jsonify({'success': False, 'error': 'predictions cache missing'})
+        with open(cache_path,'r') as f:
+            cache = json.load(f)
+        games_blob = None
+        if date in cache:
+            games_blob = cache[date]
+        elif 'predictions_by_date' in cache and date in cache['predictions_by_date']:
+            games_blob = cache['predictions_by_date'][date]
+        if games_blob and 'games' in games_blob:
+            games_blob = games_blob['games']
+        if not isinstance(games_blob, dict):
+            return jsonify({'success': False, 'error': 'no games for date'})
+        gdat = games_blob.get(game_key)
+        if not gdat:
+            return jsonify({'success': False, 'error': 'game not found'})
+        audit = (gdat.get('pitching_integration') or {}).get('run_blend_audit') or gdat.get('run_blend_audit')
+        core = {
+            'predictions': gdat.get('predictions'),
+            'pitching_integration': gdat.get('pitching_integration'),
+            'run_blend_audit': audit
+        }
+        return jsonify({'success': True, 'game_key': game_key, 'audit': core})
+    except Exception as e:
+        logger.exception('game audit failure')
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/betting-analysis-test')
 def betting_analysis_test():
     """Simple test route to check if routes work right here"""
