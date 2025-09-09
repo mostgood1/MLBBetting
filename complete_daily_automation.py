@@ -537,6 +537,22 @@ def complete_daily_automation():
     except Exception as e:
         logger.warning(f"⚠️ Weekly retune auto-trigger failed: {e}")
 
+    # Step 8: Update historical pitcher prop dataset (append today's rows)
+    try:
+        logger.info("\n📚 STEP 8: Updating Historical Pitcher Prop Dataset")
+        from historical_pitcher_prop_dataset import build_dataset as _build_hist
+        _build_hist()
+    except Exception as e:
+        logger.warning(f"Could not update historical pitcher prop dataset: {e}")
+
+    # Step 9: Backfill actual outcomes for previous days (box score Ks & outs)
+    try:
+        logger.info("\n🎯 STEP 9: Updating Actual Pitcher Prop Outcomes")
+        import update_pitcher_prop_outcomes as _upo
+        _upo.update_outcomes()
+    except Exception as e:
+        logger.warning(f"Could not update pitcher prop outcomes: {e}")
+
     if all_success:
         logger.info("\n🎉 ALL STEPS COMPLETED SUCCESSFULLY!")
         logger.info(f"🎯 Ready for MLB betting analysis on {today}")
