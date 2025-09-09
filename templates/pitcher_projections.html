@@ -16,7 +16,10 @@
  .badge.HIGH { background:#16a34a; color:#fff; }
  .badge.MEDIUM { background:#2563eb; color:#fff; }
  .badge.LOW { background:#eab308; color:#111; }
- .table-wrap { overflow-x:auto; }
+ .table-wrap { overflow-x:hidden; }
+ .compact th, .compact td { white-space:nowrap; }
+ .hide-adv .col-adv { display:none; }
+ .col-group { background:#f5f7fb; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; }
  .btn { background:#163a6b; color:#fff; padding:8px 14px; border:none; border-radius:8px; cursor:pointer; text-decoration:none; display:inline-block; }
  .edge-pos { background:rgba(34,197,94,0.18); }
  .edge-neg { background:rgba(239,68,68,0.18); }
@@ -37,6 +40,9 @@
           <input type="checkbox" id="toggle-nolines" onchange="renderRows()" /> Hide no-line rows
         </label>
         <label style="font-size:12px;display:flex;align-items:center;gap:4px;color:#163a6b;background:#fff;padding:4px 8px;border-radius:6px;">
+          <input type="checkbox" id="toggle-adv" checked onchange="toggleAdvanced()" /> Show advanced cols
+        </label>
+        <label style="font-size:12px;display:flex;align-items:center;gap:4px;color:#163a6b;background:#fff;padding:4px 8px;border-radius:6px;">
           Sort:
           <select id="sort-edge" onchange="renderRows()" style="font-size:12px;">
             <option value="">None</option>
@@ -55,16 +61,17 @@
     <h2 style="margin-top:0;">Projected Stats</h2>
   <div class="muted" style="margin-bottom:8px;">Season-average derived estimates with live Bovada lines (if available). Alt K ladder thresholds displayed.</div>
     <div class="table-wrap">
-      <table id="proj-table">
+  <table id="proj-table" class="compact">
         <thead>
           <tr>
-            <th>Pitcher</th><th>Team</th><th>Opp</th>
-            <th>Outs</th><th>Line</th><th>Rec</th>
-            <th>K</th><th>Line (Odds)</th><th>Rec</th><th>Alt K</th>
-            <th>ER</th><th>Line</th><th>Rec</th>
-            <th>Hits</th><th>Line</th><th>Rec</th>
-            <th>Walks</th><th>Line</th><th>Rec</th>
-            <th>Conf</th>
+    <th>Pitcher</th><th>Team</th><th>Opp</th>
+    <th title="Projected outs (raw model)">Outs</th><th title="Sportsbook line">Line</th><th>Rec</th>
+    <th title="Projected strikeouts">K</th><th>Line (Odds)</th><th>Rec</th>
+    <th class="col-adv" title="Alternate strikeout ladder thresholds">Alt K</th>
+    <th class="col-adv" title="Projected earned runs">ER</th><th class="col-adv">Line</th><th class="col-adv">Rec</th>
+    <th class="col-adv" title="Projected hits allowed">Hits</th><th class="col-adv">Line</th><th class="col-adv">Rec</th>
+    <th class="col-adv" title="Projected walks">BB</th><th class="col-adv">Line</th><th class="col-adv">Rec</th>
+    <th title="Data quality / reliability classification (HIGH=full context factors applied)">Conf</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -101,6 +108,9 @@ function renderRows(){
   if(sortKey){
     data.sort((a,b)=>{ const da = Math.abs((a.diffs||{})[sortKey]||0); const db = Math.abs((b.diffs||{})[sortKey]||0); return db-da; });
   }
+  const showAdv = document.getElementById('toggle-adv').checked;
+  const cls = showAdv? '' : 'hide-adv';
+  tbody.parentElement.parentElement.className = 'table-wrap '+cls;
   tbody.innerHTML = data.map(p=>`<tr>
     <td>${p.pitcher_name}</td>
     <td>${p.team||''}</td>
@@ -111,19 +121,20 @@ function renderRows(){
   <td>${p.projected_strikeouts}</td>
   <td>${formatLine(p.lines.strikeouts)}</td>
     <td class="${edgeClass(p,'strikeouts')}">${p.recommendations.strikeouts??''}${edgeDiff(p,'strikeouts')}</td>
-    <td title="${altKTooltip(p)}">${(p.lines.strikeouts_alts||p.strikeouts_alts||[]).map(a=>a.threshold).join(', ')}</td>
-  <td>${p.projected_earned_runs}</td>
-  <td>${formatLine(p.lines.earned_runs)}</td>
-  <td class="${edgeClass(p,'earned_runs')}">${p.recommendations.earned_runs??''}${edgeDiff(p,'earned_runs')}</td>
-  <td>${p.projected_hits_allowed}</td>
-    <td>${formatLine(p.lines.hits_allowed)}</td>
-    <td class="${edgeClass(p,'hits_allowed')}">${p.recommendations.hits_allowed??''}${edgeDiff(p,'hits_allowed')}</td>
-  <td>${p.projected_walks??''}</td>
-  <td>${formatLine(p.lines.walks)}</td>
-  <td class="${edgeClass(p,'walks')}">${p.recommendations.walks??''}${edgeDiff(p,'walks')}</td>
+    <td class="col-adv" title="${altKTooltip(p)}">${(p.lines.strikeouts_alts||p.strikeouts_alts||[]).map(a=>a.threshold).join(', ')}</td>
+  <td class="col-adv">${p.projected_earned_runs}</td>
+  <td class="col-adv">${formatLine(p.lines.earned_runs)}</td>
+  <td class="col-adv ${edgeClass(p,'earned_runs')}">${p.recommendations.earned_runs??''}${edgeDiff(p,'earned_runs')}</td>
+  <td class="col-adv">${p.projected_hits_allowed}</td>
+    <td class="col-adv">${formatLine(p.lines.hits_allowed)}</td>
+    <td class="col-adv ${edgeClass(p,'hits_allowed')}">${p.recommendations.hits_allowed??''}${edgeDiff(p,'hits_allowed')}</td>
+  <td class="col-adv">${p.projected_walks??''}</td>
+  <td class="col-adv">${formatLine(p.lines.walks)}</td>
+  <td class="col-adv ${edgeClass(p,'walks')}">${p.recommendations.walks??''}${edgeDiff(p,'walks')}</td>
     <td><span class="badge ${p.confidence}">${p.confidence}</span></td>
   </tr>`).join('');
 }
+function toggleAdvanced(){ renderRows(); }
 loadProjections();
 function formatLine(obj){
   if(!obj || obj.line==null) return '';

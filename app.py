@@ -3544,6 +3544,65 @@ def api_pitcher_projections():
         logger.exception("pitcher projections failure")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/pitcher-prop-plays')
+def api_pitcher_prop_plays():
+    """Summarized pitcher prop betting plays grouped by confidence.
+
+    Uses existing compute_pitcher_projections() output. Each play requires:
+      - A sportsbook line present
+      - A model recommendation (OVER/UNDER)
+
+    Grouping relies on the existing per-pitcher confidence classification.
+    """
+    try:
+        data = compute_pitcher_projections()
+        stats = ['strikeouts','outs','earned_runs','hits_allowed','walks']
+        plays_by_stat = {}
+        for p in data.get('pitchers', []):
+            conf = (p.get('confidence') or 'LOW').upper()
+            if conf not in ('HIGH','MEDIUM','LOW'):
+                conf = 'LOW'
+            recs = p.get('recommendations') or {}
+            diffs_adj = p.get('diffs_adjusted') or {}
+            diffs_raw = p.get('diffs') or {}
+            lines = p.get('lines') or {}
+            adj_proj = p.get('adjusted_projections') or {}
+            for stat in stats:
+                rec = recs.get(stat)
+                if rec not in ('OVER','UNDER'):
+                    continue
+                line_obj = lines.get(stat) or {}
+                line = line_obj.get('line')
+                if line is None:
+                    continue
+                diff = diffs_adj.get(stat)
+                if diff is None:
+                    diff = diffs_raw.get(stat)
+                entry = {
+                    'pitcher_name': p.get('pitcher_name'),
+                    'team': p.get('team'),
+                    'opponent': p.get('opponent'),
+                    'stat': stat,
+                    'recommendation': rec,
+                    'line': line,
+                    'projection': p.get(f'projected_{stat}') if stat != 'outs' else p.get('projected_outs'),
+                    'adjusted_projection': adj_proj.get(stat),
+                    'diff': diff,
+                    'confidence': conf,
+                    'over_odds': line_obj.get('over_odds'),
+                    'under_odds': line_obj.get('under_odds')
+                }
+                plays_by_stat.setdefault(stat, {'HIGH': [], 'MEDIUM': [], 'LOW': []})[conf].append(entry)
+        counts = {'high':0,'medium':0,'low':0}
+        for stat_groups in plays_by_stat.values():
+            counts['high'] += len(stat_groups['HIGH'])
+            counts['medium'] += len(stat_groups['MEDIUM'])
+            counts['low'] += len(stat_groups['LOW'])
+        return jsonify({'success': True, 'date': data.get('date'), 'counts': counts, 'plays': plays_by_stat})
+    except Exception as e:
+        logger.exception("pitcher prop plays failure")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/pitcher-projections')
 def pitcher_projections_page():
     # Simple template-less page using JSON fetch for now
