@@ -707,6 +707,12 @@ class FastPredictionEngine:
         mp = self._load_daily_pitcher_projections(game_date)
         return mp.get(self._normalize_pitcher_name(name))
 
+    def _corrected_opponent(self, pitcher_name: str, game_date: str) -> Optional[str]:
+        p = self._lookup_pitcher_projection(pitcher_name, game_date)
+        if p:
+            return p.get('opponent')
+        return None
+
     def _get_pitcher_id_from_projection(self, name: str, game_date: str) -> str | None:
         p = self._lookup_pitcher_projection(name, game_date)
         if p:

@@ -515,6 +515,15 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
     games = load_today_games()
     pitcher_game_index = _index_games_by_pitcher(games)
 
+    # Build team->opponent map from games for cross-reference validation
+    team_opponent_map: Dict[str, str] = {}
+    for g in games:
+        at = g.get('away_team') or g.get('awayTeam')
+        ht = g.get('home_team') or g.get('homeTeam')
+        if at and ht:
+            team_opponent_map[normalize_name(at)] = ht
+            team_opponent_map[normalize_name(ht)] = at
+
     starting_pitcher_games = load_starting_pitchers(date_us)
     # fallback: derive from games if starting pitcher file missing
     derived_pitchers = []
@@ -979,6 +988,34 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
             'synthetic_recent_form_count': synthetic_recent_count
         }
     }
+    # Cross-reference opponent correctness using team_opponent_map
+    opponent_corrections = []
+    if team_opponent_map:
+        for p in result['pitchers']:
+            team_nm = p.get('team')
+            if not team_nm:
+                continue
+            mapped_opp = team_opponent_map.get(normalize_name(team_nm))
+            if not mapped_opp:
+                continue
+            current_opp = p.get('opponent')
+            # If opponent missing or mismatched, correct it
+            if (not current_opp) or (current_opp != mapped_opp):
+                p['opponent_corrected_from'] = current_opp
+                p['opponent'] = mapped_opp
+                p['opponent_corrected'] = True
+                opponent_corrections.append({
+                    'pitcher_id': p.get('pitcher_id'),
+                    'pitcher_name': p.get('pitcher_name'),
+                    'team': team_nm,
+                    'old_opponent': current_opp,
+                    'new_opponent': mapped_opp
+                })
+    if opponent_corrections:
+        result['opponent_corrections'] = opponent_corrections
+        result['adjustment_meta']['opponent_corrections_count'] = len(opponent_corrections)
+    else:
+        result['adjustment_meta']['opponent_corrections_count'] = 0
     # Add truncated lists (first 12 names) for quick inspection
     result['adjustment_gaps'] = {k: v[:12] for k,v in missing_inputs.items()}
     # Persist enriched features snapshot (non-fatal on failure)
