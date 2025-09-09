@@ -259,7 +259,8 @@ def complete_daily_automation():
     logger.info("\n🧠 STEP 2.6: Generating Daily Pitcher Projections & Bovada Props")
     try:
         from pitcher_projections import compute_pitcher_projections as _compute_pitcher_projections
-        proj = _compute_pitcher_projections(include_lines=True)
+        # Force refresh to avoid stale cached props / projections
+        proj = _compute_pitcher_projections(include_lines=True, force_refresh=True)
         pitchers_count = proj.get('count')
         corrections = proj.get('adjustment_meta', {}).get('opponent_corrections_count') if isinstance(proj.get('adjustment_meta'), dict) else None
         logger.info(f"✅ Pitcher projections generated: {pitchers_count} pitchers (opponent corrections: {corrections})")

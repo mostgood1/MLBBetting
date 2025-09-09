@@ -501,7 +501,7 @@ def _edge_recommendation(stat: str, proj: float, line: Optional[float]) -> Optio
         if diff <= -0.8: return 'OVER'
     return None
 
-def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
+def compute_pitcher_projections(include_lines: bool = True, force_refresh: bool = False) -> Dict[str, Any]:
     date_iso, date_us = _today_dates()
     master_stats = load_master_pitcher_stats()
     # build name lookup from master stats
@@ -579,6 +579,11 @@ def compute_pitcher_projections(include_lines: bool = True) -> Dict[str, Any]:
     pitcher_names = [p for p in pitcher_names if not _is_placeholder(p)]
 
     projections = []
+    # Optionally clear cached Bovada props to force a fresh fetch
+    global _BOVADA_CACHE, _BOVADA_CACHE_EXPIRY
+    if force_refresh:
+        _BOVADA_CACHE = {}
+        _BOVADA_CACHE_EXPIRY = 0.0
     line_map = fetch_bovada_pitcher_props(pitcher_names=pitcher_names) if include_lines else {}
 
     # Ensure pitcher list covers all starters in games that have lines

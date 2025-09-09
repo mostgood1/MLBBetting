@@ -3637,6 +3637,11 @@ def pitcher_projections_page():
     # Simple template-less page using JSON fetch for now
     return render_template('pitcher_projections.html')
 
+@app.route('/betting-recommendations')
+def betting_recommendations_page():
+    """Daily betting recommendations page (confidence grouped)."""
+    return render_template('betting_recommendations.html')
+
 @app.route('/api/betting-analysis-test')
 def betting_analysis_test():
     """Simple test route to check if routes work right here"""

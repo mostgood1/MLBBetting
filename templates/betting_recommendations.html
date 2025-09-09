@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Daily Betting Recommendations</title>
+<style>
+ body { font-family: Inter, Arial, sans-serif; background:#0b1e39; margin:0; color:#111; }
+ .container { max-width:1250px; margin:0 auto; padding:24px; }
+ .card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:18px; }
+ h1 { color:#163a6b; margin:0 0 6px; }
+ h2 { color:#163a6b; margin:0 0 10px; }
+ table { width:100%; border-collapse:collapse; }
+ th,td { padding:8px 10px; border-bottom:1px solid #eee; font-size:13px; text-align:left; }
+ th { background:#f5f7fb; font-weight:600; }
+ .muted { color:#555; font-size:12px; }
+ .badge { padding:4px 8px; border-radius:999px; font-size:11px; font-weight:600; }
+ .badge.HIGH { background:#16a34a; color:#fff; }
+ .badge.MEDIUM { background:#2563eb; color:#fff; }
+ .badge.LOW { background:#eab308; color:#111; }
+ .pill { background:#163a6b; color:#fff; padding:6px 10px; border-radius:8px; font-size:12px; text-decoration:none; display:inline-block; }
+ .flex { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+ .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:14px; }
+ .stat { background:#f8fbff; border:1px solid #e2ecf7; border-radius:12px; padding:14px; }
+ .stat .num { font-size:24px; font-weight:700; color:#163a6b; }
+ .ev-pos { color:#166534; font-weight:600; }
+ .section-sep { border:0; border-top:1px solid #e5eaf1; margin:24px 0 12px; }
+ .stake { font-weight:600; }
+ @media (max-width:760px){ th,td { font-size:11px; padding:6px 6px; } h1 { font-size:22px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="flex" style="justify-content:space-between;">
+      <div>
+        <h1>Daily Betting Recommendations</h1>
+        <div class="muted" id="meta">Loading...</div>
+      </div>
+      <div class="flex">
+        <a href="/" class="pill">⬅ Main</a>
+        <a href="/pitcher-projections" class="pill">Pitcher Projections</a>
+        <a href="/betting-guidance" class="pill">Kelly Guidance</a>
+      </div>
+    </div>
+    <div style="margin-top:8px;" class="muted">Stake sizing: HIGH $100 • MEDIUM $50 • LOW $25. EV = expected value edge. Sorted by confidence then EV.</div>
+  </div>
+
+  <div class="card" id="summary-card">
+    <h2>Summary</h2>
+    <div class="grid" id="summary-grid"></div>
+  </div>
+
+  <div class="card">
+    <h2>Recommendations (Grouped)</h2>
+    <div id="recs-grouped"></div>
+  </div>
+
+  <div class="card">
+    <h2>All Recommendations (Table)</h2>
+    <div class="muted" style="margin-bottom:6px;">Download raw: <a href="#" onclick="downloadJSON();return false;">JSON</a></div>
+    <div class="table-wrap">
+      <table id="recs-table">
+        <thead>
+          <tr>
+            <th>Conf</th><th>Game</th><th>Bet</th><th>Odds</th><th>EV%</th><th>Model Win%</th><th>Stake</th><th>Reason</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+const STAKES = { HIGH:100, MEDIUM:50, LOW:25 };
+function fmtEV(v){ if(v==null) return ''; return (Number(v)*100).toFixed(1); }
+function fmtPct(v){ if(v==null) return ''; return (Number(v)*100).toFixed(1)+'%'; }
+function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+function confRank(c){ return {HIGH:3, MEDIUM:2, LOW:1}[c]||0; }
+async function loadRecs(){
+  const d = todayISO();
+  const r = await fetch(`/api/betting-recommendations/date/${d}`);
+  const js = await r.json();
+  if(!js.success){ document.getElementById('meta').textContent = 'No recommendations available.'; return; }
+  const recs = js.recommendations || [];
+  document.getElementById('meta').textContent = `Date ${js.date} • ${recs.length} recommendations`;
+  // Sort
+  recs.sort((a,b)=> confRank(b.confidence)-confRank(a.confidence) || (Number(b.expected_value||0)-Number(a.expected_value||0)) );
+  // Summary counts
+  const high = recs.filter(r=>r.confidence==='HIGH');
+  const med = recs.filter(r=>r.confidence==='MEDIUM');
+  const low = recs.filter(r=>r.confidence==='LOW');
+  const totalStake = high.length*STAKES.HIGH + med.length*STAKES.MEDIUM + low.length*STAKES.LOW;
+  const sg = document.getElementById('summary-grid');
+  sg.innerHTML = '';
+  const blocks = [
+    ['High Conf', high.length],
+    ['Medium Conf', med.length],
+    ['Low Conf', low.length],
+    ['Total Stake', `$${totalStake}`],
+    ['Source', js.summary?.source || 'engine']
+  ];
+  blocks.forEach(b=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${b[1]}</div><div class='muted'>${b[0]}</div>`; sg.appendChild(d); });
+  // Grouped section
+  const grouped = { HIGH: high, MEDIUM: med, LOW: low };
+  const gdiv = document.getElementById('recs-grouped');
+  gdiv.innerHTML = Object.keys(grouped).map(conf=>{
+     const arr = grouped[conf];
+     if(!arr.length) return `<div style='margin-bottom:12px;'><h3 style='margin:4px 0;'>${conf}</h3><div class='muted'>None</div></div>`;
+     return `<div style='margin-bottom:18px;'>
+       <h3 style='margin:4px 0;'>${conf} <span class='badge ${conf}' style='vertical-align:middle;'>${conf}</span> <span class='muted' style='font-weight:400;'>(${arr.length} bets • Stake $${STAKES[conf]})</span></h3>
+       <table style='width:100%; border-collapse:collapse;'>
+         <thead><tr><th style='text-align:left;'>Game</th><th>Bet</th><th>Odds</th><th>EV%</th><th>Model%</th><th>Stake</th></tr></thead>
+         <tbody>
+           ${arr.map(r=>`<tr>
+             <td>${r.game}</td>
+             <td>${r.type.toUpperCase()} ${r.recommendation}</td>
+             <td>${r.american_odds}</td>
+             <td class='ev-pos'>${fmtEV(r.expected_value)}</td>
+             <td>${fmtPct(r.win_probability)}</td>
+             <td class='stake'>$${STAKES[conf]}</td>
+           </tr>`).join('')}
+         </tbody>
+       </table>
+     </div>`;
+  }).join('');
+  // Full table
+  const tbody = document.querySelector('#recs-table tbody');
+  tbody.innerHTML = recs.map(r=>`<tr>
+    <td><span class='badge ${r.confidence}'>${r.confidence}</span></td>
+    <td>${r.game}</td>
+    <td>${r.type.toUpperCase()} ${r.recommendation}</td>
+    <td>${r.american_odds}</td>
+    <td class='ev-pos'>${fmtEV(r.expected_value)}</td>
+    <td>${fmtPct(r.win_probability)}</td>
+    <td>$${STAKES[r.confidence]||0}</td>
+    <td>${r.reasoning||''}</td>
+  </tr>`).join('');
+  window._bettingRecs = recs;
+}
+function downloadJSON(){ if(!window._bettingRecs) return; const blob=new Blob([JSON.stringify(window._bettingRecs,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`betting_recommendations_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},300); }
+loadRecs();
+</script>
+</body>
+</html>

@@ -119,8 +119,49 @@ class UnifiedBettingEngine:
     
     def get_betting_line_key(self, prediction_key: str) -> str:
         """Convert prediction key format to betting line key format"""
-        # Convert "Boston Red Sox_vs_New York Yankees" to "Boston Red Sox @ New York Yankees"
-        return prediction_key.replace("_vs_", " @ ")
+        # Convert "Boston Red Sox_vs_New York Yankees" to betting lines key format.
+        # Also normalize standalone nicknames (e.g. "Athletics" -> "Oakland Athletics").
+        nickname_map = {
+            'Athletics': 'Oakland Athletics',
+            'Guardians': 'Cleveland Guardians',
+            'Dodgers': 'Los Angeles Dodgers',
+            'Yankees': 'New York Yankees',
+            'Mets': 'New York Mets',
+            'Phillies': 'Philadelphia Phillies',
+            'Mariners': 'Seattle Mariners',
+            'Giants': 'San Francisco Giants',
+            'Cardinals': 'St. Louis Cardinals',
+            'Braves': 'Atlanta Braves',
+            'Astros': 'Houston Astros',
+            'Rangers': 'Texas Rangers',
+            'Angels': 'Los Angeles Angels',
+            'Padres': 'San Diego Padres',
+            'Rockies': 'Colorado Rockies',
+            'Diamondbacks': 'Arizona Diamondbacks',
+            'Twins': 'Minnesota Twins',
+            'White Sox': 'Chicago White Sox',
+            'Red Sox': 'Boston Red Sox',
+            'Pirates': 'Pittsburgh Pirates',
+            'Orioles': 'Baltimore Orioles',
+            'Royals': 'Kansas City Royals',
+            'Nationals': 'Washington Nationals',
+            'Marlins': 'Miami Marlins',
+            'Tigers': 'Detroit Tigers',
+            'Blue Jays': 'Toronto Blue Jays',
+            'Cubs': 'Chicago Cubs',
+            'Rays': 'Tampa Bay Rays',
+            'Brewers': 'Milwaukee Brewers',
+            'Reds': 'Cincinnati Reds'
+        }
+        try:
+            if '_vs_' in prediction_key:
+                away, home = prediction_key.split('_vs_', 1)
+                away = nickname_map.get(away, away)
+                home = nickname_map.get(home, home)
+                return f"{away} @ {home}"
+        except Exception:
+            pass
+        return prediction_key.replace('_vs_', ' @ ')
     
     def american_to_decimal(self, american_odds: str) -> Optional[float]:
         """Convert American odds to decimal probability"""
@@ -531,7 +572,11 @@ class UnifiedBettingEngine:
         # Summary
         all_recommendations['summary'] = {
             'total_games_analyzed': len(predictions),
-            'games_with_betting_lines': len([g for g in predictions.keys() if g in betting_lines]),
+            # Use converted key format when checking presence of betting lines
+            'games_with_betting_lines': len([
+                g for g in predictions.keys()
+                if self.get_betting_line_key(g) in betting_lines
+            ]),
             'total_value_bets': total_value_bets,
             'high_confidence_bets': len([bet for game in all_recommendations['games'].values() for bet in game['value_bets'] if bet['confidence'] == 'high']),
             'medium_confidence_bets': len([bet for game in all_recommendations['games'].values() for bet in game['value_bets'] if bet['confidence'] == 'medium'])
