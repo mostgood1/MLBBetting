@@ -248,6 +248,23 @@ def complete_daily_automation():
             logger.warning("⚠️ Daily data update failed - using cached data")
     else:
         logger.warning("⚠️ Daily data updater not found - using cached daily data")
+
+    # Step 2.6: Generate Daily Pitcher Projections & Bovada Props (must occur AFTER core data + pitchers + team stats)
+    logger.info("\n🧠 STEP 2.6: Generating Daily Pitcher Projections & Bovada Props")
+    try:
+        from pitcher_projections import compute_pitcher_projections as _compute_pitcher_projections
+        proj = _compute_pitcher_projections(include_lines=True)
+        pitchers_count = proj.get('count')
+        corrections = proj.get('adjustment_meta', {}).get('opponent_corrections_count') if isinstance(proj.get('adjustment_meta'), dict) else None
+        logger.info(f"✅ Pitcher projections generated: {pitchers_count} pitchers (opponent corrections: {corrections})")
+        # Quick quality flags
+        gaps = proj.get('adjustment_gaps', {})
+        if gaps:
+            missing_opponent = len(gaps.get('opponent', []))
+            missing_recent = len(gaps.get('recent_form', []))
+            logger.info(f"🔎 Adjustment gaps - opponent:{missing_opponent} recent_form:{missing_recent}")
+    except Exception as e:
+        logger.warning(f"⚠️ Could not generate daily pitcher projections (engine will fallback to on-demand): {e}")
     
     # Step 3: Fetch Real Betting Lines
     logger.info("\n🎯 STEP 3: Fetching Real Betting Lines (DraftKings preferred)")
