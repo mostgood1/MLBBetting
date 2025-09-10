@@ -325,9 +325,8 @@
       }
     }
     async function loadToday(){
-      // Use the new endpoint to fetch ALL recommendations from today's betting_recommendations file
-      const today = todayISO();
-      const res = await fetch(`/api/betting-recommendations/date/${today}`);
+      // Use server-side Eastern 'today' to avoid timezone drift and include completed games
+      const res = await fetch(`/api/betting-recommendations/today`);
       const data = await res.json();
       const div = document.getElementById('today');
       const recs = data.recommendations || [];

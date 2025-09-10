@@ -3012,6 +3012,22 @@ def api_betting_recommendations_by_date(date):
         logger.error(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e), 'recommendations': []}), 500
 
+@app.route('/api/betting-recommendations/today')
+def api_betting_recommendations_today():
+    """Resolve 'today' using US/Eastern and return that day’s recommendations."""
+    try:
+        from datetime import datetime
+        try:
+            from zoneinfo import ZoneInfo
+            today_iso = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
+        except Exception:
+            today_iso = datetime.now().strftime('%Y-%m-%d')
+        # Reuse existing handler
+        return api_betting_recommendations_by_date(today_iso)
+    except Exception as e:
+        logger.exception('today betting recommendations failure')
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/historical-filtered/<filter_type>')
 def api_historical_filtered(filter_type):
     """API endpoint for filtered historical games using same logic as main page stats"""
@@ -3740,6 +3756,40 @@ def api_pitcher_prop_plays():
             day_data = _load_day(diso, refresh=False)
             if not day_data:
                 continue
+            # Attempt to backfill lines/odds per stat from Bovada props snapshot for this day
+            props_map = {}
+            try:
+                date_us = diso.replace('-', '_')
+                props_path = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada', f'bovada_pitcher_props_{date_us}.json')
+                if os.path.exists(props_path):
+                    with open(props_path, 'r') as f:
+                        props_js = json.load(f)
+                    # Build name+team keyed map: { key: { stat: { line, over_odds, under_odds } } }
+                    def norm(s):
+                        try:
+                            return str(s or '').strip().lower()
+                        except Exception:
+                            return str(s)
+                    stat_key_map = {
+                        'K': 'strikeouts', 'STRIKEOUTS': 'strikeouts', 'SO':'strikeouts',
+                        'OUTS': 'outs', 'ER': 'earned_runs', 'EARNED_RUNS': 'earned_runs',
+                        'HITS': 'hits_allowed', 'H': 'hits_allowed',
+                        'WALKS': 'walks', 'BB': 'walks'
+                    }
+                    for entry in (props_js.get('props') or []):
+                        pname = norm(entry.get('pitcher'))
+                        team = norm(entry.get('team'))
+                        key = f"{pname}|{team}"
+                        sk = stat_key_map.get(str(entry.get('stat') or '').upper())
+                        if not sk:
+                            continue
+                        props_map.setdefault(key, {})[sk] = {
+                            'line': entry.get('line'),
+                            'over_odds': entry.get('over_odds'),
+                            'under_odds': entry.get('under_odds')
+                        }
+            except Exception:
+                props_map = {}
             # Capture metadata to help the UI indicate snapshot provenance
             per_day_meta[diso] = {
                 'source': 'snapshot',
@@ -3761,6 +3811,22 @@ def api_pitcher_prop_plays():
                         continue
                     line_obj = lines.get(stat) or {}
                     line = line_obj.get('line')
+                    # If line missing, try to backfill from props snapshot for this pitcher/team
+                    if line is None:
+                        try:
+                            pname = p.get('pitcher_name')
+                            team = p.get('team')
+                            key = f"{str(pname or '').strip().lower()}|{str(team or '').strip().lower()}"
+                            back = props_map.get(key, {}).get(stat)
+                            if back and (back.get('line') is not None):
+                                line = back.get('line')
+                                # patch odds if not present
+                                if 'over_odds' not in line_obj and back.get('over_odds') is not None:
+                                    line_obj['over_odds'] = back.get('over_odds')
+                                if 'under_odds' not in line_obj and back.get('under_odds') is not None:
+                                    line_obj['under_odds'] = back.get('under_odds')
+                        except Exception:
+                            pass
                     if line is None:
                         continue
                     diff = diffs_adj.get(stat)
