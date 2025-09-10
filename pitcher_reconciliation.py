@@ -179,7 +179,7 @@ def load_projections_snapshot(date_iso: str) -> Optional[Dict[str, Any]]:
 
 
 def reconcile_projections(date_iso: str, live: bool = False) -> Dict[str, Any]:
-    """Join projections snapshot with actual stats and compute errors."""
+    """Join projections snapshot with actual stats, compute errors and outcomes, and persist a daily summary."""
     proj = load_projections_snapshot(date_iso)
     if not proj:
         # Attempt to compute today's snapshot if date == local (US/Eastern) today
@@ -200,6 +200,15 @@ def reconcile_projections(date_iso: str, live: bool = False) -> Dict[str, Any]:
         for p in proj.get('pitchers', []):
             proj_map[normalize_name(p.get('pitcher_name'))] = p
     rows = []
+    # Aggregate outcome counters
+    totals = { 'wins': 0, 'losses': 0, 'pushes': 0, 'graded': 0 }
+    by_stat = {
+        'outs': {'wins':0,'losses':0,'pushes':0,'graded':0},
+        'strikeouts': {'wins':0,'losses':0,'pushes':0,'graded':0},
+        'earned_runs': {'wins':0,'losses':0,'pushes':0,'graded':0},
+        'hits_allowed': {'wins':0,'losses':0,'pushes':0,'graded':0},
+        'walks': {'wins':0,'losses':0,'pushes':0,'graded':0},
+    }
     for a in actuals.get('pitchers', []):
         key = normalize_name(a.get('name'))
         p = proj_map.get(key)
@@ -217,6 +226,20 @@ def reconcile_projections(date_iso: str, live: bool = False) -> Dict[str, Any]:
             'adj': {
                 'outs': ((p or {}).get('adjusted_projections') or {}).get('outs'),
                 'k': ((p or {}).get('adjusted_projections') or {}).get('strikeouts'),
+            },
+            'lines': {
+                'outs': (((p or {}).get('lines') or {}).get('outs') or {}).get('line'),
+                'strikeouts': (((p or {}).get('lines') or {}).get('strikeouts') or {}).get('line'),
+                'earned_runs': (((p or {}).get('lines') or {}).get('earned_runs') or {}).get('line'),
+                'hits_allowed': (((p or {}).get('lines') or {}).get('hits_allowed') or {}).get('line'),
+                'walks': (((p or {}).get('lines') or {}).get('walks') or {}).get('line'),
+            },
+            'recs': {
+                'outs': ((p or {}).get('recommendations') or {}).get('outs'),
+                'strikeouts': ((p or {}).get('recommendations') or {}).get('strikeouts'),
+                'earned_runs': ((p or {}).get('recommendations') or {}).get('earned_runs'),
+                'hits_allowed': ((p or {}).get('recommendations') or {}).get('hits_allowed'),
+                'walks': ((p or {}).get('recommendations') or {}).get('walks'),
             },
             'act': {
                 'outs': a.get('outs'),
@@ -236,15 +259,62 @@ def reconcile_projections(date_iso: str, live: bool = False) -> Dict[str, Any]:
             'h': _safe_diff(row['act']['h'], row['proj']['h']),
             'bb': _safe_diff(row['act']['bb'], row['proj']['bb'])
         }
+        # Outcomes per stat using line and recommendation
+        outcomes = {}
+        def _grade(stat_key: str, rec: Optional[str], line: Optional[float], act_val: Optional[float]):
+            if rec not in ('OVER','UNDER') or line is None or act_val is None:
+                return None
+            if rec == 'OVER':
+                if act_val > line: return 'win'
+                if act_val < line: return 'loss'
+                return 'push'
+            else:
+                if act_val < line: return 'win'
+                if act_val > line: return 'loss'
+                return 'push'
+        outcomes['outs'] = _grade('outs', row['recs']['outs'], row['lines']['outs'], row['act']['outs'])
+        outcomes['strikeouts'] = _grade('strikeouts', row['recs']['strikeouts'], row['lines']['strikeouts'], row['act']['k'])
+        outcomes['earned_runs'] = _grade('earned_runs', row['recs']['earned_runs'], row['lines']['earned_runs'], row['act']['er'])
+        outcomes['hits_allowed'] = _grade('hits_allowed', row['recs']['hits_allowed'], row['lines']['hits_allowed'], row['act']['h'])
+        outcomes['walks'] = _grade('walks', row['recs']['walks'], row['lines']['walks'], row['act']['bb'])
+        row['outcomes'] = outcomes
+        # Update counters
+        for stat, outcome in outcomes.items():
+            if outcome in ('win','loss','push'):
+                by_stat[stat]['graded'] += 1
+                totals['graded'] += 1
+                if outcome == 'win':
+                    by_stat[stat]['wins'] += 1
+                    totals['wins'] += 1
+                elif outcome == 'loss':
+                    by_stat[stat]['losses'] += 1
+                    totals['losses'] += 1
+                elif outcome == 'push':
+                    by_stat[stat]['pushes'] += 1
+                    totals['pushes'] += 1
         rows.append(row)
     rows.sort(key=lambda r: (r['pitcher_name'] or ''))
-    return {
+    payload = {
         'success': True,
         'date': date_iso,
         'generated_at': datetime.utcnow().isoformat(),
         'count': len(rows),
-        'rows': rows
+        'rows': rows,
+        'summary': {
+            'totals': totals,
+            'by_stat': by_stat
+        }
     }
+    # Persist reconciliation snapshot for historical analysis
+    try:
+        out_dir = os.path.join(DATA_DIR, 'daily_results')
+        os.makedirs(out_dir, exist_ok=True)
+        date_us = date_iso.replace('-', '_')
+        rec_path = os.path.join(out_dir, f'pitcher_reconciliation_{date_us}.json')
+        _write_json(rec_path, payload)
+    except Exception:
+        pass
+    return payload
 
 
 def _safe_diff(a: Optional[float], b: Optional[float]) -> Optional[float]:

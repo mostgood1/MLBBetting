@@ -23,6 +23,10 @@
     .table { width:100%; border-collapse: collapse; }
     .table th, .table td { border-bottom:1px solid #eee; padding:10px; text-align:left; }
     .table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  /* Simple tabs used for per-stat filters */
+  .tabs { display:flex; gap:6px; flex-wrap:wrap; }
+  .tab { background:#fff; color:#163a6b; border:1px solid #cfe1f8; padding:4px 10px; border-radius:8px; cursor:pointer; font-size:12px; }
+  .tab.active { background:#163a6b; color:#fff; border-color:#163a6b; }
     /* Responsive enhancements */
     @media (max-width: 700px){
       body { font-size:14px; }
@@ -77,6 +81,42 @@
         <h3 style="margin:8px 0;">Today Recap</h3>
         <div class="grid" id="today-kpis"></div>
       </div>
+      <hr class="muted"/>
+      <h3 style="margin:8px 0;">Pitcher Prop Recommendations (Snapshot)</h3>
+      <div class="muted" id="pitcher-props-meta"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;">
+        <label class="muted" style="display:flex;align-items:center;gap:6px;font-size:12px;">
+          <input type="checkbox" id="props-live-toggle"/> Live
+          <select id="props-live-interval" class="input" style="padding:2px 6px;">
+            <option value="15000">15s</option>
+            <option value="30000" selected>30s</option>
+            <option value="60000">60s</option>
+          </select>
+        </label>
+        <!-- Per-stat tabs for pitcher props -->
+        <div class="tabs" id="props-stat-tabs">
+          <div class="tab active" data-stat="">All</div>
+          <div class="tab" data-stat="strikeouts">K</div>
+          <div class="tab" data-stat="outs">Outs</div>
+          <div class="tab" data-stat="earned_runs">ER</div>
+          <div class="tab" data-stat="hits_allowed">Hits</div>
+          <div class="tab" data-stat="walks">BB</div>
+        </div>
+        <!-- Keep old dropdown hidden as a fallback -->
+        <label class="muted" style="display:none">
+          <select id="props-stat" class="input" style="padding:2px 6px;">
+            <option value="">All</option>
+            <option value="strikeouts">K</option>
+            <option value="outs">Outs</option>
+            <option value="earned_runs">ER</option>
+            <option value="hits_allowed">Hits</option>
+            <option value="walks">BB</option>
+          </select>
+        </label>
+        <label class="muted" style="display:flex;align-items:center;gap:6px;font-size:12px;"><input type="checkbox" id="props-hide-low"/> Hide LOW</label>
+      </div>
+      <div id="pitcher-props"></div>
+      <div class="muted" id="pitcher-props-wl" style="margin-top:6px;"></div>
     </div>
 
     <div class="card">
@@ -307,6 +347,8 @@
 
       // Build Today Recap KPIs based on THESE recs only (so counts match what you see)
       await loadTodayRecap(recs);
+      // Also load pitcher prop snapshot-based recs to mirror the dedicated props page
+      await loadPitcherPropsSection();
     }
     async function loadAvailableDates(){
       try{
@@ -348,6 +390,79 @@
       }catch(e){ console.warn('Failed to load available dates', e); }
     }
     function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+
+    // Pitcher props section (snapshot-only), with live reconciliation recap
+    let PROPS_TIMER=null; let PROPS_DATA=[];
+    async function loadPitcherPropsSection(){
+      const d = todayISO();
+  const statSel = document.getElementById('props-stat');
+      const hideLow = document.getElementById('props-hide-low');
+      try{
+        const r = await fetch(`/api/pitcher-prop-plays?date=${d}`);
+        const js = await r.json();
+        if(!js.success){ document.getElementById('pitcher-props-meta').textContent='No data'; return; }
+        // Flatten grouped
+        const flat=[]; const plays=js.plays||{}; Object.keys(plays).forEach(s=>{ ['HIGH','MEDIUM','LOW'].forEach(c=>{ (plays[s][c]||[]).forEach(it=>flat.push(it)); }); });
+        PROPS_DATA = flat;
+        renderPitcherProps();
+        // Start/refresh live W/L recap if requested
+        setPropsLive(document.getElementById('props-live-toggle')?.checked);
+      }catch(e){ document.getElementById('pitcher-props-meta').textContent='Error loading'; }
+      const meta = document.getElementById('pitcher-props-meta');
+      meta.textContent = 'Today (snapshot) • '+(PROPS_DATA.length||0)+' plays';
+      statSel?.addEventListener('change', renderPitcherProps);
+      hideLow?.addEventListener('change', renderPitcherProps);
+      document.getElementById('props-live-toggle')?.addEventListener('change', e=> setPropsLive(e.target.checked));
+      document.getElementById('props-live-interval')?.addEventListener('change', ()=> setPropsLive(document.getElementById('props-live-toggle')?.checked));
+      // Initialize props tabs once
+      (function setupPropsTabs(){
+        const box = document.getElementById('props-stat-tabs'); if(!box) return;
+        if(box._wired) return; box._wired = true;
+        box.addEventListener('click', (e)=>{
+          const el = e.target.closest('.tab'); if(!el) return;
+          const st = el.getAttribute('data-stat') || '';
+          window._propsStatFilter = st;
+          Array.from(box.querySelectorAll('.tab')).forEach(t=> t.classList.toggle('active', t===el));
+          const sel = document.getElementById('props-stat'); if(sel) sel.value = st; // mirror fallback
+          renderPitcherProps();
+        });
+      })();
+    }
+    function renderPitcherProps(){
+      const stat = (window._propsStatFilter!=null ? window._propsStatFilter : (document.getElementById('props-stat')?.value||''));
+      const hideLow=document.getElementById('props-hide-low')?.checked;
+      let arr = PROPS_DATA.slice();
+      if(stat) arr = arr.filter(p=>p.stat===stat);
+      if(hideLow) arr = arr.filter(p=>p.confidence!=='LOW');
+      arr.sort((a,b)=> {
+        const rank = {'HIGH':3,'MEDIUM':2,'LOW':1};
+        const rb = rank[b.confidence]||0;
+        const ra = rank[a.confidence]||0;
+        const d1 = rb - ra;
+        if(d1!==0) return d1;
+        const eb = Math.abs(b.diff||0);
+        const ea = Math.abs(a.diff||0);
+        return eb - ea;
+      });
+      const html = `<table class="table"><thead><tr><th>Conf</th><th>Pitcher</th><th>Team</th><th>Opp</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th></tr></thead><tbody>`+
+        arr.map(p=>`<tr><td><span class="badge ${p.confidence}">${p.confidence}</span></td><td>${p.pitcher_name}</td><td>${p.team||''}</td><td>${p.opponent||''}</td><td>${p.stat}</td><td>${p.line??''}</td><td>${p.projection??''}</td><td>${p.adjusted_projection??''}</td><td>${p.diff??''}</td><td>${p.recommendation}</td><td>${(p.recommendation==='OVER'?p.over_odds:p.under_odds)??''}</td></tr>`).join('')+ `</tbody></table>`;
+      document.getElementById('pitcher-props').innerHTML = html;
+    }
+    async function propsLiveTick(){
+      try{
+        const d = todayISO();
+        const r = await fetch(`/api/pitcher-reconciliation?date=${d}&live=1`);
+        const js = await r.json();
+        if(js && js.success){
+          const t = js.summary && js.summary.totals || {}; const g=t.graded||0; const w=t.wins||0; const l=t.losses||0; const p=t.pushes||0; const pct = g? ((w/g)*100).toFixed(0):'0';
+          document.getElementById('pitcher-props-wl').textContent = `Pitcher props graded: ${g} • W ${w} • L ${l} • P ${p} • Win% ${pct}%`;
+        }
+      }catch(_){ /* ignore */ }
+    }
+    function setPropsLive(enabled){
+      if(PROPS_TIMER){ clearInterval(PROPS_TIMER); PROPS_TIMER=null; }
+      if(enabled){ const iv = parseInt(document.getElementById('props-live-interval')?.value||'30000',10); propsLiveTick(); PROPS_TIMER = setInterval(propsLiveTick, Math.max(5000, iv)); }
+    }
   // Kelly details now live on the dedicated page via link above
   async function loadTodayRecap(recs){
       const grid = document.getElementById('today-kpis'); grid.innerHTML='';

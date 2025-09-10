@@ -1156,9 +1156,19 @@ def compute_pitcher_projections(include_lines: bool = True, force_refresh: bool 
         os.makedirs(out_dir, exist_ok=True)
         date_us = date_iso.replace('-', '_')
         snap_path = os.path.join(out_dir, f'pitcher_projections_{date_us}.json')
-        if force_refresh or not os.path.exists(snap_path):
+        # Preserve the first snapshot of the day so lines remain stable even after games start.
+        if not os.path.exists(snap_path):
             with open(snap_path, 'w') as f:
                 json.dump(result, f, indent=2)
+        else:
+            # Optionally write a non-canonical update file for debugging/audits when force_refresh
+            if force_refresh:
+                try:
+                    upd_path = os.path.join(out_dir, f'pitcher_projections_update_{date_us}.json')
+                    with open(upd_path, 'w') as uf:
+                        json.dump(result, uf, indent=2)
+                except Exception:
+                    pass
     except Exception:
         pass
     return result

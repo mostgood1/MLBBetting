@@ -33,6 +33,11 @@
  .edge-strong { outline:2px solid #16a34a; }
  .edge-strong-neg { outline:2px solid #ef4444; }
  .row-live { background:rgba(99,102,241,0.12); box-shadow: inset 3px 0 0 #6366f1; }
+ .rec-win { background:rgba(34,197,94,0.22) !important; }
+ .rec-loss { background:rgba(239,68,68,0.22) !important; }
+ .tabs { display:flex; gap:6px; flex-wrap:wrap; }
+ .tab { background:#fff; color:#163a6b; border:1px solid #cfe1f8; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px; }
+ .tab.active { background:#163a6b; color:#fff; border-color:#163a6b; }
  @media (max-width:760px){ th,td { font-size:11px; padding:6px 6px; } }
 </style>
 </head>
@@ -62,6 +67,26 @@
             <option value="earned_runs">Edge ER</option>
           </select>
         </label>
+        <!-- Per-stat tabs -->
+        <div class="tabs" id="stat-tabs" style="margin:2px 0;">
+          <div class="tab active" data-stat="">All</div>
+          <div class="tab" data-stat="strikeouts">K</div>
+          <div class="tab" data-stat="outs">Outs</div>
+          <div class="tab" data-stat="earned_runs">ER</div>
+          <div class="tab" data-stat="hits_allowed">Hits</div>
+          <div class="tab" data-stat="walks">BB</div>
+        </div>
+        <!-- Keep old dropdown hidden as a fallback -->
+        <label style="display:none">
+          <select id="filter-stat" onchange="renderRows()">
+            <option value="">All</option>
+            <option value="strikeouts">K</option>
+            <option value="outs">Outs</option>
+            <option value="earned_runs">ER</option>
+            <option value="hits_allowed">Hits</option>
+            <option value="walks">BB</option>
+          </select>
+        </label>
         <label style="font-size:12px;display:flex;align-items:center;gap:6px;color:#163a6b;background:#fff;padding:4px 8px;border-radius:6px;">
           <input type="checkbox" id="live-toggle" /> Live
           <select id="live-interval" style="font-size:12px;">
@@ -75,7 +100,9 @@
         </label>
       </div>
     </div>
-    <div class="muted" id="meta"></div>
+  <div class="muted" id="meta"></div>
+  <div class="muted" id="wl-summary" style="margin-top:6px;"></div>
+    <div class="muted" id="mtd-summary" style="margin-top:4px;"></div>
   </div>
   <div class="card">
     <h2 style="margin-top:0;">Projected Stats</h2>
@@ -111,6 +138,22 @@ async function loadProjections(){
   if(!js.success){ document.getElementById('meta').textContent = 'Error loading projections'; return; }
   const d = js.data;
   document.getElementById('meta').textContent = `Date ${d.date} • ${d.count} pitchers`;
+    // Load month-to-date reconciliation summary once
+    (async function loadMtd(){
+      try{
+        const d = new Date(); const month = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        const r = await fetch(`/api/pitcher-reconciliation/mtd?month=${month}&live=1`);
+        const js = await r.json();
+        if(js && js.success){
+          const t = js.summary && js.summary.totals || {};
+          const w = t.wins||0, l=t.losses||0, p=t.pushes||0, g=t.graded||0;
+          const pct = g? ((w/g)*100).toFixed(0) : '0';
+          const by = js.summary && js.summary.by_stat || {};
+          function chip(k){ const s = by[k]||{}; const gg = s.graded||0; const pp = gg? ((s.wins||0)/gg*100).toFixed(0) : '0'; return `${k}: ${s.wins||0}-${s.losses||0}-${s.pushes||0} (${pp}%)`; }
+          document.getElementById('mtd-summary').textContent = `MTD: ${w}-${l}-${p} (${pct}%) • ` + ['strikeouts','outs','earned_runs','hits_allowed','walks'].map(chip).join(' • ');
+        }
+      }catch(_){ /* ignore */ }
+    })();
   const tbody = document.querySelector('#proj-table tbody');
   window._pitcherData = d.pitchers;
   renderRows();
@@ -140,6 +183,29 @@ function renderRows(){
   tbody.parentElement.parentElement.className = 'table-wrap '+cls;
   function getAct(name){ const k = normalizeName(name||''); const row = window._liveMap[k]; return row && row.act ? row.act : null; }
   function fmtAct(val, stat){ if(val==null||val===undefined) return ''; const prec = stat==='outs'?0:0; return ` <span class="muted" style="font-size:10px;">(Act ${prec?Number(val).toFixed(prec):val})</span>`; }
+  // apply per-stat filter if selected
+  const filterStat = (window._statFilter!=null ? window._statFilter : (document.getElementById('filter-stat')?.value || ''));
+  if(filterStat){
+    data = data.filter(p=>{
+      const rec = (p.recommendations||{})[filterStat];
+      const line = (((p.lines||{})[filterStat])||{}).line;
+      return !!rec && line!=null;
+    });
+  }
+  function recOutcome(p, stat){
+    try{
+      const k = normalizeName(p.pitcher_name||'');
+      const rec = (p.recommendations||{})[stat];
+      if(!rec) return null;
+      const lineObj = (p.lines||{})[stat]||{}; const line = lineObj.line; if(line==null) return null;
+      const liveRow = window._liveMap[k]; const act = liveRow && liveRow.act ? liveRow.act : null; if(!act) return null;
+      const actualVal = stat==='outs' ? act.outs : (stat==='strikeouts'?act.k : (stat==='earned_runs'?act.er : (stat==='hits_allowed'?act.h : (stat==='walks'?act.bb : null))));
+      if(actualVal==null) return null;
+      if(rec==='OVER') return actualVal > line ? 'win' : (actualVal < line ? 'loss' : 'push');
+      if(rec==='UNDER') return actualVal < line ? 'win' : (actualVal > line ? 'loss' : 'push');
+      return null;
+    }catch(_){ return null; }
+  }
   // Pin and highlight live pitchers if enabled
   const pinLive = document.getElementById('pin-live')?.checked;
   if(pinLive && window._liveTeams && window._liveTeams.size){
@@ -148,26 +214,45 @@ function renderRows(){
     data.forEach(p=>{ const isLive = window._liveTeams.has(normalizeName(p.team||'')); (isLive?liveFirst:rest).push(p); });
     data = liveFirst.concat(rest);
   }
-  tbody.innerHTML = data.map(p=>{ const act = getAct(p.pitcher_name); const isLive = window._liveTeams.has(normalizeName(p.team||'')); return `<tr class="${isLive?'row-live':''}">
+  tbody.innerHTML = data.map(p=>{ const act = getAct(p.pitcher_name); const isLive = window._liveTeams.has(normalizeName(p.team||''));
+    const outcomes = {
+      outs: recOutcome(p,'outs'),
+      strikeouts: recOutcome(p,'strikeouts'),
+      earned_runs: recOutcome(p,'earned_runs'),
+      hits_allowed: recOutcome(p,'hits_allowed'),
+      walks: recOutcome(p,'walks')
+    };
+    const clsOuts = outcomes.outs==='win'?'rec-win':(outcomes.outs==='loss'?'rec-loss':'');
+    const clsK = outcomes.strikeouts==='win'?'rec-win':(outcomes.strikeouts==='loss'?'rec-loss':'');
+    const clsER = outcomes.earned_runs==='win'?'rec-win':(outcomes.earned_runs==='loss'?'rec-loss':'');
+    const clsH = outcomes.hits_allowed==='win'?'rec-win':(outcomes.hits_allowed==='loss'?'rec-loss':'');
+    const clsBB = outcomes.walks==='win'?'rec-win':(outcomes.walks==='loss'?'rec-loss':'');
+    function badge(oc){ return oc==='win'?'✅':(oc==='loss'?'❌':(oc==='push'?'➖':'')); }
+    return `<tr class="${isLive?'row-live':''}">
     <td>${p.pitcher_name}</td>
     <td>${p.team||''}</td>
     <td>${p.opponent||''}</td>
   <td>${p.projected_outs}${fmtAct(act?act.outs:null,'outs')}</td>
   <td>${formatLine(p.lines.outs)}</td>
-  <td class="${edgeClass(p,'outs')}">${p.recommendations.outs??''}${edgeDiff(p,'outs')}</td>
+  <td class="${edgeClass(p,'outs')} ${clsOuts}">${p.recommendations.outs??''}${edgeDiff(p,'outs')}</td>
+    <td class="${edgeClass(p,'outs')} ${clsOuts}">${p.recommendations.outs??''}${edgeDiff(p,'outs')} <span class="muted" style="font-size:11px;">${badge(outcomes.outs)||''}</span></td>
   <td>${p.projected_strikeouts}${fmtAct(act?act.k:null,'k')}</td>
   <td>${formatLine(p.lines.strikeouts)}</td>
-    <td class="${edgeClass(p,'strikeouts')}">${p.recommendations.strikeouts??''}${edgeDiff(p,'strikeouts')}</td>
+    <td class="${edgeClass(p,'strikeouts')} ${clsK}">${p.recommendations.strikeouts??''}${edgeDiff(p,'strikeouts')}</td>
+      <td class="${edgeClass(p,'strikeouts')} ${clsK}">${p.recommendations.strikeouts??''}${edgeDiff(p,'strikeouts')} <span class="muted" style="font-size:11px;">${badge(outcomes.strikeouts)||''}</span></td>
     <td class="col-adv" title="${altKTooltip(p)}">${(p.lines.strikeouts_alts||p.strikeouts_alts||[]).map(a=>a.threshold).join(', ')}</td>
   <td class="col-adv">${p.projected_earned_runs}${fmtAct(act?act.er:null,'er')}</td>
   <td class="col-adv">${formatLine(p.lines.earned_runs)}</td>
-  <td class="col-adv ${edgeClass(p,'earned_runs')}">${p.recommendations.earned_runs??''}${edgeDiff(p,'earned_runs')}</td>
+  <td class="col-adv ${edgeClass(p,'earned_runs')} ${clsER}">${p.recommendations.earned_runs??''}${edgeDiff(p,'earned_runs')}</td>
+    <td class="col-adv ${edgeClass(p,'earned_runs')} ${clsER}">${p.recommendations.earned_runs??''}${edgeDiff(p,'earned_runs')} <span class="muted" style="font-size:11px;">${badge(outcomes.earned_runs)||''}</span></td>
   <td class="col-adv">${p.projected_hits_allowed}${fmtAct(act?act.h:null,'h')}</td>
     <td class="col-adv">${formatLine(p.lines.hits_allowed)}</td>
-    <td class="col-adv ${edgeClass(p,'hits_allowed')}">${p.recommendations.hits_allowed??''}${edgeDiff(p,'hits_allowed')}</td>
+    <td class="col-adv ${edgeClass(p,'hits_allowed')} ${clsH}">${p.recommendations.hits_allowed??''}${edgeDiff(p,'hits_allowed')}</td>
+      <td class="col-adv ${edgeClass(p,'hits_allowed')} ${clsH}">${p.recommendations.hits_allowed??''}${edgeDiff(p,'hits_allowed')} <span class="muted" style="font-size:11px;">${badge(outcomes.hits_allowed)||''}</span></td>
   <td class="col-adv">${p.projected_walks??''}${fmtAct(act?act.bb:null,'bb')}</td>
   <td class="col-adv">${formatLine(p.lines.walks)}</td>
-  <td class="col-adv ${edgeClass(p,'walks')}">${p.recommendations.walks??''}${edgeDiff(p,'walks')}</td>
+  <td class="col-adv ${edgeClass(p,'walks')} ${clsBB}">${p.recommendations.walks??''}${edgeDiff(p,'walks')}</td>
+    <td class="col-adv ${edgeClass(p,'walks')} ${clsBB}">${p.recommendations.walks??''}${edgeDiff(p,'walks')} <span class="muted" style="font-size:11px;">${badge(outcomes.walks)||''}</span></td>
     <td><span class="badge ${p.confidence}">${p.confidence}</span></td>
   </tr>`}).join('');
 }
@@ -184,6 +269,13 @@ async function fetchLive(){
       const map = {};
       (js.rows||[]).forEach(r=>{ if(r && r.pitcher_name){ map[normalizeName(r.pitcher_name)] = r; } });
       window._liveMap = map;
+      // Update W/L/P summary chip
+      const sum = js.summary && js.summary.totals;
+      if(sum){
+        const t = sum.graded||0, w = sum.wins||0, l = sum.losses||0, p = sum.pushes||0;
+        const pct = t? ((w/t)*100).toFixed(0) : '0';
+        document.getElementById('wl-summary').textContent = `Graded ${t}: W ${w} • L ${l} • P ${p} • Win% ${pct}%`;
+      }
     }
     if(ls && ls.success){
       const teams = new Set();
@@ -210,6 +302,18 @@ function setLive(enabled, immediate=false){
 document.getElementById('live-toggle').addEventListener('change', (e)=> setLive(e.target.checked, true));
 document.getElementById('live-interval').addEventListener('change', ()=> setLive(document.getElementById('live-toggle').checked));
 document.getElementById('pin-live').addEventListener('change', ()=> renderRows());
+// Tabs wiring
+(function setupTabs(){
+  const box = document.getElementById('stat-tabs'); if(!box) return;
+  box.addEventListener('click', (e)=>{
+    const el = e.target.closest('.tab'); if(!el) return;
+    const st = el.getAttribute('data-stat')||''; window._statFilter = st;
+    Array.from(box.querySelectorAll('.tab')).forEach(t=> t.classList.toggle('active', t===el));
+    // Mirror hidden dropdown value for fallback/debug
+    const sel = document.getElementById('filter-stat'); if(sel){ sel.value = st; }
+    renderRows();
+  });
+})();
 loadProjections();
 function formatLine(obj){
   if(!obj || obj.line==null) return '';

@@ -3544,8 +3544,87 @@ def simple_test():
 @app.route('/api/pitcher-projections')
 def api_pitcher_projections():
     try:
-        data = compute_pitcher_projections()
-        return jsonify({'success': True, 'data': data})
+        # Serve persisted snapshot by default to keep sportsbook lines stable.
+        refresh = request.args.get('refresh') is not None or request.args.get('force') is not None
+        # Determine today's US/Eastern date for snapshot
+        try:
+            from zoneinfo import ZoneInfo
+            today_iso = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
+        except Exception:
+            today_iso = datetime.now().strftime('%Y-%m-%d')
+        date_us = today_iso.replace('-', '_')
+        snap_path = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada', f'pitcher_projections_{date_us}.json')
+        props_path = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada', f'bovada_pitcher_props_{date_us}.json')
+        props_map = None
+        # Load Bovada props snapshot (for backfilling any missing lines)
+        try:
+            if os.path.exists(props_path):
+                with open(props_path, 'r', encoding='utf-8') as pf:
+                    pj = json.load(pf)
+                    raw = (pj or {}).get('pitcher_props') or {}
+                    # normalize keys once
+                    def _norm(s):
+                        try:
+                            import unicodedata
+                            s2 = unicodedata.normalize('NFD', s or '')
+                            s2 = ''.join(c for c in s2 if not unicodedata.combining(c))
+                            return ''.join(ch for ch in s2.lower() if ch.isalnum())
+                        except Exception:
+                            return (s or '').lower()
+                    props_map = { _norm(k): v for k,v in raw.items() if isinstance(v, dict) }
+        except Exception:
+            props_map = None
+        if not refresh and os.path.exists(snap_path):
+            try:
+                with open(snap_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                # Backfill any missing lines from props snapshot without mutating the saved file
+                if props_map and isinstance(data.get('pitchers'), list):
+                    for p in data['pitchers']:
+                        nm = p.get('pitcher_name') or ''
+                        key = ''.join(ch for ch in (nm or '').lower() if ch.isalnum())
+                        pm = props_map.get(key)
+                        if not pm:
+                            continue
+                        p.setdefault('lines', {})
+                        # Backfill per stat if missing
+                        for stat in ['outs','strikeouts','earned_runs','hits_allowed','walks']:
+                            cur = (p['lines'].get(stat) or {}) if isinstance(p['lines'], dict) else {}
+                            has_line = isinstance(cur, dict) and (cur.get('line') is not None)
+                            if not has_line:
+                                val = pm.get(stat)
+                                if isinstance(val, dict) and val.get('line') is not None:
+                                    p['lines'][stat] = val
+                        # Strikeout alternates
+                        if not (p['lines'].get('strikeouts_alts')) and isinstance(pm.get('strikeouts_alts'), list):
+                            p['lines']['strikeouts_alts'] = pm['strikeouts_alts']
+                return jsonify({'success': True, 'data': data, 'source': 'snapshot', 'backfilled': bool(props_map)})
+            except Exception:
+                pass
+        # If refresh requested or snapshot missing/corrupt, compute (no fresh lines fetch override here)
+        data = compute_pitcher_projections(include_lines=True, force_refresh=bool(refresh))
+        # And backfill from props snapshot if some lines are missing (e.g., late compute after markets closed)
+        try:
+            if props_map and isinstance(data.get('pitchers'), list):
+                for p in data['pitchers']:
+                    nm = p.get('pitcher_name') or ''
+                    key = ''.join(ch for ch in (nm or '').lower() if ch.isalnum())
+                    pm = props_map.get(key)
+                    if not pm:
+                        continue
+                    p.setdefault('lines', {})
+                    for stat in ['outs','strikeouts','earned_runs','hits_allowed','walks']:
+                        cur = (p['lines'].get(stat) or {}) if isinstance(p['lines'], dict) else {}
+                        has_line = isinstance(cur, dict) and (cur.get('line') is not None)
+                        if not has_line:
+                            val = pm.get(stat)
+                            if isinstance(val, dict) and val.get('line') is not None:
+                                p['lines'][stat] = val
+                    if not (p['lines'].get('strikeouts_alts')) and isinstance(pm.get('strikeouts_alts'), list):
+                        p['lines']['strikeouts_alts'] = pm['strikeouts_alts']
+        except Exception:
+            pass
+        return jsonify({'success': True, 'data': data, 'source': 'computed', 'refreshed': bool(refresh), 'backfilled': bool(props_map)})
     except Exception as e:
         logger.exception("pitcher projections failure")
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -3601,7 +3680,8 @@ def api_pitcher_prop_plays():
         end_param = request.args.get('end')
         month_param = request.args.get('month')
         aggregate = request.args.get('aggregate') is not None
-        refresh_flag = request.args.get('refresh') is not None or request.args.get('live') is not None
+        # Important: do NOT compute on the fly for "today" — always serve the persisted snapshot
+        # Any request params like refresh/live are ignored here to preserve daily line consistency
         data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
 
         def _load_day(diso: str, refresh: bool = False):
@@ -3613,18 +3693,7 @@ def api_pitcher_prop_plays():
                         return json.load(f)
                 except Exception:
                     return None
-            # Fallback: compute if today
-            try:
-                from zoneinfo import ZoneInfo
-                today_iso_local = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
-            except Exception:
-                today_iso_local = datetime.now().strftime('%Y-%m-%d')
-            if diso == today_iso_local:
-                try:
-                    # Force refresh if explicitly requested to fetch fresh lines
-                    return compute_pitcher_projections(include_lines=True, force_refresh=bool(refresh))
-                except Exception:
-                    return None
+            # No fallback compute — if the snapshot is missing, we return None
             return None
 
         days = []
@@ -3666,10 +3735,17 @@ def api_pitcher_prop_plays():
             days.append(diso)
 
         all_entries = []
+        per_day_meta = {}
         for diso in days:
-            day_data = _load_day(diso, refresh=refresh_flag)
+            day_data = _load_day(diso, refresh=False)
             if not day_data:
                 continue
+            # Capture metadata to help the UI indicate snapshot provenance
+            per_day_meta[diso] = {
+                'source': 'snapshot',
+                'generated_at': day_data.get('generated_at'),
+                'pitcher_count': day_data.get('count')
+            }
             for p in day_data.get('pitchers', []):
                 conf = (p.get('confidence') or 'LOW').upper()
                 if conf not in ('HIGH','MEDIUM','LOW'):
@@ -3709,7 +3785,7 @@ def api_pitcher_prop_plays():
 
         # Group or aggregate
         if aggregate:
-            return jsonify({'success': True, 'mode': 'aggregate', 'count': len(all_entries), 'plays': all_entries})
+            return jsonify({'success': True, 'mode': 'aggregate', 'count': len(all_entries), 'plays': all_entries, 'meta': per_day_meta})
         plays_by_stat = {}
         for e in all_entries:
             stat = e['stat']
@@ -3720,7 +3796,7 @@ def api_pitcher_prop_plays():
             counts['high'] += len(stat_groups['HIGH'])
             counts['medium'] += len(stat_groups['MEDIUM'])
             counts['low'] += len(stat_groups['LOW'])
-        return jsonify({'success': True, 'dates': days, 'counts': counts, 'plays': plays_by_stat})
+        return jsonify({'success': True, 'dates': days, 'counts': counts, 'plays': plays_by_stat, 'meta': per_day_meta})
     except Exception as e:
         logger.exception('pitcher prop plays failure')
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -3751,6 +3827,84 @@ def api_pitcher_reconciliation():
         return jsonify(data)
     except Exception as e:
         logger.exception('reconciliation failure')
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/pitcher-reconciliation/mtd')
+def api_pitcher_reconciliation_mtd():
+    """Month-to-date reconciliation summary. Query: month=YYYY-MM, live=1 to include today's partial."""
+    try:
+        from datetime import datetime, timedelta
+        try:
+            from zoneinfo import ZoneInfo
+            now_local = datetime.now(ZoneInfo('America/New_York'))
+        except Exception:
+            now_local = datetime.now()
+        month_param = request.args.get('month')
+        live = request.args.get('live') is not None
+        if month_param:
+            try:
+                base = datetime.strptime(month_param+'-01','%Y-%m-%d')
+            except Exception:
+                return jsonify({'success': False, 'error': 'invalid month param'}), 400
+            start = base
+        else:
+            start = now_local.replace(day=1)
+        # end bound: if month provided, go to end of that month or to today if current month
+        if month_param:
+            if start.year == now_local.year and start.month == now_local.month:
+                end = now_local
+            else:
+                # find first of next month then step back one day
+                if start.month == 12:
+                    end = start.replace(year=start.year+1, month=1, day=1) - timedelta(days=1)
+                else:
+                    end = start.replace(month=start.month+1, day=1) - timedelta(days=1)
+        else:
+            end = now_local
+        # Aggregate
+        agg_totals = {'wins':0,'losses':0,'pushes':0,'graded':0}
+        stats_keys = ['outs','strikeouts','earned_runs','hits_allowed','walks']
+        agg_by_stat = {k:{'wins':0,'losses':0,'pushes':0,'graded':0} for k in stats_keys}
+        days = []
+        data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_results')
+        cur = start.date()
+        end_date = end.date()
+        from pitcher_reconciliation import reconcile_projections
+        while cur <= end_date:
+            diso = cur.strftime('%Y-%m-%d')
+            fname = f"pitcher_reconciliation_{diso.replace('-','_')}.json"
+            fpath = os.path.join(data_dir, fname)
+            js = None
+            if os.path.exists(fpath):
+                try:
+                    with open(fpath,'r') as f:
+                        js = json.load(f)
+                except Exception:
+                    js = None
+            # For today, optionally compute live if file missing and live requested
+            if (js is None) and live and (diso == end_date.strftime('%Y-%m-%d')):
+                try:
+                    js = reconcile_projections(diso, live=True)
+                except Exception:
+                    js = None
+            if js and js.get('summary'):
+                days.append(diso)
+                t = js['summary'].get('totals') or {}
+                agg_totals['wins'] += int(t.get('wins') or 0)
+                agg_totals['losses'] += int(t.get('losses') or 0)
+                agg_totals['pushes'] += int(t.get('pushes') or 0)
+                agg_totals['graded'] += int(t.get('graded') or 0)
+                bs = js['summary'].get('by_stat') or {}
+                for k in stats_keys:
+                    sk = bs.get(k) or {}
+                    agg_by_stat[k]['wins'] += int(sk.get('wins') or 0)
+                    agg_by_stat[k]['losses'] += int(sk.get('losses') or 0)
+                    agg_by_stat[k]['pushes'] += int(sk.get('pushes') or 0)
+                    agg_by_stat[k]['graded'] += int(sk.get('graded') or 0)
+            cur += timedelta(days=1)
+        return jsonify({'success': True, 'month': (month_param or start.strftime('%Y-%m')), 'days': days, 'summary': {'totals': agg_totals, 'by_stat': agg_by_stat}})
+    except Exception as e:
+        logger.exception('mtd reconciliation failure')
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/reconciliation')

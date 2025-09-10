@@ -216,12 +216,20 @@ async function loadProps(qs=''){
     }
     flat.forEach(item=>{ const odds = item.recommendation==='OVER'? item.over_odds : item.under_odds; item.odds_display = odds!=null ? (odds>0?`+${odds}`:odds) : ''; });
     RAW_PROPS = flat;
+    // Update meta with snapshot timestamp when available for day mode
+    if(LOAD_CONTEXT.mode==='day' && js.meta){
+      const d = todayISO();
+      const md = js.meta[d];
+      if(md && md.generated_at){
+        document.getElementById('meta').textContent = `Today (snapshot @ ${new Date(md.generated_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})})`;
+      }
+    }
     renderAll();
   } catch(e){ console.warn('loadProps failed', e); document.getElementById('meta').textContent='Error loading'; }
 }
 function loadToday(){
   const d = todayISO();
-  LOAD_CONTEXT = { mode:'day', label:'Today', params:{date:d} };
+  LOAD_CONTEXT = { mode:'day', label:'Today (snapshot)', params:{date:d} };
   loadProps(`?date=${d}`);
 }
 function loadCurrentMonth(){
