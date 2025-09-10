@@ -32,6 +32,7 @@
  .edge-neg { background:rgba(239,68,68,0.18); }
  .edge-strong { outline:2px solid #16a34a; }
  .edge-strong-neg { outline:2px solid #ef4444; }
+ .row-live { background:rgba(99,102,241,0.12); box-shadow: inset 3px 0 0 #6366f1; }
  @media (max-width:760px){ th,td { font-size:11px; padding:6px 6px; } }
 </style>
 </head>
@@ -61,6 +62,17 @@
             <option value="earned_runs">Edge ER</option>
           </select>
         </label>
+        <label style="font-size:12px;display:flex;align-items:center;gap:6px;color:#163a6b;background:#fff;padding:4px 8px;border-radius:6px;">
+          <input type="checkbox" id="live-toggle" /> Live
+          <select id="live-interval" style="font-size:12px;">
+            <option value="15000">15s</option>
+            <option value="30000" selected>30s</option>
+            <option value="60000">60s</option>
+          </select>
+        </label>
+        <label style="font-size:12px;display:flex;align-items:center;gap:6px;color:#163a6b;background:#fff;padding:4px 8px;border-radius:6px;">
+          <input type="checkbox" id="pin-live" /> Pin live
+        </label>
       </div>
     </div>
     <div class="muted" id="meta"></div>
@@ -88,6 +100,11 @@
   </div>
 </div>
 <script>
+let LIVE_TIMER = null;
+window._liveMap = {};
+window._liveTeams = new Set();
+function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+function normalizeName(s){ try{ return s.normalize('NFD').replace(/\p{M}+/gu,'').toLowerCase().replace(/[^a-z0-9 ]+/g,'').trim(); }catch(_){ return (s||'').toLowerCase().trim(); } }
 async function loadProjections(){
   const res = await fetch('/api/pitcher-projections');
   const js = await res.json();
@@ -97,6 +114,8 @@ async function loadProjections(){
   const tbody = document.querySelector('#proj-table tbody');
   window._pitcherData = d.pitchers;
   renderRows();
+  // kick off live if enabled
+  setLive(document.getElementById('live-toggle').checked, true);
 }
 function altKTooltip(p){
   const alts = (p.lines.strikeouts_alts||[]);
@@ -119,30 +138,78 @@ function renderRows(){
   const showAdv = document.getElementById('toggle-adv').checked;
   const cls = showAdv? '' : 'hide-adv';
   tbody.parentElement.parentElement.className = 'table-wrap '+cls;
-  tbody.innerHTML = data.map(p=>`<tr>
+  function getAct(name){ const k = normalizeName(name||''); const row = window._liveMap[k]; return row && row.act ? row.act : null; }
+  function fmtAct(val, stat){ if(val==null||val===undefined) return ''; const prec = stat==='outs'?0:0; return ` <span class="muted" style="font-size:10px;">(Act ${prec?Number(val).toFixed(prec):val})</span>`; }
+  // Pin and highlight live pitchers if enabled
+  const pinLive = document.getElementById('pin-live')?.checked;
+  if(pinLive && window._liveTeams && window._liveTeams.size){
+    const liveFirst = [];
+    const rest = [];
+    data.forEach(p=>{ const isLive = window._liveTeams.has(normalizeName(p.team||'')); (isLive?liveFirst:rest).push(p); });
+    data = liveFirst.concat(rest);
+  }
+  tbody.innerHTML = data.map(p=>{ const act = getAct(p.pitcher_name); const isLive = window._liveTeams.has(normalizeName(p.team||'')); return `<tr class="${isLive?'row-live':''}">
     <td>${p.pitcher_name}</td>
     <td>${p.team||''}</td>
     <td>${p.opponent||''}</td>
-  <td>${p.projected_outs}</td>
+  <td>${p.projected_outs}${fmtAct(act?act.outs:null,'outs')}</td>
   <td>${formatLine(p.lines.outs)}</td>
   <td class="${edgeClass(p,'outs')}">${p.recommendations.outs??''}${edgeDiff(p,'outs')}</td>
-  <td>${p.projected_strikeouts}</td>
+  <td>${p.projected_strikeouts}${fmtAct(act?act.k:null,'k')}</td>
   <td>${formatLine(p.lines.strikeouts)}</td>
     <td class="${edgeClass(p,'strikeouts')}">${p.recommendations.strikeouts??''}${edgeDiff(p,'strikeouts')}</td>
     <td class="col-adv" title="${altKTooltip(p)}">${(p.lines.strikeouts_alts||p.strikeouts_alts||[]).map(a=>a.threshold).join(', ')}</td>
-  <td class="col-adv">${p.projected_earned_runs}</td>
+  <td class="col-adv">${p.projected_earned_runs}${fmtAct(act?act.er:null,'er')}</td>
   <td class="col-adv">${formatLine(p.lines.earned_runs)}</td>
   <td class="col-adv ${edgeClass(p,'earned_runs')}">${p.recommendations.earned_runs??''}${edgeDiff(p,'earned_runs')}</td>
-  <td class="col-adv">${p.projected_hits_allowed}</td>
+  <td class="col-adv">${p.projected_hits_allowed}${fmtAct(act?act.h:null,'h')}</td>
     <td class="col-adv">${formatLine(p.lines.hits_allowed)}</td>
     <td class="col-adv ${edgeClass(p,'hits_allowed')}">${p.recommendations.hits_allowed??''}${edgeDiff(p,'hits_allowed')}</td>
-  <td class="col-adv">${p.projected_walks??''}</td>
+  <td class="col-adv">${p.projected_walks??''}${fmtAct(act?act.bb:null,'bb')}</td>
   <td class="col-adv">${formatLine(p.lines.walks)}</td>
   <td class="col-adv ${edgeClass(p,'walks')}">${p.recommendations.walks??''}${edgeDiff(p,'walks')}</td>
     <td><span class="badge ${p.confidence}">${p.confidence}</span></td>
-  </tr>`).join('');
+  </tr>`}).join('');
 }
 function toggleAdvanced(){ renderRows(); }
+async function fetchLive(){
+  try{
+    const d = todayISO();
+    const [recRes, statusRes] = await Promise.all([
+      fetch(`/api/pitcher-reconciliation?date=${d}&live=1`),
+      fetch(`/api/live-status?date=${d}`)
+    ]);
+    const [js, ls] = await Promise.all([recRes.json(), statusRes.json()]);
+    if(js && js.success){
+      const map = {};
+      (js.rows||[]).forEach(r=>{ if(r && r.pitcher_name){ map[normalizeName(r.pitcher_name)] = r; } });
+      window._liveMap = map;
+    }
+    if(ls && ls.success){
+      const teams = new Set();
+      (ls.games||[]).forEach(g=>{ if(g && g.is_live){ teams.add(normalizeName(g.away_team||'')); teams.add(normalizeName(g.home_team||'')); } });
+      window._liveTeams = teams;
+    }
+    // refresh rows with latest stats
+    renderRows();
+    // annotate meta with live timestamp (replace prior live time suffix)
+    const meta = document.getElementById('meta');
+    const base = meta.textContent.split(' • live ')[0];
+    meta.textContent = `${base} • live ${new Date().toLocaleTimeString()}`;
+  }catch(e){ /* ignore transient */ }
+}
+function setLive(enabled, immediate=false){
+  const cb = document.getElementById('live-toggle'); if(cb) cb.checked = !!enabled;
+  if(LIVE_TIMER){ clearInterval(LIVE_TIMER); LIVE_TIMER = null; }
+  if(enabled){
+    const iv = parseInt(document.getElementById('live-interval').value||'30000',10);
+    if(immediate) fetchLive();
+    LIVE_TIMER = setInterval(fetchLive, Math.max(5000, iv));
+  }
+}
+document.getElementById('live-toggle').addEventListener('change', (e)=> setLive(e.target.checked, true));
+document.getElementById('live-interval').addEventListener('change', ()=> setLive(document.getElementById('live-toggle').checked));
+document.getElementById('pin-live').addEventListener('change', ()=> renderRows());
 loadProjections();
 function formatLine(obj){
   if(!obj || obj.line==null) return '';
