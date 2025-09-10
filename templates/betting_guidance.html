@@ -728,16 +728,35 @@
       const re = document.getElementById('props-range-end');
       if(!rs || !re || !rs.value || !re.value) return;
       const start = rs.value, end = re.value;
+      const statsKeys = ['outs','strikeouts','earned_runs','hits_allowed','walks'];
+      async function fetchDays(live){
+        const url = `/api/pitcher-reconciliation/daily-summaries?start_date=${start}&end_date=${end}` + (live? '&live=1' : '');
+        const r = await fetch(url);
+        if(!r.ok) return null;
+        try{ const js = await r.json(); return (js && js.days) || []; }catch(_){ return null; }
+      }
       try{
-        const r = await fetch(`/api/pitcher-reconciliation/daily-summaries?start_date=${start}&end_date=${end}`);
-        if(!r.ok){ document.getElementById('props-range-grid').innerHTML=''; document.getElementById('props-range-stat-grid').innerHTML='<div class="muted">No data in selected range.</div>'; return; }
-        const js = await r.json();
-        const days = (js && js.days) || [];
+        let days = await fetchDays(false);
+        if(!days){
+          document.getElementById('props-range-grid').innerHTML='';
+          document.getElementById('props-range-stat-grid').innerHTML='<div class="muted">No data in selected range.</div>';
+          return;
+        }
+        // Prefer aggregating only days with any graded props (avoid zeros from today before games start)
+        let useDays = days.filter(d=> Number((((d||{}).summary||{}).totals||{}).graded||0) > 0);
+        if(useDays.length === 0){
+          // Retry once with live=1 to compute the latest day on the fly
+          const daysLive = await fetchDays(true);
+          if(Array.isArray(daysLive) && daysLive.length){
+            days = daysLive;
+            useDays = days.filter(d=> Number((((d||{}).summary||{}).totals||{}).graded||0) > 0);
+          }
+        }
+        const src = useDays.length ? useDays : days;
         // Aggregate totals
         const aggTotals = { wins:0, losses:0, pushes:0, graded:0 };
-        const statsKeys = ['outs','strikeouts','earned_runs','hits_allowed','walks'];
         const aggByStat = Object.fromEntries(statsKeys.map(k=>[k,{ wins:0, losses:0, pushes:0, graded:0 }]));
-        days.forEach(d=>{
+        src.forEach(d=>{
           const s = (d && d.summary) || {}; const tt = s.totals || {}; const bs = s.by_stat || {};
           aggTotals.wins += Number(tt.wins||0);
           aggTotals.losses += Number(tt.losses||0);
