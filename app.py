@@ -2869,6 +2869,93 @@ def api_betting_recommendations_by_date(date):
                     'reasoning': vb.get('reasoning', '')
                 })
 
+            # Support embedded betting_recommendations object (moneyline/total_runs/run_line or value_bets/unified_value_bets inside)
+            try:
+                br = game_data.get('betting_recommendations')
+                if isinstance(br, dict):
+                    # If it already has value_bets/unified_value_bets arrays, reuse those
+                    for key_name in ('value_bets', 'unified_value_bets'):
+                        vb_list = br.get(key_name)
+                        if isinstance(vb_list, list):
+                            for vb in vb_list:
+                                odds_raw = vb.get('american_odds', vb.get('odds', -110))
+                                try:
+                                    odds_int = int(str(odds_raw).replace('+', '')) if odds_raw != 'N/A' else -110
+                                except Exception:
+                                    odds_int = -110
+                                key = (game_key, vb.get('type', 'unknown'), vb.get('recommendation'))
+                                if key in seen:
+                                    continue
+                                seen.add(key)
+                                recs.append({
+                                    'game': display_game,
+                                    'game_key': game_key,
+                                    'away_team': away,
+                                    'home_team': home,
+                                    'type': vb.get('type', 'unknown'),
+                                    'recommendation': vb.get('recommendation'),
+                                    'expected_value': vb.get('expected_value', 0),
+                                    'win_probability': vb.get('win_probability'),
+                                    'american_odds': odds_raw,
+                                    'odds': odds_int,
+                                    'confidence': str(vb.get('confidence', 'UNKNOWN')).upper(),
+                                    'kelly_bet_size': vb.get('kelly_bet_size'),
+                                    'predicted_total': vb.get('predicted_total'),
+                                    'betting_line': vb.get('betting_line'),
+                                    'reasoning': vb.get('reasoning', '')
+                                })
+                    # Otherwise, interpret keyed objects like moneyline/total_runs/run_line
+                    type_map = {
+                        'moneyline': 'moneyline',
+                        'total_runs': 'total',
+                        'total': 'total',
+                        'run_line': 'run_line',
+                        'spread': 'run_line'
+                    }
+                    for k, v in br.items():
+                        if k in ('value_bets','unified_value_bets'):
+                            continue
+                        if not isinstance(v, dict):
+                            continue
+                        rec_type = type_map.get(str(k).lower())
+                        if not rec_type:
+                            continue
+                        rec_pick = v.get('recommendation') or v.get('pick')
+                        line = v.get('betting_line', v.get('line'))
+                        # Build recommendation text when missing (e.g., totals)
+                        if (not rec_pick) and rec_type == 'total' and line is not None:
+                            side = v.get('side') or v.get('over_under')  # 'OVER' or 'UNDER'
+                            if side:
+                                rec_pick = f"{str(side).title()} {line}"
+                        odds_raw = v.get('american_odds') or v.get('odds')
+                        try:
+                            odds_int = int(str(odds_raw).replace('+', '')) if odds_raw not in (None, 'N/A') else -110
+                        except Exception:
+                            odds_int = -110
+                        key = (game_key, rec_type, rec_pick)
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        recs.append({
+                            'game': display_game,
+                            'game_key': game_key,
+                            'away_team': away,
+                            'home_team': home,
+                            'type': rec_type,
+                            'recommendation': rec_pick,
+                            'expected_value': v.get('expected_value', 0),
+                            'win_probability': v.get('win_probability'),
+                            'american_odds': odds_raw,
+                            'odds': odds_int,
+                            'confidence': str(v.get('confidence', 'UNKNOWN')).upper(),
+                            'kelly_bet_size': v.get('kelly_bet_size'),
+                            'predicted_total': v.get('predicted_total'),
+                            'betting_line': line,
+                            'reasoning': v.get('reasoning', '')
+                        })
+            except Exception:
+                pass
+
             # Also support nested predictions.recommendations (older 8/22-8/23 format)
             try:
                 preds = (game_data.get('predictions') or {}).get('recommendations') or []
