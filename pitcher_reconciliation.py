@@ -182,8 +182,13 @@ def reconcile_projections(date_iso: str, live: bool = False) -> Dict[str, Any]:
     """Join projections snapshot with actual stats and compute errors."""
     proj = load_projections_snapshot(date_iso)
     if not proj:
-        # Attempt to compute today's snapshot if date == today
-        if date_iso == datetime.utcnow().strftime('%Y-%m-%d'):
+        # Attempt to compute today's snapshot if date == local (US/Eastern) today
+        try:
+            from zoneinfo import ZoneInfo
+            today_local = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
+        except Exception:
+            today_local = datetime.now().strftime('%Y-%m-%d')
+        if date_iso == today_local:
             try:
                 from pitcher_projections import compute_pitcher_projections
                 proj = compute_pitcher_projections(include_lines=True, force_refresh=False)

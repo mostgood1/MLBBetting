@@ -5,13 +5,24 @@ Independent utility used by /api/pitcher-projections and /pitcher-projections pa
 from __future__ import annotations
 import os, json, time, math, re, unicodedata
 from datetime import datetime
+try:
+    from zoneinfo import ZoneInfo
+except Exception:
+    ZoneInfo = None
 from typing import List, Dict, Any, Optional
 import requests
 
 DATA_DIR = os.path.join('data')
 
 def _today_dates():
-    dt = datetime.utcnow()
+    """Return today's date strings using MLB-friendly timezone (America/New_York).
+    Falls back to local time if zoneinfo is unavailable.
+    """
+    try:
+        tz = ZoneInfo('America/New_York') if ZoneInfo else None
+    except Exception:
+        tz = None
+    dt = datetime.now(tz) if tz else datetime.now()
     return dt.strftime('%Y-%m-%d'), dt.strftime('%Y_%m_%d')
 
 def _strip_accents(s: str) -> str:

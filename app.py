@@ -390,18 +390,19 @@ def get_or_create_historical_analyzer():
 
 def get_business_date():
     """
-    Get the business date for MLB betting purposes.
-    Uses previous day's date until 6:00 AM to keep showing previous day's games/data.
-    This prevents the system from switching to next day's games at midnight.
+    Get the MLB business date using US/Eastern time.
+    Use previous day's date until 6:00 AM ET to avoid switching at midnight local/UTC.
     """
-    now = datetime.now()
-    
-    # If it's before 6 AM, use yesterday's date
+    try:
+        from zoneinfo import ZoneInfo
+        now = datetime.now(ZoneInfo('America/New_York'))
+    except Exception:
+        now = datetime.now()
+    # If it's before 6 AM ET, use yesterday's date
     if now.hour < 6:
         business_date = now - timedelta(days=1)
     else:
         business_date = now
-    
     return business_date.strftime('%Y-%m-%d')
 
 def get_live_status_with_timeout(away_team, home_team, date_param, timeout_seconds=3):
@@ -2652,7 +2653,12 @@ def api_betting_guidance_performance():
     # Define analysis window: from 2025-08-15 through yesterday
     from datetime import datetime, timedelta
     START_DATE_STR = '2025-08-15'
-    END_DATE_STR = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    try:
+        from zoneinfo import ZoneInfo
+        _now_local = datetime.now(ZoneInfo('America/New_York'))
+    except Exception:
+        _now_local = datetime.now()
+    END_DATE_STR = (_now_local - timedelta(days=1)).strftime('%Y-%m-%d')
 
     # Prefer computing from local historical analyzer with per-bet aggregation
     def parse_american_odds(od):
@@ -3549,7 +3555,11 @@ def api_pitcher_validation():
     """Return daily pitcher validation summary (team/opponent mapping health)."""
     try:
         # Determine today's date (UTC) consistent with projections file naming
-        today_iso = datetime.utcnow().strftime('%Y-%m-%d')
+        try:
+            from zoneinfo import ZoneInfo
+            today_iso = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
+        except Exception:
+            today_iso = datetime.now().strftime('%Y-%m-%d')
         today_us = today_iso.replace('-', '_')
         data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
         val_path = os.path.join(data_dir, f'pitcher_validation_{today_us}.json')
@@ -3591,9 +3601,10 @@ def api_pitcher_prop_plays():
         end_param = request.args.get('end')
         month_param = request.args.get('month')
         aggregate = request.args.get('aggregate') is not None
+        refresh_flag = request.args.get('refresh') is not None or request.args.get('live') is not None
         data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
 
-        def _load_day(diso: str):
+        def _load_day(diso: str, refresh: bool = False):
             fn = f"pitcher_projections_{diso.replace('-', '_')}.json"
             path = os.path.join(data_dir, fn)
             if os.path.exists(path):
@@ -3603,15 +3614,25 @@ def api_pitcher_prop_plays():
                 except Exception:
                     return None
             # Fallback: compute if today
-            if diso == datetime.utcnow().strftime('%Y-%m-%d'):
+            try:
+                from zoneinfo import ZoneInfo
+                today_iso_local = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
+            except Exception:
+                today_iso_local = datetime.now().strftime('%Y-%m-%d')
+            if diso == today_iso_local:
                 try:
-                    return compute_pitcher_projections()
+                    # Force refresh if explicitly requested to fetch fresh lines
+                    return compute_pitcher_projections(include_lines=True, force_refresh=bool(refresh))
                 except Exception:
                     return None
             return None
 
         days = []
-        today_iso = datetime.utcnow().strftime('%Y-%m-%d')
+        try:
+            from zoneinfo import ZoneInfo
+            today_iso = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
+        except Exception:
+            today_iso = datetime.now().strftime('%Y-%m-%d')
         if start_param and end_param:
             try:
                 start_dt = datetime.strptime(start_param, '%Y-%m-%d').date()
@@ -3630,7 +3651,12 @@ def api_pitcher_prop_plays():
                 # iterate until next month
                 cur = mdt
                 while cur.month == mdt.month:
-                    if cur <= datetime.utcnow().date():
+                    try:
+                        from zoneinfo import ZoneInfo
+                        now_local = datetime.now(ZoneInfo('America/New_York')).date()
+                    except Exception:
+                        now_local = datetime.now().date()
+                    if cur <= now_local:
                         days.append(cur.strftime('%Y-%m-%d'))
                     cur += timedelta(days=1)
             except Exception:
@@ -3641,7 +3667,7 @@ def api_pitcher_prop_plays():
 
         all_entries = []
         for diso in days:
-            day_data = _load_day(diso)
+            day_data = _load_day(diso, refresh=refresh_flag)
             if not day_data:
                 continue
             for p in day_data.get('pitchers', []):
@@ -3713,7 +3739,12 @@ def betting_recommendations_page():
 def api_pitcher_reconciliation():
     try:
         from datetime import datetime
-        date_param = request.args.get('date') or datetime.utcnow().strftime('%Y-%m-%d')
+        try:
+            from zoneinfo import ZoneInfo
+            default_date = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
+        except Exception:
+            default_date = datetime.now().strftime('%Y-%m-%d')
+        date_param = request.args.get('date') or default_date
         live = request.args.get('live') is not None
         from pitcher_reconciliation import reconcile_projections
         data = reconcile_projections(date_param, live=live)
@@ -3756,7 +3787,11 @@ def api_betting_recommendations_confidence_history():
     try:
         from datetime import datetime, timedelta
         days = int(request.args.get('days', 30))
-        now = datetime.utcnow().date()
+        try:
+            from zoneinfo import ZoneInfo
+            now = datetime.now(ZoneInfo('America/New_York')).date()
+        except Exception:
+            now = datetime.now().date()
         start = now - timedelta(days=days-1)
         stk = {'HIGH':100,'MEDIUM':50,'LOW':25}
         data_dir = os.path.join(os.path.dirname(__file__), 'data')

@@ -76,6 +76,14 @@
         <div class="flex" style="gap:6px;">
           <input id="search" placeholder="Search pitcher/team" style="flex:1;padding:6px 8px;border:1px solid #cfe1f8;border-radius:6px;font-size:12px;"/>
           <button class="pill" onclick="reloadCurrent()">Reload</button>
+          <label class="muted" style="display:flex;align-items:center;gap:6px;font-size:12px;">
+            <input type="checkbox" id="live-toggle" /> Live
+            <select id="live-interval" style="padding:4px 6px;border:1px solid #cfe1f8;border-radius:6px;font-size:12px;">
+              <option value="15000">15s</option>
+              <option value="30000" selected>30s</option>
+              <option value="60000">60s</option>
+            </select>
+          </label>
         </div>
         <div class="flex" style="gap:6px;flex-wrap:wrap;">
           <a href="#" onclick="downloadJSON();return false;" class="pill" style="background:#2563eb;">JSON</a>
@@ -109,9 +117,23 @@
 const STAKES = { HIGH:100, MEDIUM:50, LOW:25 };
 let RAW_PROPS = [];
 let LOAD_CONTEXT = { mode:'day', label:'Today', params:{} };
+let LIVE_TIMER = null;
 function confRank(c){ return {HIGH:3, MEDIUM:2, LOW:1}[c]||0; }
 function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
-function reloadCurrent(){ loadProps(); }
+// live control
+function setLive(enabled){
+  const cb = document.getElementById('live-toggle');
+  if(cb) cb.checked = !!enabled;
+  if(LIVE_TIMER){ clearInterval(LIVE_TIMER); LIVE_TIMER = null; }
+  if(enabled && LOAD_CONTEXT.mode==='day'){
+    const interval = parseInt(document.getElementById('live-interval').value||'30000',10);
+    LIVE_TIMER = setInterval(()=>{
+      // For day mode, explicitly pass today date to avoid month/range state bleed
+      const d = todayISO();
+      loadProps(`?date=${d}`);
+    }, Math.max(5000, interval));
+  }
+}
 function filterProps(){
   const hideLow = document.getElementById('hide-low').checked;
   const statFilter = document.getElementById('stat-filter').value;
@@ -197,6 +219,11 @@ async function loadProps(qs=''){
     renderAll();
   } catch(e){ console.warn('loadProps failed', e); document.getElementById('meta').textContent='Error loading'; }
 }
+function loadToday(){
+  const d = todayISO();
+  LOAD_CONTEXT = { mode:'day', label:'Today', params:{date:d} };
+  loadProps(`?date=${d}`);
+}
 function loadCurrentMonth(){
   const d=new Date(); const month = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
   LOAD_CONTEXT = {mode:'month', label:`Month ${month}`, params:{month}};
@@ -208,15 +235,17 @@ function applyDateRange(){
 function reloadCurrent(){
   if(LOAD_CONTEXT.mode==='month') loadCurrentMonth();
   else if(LOAD_CONTEXT.mode==='range') applyDateRange();
-  else { LOAD_CONTEXT={mode:'day', label:`Date ${todayISO()}`, params:{}}; loadProps(); }
+  else { loadToday(); }
 }
 document.getElementById('hide-low').addEventListener('change', renderAll);
 document.getElementById('stat-filter').addEventListener('change', renderAll);
 document.getElementById('search').addEventListener('input', function(){ clearTimeout(this._t); this._t=setTimeout(renderAll,200); });
+document.getElementById('live-toggle').addEventListener('change', (e)=> setLive(e.target.checked));
+document.getElementById('live-interval').addEventListener('change', ()=> setLive(document.getElementById('live-toggle').checked));
 function downloadJSON(){ if(!RAW_PROPS.length) return; const blob=new Blob([JSON.stringify(RAW_PROPS,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`pitcher_prop_recs_${todayISO()}.json`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},300); }
 function downloadCSV(){ if(!RAW_PROPS.length) return; const headers=['date','confidence','pitcher','team','opponent','stat','recommendation','line','projection','adjusted_projection','diff','odds','stake']; const lines=[headers.join(',')]; RAW_PROPS.forEach(p=>{ const stake=STAKES[p.confidence]||0; lines.push([todayISO(),p.confidence,p.pitcher_name,p.team,p.opponent,p.stat,p.recommendation,p.line,p.projection,p.adjusted_projection,p.diff,p.odds_display,stake].map(x=>`"${(x??'').toString().replace(/"/g,'""')}"`).join(',')); }); const blob=new Blob([lines.join('\n')],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`pitcher_prop_recs_${todayISO()}.csv`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},300); }
-// Default: load current month aggregate
-loadCurrentMonth();
+// Default: load today's data and allow user to opt-in to live updates
+loadToday();
 </script>
 </body>
 </html>

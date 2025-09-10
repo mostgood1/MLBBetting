@@ -278,13 +278,17 @@ def complete_daily_automation():
     try:
         from datetime import timedelta
         from pitcher_reconciliation import fetch_pitcher_actuals, reconcile_projections
-        utc_today = datetime.utcnow().date()
-        yday = (utc_today - timedelta(days=1)).strftime('%Y-%m-%d')
+        try:
+            from zoneinfo import ZoneInfo
+            local_today = datetime.now(ZoneInfo('America/New_York')).date()
+        except Exception:
+            local_today = datetime.now().date()
+        yday = (local_today - timedelta(days=1)).strftime('%Y-%m-%d')
         rec = reconcile_projections(yday, live=False)
         logger.info(f"✅ Reconciled {yday}: {rec.get('count',0)} pitchers")
         # Prime today's live cache (non-blocking)
         try:
-            fetch_pitcher_actuals(utc_today.strftime('%Y-%m-%d'), live=True)
+            fetch_pitcher_actuals(local_today.strftime('%Y-%m-%d'), live=True)
         except Exception:
             pass
     except Exception as e:
