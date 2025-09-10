@@ -7,6 +7,7 @@ Comprehensive script to set up a new day's data from scratch
 import os
 import sys
 import subprocess
+import threading
 import logging
 import shutil
 import time
@@ -45,39 +46,90 @@ def setup_logging():
     return logging.getLogger(__name__)
 
 def run_script(script_path: Path, description: str, logger, timeout: int = 300):
-    """Run a script with error handling"""
+    """Run a script with live output streaming, heartbeat, and timeout control."""
     try:
         logger.info(f"🚀 {description}")
-        # Ensure script exists before attempting to run
         if not script_path.exists():
             logger.warning(f"⚠️ Script not found, skipping: {script_path}")
             return False
 
-        result = subprocess.run([
-            sys.executable, str(script_path)
-        ], capture_output=True, text=True, timeout=timeout, cwd=str(script_path.parent))
-        
-        if result.returncode == 0:
-            logger.info(f"✅ SUCCESS: {description}")
-            if result.stdout and result.stdout.strip():
-                # Show last few lines of output
-                output_lines = result.stdout.strip().split('\n')
-                for line in output_lines[-3:]:  # Show last 3 lines
-                    if line.strip():
-                        logger.info(f"   {line}")
+        env = os.environ.copy()
+        # Encourage unbuffered Python output in child so progress logs are flushed immediately
+        env.setdefault('PYTHONUNBUFFERED', '1')
+
+        proc = subprocess.Popen(
+            [sys.executable, str(script_path)],
+            cwd=str(script_path.parent),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            bufsize=1,
+            universal_newlines=True,
+            env=env,
+        )
+
+        start = time.time()
+        last_heartbeat = start
+        alive = True
+
+        def _reader(stream, log_fn, tag=""):
+            try:
+                for line in iter(stream.readline, ''):
+                    msg = line.rstrip('\n\r')
+                    if msg:
+                        if tag:
+                            log_fn(f"   {tag} {msg}")
+                        else:
+                            log_fn(f"   {msg}")
+            except Exception:
+                pass
+
+        threads = []
+        if proc.stdout is not None:
+            t_out = threading.Thread(target=_reader, args=(proc.stdout, logger.info, '>'))
+            t_out.daemon = True; t_out.start(); threads.append(t_out)
+        if proc.stderr is not None:
+            t_err = threading.Thread(target=_reader, args=(proc.stderr, logger.warning, '!'))
+            t_err.daemon = True; t_err.start(); threads.append(t_err)
+
+        # Monitor loop for timeout + heartbeat
+        while proc.poll() is None:
+            now = time.time()
+            # Heartbeat every 30s to show the step is still running
+            if now - last_heartbeat >= 30:
+                elapsed = int(now - start)
+                logger.info(f"⏳ {description} in progress... {elapsed}s elapsed")
+                last_heartbeat = now
+            if timeout and (now - start) > timeout:
+                logger.error(f"⏰ TIMEOUT: {description} (>{timeout}s)")
+                try:
+                    proc.kill()
+                except Exception:
+                    pass
+                alive = False
+                break
+            time.sleep(0.5)
+
+        # Ensure readers drain remaining output
+        for t in threads:
+            try:
+                t.join(timeout=2.0)
+            except Exception:
+                pass
+
+        rc = proc.returncode if alive else None
+        if rc == 0:
+            elapsed = int(time.time() - start)
+            logger.info(f"✅ SUCCESS: {description} ({elapsed}s)")
             return True
-        else:
-            logger.error(f"❌ FAILED: {description}")
-            logger.error(f"Return code: {result.returncode}")
-            if result.stderr and result.stderr.strip():
-                logger.error(f"Error output: {result.stderr.strip()}")
-            if result.stdout and result.stdout.strip():
-                logger.error(f"Standard output: {result.stdout.strip()}")
+        elif rc is None:
+            # We killed it due to timeout
             return False
-            
-    except subprocess.TimeoutExpired:
-        logger.error(f"⏰ TIMEOUT: {description} (>{timeout}s)")
-        return False
+        else:
+            elapsed = int(time.time() - start)
+            logger.error(f"❌ FAILED: {description} (rc={rc}, {elapsed}s)")
+            return False
+
     except Exception as e:
         logger.error(f"💥 EXCEPTION: {description} - {str(e)}")
         return False
@@ -240,14 +292,48 @@ def complete_daily_automation():
     
     # Update comprehensive daily data (bullpen, weather, etc.)
     logger.info("🌐 Updating comprehensive daily data...")
+    logger.info("   ▶ This may run: standings, injuries, bullpens, weather, books → snapshots")
     daily_updater = base_dir / "daily_data_updater.py"
     if daily_updater.exists():
-        success_daily = run_script(daily_updater, "Update Daily Data", logger, 420)
+        # Force starters-only + verbose for this step
+        prev_scope = os.environ.get('DAILY_PITCHER_SCOPE')
+        prev_verbose = os.environ.get('DAILY_UPDATER_VERBOSE')
+        os.environ['DAILY_PITCHER_SCOPE'] = 'today'
+        os.environ['DAILY_UPDATER_VERBOSE'] = '1'
+        logger.info("   ▶ Launching daily_data_updater.py with live streaming logs (DAILY_PITCHER_SCOPE=today)")
+        try:
+            success_daily = run_script(daily_updater, "Update Daily Data", logger, 420)
+        finally:
+            # Restore prior env
+            if prev_scope is None:
+                os.environ.pop('DAILY_PITCHER_SCOPE', None)
+            else:
+                os.environ['DAILY_PITCHER_SCOPE'] = prev_scope
+            if prev_verbose is None:
+                os.environ.pop('DAILY_UPDATER_VERBOSE', None)
+            else:
+                os.environ['DAILY_UPDATER_VERBOSE'] = prev_verbose
         if not success_daily:
             # Retry shorter segments if available (optional future segmentation)
             logger.warning("⏪ Retrying daily data update after initial failure (short backoff)...")
             time.sleep(5)
-            success_daily = run_script(daily_updater, "Retry Daily Data Update", logger, 420)
+            # Set env again for retry
+            prev_scope = os.environ.get('DAILY_PITCHER_SCOPE')
+            prev_verbose = os.environ.get('DAILY_UPDATER_VERBOSE')
+            os.environ['DAILY_PITCHER_SCOPE'] = 'today'
+            os.environ['DAILY_UPDATER_VERBOSE'] = '1'
+            logger.info("   ▶ Re-launching daily_data_updater.py (retry) with live streaming logs (DAILY_PITCHER_SCOPE=today)")
+            try:
+                success_daily = run_script(daily_updater, "Retry Daily Data Update", logger, 420)
+            finally:
+                if prev_scope is None:
+                    os.environ.pop('DAILY_PITCHER_SCOPE', None)
+                else:
+                    os.environ['DAILY_PITCHER_SCOPE'] = prev_scope
+                if prev_verbose is None:
+                    os.environ.pop('DAILY_UPDATER_VERBOSE', None)
+                else:
+                    os.environ['DAILY_UPDATER_VERBOSE'] = prev_verbose
         if success_daily:
             logger.info("✅ Daily data updated (bullpen, weather factors)")
         else:
@@ -270,6 +356,36 @@ def complete_daily_automation():
             missing_opponent = len(gaps.get('opponent', []))
             missing_recent = len(gaps.get('recent_form', []))
             logger.info(f"🔎 Adjustment gaps - opponent:{missing_opponent} recent_form:{missing_recent}")
+
+        # Step 2.65: Build and save daily pitcher prop recommendations snapshot (snapshot-first)
+        try:
+            # Import lightweight builder from app module
+            from app import save_pitcher_prop_recommendations_file
+            try:
+                # Use US/Eastern for business date consistency
+                from zoneinfo import ZoneInfo
+                diso = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
+            except Exception:
+                diso = datetime.now().strftime('%Y-%m-%d')
+            ok, path_or_err = save_pitcher_prop_recommendations_file(diso)
+            if ok:
+                logger.info(f"✅ Pitcher prop recommendations snapshot saved: {path_or_err}")
+                # Quick verification: read back and log counts
+                try:
+                    import json
+                    with open(path_or_err, 'r') as f:
+                        snap_js = json.load(f)
+                    counts = (snap_js or {}).get('counts') or {}
+                    total = int(counts.get('total') or (snap_js.get('count') or 0))
+                    logger.info(f"   ▶ Prop snapshot counts -> total:{total} high:{counts.get('high')} medium:{counts.get('medium')} low:{counts.get('low')}")
+                    if total == 0:
+                        logger.warning("⚠️ Prop snapshot has zero plays; lines may be missing early. Will rely on endpoint fallback or re-run later.")
+                except Exception as ve:
+                    logger.warning(f"⚠️ Could not verify prop snapshot counts: {ve}")
+            else:
+                logger.warning(f"⚠️ Could not save pitcher prop recommendations snapshot: {path_or_err}")
+        except Exception as ie:
+            logger.warning(f"⚠️ Prop recommendations snapshot step skipped: {ie}")
     except Exception as e:
         logger.warning(f"⚠️ Could not generate daily pitcher projections (engine will fallback to on-demand): {e}")
     
@@ -434,6 +550,7 @@ def complete_daily_automation():
         (data_dir / f"betting_recommendations_{today_underscore}.json", mlb_betting_data_dir / f"betting_recommendations_{today_underscore}.json"),
         (data_dir / f"real_betting_lines_{today_underscore}.json", mlb_betting_data_dir / f"real_betting_lines_{today_underscore}.json"),
         (data_dir / f"games_{today}.json", mlb_betting_data_dir / f"games_{today}.json"),
+    (data_dir / f"pitcher_prop_recommendations_{today_underscore}.json", mlb_betting_data_dir / f"pitcher_prop_recommendations_{today_underscore}.json"),
     ]
     
     copy_success = True

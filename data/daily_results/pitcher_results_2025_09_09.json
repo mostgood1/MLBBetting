@@ -1,0 +1,961 @@
+{
+  "date": "2025-09-09",
+  "generated_at": "2025-09-10T03:43:26.051655",
+  "pitchers": [
+    {
+      "name": "Keegan Akin",
+      "ip": "0.1",
+      "outs": 1,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 2
+    },
+    {
+      "name": "Rico Garcia",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Kyle Bradish",
+      "ip": "7.0",
+      "outs": 21,
+      "strikeouts": 6,
+      "earned_runs": 1,
+      "hits_allowed": 4,
+      "walks": 2
+    },
+    {
+      "name": "Yennier Cano",
+      "ip": "0.2",
+      "outs": 2,
+      "strikeouts": 0,
+      "earned_runs": 1,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Dietrich Enns",
+      "ip": "2.0",
+      "outs": 6,
+      "strikeouts": 2,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 1
+    },
+    {
+      "name": "Isaac Mattson",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 2
+    },
+    {
+      "name": "Dauri Moreta",
+      "ip": "0.0",
+      "outs": 0,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 2,
+      "walks": 1
+    },
+    {
+      "name": "Kyle Nicolas",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Dennis Santana",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Mike Burrows",
+      "ip": "4.0",
+      "outs": 12,
+      "strikeouts": 6,
+      "earned_runs": 1,
+      "hits_allowed": 2,
+      "walks": 1
+    },
+    {
+      "name": "Braxton Ashcraft",
+      "ip": "3.0",
+      "outs": 9,
+      "strikeouts": 4,
+      "earned_runs": 1,
+      "hits_allowed": 2,
+      "walks": 2
+    },
+    {
+      "name": "Cade Smith",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 2,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Joey Cantillo",
+      "ip": "8.0",
+      "outs": 24,
+      "strikeouts": 5,
+      "earned_runs": 0,
+      "hits_allowed": 4,
+      "walks": 0
+    },
+    {
+      "name": "Noah Cameron",
+      "ip": "7.0",
+      "outs": 21,
+      "strikeouts": 8,
+      "earned_runs": 2,
+      "hits_allowed": 6,
+      "walks": 0
+    },
+    {
+      "name": "Angel Zerpa",
+      "ip": "0.1",
+      "outs": 1,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 1
+    },
+    {
+      "name": "John Schreiber",
+      "ip": "0.2",
+      "outs": 2,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Seth Martinez",
+      "ip": "1.2",
+      "outs": 5,
+      "strikeouts": 1,
+      "earned_runs": 1,
+      "hits_allowed": 0,
+      "walks": 1
+    },
+    {
+      "name": "Josh Simpson",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Valente Bellozo",
+      "ip": "2.0",
+      "outs": 6,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 2,
+      "walks": 0
+    },
+    {
+      "name": "Adam Mazur",
+      "ip": "4.1",
+      "outs": 13,
+      "strikeouts": 1,
+      "earned_runs": 4,
+      "hits_allowed": 8,
+      "walks": 3
+    },
+    {
+      "name": "Jose A. Ferrer",
+      "ip": "0.1",
+      "outs": 1,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "PJ Poulin",
+      "ip": "0.1",
+      "outs": 1,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Cole Henry",
+      "ip": "0.2",
+      "outs": 2,
+      "strikeouts": 1,
+      "earned_runs": 2,
+      "hits_allowed": 2,
+      "walks": 0
+    },
+    {
+      "name": "Mitchell Parker",
+      "ip": "7.2",
+      "outs": 23,
+      "strikeouts": 2,
+      "earned_runs": 2,
+      "hits_allowed": 4,
+      "walks": 2
+    },
+    {
+      "name": "Ranger Su\u00e1rez",
+      "ip": "6.0",
+      "outs": 18,
+      "strikeouts": 12,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 3
+    },
+    {
+      "name": "Tanner Banks",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 1,
+      "hits_allowed": 3,
+      "walks": 0
+    },
+    {
+      "name": "Max Lazar",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 1,
+      "hits_allowed": 3,
+      "walks": 0
+    },
+    {
+      "name": "David Robertson",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 1,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Sean Manaea",
+      "ip": "5.0",
+      "outs": 15,
+      "strikeouts": 5,
+      "earned_runs": 4,
+      "hits_allowed": 5,
+      "walks": 1
+    },
+    {
+      "name": "Justin Hagenman",
+      "ip": "3.0",
+      "outs": 9,
+      "strikeouts": 3,
+      "earned_runs": 5,
+      "hits_allowed": 8,
+      "walks": 0
+    },
+    {
+      "name": "Paul Blackburn",
+      "ip": "2.0",
+      "outs": 6,
+      "strikeouts": 3,
+      "earned_runs": 0,
+      "hits_allowed": 2,
+      "walks": 1
+    },
+    {
+      "name": "Tim Hill",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 1
+    },
+    {
+      "name": "Will Warren",
+      "ip": "6.0",
+      "outs": 18,
+      "strikeouts": 5,
+      "earned_runs": 2,
+      "hits_allowed": 2,
+      "walks": 1
+    },
+    {
+      "name": "Fernando Cruz",
+      "ip": "0.0",
+      "outs": 0,
+      "strikeouts": 0,
+      "earned_runs": 5,
+      "hits_allowed": 2,
+      "walks": 3
+    },
+    {
+      "name": "Mark Leiter Jr.",
+      "ip": "0.0",
+      "outs": 0,
+      "strikeouts": 0,
+      "earned_runs": 4,
+      "hits_allowed": 2,
+      "walks": 1
+    },
+    {
+      "name": "Casey Mize",
+      "ip": "6.0",
+      "outs": 18,
+      "strikeouts": 8,
+      "earned_runs": 2,
+      "hits_allowed": 4,
+      "walks": 0
+    },
+    {
+      "name": "Chris Paddack",
+      "ip": "3.0",
+      "outs": 9,
+      "strikeouts": 4,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Shane Bieber",
+      "ip": "5.2",
+      "outs": 17,
+      "strikeouts": 4,
+      "earned_runs": 3,
+      "hits_allowed": 9,
+      "walks": 1
+    },
+    {
+      "name": "Tommy Nance",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Brendon Little",
+      "ip": "0.1",
+      "outs": 1,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 1
+    },
+    {
+      "name": "Jeff Hoffman",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Seranthony Dom\u00ednguez",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 1
+    },
+    {
+      "name": "Yariel Rodr\u00edguez",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Bryan Abreu",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 2,
+      "earned_runs": 2,
+      "hits_allowed": 2,
+      "walks": 2
+    },
+    {
+      "name": "Enyel De Los Santos",
+      "ip": "0.1",
+      "outs": 1,
+      "strikeouts": 0,
+      "earned_runs": 1,
+      "hits_allowed": 2,
+      "walks": 0
+    },
+    {
+      "name": "Steven Okert",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "AJ Blubaugh",
+      "ip": "3.1",
+      "outs": 10,
+      "strikeouts": 4,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 1
+    },
+    {
+      "name": "Bryan King",
+      "ip": "1.2",
+      "outs": 5,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Craig Kimbrel",
+      "ip": "0.1",
+      "outs": 1,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Luis Garcia",
+      "ip": "1.2",
+      "outs": 5,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 1
+    },
+    {
+      "name": "Spencer Strider",
+      "ip": "6.0",
+      "outs": 18,
+      "strikeouts": 8,
+      "earned_runs": 2,
+      "hits_allowed": 6,
+      "walks": 3
+    },
+    {
+      "name": "Dylan Lee",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Connor Seabold",
+      "ip": "1.1",
+      "outs": 4,
+      "strikeouts": 2,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Alexis D\u00edaz",
+      "ip": "0.2",
+      "outs": 2,
+      "strikeouts": 1,
+      "earned_runs": 3,
+      "hits_allowed": 0,
+      "walks": 3
+    },
+    {
+      "name": "Cade Horton",
+      "ip": "6.1",
+      "outs": 19,
+      "strikeouts": 2,
+      "earned_runs": 1,
+      "hits_allowed": 4,
+      "walks": 0
+    },
+    {
+      "name": "Caleb Thielbar",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Andrew Kittredge",
+      "ip": "0.2",
+      "outs": 2,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Ben Brown",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 2,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Steven Wilson",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Tyler Alexander",
+      "ip": "1.1",
+      "outs": 4,
+      "strikeouts": 2,
+      "earned_runs": 1,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Dan Altavilla",
+      "ip": "0.2",
+      "outs": 2,
+      "strikeouts": 2,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Fraser Ellard",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 2,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Yoendrys G\u00f3mez",
+      "ip": "5.0",
+      "outs": 15,
+      "strikeouts": 5,
+      "earned_runs": 4,
+      "hits_allowed": 5,
+      "walks": 1
+    },
+    {
+      "name": "Pete Fairbanks",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Mason Montgomery",
+      "ip": "0.1",
+      "outs": 1,
+      "strikeouts": 1,
+      "earned_runs": 1,
+      "hits_allowed": 2,
+      "walks": 0
+    },
+    {
+      "name": "Kevin Kelly",
+      "ip": "0.1",
+      "outs": 1,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Edwin Uceta",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 2,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Adrian Houser",
+      "ip": "5.1",
+      "outs": 16,
+      "strikeouts": 9,
+      "earned_runs": 3,
+      "hits_allowed": 4,
+      "walks": 0
+    },
+    {
+      "name": "Bryan Baker",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Shawn Armstrong",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 1,
+      "hits_allowed": 2,
+      "walks": 0
+    },
+    {
+      "name": "Hoby Milner",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Jack Leiter",
+      "ip": "4.2",
+      "outs": 14,
+      "strikeouts": 4,
+      "earned_runs": 3,
+      "hits_allowed": 7,
+      "walks": 2
+    },
+    {
+      "name": "Luis Curvelo",
+      "ip": "0.1",
+      "outs": 1,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Robert Garcia",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Phil Maton",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Chad Patrick",
+      "ip": "4.1",
+      "outs": 13,
+      "strikeouts": 6,
+      "earned_runs": 3,
+      "hits_allowed": 3,
+      "walks": 3
+    },
+    {
+      "name": "Tobias Myers",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 2,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Grant Anderson",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 1
+    },
+    {
+      "name": "Aaron Ashby",
+      "ip": "1.2",
+      "outs": 5,
+      "strikeouts": 2,
+      "earned_runs": 2,
+      "hits_allowed": 4,
+      "walks": 0
+    },
+    {
+      "name": "Kyle Hendricks",
+      "ip": "7.0",
+      "outs": 21,
+      "strikeouts": 6,
+      "earned_runs": 0,
+      "hits_allowed": 4,
+      "walks": 1
+    },
+    {
+      "name": "Pierson Ohl",
+      "ip": "1.1",
+      "outs": 4,
+      "strikeouts": 2,
+      "earned_runs": 4,
+      "hits_allowed": 5,
+      "walks": 1
+    },
+    {
+      "name": "Thomas Hatch",
+      "ip": "0.0",
+      "outs": 0,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Zebby Matthews",
+      "ip": "4.2",
+      "outs": 14,
+      "strikeouts": 5,
+      "earned_runs": 5,
+      "hits_allowed": 7,
+      "walks": 2
+    },
+    {
+      "name": "Michael King",
+      "ip": "5.0",
+      "outs": 15,
+      "strikeouts": 2,
+      "earned_runs": 2,
+      "hits_allowed": 3,
+      "walks": 1
+    },
+    {
+      "name": "Mason Miller",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 3,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Wandy Peralta",
+      "ip": "0.2",
+      "outs": 2,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Jeremiah Estrada",
+      "ip": "1.1",
+      "outs": 4,
+      "strikeouts": 3,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Zack Littell",
+      "ip": "6.0",
+      "outs": 18,
+      "strikeouts": 4,
+      "earned_runs": 2,
+      "hits_allowed": 2,
+      "walks": 1
+    },
+    {
+      "name": "Zach Maxwell",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    },
+    {
+      "name": "Caleb Ferguson",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 2,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "George Kirby",
+      "ip": "4.0",
+      "outs": 12,
+      "strikeouts": 2,
+      "earned_runs": 3,
+      "hits_allowed": 7,
+      "walks": 2
+    },
+    {
+      "name": "Gabe Speier",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Eduard Bazardo",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Kyle Leahy",
+      "ip": "2.0",
+      "outs": 6,
+      "strikeouts": 3,
+      "earned_runs": 0,
+      "hits_allowed": 2,
+      "walks": 0
+    },
+    {
+      "name": "Jorge Alcala",
+      "ip": "0.2",
+      "outs": 2,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 1
+    },
+    {
+      "name": "Matthew Liberatore",
+      "ip": "4.0",
+      "outs": 12,
+      "strikeouts": 1,
+      "earned_runs": 5,
+      "hits_allowed": 6,
+      "walks": 3
+    },
+    {
+      "name": "Joel Peguero",
+      "ip": "1.2",
+      "outs": 5,
+      "strikeouts": 2,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Robbie Ray",
+      "ip": "5.0",
+      "outs": 15,
+      "strikeouts": 5,
+      "earned_runs": 2,
+      "hits_allowed": 3,
+      "walks": 2
+    },
+    {
+      "name": "Matt Gage",
+      "ip": "0.1",
+      "outs": 1,
+      "strikeouts": 0,
+      "earned_runs": 1,
+      "hits_allowed": 3,
+      "walks": 0
+    },
+    {
+      "name": "Zac Gallen",
+      "ip": "6.1",
+      "outs": 19,
+      "strikeouts": 3,
+      "earned_runs": 5,
+      "hits_allowed": 5,
+      "walks": 2
+    },
+    {
+      "name": "Tyler Ferguson",
+      "ip": "0.2",
+      "outs": 2,
+      "strikeouts": 0,
+      "earned_runs": 0,
+      "hits_allowed": 0,
+      "walks": 0
+    },
+    {
+      "name": "Jeffrey Springs",
+      "ip": "5.0",
+      "outs": 15,
+      "strikeouts": 6,
+      "earned_runs": 5,
+      "hits_allowed": 8,
+      "walks": 0
+    },
+    {
+      "name": "Connelly Early",
+      "ip": "5.0",
+      "outs": 15,
+      "strikeouts": 11,
+      "earned_runs": 0,
+      "hits_allowed": 5,
+      "walks": 1
+    },
+    {
+      "name": "Emmet Sheehan",
+      "ip": "6.0",
+      "outs": 18,
+      "strikeouts": 6,
+      "earned_runs": 1,
+      "hits_allowed": 3,
+      "walks": 0
+    },
+    {
+      "name": "Germ\u00e1n M\u00e1rquez",
+      "ip": "5.0",
+      "outs": 15,
+      "strikeouts": 2,
+      "earned_runs": 5,
+      "hits_allowed": 6,
+      "walks": 1
+    },
+    {
+      "name": "Roansy Contreras",
+      "ip": "1.0",
+      "outs": 3,
+      "strikeouts": 1,
+      "earned_runs": 0,
+      "hits_allowed": 1,
+      "walks": 0
+    }
+  ],
+  "count": 106
+}

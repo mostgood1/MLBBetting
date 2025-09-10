@@ -1,0 +1,54 @@
+[
+  {
+    "date": "2025-09-10",
+    "game": "Chicago Cubs vs Atlanta Braves",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.0",
+    "confidence": 0.234,
+    "kelly_percentage": 23.4,
+    "recommended_bet": 90,
+    "odds": -107,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-10",
+    "game": "Pittsburgh Pirates vs Baltimore Orioles",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.5",
+    "confidence": 0.204,
+    "kelly_percentage": 20.4,
+    "recommended_bet": 80,
+    "odds": 101,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-10",
+    "game": "New York Mets vs Philadelphia Phillies",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.5",
+    "confidence": 0.183,
+    "kelly_percentage": 18.3,
+    "recommended_bet": 70,
+    "odds": -115,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-10",
+    "game": "Milwaukee Brewers vs Texas Rangers",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.5",
+    "confidence": 0.16,
+    "kelly_percentage": 16.0,
+    "recommended_bet": 60,
+    "odds": 100,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  }
+]

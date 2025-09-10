@@ -1,13 +1,37 @@
 {
   "date": "2025-09-09",
-  "generated_at": "2025-09-09T17:52:54.669250",
+  "generated_at": "2025-09-10T02:59:48.564708",
   "starting_pitchers_count": 28,
-  "props_pitchers_count": 29,
+  "props_pitchers_count": 0,
   "unmatched_starting_pitchers": [
-    "Shane Bieber"
+    "Mike Burrows",
+    "Kyle Bradish",
+    "Noah Cameron",
+    "Joey Cantillo",
+    "Mitchell Parker",
+    "Adam Mazur",
+    "Sean Manaea",
+    "Ranger Su\u00e1rez",
+    "Casey Mize",
+    "Will Warren",
+    "Luis Garcia",
+    "Shane Bieber",
+    "Cade Horton",
+    "Spencer Strider",
+    "Adrian Houser",
+    "Yoendrys G\u00f3mez",
+    "Jack Leiter",
+    "Zebby Matthews",
+    "Kyle Hendricks",
+    "Zack Littell",
+    "Michael King",
+    "Matthew Liberatore",
+    "George Kirby",
+    "Zac Gallen",
+    "Robbie Ray",
+    "Jeffrey Springs",
+    "Germ\u00e1n M\u00e1rquez",
+    "Emmet Sheehan"
   ],
-  "props_without_start_flag": [
-    "chad patrick",
-    "connelly early"
-  ]
+  "props_without_start_flag": []
 }

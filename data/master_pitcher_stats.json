@@ -2,15 +2,15 @@
   "671096": {
     "name": "Andrew Abbott",
     "team": "Cincinnati Reds",
-    "era": 2.62,
-    "whip": 1.1,
-    "strikeouts": 118,
-    "walks": 35,
-    "innings_pitched": 134.0,
-    "games_started": 23,
+    "era": 2.88,
+    "whip": 1.15,
+    "strikeouts": 130,
+    "walks": 40,
+    "innings_pitched": 143.2,
+    "games_started": 25,
     "wins": 8,
-    "losses": 4,
-    "last_updated": "2025-08-25T16:20:14.403531"
+    "losses": 6,
+    "last_updated": "2025-09-10T08:50:54.382002"
   },
   "690953": {
     "name": "Mick Abel",
@@ -144,16 +144,16 @@
   },
   "669920": {
     "name": "Jason Alexander",
-    "team": "Athletics",
-    "era": 18.0,
-    "whip": 2.83,
-    "strikeouts": 5,
-    "walks": 5,
-    "innings_pitched": 6.0,
-    "games_started": 0,
-    "wins": 0,
-    "losses": 0,
-    "last_updated": "2025-08-25T16:20:26.506847"
+    "team": "",
+    "era": 4.68,
+    "whip": 1.39,
+    "strikeouts": 52,
+    "walks": 22,
+    "innings_pitched": 59.2,
+    "games_started": 9,
+    "wins": 4,
+    "losses": 1,
+    "last_updated": "2025-09-10T08:50:47.617890"
   },
   "518397": {
     "name": "Scott Alexander",
@@ -197,15 +197,15 @@
   "671106": {
     "name": "Logan Allen",
     "team": "Cleveland Guardians",
-    "era": 4.35,
-    "whip": 1.43,
-    "strikeouts": 100,
-    "walks": 54,
-    "innings_pitched": 128.1,
-    "games_started": 24,
+    "era": 4.46,
+    "whip": 1.44,
+    "strikeouts": 109,
+    "walks": 59,
+    "innings_pitched": 139.1,
+    "games_started": 26,
     "wins": 7,
-    "losses": 10,
-    "last_updated": "2025-08-25T16:20:33.605414"
+    "losses": 11,
+    "last_updated": "2025-09-10T08:50:35.949174"
   },
   "656186": {
     "name": "Dan Altavilla",
@@ -678,15 +678,15 @@
   "621244": {
     "name": "Jos\u00e9 Berr\u00edos",
     "team": "Toronto Blue Jays",
-    "era": 3.95,
-    "whip": 1.26,
-    "strikeouts": 129,
-    "walks": 49,
-    "innings_pitched": 152.2,
-    "games_started": 27,
+    "era": 4.02,
+    "whip": 1.29,
+    "strikeouts": 131,
+    "walks": 51,
+    "innings_pitched": 154.2,
+    "games_started": 28,
     "wins": 9,
     "losses": 5,
-    "last_updated": "2025-08-25T16:21:07.056436"
+    "last_updated": "2025-09-10T08:50:49.589567"
   },
   "676440": {
     "name": "Tanner Bibee",
@@ -925,15 +925,15 @@
   "680742": {
     "name": "Jonathan Bowlan",
     "team": "Kansas City Royals",
-    "era": 4.55,
-    "whip": 1.3,
-    "strikeouts": 25,
-    "walks": 11,
-    "innings_pitched": 27.2,
+    "era": 3.57,
+    "whip": 1.13,
+    "strikeouts": 35,
+    "walks": 15,
+    "innings_pitched": 35.1,
     "games_started": 0,
     "wins": 1,
     "losses": 2,
-    "last_updated": "2025-08-25T16:21:21.204931"
+    "last_updated": "2025-09-10T08:50:33.866419"
   },
   "621199": {
     "name": "Matt Bowman",
@@ -976,16 +976,16 @@
   },
   "671737": {
     "name": "Taj Bradley",
-    "team": "Minnesota Twins",
-    "era": 12.6,
-    "whip": 2.0,
-    "strikeouts": 1,
-    "walks": 1,
-    "innings_pitched": 5.0,
-    "games_started": 1,
-    "wins": 0,
-    "losses": 1,
-    "last_updated": "2025-08-25T16:21:23.921017"
+    "team": "",
+    "era": 4.92,
+    "whip": 1.31,
+    "strikeouts": 109,
+    "walks": 49,
+    "innings_pitched": 126.1,
+    "games_started": 24,
+    "wins": 6,
+    "losses": 7,
+    "last_updated": "2025-09-10T08:50:26.190522"
   },
   "666374": {
     "name": "Matt Brash",
@@ -2693,15 +2693,15 @@
   "656427": {
     "name": "Jack Flaherty",
     "team": "Detroit Tigers",
-    "era": 4.87,
+    "era": 4.85,
     "whip": 1.3,
-    "strikeouts": 165,
-    "walks": 50,
-    "innings_pitched": 136.2,
-    "games_started": 26,
+    "strikeouts": 171,
+    "walks": 54,
+    "innings_pitched": 146.2,
+    "games_started": 28,
     "wins": 7,
     "losses": 13,
-    "last_updated": "2025-08-25T16:22:58.091371"
+    "last_updated": "2025-09-10T08:50:44.120857"
   },
   "623167": {
     "name": "Chris Flexen",
@@ -2745,15 +2745,15 @@
   "607536": {
     "name": "Kyle Freeland",
     "team": "Colorado Rockies",
-    "era": 5.31,
-    "whip": 1.52,
-    "strikeouts": 91,
+    "era": 5.1,
+    "whip": 1.45,
+    "strikeouts": 107,
     "walks": 34,
-    "innings_pitched": 125.1,
-    "games_started": 24,
-    "wins": 3,
-    "losses": 13,
-    "last_updated": "2025-08-25T16:23:00.792455"
+    "innings_pitched": 139.1,
+    "games_started": 27,
+    "wins": 4,
+    "losses": 14,
+    "last_updated": "2025-09-10T08:51:01.226660"
   },
   "673965": {
     "name": "Caleb Freeman",
@@ -3057,15 +3057,15 @@
   "669302": {
     "name": "Logan Gilbert",
     "team": "Seattle Mariners",
-    "era": 3.69,
-    "whip": 1.03,
-    "strikeouts": 138,
-    "walks": 24,
-    "innings_pitched": 97.2,
-    "games_started": 19,
+    "era": 3.61,
+    "whip": 1.02,
+    "strikeouts": 151,
+    "walks": 27,
+    "innings_pitched": 109.2,
+    "games_started": 21,
     "wins": 4,
-    "losses": 5,
-    "last_updated": "2025-08-25T16:23:16.775309"
+    "losses": 6,
+    "last_updated": "2025-09-10T08:50:59.866005"
   },
   "656457": {
     "name": "Tyler Gilbert",
@@ -3993,15 +3993,15 @@
   "605280": {
     "name": "Clay Holmes",
     "team": "New York Mets",
-    "era": 3.6,
-    "whip": 1.32,
-    "strikeouts": 109,
-    "walks": 55,
-    "innings_pitched": 137.1,
-    "games_started": 26,
+    "era": 3.61,
+    "whip": 1.33,
+    "strikeouts": 117,
+    "walks": 59,
+    "innings_pitched": 147.0,
+    "games_started": 28,
     "wins": 11,
-    "losses": 6,
-    "last_updated": "2025-08-25T16:24:08.315948"
+    "losses": 7,
+    "last_updated": "2025-09-10T08:50:41.046805"
   },
   "656550": {
     "name": "Grant Holmes",
@@ -4136,15 +4136,15 @@
   "663623": {
     "name": "Jake Irvin",
     "team": "Washington Nationals",
-    "era": 5.4,
-    "whip": 1.43,
-    "strikeouts": 99,
-    "walks": 52,
-    "innings_pitched": 148.1,
-    "games_started": 27,
+    "era": 5.71,
+    "whip": 1.44,
+    "strikeouts": 104,
+    "walks": 57,
+    "innings_pitched": 157.2,
+    "games_started": 29,
     "wins": 8,
-    "losses": 9,
-    "last_updated": "2025-08-25T16:24:15.227324"
+    "losses": 11,
+    "last_updated": "2025-09-10T08:50:37.761894"
   },
   "592426": {
     "name": "Luke Jackson",
@@ -4226,16 +4226,16 @@
   },
   "643377": {
     "name": "Griffin Jax",
-    "team": "Minnesota Twins",
-    "era": 4.5,
-    "whip": 1.28,
-    "strikeouts": 72,
-    "walks": 13,
-    "innings_pitched": 46.0,
-    "games_started": 0,
+    "team": "",
+    "era": 4.81,
+    "whip": 1.38,
+    "strikeouts": 89,
+    "walks": 19,
+    "innings_pitched": 58.0,
+    "games_started": 1,
     "wins": 1,
-    "losses": 5,
-    "last_updated": "2025-08-25T16:24:19.888713"
+    "losses": 7,
+    "last_updated": "2025-09-10T08:50:52.758345"
   },
   "695549": {
     "name": "Jackson Jobe",
@@ -4382,16 +4382,16 @@
   },
   "518876": {
     "name": "Merrill Kelly",
-    "team": "Texas Rangers",
-    "era": 3.1,
-    "whip": 1.03,
-    "strikeouts": 26,
-    "walks": 8,
-    "innings_pitched": 29.0,
-    "games_started": 5,
-    "wins": 1,
-    "losses": 1,
-    "last_updated": "2025-08-25T16:24:27.659697"
+    "team": "",
+    "era": 3.16,
+    "whip": 1.04,
+    "strikeouts": 156,
+    "walks": 47,
+    "innings_pitched": 171.0,
+    "games_started": 29,
+    "wins": 11,
+    "losses": 7,
+    "last_updated": "2025-09-10T08:50:17.816265"
   },
   "687330": {
     "name": "Kevin Kelly",
@@ -5592,15 +5592,15 @@
   "700241": {
     "name": "Michael McGreevy",
     "team": "St. Louis Cardinals",
-    "era": 4.26,
-    "whip": 1.18,
-    "strikeouts": 33,
-    "walks": 7,
-    "innings_pitched": 57.0,
-    "games_started": 9,
-    "wins": 5,
-    "losses": 2,
-    "last_updated": "2025-08-25T16:25:55.656615"
+    "era": 4.68,
+    "whip": 1.26,
+    "strikeouts": 43,
+    "walks": 12,
+    "innings_pitched": 73.0,
+    "games_started": 12,
+    "wins": 6,
+    "losses": 3,
+    "last_updated": "2025-09-10T08:50:58.349843"
   },
   "663474": {
     "name": "Triston McKenzie",
@@ -6697,15 +6697,15 @@
   "642547": {
     "name": "Freddy Peralta",
     "team": "Milwaukee Brewers",
-    "era": 2.68,
-    "whip": 1.1,
-    "strikeouts": 160,
-    "walks": 57,
-    "innings_pitched": 147.2,
-    "games_started": 27,
-    "wins": 15,
+    "era": 2.5,
+    "whip": 1.07,
+    "strikeouts": 176,
+    "walks": 61,
+    "innings_pitched": 158.2,
+    "games_started": 29,
+    "wins": 16,
     "losses": 5,
-    "last_updated": "2025-08-25T16:26:53.456056"
+    "last_updated": "2025-09-10T08:50:16.360406"
   },
   "678821": {
     "name": "Luis Peralta",
@@ -6762,15 +6762,15 @@
   "691587": {
     "name": "Eury P\u00e9rez",
     "team": "Miami Marlins",
-    "era": 3.44,
-    "whip": 0.98,
-    "strikeouts": 70,
-    "walks": 25,
-    "innings_pitched": 70.2,
-    "games_started": 14,
+    "era": 4.66,
+    "whip": 1.1,
+    "strikeouts": 72,
+    "walks": 28,
+    "innings_pitched": 75.1,
+    "games_started": 16,
     "wins": 6,
-    "losses": 3,
-    "last_updated": "2025-08-25T16:26:57.321534"
+    "losses": 5,
+    "last_updated": "2025-09-10T08:50:39.302128"
   },
   "527048": {
     "name": "Mart\u00edn P\u00e9rez",
@@ -6918,15 +6918,15 @@
   "601713": {
     "name": "Nick Pivetta",
     "team": "San Diego Padres",
-    "era": 2.82,
-    "whip": 0.94,
-    "strikeouts": 161,
-    "walks": 41,
-    "innings_pitched": 153.1,
-    "games_started": 26,
+    "era": 2.85,
+    "whip": 0.96,
+    "strikeouts": 172,
+    "walks": 44,
+    "innings_pitched": 164.1,
+    "games_started": 28,
     "wins": 13,
-    "losses": 4,
-    "last_updated": "2025-08-25T16:27:05.838208"
+    "losses": 5,
+    "last_updated": "2025-09-10T08:50:56.719642"
   },
   "621363": {
     "name": "Colin Poche",
@@ -7321,15 +7321,15 @@
   "607074": {
     "name": "Carlos Rod\u00f3n",
     "team": "New York Yankees",
-    "era": 3.24,
+    "era": 3.12,
     "whip": 1.07,
-    "strikeouts": 172,
-    "walks": 65,
-    "innings_pitched": 158.1,
-    "games_started": 27,
-    "wins": 14,
+    "strikeouts": 180,
+    "walks": 69,
+    "innings_pitched": 170.1,
+    "games_started": 29,
+    "wins": 16,
     "losses": 7,
-    "last_updated": "2025-08-25T16:27:26.734018"
+    "last_updated": "2025-09-10T08:50:45.816796"
   },
   "699134": {
     "name": "Bradgley Rodriguez",
@@ -7360,15 +7360,15 @@
   "593958": {
     "name": "Eduardo Rodriguez",
     "team": "Arizona Diamondbacks",
-    "era": 5.4,
-    "whip": 1.61,
-    "strikeouts": 115,
-    "walks": 46,
-    "innings_pitched": 116.2,
-    "games_started": 22,
-    "wins": 5,
-    "losses": 7,
-    "last_updated": "2025-08-25T16:27:28.886349"
+    "era": 5.22,
+    "whip": 1.6,
+    "strikeouts": 124,
+    "walks": 53,
+    "innings_pitched": 131.0,
+    "games_started": 25,
+    "wins": 7,
+    "losses": 8,
+    "last_updated": "2025-09-10T08:50:22.768908"
   },
   "660730": {
     "name": "Elvin Rodr\u00edguez",
@@ -7633,28 +7633,28 @@
   "519242": {
     "name": "Chris Sale",
     "team": "Atlanta Braves",
-    "era": 2.52,
-    "whip": 1.16,
-    "strikeouts": 114,
-    "walks": 26,
-    "innings_pitched": 89.1,
-    "games_started": 15,
+    "era": 2.38,
+    "whip": 1.1,
+    "strikeouts": 132,
+    "walks": 27,
+    "innings_pitched": 102.0,
+    "games_started": 17,
     "wins": 5,
     "losses": 4,
-    "last_updated": "2025-08-25T16:27:43.751812"
+    "last_updated": "2025-09-10T08:50:51.189583"
   },
   "650911": {
     "name": "Cristopher S\u00e1nchez",
     "team": "Philadelphia Phillies",
-    "era": 2.46,
-    "whip": 1.1,
-    "strikeouts": 169,
-    "walks": 38,
-    "innings_pitched": 157.0,
-    "games_started": 25,
-    "wins": 11,
-    "losses": 4,
-    "last_updated": "2025-08-25T16:27:44.393954"
+    "era": 2.6,
+    "whip": 1.12,
+    "strikeouts": 186,
+    "walks": 42,
+    "innings_pitched": 176.1,
+    "games_started": 28,
+    "wins": 12,
+    "losses": 5,
+    "last_updated": "2025-09-10T08:50:42.685354"
   },
   "676742": {
     "name": "Cam Sanders",
@@ -7971,15 +7971,15 @@
   "693313": {
     "name": "Carson Seymour",
     "team": "San Francisco Giants",
-    "era": 3.92,
-    "whip": 1.4,
-    "strikeouts": 16,
-    "walks": 8,
-    "innings_pitched": 20.2,
-    "games_started": 0,
-    "wins": 0,
-    "losses": 1,
-    "last_updated": "2025-08-25T16:28:03.720544"
+    "era": 4.25,
+    "whip": 1.35,
+    "strikeouts": 20,
+    "walks": 12,
+    "innings_pitched": 29.2,
+    "games_started": 2,
+    "wins": 1,
+    "losses": 2,
+    "last_updated": "2025-09-10T08:50:24.560828"
   },
   "693855": {
     "name": "Ian Seymour",
@@ -8088,15 +8088,15 @@
   "694973": {
     "name": "Paul Skenes",
     "team": "Pittsburgh Pirates",
-    "era": 2.07,
+    "era": 1.98,
     "whip": 0.94,
-    "strikeouts": 181,
-    "walks": 37,
-    "innings_pitched": 161.0,
-    "games_started": 27,
-    "wins": 8,
+    "strikeouts": 195,
+    "walks": 39,
+    "innings_pitched": 173.0,
+    "games_started": 29,
+    "wins": 10,
     "losses": 9,
-    "last_updated": "2025-08-25T16:28:10.012444"
+    "last_updated": "2025-09-10T08:50:29.618678"
   },
   "669373": {
     "name": "Tarik Skubal",
@@ -8179,15 +8179,15 @@
   "605483": {
     "name": "Blake Snell",
     "team": "Los Angeles Dodgers",
-    "era": 1.97,
-    "whip": 1.38,
-    "strikeouts": 30,
-    "walks": 15,
-    "innings_pitched": 32.0,
-    "games_started": 6,
+    "era": 3.19,
+    "whip": 1.49,
+    "strikeouts": 44,
+    "walks": 21,
+    "innings_pitched": 42.1,
+    "games_started": 8,
     "wins": 3,
-    "losses": 2,
-    "last_updated": "2025-08-25T16:28:14.318978"
+    "losses": 4,
+    "last_updated": "2025-09-10T08:51:02.792920"
   },
   "676092": {
     "name": "Collin Snider",
@@ -8218,15 +8218,15 @@
   "667755": {
     "name": "Jos\u00e9 Soriano",
     "team": "Los Angeles Angels",
-    "era": 4.0,
-    "whip": 1.38,
-    "strikeouts": 130,
-    "walks": 64,
-    "innings_pitched": 148.2,
-    "games_started": 26,
-    "wins": 8,
-    "losses": 9,
-    "last_updated": "2025-08-25T16:28:16.773068"
+    "era": 4.07,
+    "whip": 1.37,
+    "strikeouts": 148,
+    "walks": 73,
+    "innings_pitched": 163.2,
+    "games_started": 29,
+    "wins": 10,
+    "losses": 10,
+    "last_updated": "2025-09-10T08:50:28.038213"
   },
   "647336": {
     "name": "Michael Soroka",
@@ -9761,5 +9761,44 @@
     "wins": 0,
     "losses": 0,
     "last_updated": "2025-08-25T16:29:43.655122"
+  },
+  "801139": {
+    "name": "Payton Tolle",
+    "team": "Boston Red Sox",
+    "era": 7.56,
+    "whip": 1.68,
+    "strikeouts": 10,
+    "walks": 6,
+    "innings_pitched": 8.1,
+    "games_started": 2,
+    "wins": 0,
+    "losses": 1,
+    "last_updated": "2025-09-10T08:50:19.469754"
+  },
+  "686930": {
+    "name": "Mason Barnett",
+    "team": "Athletics",
+    "era": 9.0,
+    "whip": 1.78,
+    "strikeouts": 9,
+    "walks": 5,
+    "innings_pitched": 9.0,
+    "games_started": 2,
+    "wins": 1,
+    "losses": 1,
+    "last_updated": "2025-09-10T08:50:21.085664"
+  },
+  "669330": {
+    "name": "Tyler Wells",
+    "team": "Baltimore Orioles",
+    "era": 3.6,
+    "whip": 1.0,
+    "strikeouts": 4,
+    "walks": 0,
+    "innings_pitched": 5.0,
+    "games_started": 1,
+    "wins": 1,
+    "losses": 0,
+    "last_updated": "2025-09-10T08:50:31.710911"
   }
 }

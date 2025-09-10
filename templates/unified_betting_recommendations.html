@@ -75,23 +75,34 @@ function fmtEV(n){ const v=Number(n); if(!isFinite(v)) return '-'; return (v*100
 function confRank(c){ return {HIGH:3, MEDIUM:2, LOW:1}[String(c||'').toUpperCase()]||0; }
 function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
 const STAKE_BY_CONF = { HIGH: 100, MEDIUM: 50, LOW: 25 };
+function fmtNum(v){
+  if(v===null || v===undefined || v==='') return '';
+  const n = Number(v);
+  if(!isFinite(n)) return String(v);
+  const s = n.toFixed(2);
+  return s.replace(/\.00$/,'').replace(/(\.\d)0$/,'$1');
+}
 
 async function loadGames(){
   const r = await fetch('/api/betting-recommendations/today');
   const js = await r.json();
   const recs = js.recommendations || [];
   const meta = document.getElementById('games-meta');
-  meta.textContent = `${js.date||''} • ${recs.length} recommendations`;
+  const hi = recs.filter(x=> String(x.confidence||'').toUpperCase()==='HIGH').length;
+  const mi = recs.filter(x=> String(x.confidence||'').toUpperCase()==='MEDIUM').length;
+  const lo = recs.filter(x=> String(x.confidence||'').toUpperCase()==='LOW').length;
+  meta.textContent = `${js.date||''} • ${recs.length} recommendations • HIGH ${hi} • MED ${mi} • LOW ${lo}`;
   const rows = recs.map(r=>({
     game: r.game || `${r.away_team||''} @ ${r.home_team||''}`,
     bet: `${String(r.type||'').replace('_',' ').toUpperCase()} ${r.recommendation||''}`.trim(),
     odds: r.american_odds ?? r.odds,
     conf: String(r.confidence||'').toUpperCase(),
-    ev: r.expected_value
+    ev: r.expected_value,
+    stake: STAKE_BY_CONF[String(r.confidence||'').toUpperCase()]||0
   }));
   rows.sort((a,b)=> confRank(b.conf)-confRank(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
-  const html = '<div class="table-wrap"><table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th></tr></thead><tbody>'+
-    rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds??''}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td></tr>`).join('')+
+  const html = '<div class="table-wrap"><table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Stake</th></tr></thead><tbody>'+
+    rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds??''}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>$${r.stake}</td></tr>`).join('')+
     '</tbody></table></div>';
   document.getElementById('games-table').innerHTML = html;
 }
@@ -120,16 +131,17 @@ function renderProps(){
     const header = `<div class=\"row\" style=\"align-items:center;justify-content:space-between;margin:8px 0;\">
       <h3 style=\"margin:0;color:#163a6b;\">${g} (${gi.length} plays • Stake $${stake})</h3>
     </div>`;
-    const table = '<div class="table-wrap"><table class="table"><thead><tr><th>Pitcher</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th><th>Stake</th></tr></thead><tbody>'+
+  const table = '<div class="table-wrap"><table class="table"><thead><tr><th>Pitcher</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th><th>EV</th><th>Stake</th></tr></thead><tbody>'+
       gi.map(p=>`<tr>
         <td>${p.pitcher_name}</td>
         <td>${({'strikeouts':'K','outs':'Outs','earned_runs':'ER','hits_allowed':'Hits','walks':'BB'})[p.stat]||p.stat}</td>
-        <td>${p.line??''}</td>
-        <td>${p.projection??''}</td>
-        <td>${p.adjusted_projection??''}</td>
-        <td>${p.diff??''}</td>
+    <td>${fmtNum(p.line)}</td>
+    <td>${fmtNum(p.projection)}</td>
+    <td>${fmtNum(p.adjusted_projection)}</td>
+    <td>${fmtNum(p.diff)}</td>
         <td>${p.recommendation}</td>
         <td>${p.odds_display||''}</td>
+    <td>${fmtEV(p.expected_value)}</td>
         <td>$${stake}</td>
       </tr>`).join('')+
       '</tbody></table></div>';
@@ -138,19 +150,20 @@ function renderProps(){
   document.getElementById('props-grouped').innerHTML = groupedHtml || '<div class="muted">No plays for current filters.</div>';
 
   // All plays table
-  const allHtml = '<div class="table-wrap"><table class="table"><thead><tr><th>Conf</th><th>Pitcher</th><th>Team</th><th>Opp</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th><th>Stake</th></tr></thead><tbody>'+
+  const allHtml = '<div class="table-wrap"><table class="table"><thead><tr><th>Conf</th><th>Pitcher</th><th>Team</th><th>Opp</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th><th>EV</th><th>Stake</th></tr></thead><tbody>'+
     rows.map(p=>`<tr>
       <td><span class="badge ${p.confidence}">${p.confidence}</span></td>
       <td>${p.pitcher_name}</td>
       <td>${p.team||''}</td>
       <td>${p.opponent||''}</td>
       <td>${({'strikeouts':'K','outs':'Outs','earned_runs':'ER','hits_allowed':'Hits','walks':'BB'})[p.stat]||p.stat}</td>
-      <td>${p.line??''}</td>
-      <td>${p.projection??''}</td>
-      <td>${p.adjusted_projection??''}</td>
-      <td>${p.diff??''}</td>
+      <td>${fmtNum(p.line)}</td>
+      <td>${fmtNum(p.projection)}</td>
+      <td>${fmtNum(p.adjusted_projection)}</td>
+      <td>${fmtNum(p.diff)}</td>
       <td>${p.recommendation}</td>
       <td>${p.odds_display||''}</td>
+      <td>${fmtEV(p.expected_value)}</td>
       <td>$${STAKE_BY_CONF[p.confidence]||0}</td>
     </tr>`).join('')+
     '</tbody></table></div>';

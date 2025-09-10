@@ -510,7 +510,50 @@ def _edge_recommendation(stat: str, proj: float, line: Optional[float]) -> Optio
         diff = line - proj
         if diff >= 0.8: return 'UNDER'
         if diff <= -0.8: return 'OVER'
+    elif stat == 'walks':
+        # Walks line is like ER/Hits: lower is generally better for pitchers
+        diff = line - proj
+        if diff >= 0.6: return 'UNDER'
+        if diff <= -0.6: return 'OVER'
     return None
+
+# --- Helper functions for tighter confidence/EV grading ---
+def _american_to_implied_prob(odds: Optional[int]) -> Optional[float]:
+    if odds is None:
+        return None
+    try:
+        o = int(odds)
+    except Exception:
+        s = str(odds)
+        if s.lstrip('+-').isdigit():
+            o = int(s)
+        else:
+            return None
+    # Correct implied probability conversion
+    # Negative odds (e.g., -150) -> 150/(150+100) = 0.6
+    if o < 0:
+        return (-o) / ((-o) + 100.0)
+    # Positive odds (e.g., +150) -> 100/(150+100) = 0.4
+    return 100.0 / (o + 100.0)
+
+def _american_to_decimal(odds: Optional[int]) -> Optional[float]:
+    p = _american_to_implied_prob(odds)
+    if p is None or p <= 0:
+        return None
+    # decimal odds = 1 / implied probability (approx, ignoring overround)
+    try:
+        return 1.0 / p
+    except Exception:
+        return None
+
+def _logistic(x: float, k: float = 3.0, x0: float = 1.0) -> float:
+    """Logistic mapping centered at x0; k controls steepness."""
+    try:
+        import math
+        return 1.0 / (1.0 + math.exp(-k * (x - x0)))
+    except Exception:
+        # Safe fallback: clamp into [0,1]
+        return max(0.0, min(1.0, (x - (x0 - 1.0)) / 2.0))
 
 def compute_pitcher_projections(include_lines: bool = True, force_refresh: bool = False) -> Dict[str, Any]:
     date_iso, date_us = _today_dates()
@@ -905,6 +948,92 @@ def compute_pitcher_projections(include_lines: bool = True, force_refresh: bool 
         rec_hits = _edge_recommendation('hits_allowed', projected_hits, line_hits)
         rec_walks = _edge_recommendation('walks', projected_walks, line_walks)
 
+        # Per-stat tighter grading: edge, confidence, EV, Kelly
+        def _threshold(stat: str) -> float:
+            return {
+                'strikeouts': 0.7,
+                'outs': 2.0,
+                'earned_runs': 0.6,
+                'hits_allowed': 0.8,
+                'walks': 0.6,
+            }.get(stat, 0.7)
+
+        def _edge(stat: str, proj_v: Optional[float], line_v: Optional[float]) -> Optional[float]:
+            if proj_v is None or line_v is None:
+                return None
+            if stat in ('earned_runs','hits_allowed','walks'):
+                # For these, recommendation direction uses (line - proj)
+                return (proj_v - line_v)  # positive -> OVER edge; sign will be handled by rec
+            return (proj_v - line_v)
+
+        def _confidence_from_edge(stat: str, edge_val: Optional[float]) -> tuple[float,str]:
+            if edge_val is None:
+                return (0.0, 'LOW')
+            thr = _threshold(stat)
+            # Absolute edge normalized by threshold, then logistic mapping
+            norm = abs(edge_val) / max(1e-6, thr)
+            score = _logistic(norm, k=3.2, x0=1.0)  # ~50% at 1x threshold
+            # Map to label
+            label = 'LOW'
+            if score >= 0.82:
+                label = 'HIGH'
+            elif score >= 0.62:
+                label = 'MEDIUM'
+            return (score, label)
+
+        def _ev_and_kelly(prob_edge: Optional[float], dec_odds: Optional[float]) -> tuple[Optional[float], Optional[float]]:
+            if prob_edge is None or dec_odds is None or dec_odds <= 1.0:
+                return (None, None)
+            # EV per unit stake: p*odds - (1-p)
+            ev = prob_edge * dec_odds - (1 - prob_edge)
+            # Kelly f* = (b*p - (1-p)) / b where b = decimal-1
+            b = dec_odds - 1.0
+            k = (b * prob_edge - (1 - prob_edge)) / b if b > 0 else None
+            if k is not None:
+                # bound Kelly to [0, 0.25] for safety
+                k = max(0.0, min(0.25, k))
+            return (ev, k)
+
+        def _prob_from_edge(stat: str, edge_val: Optional[float]) -> Optional[float]:
+            if edge_val is None:
+                return None
+            # Convert normalized edge to a rough win probability via logistic
+            thr = _threshold(stat)
+            norm = abs(edge_val) / max(1e-6, thr)
+            return _logistic(norm, k=2.6, x0=1.0)  # softer than confidence mapping
+
+        # Compute metadata per stat
+        rec_meta: dict[str, dict] = {}
+        for stat, rec, proj_v, line_v, line_obj in [
+            ('strikeouts', rec_ks, projected_ks, line_ks, p_lines.get('strikeouts') or {}),
+            ('outs', rec_outs, projected_outs, line_outs, p_lines.get('outs') or {}),
+            ('earned_runs', rec_er, projected_er, line_er, p_lines.get('earned_runs') or {}),
+            ('hits_allowed', rec_hits, projected_hits, line_hits, p_lines.get('hits_allowed') or {}),
+            ('walks', rec_walks, projected_walks, line_walks, p_lines.get('walks') or {}),
+        ]:
+            if line_v is None or rec not in ('OVER','UNDER'):
+                continue
+            e = _edge(stat, proj_v, line_v)
+            score, label = _confidence_from_edge(stat, e)
+            # choose odds based on rec side
+            over_odds = line_obj.get('over_odds')
+            under_odds = line_obj.get('under_odds')
+            side_odds = over_odds if rec == 'OVER' else under_odds
+            dec = _american_to_decimal(side_odds)
+            p_hat = _prob_from_edge(stat, e)
+            ev, kelly = _ev_and_kelly(p_hat, dec) if p_hat is not None else (None, None)
+            rec_meta[stat] = {
+                'edge': round(e, 3) if isinstance(e,(int,float)) else None,
+                'threshold': _threshold(stat),
+                'confidence_score': round(score, 3),
+                'confidence_label': label,
+                'side_odds': side_odds,
+                'decimal_odds': round(dec, 3) if isinstance(dec, float) else None,
+                'win_prob_est': round(p_hat, 3) if isinstance(p_hat, float) else None,
+                'expected_value': round(ev, 3) if isinstance(ev, float) else None,
+                'kelly_fraction': round(kelly, 3) if isinstance(kelly, float) else None,
+            }
+
         # Adjustments (opponent K rate & park) - placeholders if data unavailable
         park_factor = None
         if venue:
@@ -1025,6 +1154,7 @@ def compute_pitcher_projections(include_lines: bool = True, force_refresh: bool 
                 'hits_allowed': rec_hits,
                 'walks': rec_walks
             },
+            'recommendations_meta': rec_meta,
             'diffs': diffs,
             'diffs_adjusted': diffs_adjusted
         })

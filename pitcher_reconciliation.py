@@ -174,8 +174,36 @@ def fetch_pitcher_actuals(date_iso: str, live: bool = False) -> Dict[str, Any]:
 
 
 def load_projections_snapshot(date_iso: str) -> Optional[Dict[str, Any]]:
-    ppath = os.path.join(DATA_DIR, 'daily_bovada', f'pitcher_projections_{date_iso.replace("-","_")}.json')
-    return _read_json(ppath)
+    # Prefer an "update" snapshot if present (usually includes bookmaker lines and recs)
+    base = os.path.join(DATA_DIR, 'daily_bovada', f'pitcher_projections_{date_iso.replace("-","_")}.json')
+    upd = os.path.join(DATA_DIR, 'daily_bovada', f'pitcher_projections_update_{date_iso.replace("-","_")}.json')
+    js = _read_json(upd)
+    return js if js is not None else _read_json(base)
+
+
+def _load_prop_recs_snapshot(date_iso: str) -> Dict[str, Dict[str, Dict[str, Any]]]:
+    """Load saved pitcher prop recommendations snapshot and index by pitcher -> stat.
+    Returns: { norm_name: { stat_key: { 'rec': 'OVER'|'UNDER', 'line': float } } }
+    """
+    recs_path = os.path.join(DATA_DIR, f'pitcher_prop_recommendations_{date_iso.replace("-","_")}.json')
+    out: Dict[str, Dict[str, Dict[str, Any]]] = {}
+    js = _read_json(recs_path)
+    if not js:
+        return out
+    plays = js.get('plays') or []
+    for p in plays:
+        name = p.get('pitcher_name')
+        stat = p.get('stat')
+        rec = p.get('recommendation')
+        line = p.get('line')
+        if not name or stat not in ('outs','strikeouts','earned_runs','hits_allowed','walks'):
+            continue
+        key = normalize_name(name)
+        out.setdefault(key, {})
+        # Only set if both line and rec are present and valid
+        if rec in ('OVER','UNDER') and isinstance(line, (int, float)):
+            out[key][stat] = {'rec': rec, 'line': float(line)}
+    return out
 
 
 def reconcile_projections(date_iso: str, live: bool = False) -> Dict[str, Any]:
@@ -199,6 +227,8 @@ def reconcile_projections(date_iso: str, live: bool = False) -> Dict[str, Any]:
     if proj:
         for p in proj.get('pitchers', []):
             proj_map[normalize_name(p.get('pitcher_name'))] = p
+    # Backfill map from saved recommendations (has rec + line for our actual plays)
+    backfill_map = _load_prop_recs_snapshot(date_iso)
     rows = []
     # Aggregate outcome counters
     totals = { 'wins': 0, 'losses': 0, 'pushes': 0, 'graded': 0 }
@@ -249,6 +279,15 @@ def reconcile_projections(date_iso: str, live: bool = False) -> Dict[str, Any]:
                 'bb': a.get('walks'),
             }
         }
+        # Fill missing lines/recs from our saved prop recs snapshot
+        bf = backfill_map.get(key) or {}
+        for stat_key in ('outs','strikeouts','earned_runs','hits_allowed','walks'):
+            if row['recs'].get(stat_key) not in ('OVER','UNDER') or row['lines'].get(stat_key) is None:
+                src = bf.get(stat_key)
+                if src:
+                    row['recs'][stat_key] = src.get('rec') or row['recs'].get(stat_key)
+                    if row['lines'].get(stat_key) is None and (src.get('line') is not None):
+                        row['lines'][stat_key] = src.get('line')
         # Errors
         row['err'] = {
             'outs': _safe_diff(row['act']['outs'], row['proj']['outs']),

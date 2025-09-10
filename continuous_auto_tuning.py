@@ -16,3 +16,12 @@ class ContinuousAutoTuner:
 
     def is_running(self) -> bool:
         return self.enabled
+
+    # Methods expected by app.py scheduling hooks (no-op stubs)
+    def daily_full_optimization(self):
+        """No-op placeholder for daily optimization."""
+        return None
+
+    def quick_optimization_check(self):
+        """No-op placeholder for periodic quick check."""
+        return None

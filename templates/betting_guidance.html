@@ -5,62 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Betting Guidance - Kelly Recommendations</title>
   <style>
-    body { font-family: Inter, Segoe UI, Arial, sans-serif; background:#0b1e39; color:#111; margin:0; }
-    .container { max-width:1200px; margin:0 auto; padding:24px; }
+    /* Match /betting-recommendations typography and layout */
+    body { font-family: Inter, Arial, sans-serif; background:#0b1e39; margin:0; color:#111; }
+    .container { max-width:1250px; margin:0 auto; padding:24px; }
     .card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:18px; }
-    h1 { color:#163a6b; }
-    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:16px; }
-    .stat { background:#f8fbff; border:1px solid #e2ecf7; border-radius:12px; padding:16px; text-align:center; }
-    .stat .num { font-size:28px; font-weight:700; color:#163a6b; }
-    .badge { padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700; }
+    h1 { color:#163a6b; margin:0 0 6px; }
+    h2 { color:#163a6b; margin:0 0 10px; }
+    .table { width:100%; border-collapse:collapse; }
+    .table th, .table td { padding:8px 10px; border-bottom:1px solid #eee; font-size:13px; text-align:left; }
+    .table th { background:#f5f7fb; font-weight:600; }
+    .table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .muted { color:#555; font-size:12px; }
+    .badge { padding:4px 8px; border-radius:999px; font-size:11px; font-weight:600; }
     .badge.HIGH { background:#16a34a; color:#fff; }
     .badge.MEDIUM { background:#2563eb; color:#fff; }
     .badge.LOW { background:#eab308; color:#111; }
-    .muted { color:#666; font-size:13px; }
-  .btn { background:#163a6b; color:#fff; padding:10px 16px; border:none; border-radius:10px; cursor:pointer; text-decoration:none; display:inline-block; }
-  .btn.secondary { background:#2a74dc; }
-  .input { padding:8px 10px; border-radius:8px; border:1px solid #cfe1f8; }
-    .table { width:100%; border-collapse: collapse; }
-    .table th, .table td { border-bottom:1px solid #eee; padding:10px; text-align:left; }
-    .table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-  /* Simple tabs used for per-stat filters */
-  .tabs { display:flex; gap:6px; flex-wrap:wrap; }
-  .tab { background:#fff; color:#163a6b; border:1px solid #cfe1f8; padding:4px 10px; border-radius:8px; cursor:pointer; font-size:12px; }
-  .tab.active { background:#163a6b; color:#fff; border-color:#163a6b; }
-    /* Responsive enhancements */
-    @media (max-width: 700px){
-      body { font-size:14px; }
+    .pill { background:#163a6b; color:#fff; padding:6px 10px; border-radius:8px; font-size:12px; text-decoration:none; display:inline-block; }
+    .flex { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:14px; }
+    .stat { background:#f8fbff; border:1px solid #e2ecf7; border-radius:12px; padding:14px; }
+    .stat .num { font-size:24px; font-weight:700; color:#163a6b; }
+    /* Tabs with counts like /betting-recommendations */
+    .tabs { display:flex; gap:6px; flex-wrap:wrap; }
+    .tab { cursor:pointer; border:1px solid #cfe1f8; color:#163a6b; background:#f8fbff; padding:6px 10px; border-radius:8px; font-size:12px; }
+    .tab.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+    .tab .count { background:#e6eefb; color:#163a6b; border-radius:12px; padding:0 6px; margin-left:6px; font-weight:700; font-size:11px; }
+    .tab.active .count { background:#fff; color:#2563eb; }
+    /* Inputs */
+    .input { padding:8px 10px; border-radius:8px; border:1px solid #cfe1f8; font-size:12px; }
+    /* Responsive tweaks to mirror the compact style */
+    @media (max-width:760px){
       .container { padding:16px; }
       h1 { font-size:22px; }
-      h2 { font-size:18px; }
-      .grid { grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap:12px; }
+      .table th, .table td { font-size:12px; padding:6px 8px; }
       .stat { padding:12px; }
       .stat .num { font-size:22px; }
-      .btn { padding:8px 12px; font-size:13px; }
-      .input { padding:6px 8px; font-size:13px; }
-      .table th, .table td { padding:6px 8px; font-size:12px; }
-      #roi-metrics-card .grid { grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); }
-      .card { padding:16px; }
-      .muted { font-size:12px; }
-    }
-    /* Very small screens */
-    @media (max-width:480px){
-      h1 { font-size:19px; }
-      .grid { grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); }
-      .stat .num { font-size:20px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <div style="display:flex; justify-content: space-between; align-items:center;">
+      <div class="flex" style="justify-content:space-between;">
         <h1>🎯 Betting Guidance (Kelly-Based)</h1>
-        <a class="btn secondary" href="/" style="text-decoration:none;">⬅ Back to Main</a>
+        <div class="flex">
+          <a class="pill" href="/" style="text-decoration:none;">⬅ Main</a>
+          <a class="pill" href="/betting-recommendations" style="background:#2a74dc;">Daily Recs</a>
+        </div>
       </div>
       <div class="muted">Today’s opportunities and historical performance by bet type.</div>
-      <div style="margin-top:10px;">
-        <a class="btn" href="/kelly-guidance" style="text-decoration:none;">Open Kelly Guidance Page →</a>
+      <div class="flex" style="margin-top:10px;">
+        <a class="pill" href="/kelly-guidance" style="background:#0891b2;">Open Kelly Guidance Page →</a>
       </div>
     </div>
 
@@ -117,14 +112,31 @@
       </div>
       <div id="pitcher-props"></div>
       <div class="muted" id="pitcher-props-wl" style="margin-top:6px;"></div>
+      <div style="margin-top:16px;">
+        <h3 style="margin:8px 0;">Yesterday Pitcher Props Recap <span class="muted" id="props-yday-date"></span></h3>
+        <div class="grid" id="props-yday-grid"></div>
+      </div>
+    </div>
+
+    <!-- Pitcher Prop Reconciliation (Day) -->
+    <div class="card">
+      <h2>Pitcher Prop Reconciliation (Day)</h2>
+      <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+        <label for="props-hist-day" class="muted">Select day:</label>
+        <select id="props-hist-day" class="input"></select>
+        <button class="pill" onclick="loadPropsDayRecap()" style="background:#2563eb;">Load</button>
+      </div>
+      <div class="grid" id="props-day-grid"></div>
+      <div class="muted" style="margin:8px 0 4px;">By Stat</div>
+      <div class="grid" id="props-day-stat-grid"></div>
     </div>
 
     <div class="card">
-      <h2>Historical Day Performance</h2>
+      <h2>Historical Game Recommendation Performance</h2>
       <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
         <label for="hist-day" class="muted">Select day:</label>
-        <select id="hist-day" class="input"></select>
-        <button class="btn" onclick="loadDayPerformance()">Load</button>
+  <select id="hist-day" class="input"></select>
+  <button class="pill" onclick="loadDayPerformance()" style="background:#2563eb;">Load</button>
       </div>
       <div class="grid" id="day-grid"></div>
   <div class="muted" style="margin:8px 0 4px;">By Confidence (variable stake)</div>
@@ -136,28 +148,66 @@
     </div>
 
     <div class="card">
-      <h2>Historical Performance (Date Range)</h2>
+      <h2>Historical Game Recommendation Performance (Date Range)</h2>
       <div class="muted" style="margin-bottom:8px;">Select a window to see cumulative performance over time.</div>
       <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
         <label for="range-start" class="muted">Start date:</label>
         <select id="range-start" class="input"></select>
         <label for="range-end" class="muted">End date:</label>
-        <select id="range-end" class="input"></select>
-        <button class="btn" onclick="loadRangePerformance()">Load Range</button>
+  <select id="range-end" class="input"></select>
+  <button class="pill" onclick="loadRangePerformance()" style="background:#2563eb;">Load Range</button>
       </div>
       <div class="grid" id="range-grid"></div>
   <div class="muted" style="margin:8px 0 4px;">By Confidence (variable stake)</div>
   <div class="grid" id="range-level-grid"></div>
       <div style="margin-top:16px;">
-        <h3 style="margin:8px 0;">Recommendations for Selected Range</h3>
-        <div id="range-recs"></div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <h3 style="margin:8px 0;">Recommendations for Selected Range</h3>
+          <button id="range-recs-toggle" class="pill" style="padding:4px 10px; background:#e5e7eb; color:#111;" onclick="toggleCollapse('range-recs','range-recs-toggle')">Expand</button>
+        </div>
+        <div id="range-recs" style="display:none;"></div>
       </div>
+    </div>
+
+    <!-- Pitcher Prop Historical Performance (Date Range) -->
+    <div class="card">
+      <h2>Historical Pitcher Prop Performance (Date Range)</h2>
+      <div class="muted" style="margin-bottom:8px;">Aggregate win/loss performance of pitcher props across a date window.</div>
+      <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+        <label for="props-range-start" class="muted">Start date:</label>
+        <select id="props-range-start" class="input"></select>
+        <label for="props-range-end" class="muted">End date:</label>
+        <select id="props-range-end" class="input"></select>
+        <button class="pill" onclick="loadPropsRangePerformance()" style="background:#2563eb;">Load Range</button>
+      </div>
+      <div class="grid" id="props-range-grid"></div>
+      <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
+        <div class="muted">By Stat</div>
+        <button id="props-range-toggle-btn" class="pill" style="padding:4px 10px; background:#e5e7eb; color:#111;" onclick="toggleCollapse('props-range-stat-grid','props-range-toggle-btn')">Expand</button>
+      </div>
+      <div class="grid" id="props-range-stat-grid" style="display:none;"></div>
     </div>
   </div>
 
   <script>
-    function fmtPct(n){ return (Number(n)||0).toFixed(1) + '%'; }
-    function fmtEV(n){ const v=Number(n); if(!isFinite(v)) return '-'; return (v*100).toFixed(1)+'%'; }
+    function toggleCollapse(id, btnId){
+      const el = document.getElementById(id);
+      const btn = document.getElementById(btnId);
+      if(!el) return;
+      const show = (el.style.display==='none' || !el.style.display);
+      el.style.display = show ? '' : 'none';
+      if(btn){ btn.textContent = show ? 'Collapse' : 'Expand'; }
+    }
+    function fmtNum(v){
+      if(v===null || v===undefined || v==='') return '';
+      const n = Number(v);
+      if(!isFinite(n)) return String(v);
+      const s = n.toFixed(2);
+      return s.replace(/\.00$/,'').replace(/(\.\d)0$/,'$1');
+    }
+  function fmtPct(n){ return (Number(n)||0).toFixed(1) + '%'; }
+  function fmtEV(n){ const v=Number(n); if(!isFinite(v)) return '-'; return (v*100).toFixed(1)+'%'; }
+  const STAKE_BY_CONF = { HIGH: 100, MEDIUM: 50, LOW: 25 };
     const confOrder = c => ({'HIGH':3,'MEDIUM':2,'LOW':1}[String(c||'').toUpperCase()]||0);
   const checkIcon = ok => ok===true ? '✅' : ok===false ? '❌' : (ok==='PUSH' ? '➖' : '');
     function parseAmericanOdds(od){
@@ -271,22 +321,30 @@
       let t = String(pick).replace(/ml$/i,'').replace(/moneyline/i,'').trim();
       return t;
     }
-    function gameKey(away, home){ return `${away} @ ${home}`; }
+  function gameKey(away, home){ return `${away} @ ${home}`; }
     async function loadPerformance(){
-      const res=await fetch('/api/betting-guidance/performance');
-      const data=await res.json();
-      const perf=data.performance_by_bet_type||{};
-      const grid=document.getElementById('perf');
-      grid.innerHTML='';
+      const res = await fetch('/api/betting-guidance/performance');
+      const data = await res.json();
+      const perf = data.performance_by_bet_type || {};
+      const grid = document.getElementById('perf');
+      grid.innerHTML = '';
       Object.entries(perf).forEach(([type,stats])=>{
-        const div=document.createElement('div'); div.className='stat';
-        div.innerHTML=`<div class='num'>${fmtPct(stats.accuracy)}</div><div class='muted'>${type.replace('_',' ').toUpperCase()}</div><div class='muted'>ROI: ${stats.roi?.toFixed(1)||0}% | Profit: $${stats.net_profit?.toFixed(2)||0}</div><div class='muted'>${stats.total_bets} bets (${stats.correct_bets} wins)</div>`;
+        const div = document.createElement('div');
+        div.className = 'stat';
+        const acc = (stats && stats.accuracy!=null) ? fmtPct(stats.accuracy) : '0.0%';
+        const roi = (stats && stats.roi!=null) ? Number(stats.roi).toFixed(1) : '0.0';
+        const profit = (stats && stats.net_profit!=null) ? Number(stats.net_profit).toFixed(2) : '0.00';
+        const total = (stats && stats.total_bets!=null) ? stats.total_bets : 0;
+        const wins = (stats && stats.correct_bets!=null) ? stats.correct_bets : 0;
+        div.innerHTML = `<div class='num'>${acc}</div>
+          <div class='muted'>${String(type||'').replace('_',' ').toUpperCase()}</div>
+          <div class='muted'>ROI: ${roi}% | Profit: $${profit}</div>
+          <div class='muted'>${total} bets (${wins} wins)</div>`;
         grid.appendChild(div);
       });
-      loadROIMetricsPanel();
+      await loadROIMetricsPanel();
     }
-
-    async function loadROIMetricsPanel(){
+  async function loadROIMetricsPanel(){
       try{
         const res = await fetch('/api/optimization/roi-metrics');
         const data = await res.json();
@@ -331,25 +389,58 @@
       const div = document.getElementById('today');
       const recs = data.recommendations || [];
       if(!recs.length){ div.innerHTML='<div class="muted">No recommendations available.</div>'; return; }
-      // Normalize rows and sort by confidence then EV
       const rows = recs.map(r=>({
         game: r.game || `${r.away_team||''} @ ${r.home_team||''}`,
         bet: `${String(r.type||'').replace('_',' ').toUpperCase()} ${r.recommendation||''}`.trim(),
         odds: r.american_odds ?? r.odds,
         conf: String(r.confidence||'').toUpperCase(),
-        ev: r.expected_value
+        ev: r.expected_value,
+        stake: STAKE_BY_CONF[String(r.confidence||'').toUpperCase()]||0
       }));
-      rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
-      div.innerHTML = '<div class="table-wrap"><table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th></tr></thead><tbody>' +
-        rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td></tr>`).join('') +
-      '</tbody></table></div>';
+      window._todaySort = window._todaySort || { key: 'conf', dir: 'desc' };
+      function sortRows(){
+        const key = window._todaySort.key; const dir = window._todaySort.dir==='asc'? 1 : -1;
+        rows.sort((a,b)=>{
+          if(key==='conf'){ return (confOrder(a.conf)-confOrder(b.conf)) * -dir; }
+          if(key==='ev'){
+            const av = Number(a.ev||0), bv = Number(b.ev||0); return (av===bv? (confOrder(a.conf)-confOrder(b.conf))*-dir : (av-bv))*dir;
+          }
+          if(key==='odds'){
+            const av = Number(a.odds||0), bv = Number(b.odds||0); return (av-bv)*dir; }
+          if(key==='stake'){
+            const av = Number(a.stake||0), bv = Number(b.stake||0); return (av-bv)*dir; }
+          return 0;
+        });
+      }
+      function header(dirKey){ const is = k=> window._todaySort.key===k; const arrow = is(dirKey)? (window._todaySort.dir==='asc'?' ▲':' ▼') : ''; return arrow; }
+      function render(){
+        sortRows();
+        div.innerHTML = '<div class="table-wrap"><table class="table sortable" id="today-table">\
+<thead><tr>\
+<th data-k="game">Game</th>\
+<th data-k="bet">Bet</th>\
+<th data-k="odds">Odds'+header('odds')+'</th>\
+<th data-k="conf">Conf'+header('conf')+'</th>\
+<th data-k="ev">EV'+header('ev')+'</th>\
+<th data-k="stake">Stake'+header('stake')+'</th></tr></thead><tbody>' +
+          rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>$${r.stake}</td></tr>`).join('') +
+        '</tbody></table></div>';
+        // wire header clicks
+        const thead = document.querySelector('#today-table thead');
+        if(thead && !thead._wired){ thead._wired=true; thead.addEventListener('click', (e)=>{
+          const th = e.target.closest('th'); if(!th) return; const k = th.getAttribute('data-k'); if(!k) return;
+          if(window._todaySort.key===k){ window._todaySort.dir = (window._todaySort.dir==='asc'?'desc':'asc'); } else { window._todaySort.key=k; window._todaySort.dir = (k==='conf' || k==='ev') ? 'desc':'asc'; }
+          render();
+        }); }
+      }
+      render();
 
       // Build Today Recap KPIs based on THESE recs only (so counts match what you see)
       await loadTodayRecap(recs);
       // Also load pitcher prop snapshot-based recs to mirror the dedicated props page
       await loadPitcherPropsSection();
     }
-    async function loadAvailableDates(){
+  async function loadAvailableDates(){
       try{
     const res=await fetch('/api/historical-analysis/available-dates');
         const data=await res.json();
@@ -388,12 +479,53 @@
   }
       }catch(e){ console.warn('Failed to load available dates', e); }
     }
+    // Load available dates for pitcher prop reconciliation (day + range)
+    async function loadPropsAvailableDates(){
+      try{
+        const res = await fetch('/api/pitcher-reconciliation/available-dates');
+        const data = await res.json();
+        const dates = (data.dates || []).slice().sort();
+        // Day dropdown
+        const dsel = document.getElementById('props-hist-day');
+        if(dsel){
+          dsel.innerHTML='';
+          dates.forEach(dt=>{ const o=document.createElement('option'); o.value=dt; o.textContent=dt; dsel.appendChild(o); });
+          if(dates.length){
+            // Default to the prior day (latest date strictly earlier than business date)
+            let bd = todayISO();
+            try{
+              const bdRes = await fetch('/api/business-date').catch(()=>null);
+              if(bdRes && bdRes.ok){ const bj = await bdRes.json(); if(bj && bj.business_date) bd = bj.business_date; }
+            }catch(_){ /* ignore */ }
+            let def = dates[dates.length-1];
+            for(let i=dates.length-1;i>=0;i--){ if(dates[i] < bd){ def = dates[i]; break; } }
+            dsel.value = def;
+            await loadPropsDayRecap();
+          }
+          // Auto-load on selection change
+          dsel.addEventListener('change', ()=> loadPropsDayRecap());
+        }
+        // Range dropdowns
+        const rs = document.getElementById('props-range-start');
+        const re = document.getElementById('props-range-end');
+        if(rs && re){
+          rs.innerHTML=''; re.innerHTML='';
+          dates.forEach(dt=>{ const o1=document.createElement('option'); o1.value=dt; o1.textContent=dt; rs.appendChild(o1); const o2=document.createElement('option'); o2.value=dt; o2.textContent=dt; re.appendChild(o2); });
+          if(dates.length){ rs.value = dates[0]; re.value = dates[dates.length-1]; await loadPropsRangePerformance(); }
+        }
+      }catch(e){ console.warn('Failed to load props available dates', e); }
+    }
     function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
 
     // Pitcher props section (snapshot-only), with live reconciliation recap
     let PROPS_TIMER=null; let PROPS_DATA=[];
     async function loadPitcherPropsSection(){
-      const d = todayISO();
+      // Use server-side business date to avoid premature rollover
+      let d = todayISO();
+      try{
+        const bd = await fetch('/api/business-date').then(r=>r.json()).catch(()=>null);
+        if(bd && bd.success && bd.business_date) d = bd.business_date;
+      }catch(_){ /* ignore and fall back */ }
   const statSel = document.getElementById('props-stat');
       const hideLow = document.getElementById('props-hide-low');
       try{
@@ -407,8 +539,8 @@
         // Start/refresh live W/L recap if requested
         setPropsLive(document.getElementById('props-live-toggle')?.checked);
       }catch(e){ document.getElementById('pitcher-props-meta').textContent='Error loading'; }
-      const meta = document.getElementById('pitcher-props-meta');
-      meta.textContent = 'Today (snapshot) • '+(PROPS_DATA.length||0)+' plays';
+  const meta = document.getElementById('pitcher-props-meta');
+  meta.textContent = `Snapshot for ${d} • ${(PROPS_DATA.length||0)} plays`;
       statSel?.addEventListener('change', renderPitcherProps);
       hideLow?.addEventListener('change', renderPitcherProps);
       document.getElementById('props-live-toggle')?.addEventListener('change', e=> setPropsLive(e.target.checked));
@@ -427,25 +559,91 @@
         });
       })();
     }
-    function renderPitcherProps(){
+    function statLabel(s){
+      const m = { strikeouts:'K', outs:'Outs', earned_runs:'ER', hits_allowed:'Hits', walks:'BB' }; return m[String(s)]||s;
+    }
+  function statOrderKey(s){ const order = {strikeouts:1, outs:2, earned_runs:3, hits_allowed:4, walks:5}; return order[s]||99; }
+  function renderPitcherProps(){
       const stat = (window._propsStatFilter!=null ? window._propsStatFilter : (document.getElementById('props-stat')?.value||''));
       const hideLow=document.getElementById('props-hide-low')?.checked;
       let arr = PROPS_DATA.slice();
       if(stat) arr = arr.filter(p=>p.stat===stat);
       if(hideLow) arr = arr.filter(p=>p.confidence!=='LOW');
-      arr.sort((a,b)=> {
-        const rank = {'HIGH':3,'MEDIUM':2,'LOW':1};
-        const rb = rank[b.confidence]||0;
-        const ra = rank[a.confidence]||0;
-        const d1 = rb - ra;
-        if(d1!==0) return d1;
-        const eb = Math.abs(b.diff||0);
-        const ea = Math.abs(a.diff||0);
-        return eb - ea;
+      // enrich
+      arr = arr.map(p=>{
+        const odds = (p.odds!=null) ? p.odds : ((p.recommendation==='OVER'? p.over_odds : p.under_odds) ?? p.odds_display ?? '');
+        const stake = STAKE_BY_CONF[String(p.confidence||'').toUpperCase()]||0;
+        const evp = (p.ev_percent!=null) ? p.ev_percent : (p.expected_value!=null ? (Number(p.expected_value)*100).toFixed(1) : null);
+        return {
+          ...p,
+          odds_display: odds,
+          stake,
+          ev_percent: evp
+        };
       });
-      const html = `<table class="table"><thead><tr><th>Conf</th><th>Pitcher</th><th>Team</th><th>Opp</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th></tr></thead><tbody>`+
-        arr.map(p=>`<tr><td><span class="badge ${p.confidence}">${p.confidence}</span></td><td>${p.pitcher_name}</td><td>${p.team||''}</td><td>${p.opponent||''}</td><td>${p.stat}</td><td>${p.line??''}</td><td>${p.projection??''}</td><td>${p.adjusted_projection??''}</td><td>${p.diff??''}</td><td>${p.recommendation}</td><td>${(p.recommendation==='OVER'?p.over_odds:p.under_odds)??''}</td></tr>`).join('')+ `</tbody></table>`;
+      // sorting
+      window._propsSort = window._propsSort || { key: 'default', dir: 'desc' };
+      const key = window._propsSort.key; const dir = window._propsSort.dir==='asc'? 1 : -1;
+      arr.sort((a,b)=>{
+        const rank = {'HIGH':3,'MEDIUM':2,'LOW':1};
+        if(key==='confidence'){
+          return (rank[a.confidence] - rank[b.confidence]) * -dir;
+        } else if(key==='ev'){
+          const av = Number(a.ev_percent ?? (a.expected_value!=null ? a.expected_value*100 : 0));
+          const bv = Number(b.ev_percent ?? (b.expected_value!=null ? b.expected_value*100 : 0));
+          return (av-bv)*dir;
+        } else if(key==='odds'){
+          return (Number(a.odds_display||a.odds||0) - Number(b.odds_display||b.odds||0)) * dir;
+        } else if(key==='diff'){
+          return (Math.abs(Number(a.diff||0)) - Math.abs(Number(b.diff||0))) * -dir;
+        } else if(key==='player'){
+          return String(a.player||a.pitcher_name||'').localeCompare(String(b.player||b.pitcher_name||'')) * dir;
+        } else if(key==='stat'){
+          return String(a.prop_type||statLabel(a.stat)).localeCompare(String(b.prop_type||statLabel(b.stat))) * dir;
+        }
+        // default: confidence, then abs(diff)
+        const rb = rank[b.confidence]||0; const ra = rank[a.confidence]||0; const d1 = rb - ra; if(d1!==0) return d1;
+        return (Math.abs(Number(b.diff||0)) - Math.abs(Number(a.diff||0)));
+      });
+      const arrow = k=> (window._propsSort.key===k ? (window._propsSort.dir==='asc'?' ▲':' ▼') : '');
+      const html = `<table class="table sortable" id="props-table"><thead><tr>
+        <th data-k="confidence">Conf${arrow('confidence')}</th>
+        <th data-k="player">Pitcher${arrow('player')}</th>
+        <th>Team</th>
+        <th>Opp</th>
+        <th data-k="stat">Stat${arrow('stat')}</th>
+        <th>Line</th>
+        <th>Proj</th>
+        <th>Adj</th>
+        <th data-k="diff">Diff${arrow('diff')}</th>
+        <th>Side</th>
+        <th data-k="odds">Odds${arrow('odds')}</th>
+        <th data-k="ev">EV${arrow('ev')}</th>
+        <th>Stake</th>
+      </tr></thead><tbody>`+
+        arr.map(p=>`<tr>
+          <td><span class="badge ${p.confidence}">${p.confidence}</span></td>
+          <td>${p.player || p.pitcher_name}</td>
+          <td>${p.team||''}</td>
+          <td>${p.opponent||''}</td>
+          <td>${p.prop_type || statLabel(p.stat)}</td>
+          <td>${p.line_fmt ?? fmtNum(p.line)}</td>
+          <td>${p.projection_fmt ?? fmtNum(p.projection)}</td>
+          <td>${p.adjusted_projection_fmt ?? fmtNum(p.adjusted_projection)}</td>
+          <td>${p.diff_fmt ?? fmtNum(p.diff)}</td>
+          <td>${p.side || p.recommendation}</td>
+          <td>${p.odds_display}</td>
+          <td>${(p.ev_percent!=null) ? (Number(p.ev_percent).toFixed(1)+'%') : fmtEV(p.expected_value)}</td>
+          <td>${p.stake_label || ('$'+p.stake)}</td>
+        </tr>`).join('')+ `</tbody></table>`;
       document.getElementById('pitcher-props').innerHTML = html;
+      // wire header clicks
+      const thead = document.querySelector('#props-table thead');
+      if(thead && !thead._wired){ thead._wired=true; thead.addEventListener('click', (e)=>{
+        const th = e.target.closest('th'); if(!th) return; const k = th.getAttribute('data-k'); if(!k) return;
+        if(window._propsSort.key===k){ window._propsSort.dir = (window._propsSort.dir==='asc'?'desc':'asc'); } else { window._propsSort.key=k; window._propsSort.dir = (k==='confidence' || k==='ev' || k==='diff') ? 'desc':'asc'; }
+        renderPitcherProps();
+      }); }
     }
     async function propsLiveTick(){
       try{
@@ -461,6 +659,117 @@
     function setPropsLive(enabled){
       if(PROPS_TIMER){ clearInterval(PROPS_TIMER); PROPS_TIMER=null; }
       if(enabled){ const iv = parseInt(document.getElementById('props-live-interval')?.value||'30000',10); propsLiveTick(); PROPS_TIMER = setInterval(propsLiveTick, Math.max(5000, iv)); }
+    }
+    // Yesterday Pitcher Props Recap (auto)
+    async function loadPropsYesterdayRecap(){
+      try{
+        // Determine business date and yesterday candidate
+        const bdRes = await fetch('/api/business-date').catch(()=>null);
+        let bd = todayISO();
+        if(bdRes && bdRes.ok){ const j = await bdRes.json(); if(j && j.business_date) bd = j.business_date; }
+        // Fetch available reconciliation dates and pick the latest < business date
+        const av = await fetch('/api/pitcher-reconciliation/available-dates');
+        if(!av.ok){ return; }
+        const aj = await av.json(); const dates = (aj.dates||[]).slice().sort();
+        if(!dates.length) return;
+        let yday = dates[dates.length-1];
+        // Prefer the last date strictly earlier than business date
+        for(let i=dates.length-1;i>=0;i--){ if(dates[i] < bd){ yday = dates[i]; break; } }
+        document.getElementById('props-yday-date').textContent = `(${yday})`;
+        const r = await fetch(`/api/pitcher-reconciliation?date=${yday}`);
+        if(!r.ok){ document.getElementById('props-yday-grid').innerHTML = '<div class="muted">No data.</div>'; return; }
+        const js = await r.json();
+        const sum = (js && js.summary) || {}; const t = sum.totals || {};
+        const graded = Number(t.graded||0), wins = Number(t.wins||0), losses = Number(t.losses||0), pushes = Number(t.pushes||0);
+        const winPct = graded? (wins/graded*100).toFixed(1) : '0.0';
+        const grid = document.getElementById('props-yday-grid');
+        grid.innerHTML = [
+          {label:'Win %', val: winPct+'%'},
+          {label:'Graded Props', val: graded},
+          {label:'Wins / Losses / Push', val: `${wins} / ${losses} / ${pushes}`}
+        ].map(t=>`<div class='stat'><div class='num'>${t.val}</div><div class='muted'>${t.label}</div></div>`).join('');
+      }catch(e){ /* ignore soft failures */ }
+    }
+    // Pitcher Prop Reconciliation (Day)
+    async function loadPropsDayRecap(){
+      const sel = document.getElementById('props-hist-day');
+      if(!sel || !sel.value) return;
+      try{
+        const r = await fetch(`/api/pitcher-reconciliation?date=${sel.value}`);
+        if(!r.ok){ document.getElementById('props-day-grid').innerHTML = '<div class="muted">No data.</div>'; document.getElementById('props-day-stat-grid').innerHTML=''; return; }
+        const js = await r.json();
+        const sum = (js && js.summary) || {};
+        const t = sum.totals || {};
+        const graded = Number(t.graded||0), wins = Number(t.wins||0), losses = Number(t.losses||0), pushes = Number(t.pushes||0);
+        const winPct = graded? (wins/graded*100).toFixed(1) : '0.0';
+        const grid = document.getElementById('props-day-grid');
+        grid.innerHTML = [
+          {label:'Win %', val: winPct+'%'},
+          {label:'Graded Props', val: graded},
+          {label:'Wins / Losses / Push', val: `${wins} / ${losses} / ${pushes}`}
+        ].map(t=>`<div class='stat'><div class='num'>${t.val}</div><div class='muted'>${t.label}</div></div>`).join('');
+        // By stat
+        const bs = sum.by_stat || {};
+        const keys = Object.keys(bs).sort((a,b)=> statOrderKey(a)-statOrderKey(b));
+        const shtml = keys.map(k=>{
+          const x = bs[k]||{}; const g = Number(x.graded||0), w = Number(x.wins||0), l = Number(x.losses||0), p = Number(x.pushes||0);
+          const pct = g? (w/g*100).toFixed(1) : '0.0';
+          return `<div class='stat'><div class='num'>${pct}%</div><div class='muted'>${statLabel(k)} Win%</div><div class='muted'>${w}-${l}-${p} • Graded ${g}</div></div>`;
+        }).join('');
+        document.getElementById('props-day-stat-grid').innerHTML = shtml || '<div class="muted">No stat breakdown available.</div>';
+      }catch(e){
+        document.getElementById('props-day-grid').innerHTML = '<div class="muted">Error loading.</div>';
+        document.getElementById('props-day-stat-grid').innerHTML='';
+      }
+    }
+    // Pitcher Prop Historical (Range)
+    async function loadPropsRangePerformance(){
+      const rs = document.getElementById('props-range-start');
+      const re = document.getElementById('props-range-end');
+      if(!rs || !re || !rs.value || !re.value) return;
+      const start = rs.value, end = re.value;
+      try{
+        const r = await fetch(`/api/pitcher-reconciliation/daily-summaries?start_date=${start}&end_date=${end}`);
+        if(!r.ok){ document.getElementById('props-range-grid').innerHTML=''; document.getElementById('props-range-stat-grid').innerHTML='<div class="muted">No data in selected range.</div>'; return; }
+        const js = await r.json();
+        const days = (js && js.days) || [];
+        // Aggregate totals
+        const aggTotals = { wins:0, losses:0, pushes:0, graded:0 };
+        const statsKeys = ['outs','strikeouts','earned_runs','hits_allowed','walks'];
+        const aggByStat = Object.fromEntries(statsKeys.map(k=>[k,{ wins:0, losses:0, pushes:0, graded:0 }]));
+        days.forEach(d=>{
+          const s = (d && d.summary) || {}; const tt = s.totals || {}; const bs = s.by_stat || {};
+          aggTotals.wins += Number(tt.wins||0);
+          aggTotals.losses += Number(tt.losses||0);
+          aggTotals.pushes += Number(tt.pushes||0);
+          aggTotals.graded += Number(tt.graded||0);
+          statsKeys.forEach(k=>{
+            const x = bs[k]||{};
+            aggByStat[k].wins += Number(x.wins||0);
+            aggByStat[k].losses += Number(x.losses||0);
+            aggByStat[k].pushes += Number(x.pushes||0);
+            aggByStat[k].graded += Number(x.graded||0);
+          });
+        });
+        const t = aggTotals;
+        const graded = Number(t.graded||0), wins = Number(t.wins||0), losses = Number(t.losses||0), pushes = Number(t.pushes||0);
+        const winPct = graded? (wins/graded*100).toFixed(1) : '0.0';
+        const grid = document.getElementById('props-range-grid');
+        grid.innerHTML = [
+          {label:'Win %', val: winPct+'%'},
+          {label:'Graded Props', val: graded},
+          {label:'Wins / Losses / Push', val: `${wins} / ${losses} / ${pushes}`}
+        ].map(t=>`<div class='stat'><div class='num'>${t.val}</div><div class='muted'>${t.label}</div></div>`).join('');
+        // By stat
+        const bs = aggByStat;
+        const keys = Object.keys(bs).sort((a,b)=> statOrderKey(a)-statOrderKey(b));
+        const shtml = keys.map(k=>{
+          const x = bs[k]||{}; const g = Number(x.graded||0), w = Number(x.wins||0), l = Number(x.losses||0), p = Number(x.pushes||0);
+          const pct = g? (w/g*100).toFixed(1) : '0.0';
+          return `<div class='stat'><div class='num'>${pct}%</div><div class='muted'>${statLabel(k)} Win%</div><div class='muted'>${w}-${l}-${p} • Graded ${g}</div></div>`;
+        }).join('');
+        document.getElementById('props-range-stat-grid').innerHTML = shtml || '<div class="muted">No stat breakdown available.</div>';
+      }catch(e){ console.warn('Failed to load props range performance', e); }
     }
   // Kelly details now live on the dedicated page via link above
   async function loadTodayRecap(recs){
@@ -1213,7 +1522,7 @@
   levelGridR.innerHTML = levelStatsR;
       }catch(e){ console.warn('Failed to load range performance', e); }
     }
-    loadPerformance(); loadToday(); loadAvailableDates();
+  loadPerformance(); loadToday(); loadAvailableDates(); loadPropsAvailableDates(); loadPropsYesterdayRecap();
   </script>
 </body>
 </html>

@@ -1,0 +1,5666 @@
+{
+  "success": true,
+  "date": "2025-09-09",
+  "generated_at": "2025-09-10T15:09:05.917564",
+  "count": 106,
+  "rows": [
+    {
+      "pitcher_name": "AJ Blubaugh",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 10,
+        "k": 4,
+        "er": 0,
+        "h": 0,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Aaron Ashby",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 5,
+        "k": 2,
+        "er": 2,
+        "h": 4,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Adam Mazur",
+      "team": "Miami Marlins",
+      "opponent": "Washington Nationals",
+      "proj": {
+        "outs": 16,
+        "k": 5.0,
+        "er": 3.7,
+        "h": 4.3,
+        "bb": 4.0
+      },
+      "adj": {
+        "outs": 16,
+        "k": 5.0
+      },
+      "lines": {
+        "outs": 15.5,
+        "strikeouts": 3.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.5,
+        "walks": null
+      },
+      "recs": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": "OVER",
+        "hits_allowed": "UNDER",
+        "walks": null
+      },
+      "act": {
+        "outs": 13,
+        "k": 1,
+        "er": 4,
+        "h": 8,
+        "bb": 3
+      },
+      "err": {
+        "outs": -3.0,
+        "outs_adj": -3.0,
+        "k": -4.0,
+        "k_adj": -4.0,
+        "er": 0.2999999999999998,
+        "h": 3.7,
+        "bb": -1.0
+      },
+      "outcomes": {
+        "outs": "loss",
+        "strikeouts": "loss",
+        "earned_runs": "win",
+        "hits_allowed": "loss",
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Adrian Houser",
+      "team": "Tampa Bay Rays",
+      "opponent": "Chicago White Sox",
+      "proj": {
+        "outs": 18,
+        "k": 4.1,
+        "er": 1.4,
+        "h": 5.3,
+        "bb": 1.9
+      },
+      "adj": {
+        "outs": 18,
+        "k": 4.1
+      },
+      "lines": {
+        "outs": 16.5,
+        "strikeouts": 3.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.5,
+        "walks": null
+      },
+      "recs": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": "UNDER",
+        "hits_allowed": "UNDER",
+        "walks": null
+      },
+      "act": {
+        "outs": 16,
+        "k": 9,
+        "er": 3,
+        "h": 4,
+        "bb": 0
+      },
+      "err": {
+        "outs": -2.0,
+        "outs_adj": -2.0,
+        "k": 4.9,
+        "k_adj": 4.9,
+        "er": 1.6,
+        "h": -1.2999999999999998,
+        "bb": -1.9
+      },
+      "outcomes": {
+        "outs": "loss",
+        "strikeouts": "win",
+        "earned_runs": "loss",
+        "hits_allowed": "win",
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Alexis D\u00edaz",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 2,
+        "k": 1,
+        "er": 3,
+        "h": 0,
+        "bb": 3
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Andrew Kittredge",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 2,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Angel Zerpa",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 1,
+        "k": 1,
+        "er": 0,
+        "h": 1,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Ben Brown",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 2,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Braxton Ashcraft",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 9,
+        "k": 4,
+        "er": 1,
+        "h": 2,
+        "bb": 2
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Brendon Little",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 1,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Bryan Abreu",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 2,
+        "er": 2,
+        "h": 2,
+        "bb": 2
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Bryan Baker",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Bryan King",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 5,
+        "k": 1,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Cade Horton",
+      "team": "Chicago Cubs",
+      "opponent": "Atlanta Braves",
+      "proj": {
+        "outs": 16,
+        "k": 4.3,
+        "er": 1.7,
+        "h": 4.4,
+        "bb": 1.6
+      },
+      "adj": {
+        "outs": 16,
+        "k": 4.3
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": 3.5,
+        "earned_runs": 1.5,
+        "hits_allowed": 4.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": "OVER",
+        "earned_runs": "OVER",
+        "hits_allowed": "UNDER",
+        "walks": "OVER"
+      },
+      "act": {
+        "outs": 19,
+        "k": 2,
+        "er": 1,
+        "h": 4,
+        "bb": 0
+      },
+      "err": {
+        "outs": 3.0,
+        "outs_adj": 3.0,
+        "k": -2.3,
+        "k_adj": -2.3,
+        "er": -0.7,
+        "h": -0.40000000000000036,
+        "bb": -1.6
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": "loss",
+        "earned_runs": "loss",
+        "hits_allowed": "win",
+        "walks": "loss"
+      }
+    },
+    {
+      "pitcher_name": "Cade Smith",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 2,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Caleb Ferguson",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 2,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Caleb Thielbar",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Casey Mize",
+      "team": "Detroit Tigers",
+      "opponent": "New York Yankees",
+      "proj": {
+        "outs": 16,
+        "k": 4.6,
+        "er": 2.1,
+        "h": 5.3,
+        "bb": 1.3
+      },
+      "adj": {
+        "outs": 15,
+        "k": 4.7
+      },
+      "lines": {
+        "outs": 14.5,
+        "strikeouts": 4.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 4.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": "UNDER",
+        "hits_allowed": "OVER",
+        "walks": "UNDER"
+      },
+      "act": {
+        "outs": 18,
+        "k": 8,
+        "er": 2,
+        "h": 4,
+        "bb": 0
+      },
+      "err": {
+        "outs": 2.0,
+        "outs_adj": 3.0,
+        "k": 3.4000000000000004,
+        "k_adj": 3.3,
+        "er": -0.10000000000000009,
+        "h": -1.2999999999999998,
+        "bb": -1.3
+      },
+      "outcomes": {
+        "outs": "win",
+        "strikeouts": "win",
+        "earned_runs": "win",
+        "hits_allowed": "loss",
+        "walks": "win"
+      }
+    },
+    {
+      "pitcher_name": "Chad Patrick",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 13,
+        "k": 6,
+        "er": 3,
+        "h": 3,
+        "bb": 3
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Chris Paddack",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 9,
+        "k": 4,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Cole Henry",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 2,
+        "k": 1,
+        "er": 2,
+        "h": 2,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Connelly Early",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 15,
+        "k": 11,
+        "er": 0,
+        "h": 5,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Connor Seabold",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 4,
+        "k": 2,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Craig Kimbrel",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 1,
+        "k": 1,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Dan Altavilla",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 2,
+        "k": 2,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Dauri Moreta",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 0,
+        "k": 0,
+        "er": 0,
+        "h": 2,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "David Robertson",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 1,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Dennis Santana",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Dietrich Enns",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 6,
+        "k": 2,
+        "er": 0,
+        "h": 0,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Dylan Lee",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Eduard Bazardo",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Edwin Uceta",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 2,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Emmet Sheehan",
+      "team": "Los Angeles Dodgers",
+      "opponent": "Colorado Rockies",
+      "proj": {
+        "outs": 17,
+        "k": 6.1,
+        "er": 2.7,
+        "h": 5.0,
+        "bb": 2.1
+      },
+      "adj": {
+        "outs": 18,
+        "k": 7.1
+      },
+      "lines": {
+        "outs": 16.5,
+        "strikeouts": 6.5,
+        "earned_runs": 1.5,
+        "hits_allowed": 4.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
+        "walks": "OVER"
+      },
+      "act": {
+        "outs": 18,
+        "k": 6,
+        "er": 1,
+        "h": 3,
+        "bb": 0
+      },
+      "err": {
+        "outs": 1.0,
+        "outs_adj": 0.0,
+        "k": -0.09999999999999964,
+        "k_adj": -1.0999999999999996,
+        "er": -1.7000000000000002,
+        "h": -2.0,
+        "bb": -2.1
+      },
+      "outcomes": {
+        "outs": "win",
+        "strikeouts": "loss",
+        "earned_runs": "loss",
+        "hits_allowed": "loss",
+        "walks": "loss"
+      }
+    },
+    {
+      "pitcher_name": "Enyel De Los Santos",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 1,
+        "k": 0,
+        "er": 1,
+        "h": 2,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Fernando Cruz",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 0,
+        "k": 0,
+        "er": 5,
+        "h": 2,
+        "bb": 3
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Fraser Ellard",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 2,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Gabe Speier",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "George Kirby",
+      "team": "Seattle Mariners",
+      "opponent": "St. Louis Cardinals",
+      "proj": {
+        "outs": 16,
+        "k": 5.6,
+        "er": 2.5,
+        "h": 5.0,
+        "bb": 1.5
+      },
+      "adj": {
+        "outs": 16,
+        "k": 5.6
+      },
+      "lines": {
+        "outs": 17.5,
+        "strikeouts": 5.5,
+        "earned_runs": 1.5,
+        "hits_allowed": 4.5,
+        "walks": 0.5
+      },
+      "recs": {
+        "outs": "UNDER",
+        "strikeouts": "OVER",
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
+        "walks": "OVER"
+      },
+      "act": {
+        "outs": 12,
+        "k": 2,
+        "er": 3,
+        "h": 7,
+        "bb": 2
+      },
+      "err": {
+        "outs": -4.0,
+        "outs_adj": -4.0,
+        "k": -3.5999999999999996,
+        "k_adj": -3.5999999999999996,
+        "er": 0.5,
+        "h": 2.0,
+        "bb": 0.5
+      },
+      "outcomes": {
+        "outs": "win",
+        "strikeouts": "loss",
+        "earned_runs": "win",
+        "hits_allowed": "win",
+        "walks": "win"
+      }
+    },
+    {
+      "pitcher_name": "Germ\u00e1n M\u00e1rquez",
+      "team": "Colorado Rockies",
+      "opponent": "Los Angeles Dodgers",
+      "proj": {
+        "outs": 15,
+        "k": 3.6,
+        "er": 3.1,
+        "h": 6.3,
+        "bb": 1.7
+      },
+      "adj": {
+        "outs": 15,
+        "k": 3.7
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 15,
+        "k": 2,
+        "er": 5,
+        "h": 6,
+        "bb": 1
+      },
+      "err": {
+        "outs": 0.0,
+        "outs_adj": 0.0,
+        "k": -1.6,
+        "k_adj": -1.7000000000000002,
+        "er": 1.9,
+        "h": -0.2999999999999998,
+        "bb": -0.7
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Grant Anderson",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Hoby Milner",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Isaac Mattson",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 2
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Jack Leiter",
+      "team": "Texas Rangers",
+      "opponent": "Milwaukee Brewers",
+      "proj": {
+        "outs": 16,
+        "k": 5.0,
+        "er": 2.2,
+        "h": 4.3,
+        "bb": 2.6
+      },
+      "adj": {
+        "outs": 16,
+        "k": 4.5
+      },
+      "lines": {
+        "outs": 15.5,
+        "strikeouts": 4.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 4.5,
+        "walks": 2.5
+      },
+      "recs": {
+        "outs": "OVER",
+        "strikeouts": "UNDER",
+        "earned_runs": "UNDER",
+        "hits_allowed": "UNDER",
+        "walks": "OVER"
+      },
+      "act": {
+        "outs": 14,
+        "k": 4,
+        "er": 3,
+        "h": 7,
+        "bb": 2
+      },
+      "err": {
+        "outs": -2.0,
+        "outs_adj": -2.0,
+        "k": -1.0,
+        "k_adj": -0.5,
+        "er": 0.7999999999999998,
+        "h": 2.7,
+        "bb": -0.6000000000000001
+      },
+      "outcomes": {
+        "outs": "loss",
+        "strikeouts": "win",
+        "earned_runs": "loss",
+        "hits_allowed": "loss",
+        "walks": "loss"
+      }
+    },
+    {
+      "pitcher_name": "Jeff Hoffman",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Jeffrey Springs",
+      "team": "Athletics",
+      "opponent": "Boston Red Sox",
+      "proj": {
+        "outs": 16,
+        "k": 4.4,
+        "er": 2.5,
+        "h": 4.7,
+        "bb": 1.7
+      },
+      "adj": {
+        "outs": 16,
+        "k": 4.7
+      },
+      "lines": {
+        "outs": 15.5,
+        "strikeouts": 4.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": "UNDER",
+        "hits_allowed": "UNDER",
+        "walks": "OVER"
+      },
+      "act": {
+        "outs": 15,
+        "k": 6,
+        "er": 5,
+        "h": 8,
+        "bb": 0
+      },
+      "err": {
+        "outs": -1.0,
+        "outs_adj": -1.0,
+        "k": 1.5999999999999996,
+        "k_adj": 1.2999999999999998,
+        "er": 2.5,
+        "h": 3.3,
+        "bb": -1.7
+      },
+      "outcomes": {
+        "outs": "loss",
+        "strikeouts": "win",
+        "earned_runs": "loss",
+        "hits_allowed": "loss",
+        "walks": "loss"
+      }
+    },
+    {
+      "pitcher_name": "Jeremiah Estrada",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 4,
+        "k": 3,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Joel Peguero",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 5,
+        "k": 2,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Joey Cantillo",
+      "team": "Cleveland Guardians",
+      "opponent": "Kansas City Royals",
+      "proj": {
+        "outs": 21,
+        "k": 8.5,
+        "er": 3.1,
+        "h": 6.2,
+        "bb": 3.8
+      },
+      "adj": {
+        "outs": 22,
+        "k": 7.1
+      },
+      "lines": {
+        "outs": 15.5,
+        "strikeouts": 5.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 4.5,
+        "walks": 2.5
+      },
+      "recs": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
+        "walks": "OVER"
+      },
+      "act": {
+        "outs": 24,
+        "k": 5,
+        "er": 0,
+        "h": 4,
+        "bb": 0
+      },
+      "err": {
+        "outs": 3.0,
+        "outs_adj": 2.0,
+        "k": -3.5,
+        "k_adj": -2.0999999999999996,
+        "er": -3.1,
+        "h": -2.2,
+        "bb": -3.8
+      },
+      "outcomes": {
+        "outs": "win",
+        "strikeouts": "loss",
+        "earned_runs": "loss",
+        "hits_allowed": "loss",
+        "walks": "loss"
+      }
+    },
+    {
+      "pitcher_name": "John Schreiber",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 2,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Jorge Alcala",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 2,
+        "k": 0,
+        "er": 0,
+        "h": 1,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Jose A. Ferrer",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 1,
+        "k": 0,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Josh Simpson",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Justin Hagenman",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 9,
+        "k": 3,
+        "er": 5,
+        "h": 8,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Keegan Akin",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 1,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 2
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Kevin Kelly",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 1,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Kyle Bradish",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 21,
+        "k": 6,
+        "er": 1,
+        "h": 4,
+        "bb": 2
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Kyle Hendricks",
+      "team": "Los Angeles Angels",
+      "opponent": "Minnesota Twins",
+      "proj": {
+        "outs": 16,
+        "k": 3.5,
+        "er": 2.9,
+        "h": 5.4,
+        "bb": 1.5
+      },
+      "adj": {
+        "outs": 16,
+        "k": 3.5
+      },
+      "lines": {
+        "outs": 15.5,
+        "strikeouts": 3.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": "OVER",
+        "strikeouts": "UNDER",
+        "earned_runs": "OVER",
+        "hits_allowed": "UNDER",
+        "walks": "UNDER"
+      },
+      "act": {
+        "outs": 21,
+        "k": 6,
+        "er": 0,
+        "h": 4,
+        "bb": 1
+      },
+      "err": {
+        "outs": 5.0,
+        "outs_adj": 5.0,
+        "k": 2.5,
+        "k_adj": 2.5,
+        "er": -2.9,
+        "h": -1.4000000000000004,
+        "bb": -0.5
+      },
+      "outcomes": {
+        "outs": "win",
+        "strikeouts": "loss",
+        "earned_runs": "loss",
+        "hits_allowed": "win",
+        "walks": "win"
+      }
+    },
+    {
+      "pitcher_name": "Kyle Leahy",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 6,
+        "k": 3,
+        "er": 0,
+        "h": 2,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Kyle Nicolas",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Luis Curvelo",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 1,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Luis Garcia",
+      "team": "Houston Astros",
+      "opponent": "Toronto Blue Jays",
+      "proj": {
+        "outs": 15,
+        "k": 3.5,
+        "er": 0.5,
+        "h": 2.5,
+        "bb": 1.0
+      },
+      "adj": {
+        "outs": 15,
+        "k": 2.8
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 5,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 1
+      },
+      "err": {
+        "outs": -10.0,
+        "outs_adj": -10.0,
+        "k": -2.5,
+        "k_adj": -1.7999999999999998,
+        "er": -0.5,
+        "h": -2.5,
+        "bb": 0.0
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Mark Leiter Jr.",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 0,
+        "k": 0,
+        "er": 4,
+        "h": 2,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Mason Miller",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 3,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Mason Montgomery",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 1,
+        "k": 1,
+        "er": 1,
+        "h": 2,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Matt Gage",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 1,
+        "k": 0,
+        "er": 1,
+        "h": 3,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Matthew Liberatore",
+      "team": "St. Louis Cardinals",
+      "opponent": "Seattle Mariners",
+      "proj": {
+        "outs": 15,
+        "k": 3.9,
+        "er": 2.4,
+        "h": 5.2,
+        "bb": 1.3
+      },
+      "adj": {
+        "outs": 15,
+        "k": 4.2
+      },
+      "lines": {
+        "outs": 15.5,
+        "strikeouts": 4.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 4.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": "UNDER",
+        "strikeouts": "UNDER",
+        "earned_runs": "UNDER",
+        "hits_allowed": "OVER",
+        "walks": "UNDER"
+      },
+      "act": {
+        "outs": 12,
+        "k": 1,
+        "er": 5,
+        "h": 6,
+        "bb": 3
+      },
+      "err": {
+        "outs": -3.0,
+        "outs_adj": -3.0,
+        "k": -2.9,
+        "k_adj": -3.2,
+        "er": 2.6,
+        "h": 0.7999999999999998,
+        "bb": 1.7
+      },
+      "outcomes": {
+        "outs": "win",
+        "strikeouts": "win",
+        "earned_runs": "loss",
+        "hits_allowed": "win",
+        "walks": "loss"
+      }
+    },
+    {
+      "pitcher_name": "Max Lazar",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 1,
+        "h": 3,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Michael King",
+      "team": "San Diego Padres",
+      "opponent": "Cincinnati Reds",
+      "proj": {
+        "outs": 15,
+        "k": 5.8,
+        "er": 1.6,
+        "h": 3.9,
+        "bb": 1.7
+      },
+      "adj": {
+        "outs": 15,
+        "k": 6.2
+      },
+      "lines": {
+        "outs": 14.5,
+        "strikeouts": 4.5,
+        "earned_runs": 1.5,
+        "hits_allowed": 3.5,
+        "walks": null
+      },
+      "recs": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
+        "walks": null
+      },
+      "act": {
+        "outs": 15,
+        "k": 2,
+        "er": 2,
+        "h": 3,
+        "bb": 1
+      },
+      "err": {
+        "outs": 0.0,
+        "outs_adj": 0.0,
+        "k": -3.8,
+        "k_adj": -4.2,
+        "er": 0.3999999999999999,
+        "h": -0.8999999999999999,
+        "bb": -0.7
+      },
+      "outcomes": {
+        "outs": "win",
+        "strikeouts": "loss",
+        "earned_runs": "win",
+        "hits_allowed": "loss",
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Mike Burrows",
+      "team": "Pittsburgh Pirates",
+      "opponent": "Baltimore Orioles",
+      "proj": {
+        "outs": 15,
+        "k": 4.9,
+        "er": 2.3,
+        "h": 4.2,
+        "bb": 1.8
+      },
+      "adj": {
+        "outs": 15,
+        "k": 5.2
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": 4.5,
+        "earned_runs": 1.5,
+        "hits_allowed": 3.5,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": "OVER",
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
+        "walks": null
+      },
+      "act": {
+        "outs": 12,
+        "k": 6,
+        "er": 1,
+        "h": 2,
+        "bb": 1
+      },
+      "err": {
+        "outs": -3.0,
+        "outs_adj": -3.0,
+        "k": 1.0999999999999996,
+        "k_adj": 0.7999999999999998,
+        "er": -1.2999999999999998,
+        "h": -2.2,
+        "bb": -0.8
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": "win",
+        "earned_runs": "loss",
+        "hits_allowed": "loss",
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Mitchell Parker",
+      "team": "Washington Nationals",
+      "opponent": "Miami Marlins",
+      "proj": {
+        "outs": 15,
+        "k": 3.2,
+        "er": 3.3,
+        "h": 5.4,
+        "bb": 1.9
+      },
+      "adj": {
+        "outs": 15,
+        "k": 3.1
+      },
+      "lines": {
+        "outs": 15.5,
+        "strikeouts": 3.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": "UNDER",
+        "strikeouts": "UNDER",
+        "earned_runs": "OVER",
+        "hits_allowed": "UNDER",
+        "walks": "OVER"
+      },
+      "act": {
+        "outs": 23,
+        "k": 2,
+        "er": 2,
+        "h": 4,
+        "bb": 2
+      },
+      "err": {
+        "outs": 8.0,
+        "outs_adj": 8.0,
+        "k": -1.2000000000000002,
+        "k_adj": -1.1,
+        "er": -1.2999999999999998,
+        "h": -1.4000000000000004,
+        "bb": 0.10000000000000009
+      },
+      "outcomes": {
+        "outs": "loss",
+        "strikeouts": "win",
+        "earned_runs": "loss",
+        "hits_allowed": "win",
+        "walks": "win"
+      }
+    },
+    {
+      "pitcher_name": "Noah Cameron",
+      "team": "Kansas City Royals",
+      "opponent": "Cleveland Guardians",
+      "proj": {
+        "outs": 16,
+        "k": 4.4,
+        "er": 1.5,
+        "h": 4.2,
+        "bb": 1.7
+      },
+      "adj": {
+        "outs": 16,
+        "k": 4.6
+      },
+      "lines": {
+        "outs": 15.5,
+        "strikeouts": 4.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 4.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": "UNDER",
+        "hits_allowed": "UNDER",
+        "walks": "OVER"
+      },
+      "act": {
+        "outs": 21,
+        "k": 8,
+        "er": 2,
+        "h": 6,
+        "bb": 0
+      },
+      "err": {
+        "outs": 5.0,
+        "outs_adj": 5.0,
+        "k": 3.5999999999999996,
+        "k_adj": 3.4000000000000004,
+        "er": 0.5,
+        "h": 1.7999999999999998,
+        "bb": -1.7
+      },
+      "outcomes": {
+        "outs": "win",
+        "strikeouts": "win",
+        "earned_runs": "win",
+        "hits_allowed": "loss",
+        "walks": "loss"
+      }
+    },
+    {
+      "pitcher_name": "PJ Poulin",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 1,
+        "k": 1,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Paul Blackburn",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 6,
+        "k": 3,
+        "er": 0,
+        "h": 2,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Pete Fairbanks",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Phil Maton",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Pierson Ohl",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 4,
+        "k": 2,
+        "er": 4,
+        "h": 5,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Ranger Su\u00e1rez",
+      "team": "Philadelphia Phillies",
+      "opponent": "New York Mets",
+      "proj": {
+        "outs": 19,
+        "k": 6.0,
+        "er": 2.1,
+        "h": 5.6,
+        "bb": 1.4
+      },
+      "adj": {
+        "outs": 19,
+        "k": 5.6
+      },
+      "lines": {
+        "outs": 18.5,
+        "strikeouts": 5.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.5,
+        "walks": null
+      },
+      "recs": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": "UNDER",
+        "hits_allowed": "OVER",
+        "walks": null
+      },
+      "act": {
+        "outs": 18,
+        "k": 12,
+        "er": 0,
+        "h": 1,
+        "bb": 3
+      },
+      "err": {
+        "outs": -1.0,
+        "outs_adj": -1.0,
+        "k": 6.0,
+        "k_adj": 6.4,
+        "er": -2.1,
+        "h": -4.6,
+        "bb": 1.6
+      },
+      "outcomes": {
+        "outs": "loss",
+        "strikeouts": "win",
+        "earned_runs": "win",
+        "hits_allowed": "loss",
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Rico Garcia",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Roansy Contreras",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Robbie Ray",
+      "team": "San Francisco Giants",
+      "opponent": "Arizona Diamondbacks",
+      "proj": {
+        "outs": 17,
+        "k": 5.6,
+        "er": 1.8,
+        "h": 4.3,
+        "bb": 2.2
+      },
+      "adj": {
+        "outs": 17,
+        "k": 5.6
+      },
+      "lines": {
+        "outs": 17.5,
+        "strikeouts": 5.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 4.5,
+        "walks": null
+      },
+      "recs": {
+        "outs": "UNDER",
+        "strikeouts": "OVER",
+        "earned_runs": "UNDER",
+        "hits_allowed": "UNDER",
+        "walks": null
+      },
+      "act": {
+        "outs": 15,
+        "k": 5,
+        "er": 2,
+        "h": 3,
+        "bb": 2
+      },
+      "err": {
+        "outs": -2.0,
+        "outs_adj": -2.0,
+        "k": -0.5999999999999996,
+        "k_adj": -0.5999999999999996,
+        "er": 0.19999999999999996,
+        "h": -1.2999999999999998,
+        "bb": -0.20000000000000018
+      },
+      "outcomes": {
+        "outs": "win",
+        "strikeouts": "loss",
+        "earned_runs": "win",
+        "hits_allowed": "win",
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Robert Garcia",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Sean Manaea",
+      "team": "New York Mets",
+      "opponent": "Philadelphia Phillies",
+      "proj": {
+        "outs": 15,
+        "k": 6.0,
+        "er": 2.8,
+        "h": 4.4,
+        "bb": 1.1
+      },
+      "adj": {
+        "outs": 15,
+        "k": 5.7
+      },
+      "lines": {
+        "outs": 15.5,
+        "strikeouts": 5.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 4.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": "UNDER",
+        "strikeouts": "OVER",
+        "earned_runs": "OVER",
+        "hits_allowed": "UNDER",
+        "walks": "UNDER"
+      },
+      "act": {
+        "outs": 15,
+        "k": 5,
+        "er": 4,
+        "h": 5,
+        "bb": 1
+      },
+      "err": {
+        "outs": 0.0,
+        "outs_adj": 0.0,
+        "k": -1.0,
+        "k_adj": -0.7000000000000002,
+        "er": 1.2000000000000002,
+        "h": 0.5999999999999996,
+        "bb": -0.10000000000000009
+      },
+      "outcomes": {
+        "outs": "win",
+        "strikeouts": "loss",
+        "earned_runs": "win",
+        "hits_allowed": "loss",
+        "walks": "win"
+      }
+    },
+    {
+      "pitcher_name": "Seranthony Dom\u00ednguez",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Seth Martinez",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 5,
+        "k": 1,
+        "er": 1,
+        "h": 0,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Shane Bieber",
+      "team": "Toronto Blue Jays",
+      "opponent": "Houston Astros",
+      "proj": {
+        "outs": 18,
+        "k": 8.9,
+        "er": 1.0,
+        "h": 1.9,
+        "bb": 0.0
+      },
+      "adj": {
+        "outs": 18,
+        "k": 8.5
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 17,
+        "k": 4,
+        "er": 3,
+        "h": 9,
+        "bb": 1
+      },
+      "err": {
+        "outs": -1.0,
+        "outs_adj": -1.0,
+        "k": -4.9,
+        "k_adj": -4.5,
+        "er": 2.0,
+        "h": 7.1,
+        "bb": 1.0
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Shawn Armstrong",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 1,
+        "h": 2,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Spencer Strider",
+      "team": "Atlanta Braves",
+      "opponent": "Chicago Cubs",
+      "proj": {
+        "outs": 15,
+        "k": 5.8,
+        "er": 2.9,
+        "h": 5.2,
+        "bb": 2.0
+      },
+      "adj": {
+        "outs": 15,
+        "k": 5.3
+      },
+      "lines": {
+        "outs": 17.5,
+        "strikeouts": 5.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 4.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": "UNDER",
+        "strikeouts": "UNDER",
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
+        "walks": "OVER"
+      },
+      "act": {
+        "outs": 18,
+        "k": 8,
+        "er": 2,
+        "h": 6,
+        "bb": 3
+      },
+      "err": {
+        "outs": 3.0,
+        "outs_adj": 3.0,
+        "k": 2.2,
+        "k_adj": 2.7,
+        "er": -0.8999999999999999,
+        "h": 0.7999999999999998,
+        "bb": 1.0
+      },
+      "outcomes": {
+        "outs": "loss",
+        "strikeouts": "loss",
+        "earned_runs": "loss",
+        "hits_allowed": "win",
+        "walks": "win"
+      }
+    },
+    {
+      "pitcher_name": "Steven Okert",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Steven Wilson",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Tanner Banks",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 1,
+        "h": 3,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Thomas Hatch",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 0,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Tim Hill",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 0,
+        "h": 1,
+        "bb": 1
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Tobias Myers",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 2,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Tommy Nance",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Tyler Alexander",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 4,
+        "k": 2,
+        "er": 1,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Tyler Ferguson",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 2,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Valente Bellozo",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 6,
+        "k": 1,
+        "er": 0,
+        "h": 2,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Wandy Peralta",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 2,
+        "k": 0,
+        "er": 0,
+        "h": 0,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Will Warren",
+      "team": "New York Yankees",
+      "opponent": "Detroit Tigers",
+      "proj": {
+        "outs": 15,
+        "k": 5.5,
+        "er": 2.5,
+        "h": 4.7,
+        "bb": 2.2
+      },
+      "adj": {
+        "outs": 15,
+        "k": 5.8
+      },
+      "lines": {
+        "outs": 15.5,
+        "strikeouts": 5.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 4.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": "UNDER",
+        "strikeouts": "OVER",
+        "earned_runs": "UNDER",
+        "hits_allowed": "OVER",
+        "walks": "OVER"
+      },
+      "act": {
+        "outs": 18,
+        "k": 5,
+        "er": 2,
+        "h": 2,
+        "bb": 1
+      },
+      "err": {
+        "outs": 3.0,
+        "outs_adj": 3.0,
+        "k": -0.5,
+        "k_adj": -0.7999999999999998,
+        "er": -0.5,
+        "h": -2.7,
+        "bb": -1.2000000000000002
+      },
+      "outcomes": {
+        "outs": "loss",
+        "strikeouts": "loss",
+        "earned_runs": "win",
+        "hits_allowed": "loss",
+        "walks": "loss"
+      }
+    },
+    {
+      "pitcher_name": "Yariel Rodr\u00edguez",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 0,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Yennier Cano",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 2,
+        "k": 0,
+        "er": 1,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Yoendrys G\u00f3mez",
+      "team": "Chicago White Sox",
+      "opponent": "Tampa Bay Rays",
+      "proj": {
+        "outs": 15,
+        "k": 2.4,
+        "er": 1.5,
+        "h": 2.4,
+        "bb": 4.4
+      },
+      "adj": {
+        "outs": 15,
+        "k": 2.5
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 15,
+        "k": 5,
+        "er": 4,
+        "h": 5,
+        "bb": 1
+      },
+      "err": {
+        "outs": 0.0,
+        "outs_adj": 0.0,
+        "k": 2.6,
+        "k_adj": 2.5,
+        "er": 2.5,
+        "h": 2.6,
+        "bb": -3.4000000000000004
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Zac Gallen",
+      "team": "Arizona Diamondbacks",
+      "opponent": "San Francisco Giants",
+      "proj": {
+        "outs": 17,
+        "k": 5.2,
+        "er": 3.3,
+        "h": 5.6,
+        "bb": 2.0
+      },
+      "adj": {
+        "outs": 17,
+        "k": 5.5
+      },
+      "lines": {
+        "outs": 17.5,
+        "strikeouts": 4.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.5,
+        "walks": null
+      },
+      "recs": {
+        "outs": "UNDER",
+        "strikeouts": "OVER",
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
+        "walks": null
+      },
+      "act": {
+        "outs": 19,
+        "k": 3,
+        "er": 5,
+        "h": 5,
+        "bb": 2
+      },
+      "err": {
+        "outs": 2.0,
+        "outs_adj": 2.0,
+        "k": -2.2,
+        "k_adj": -2.5,
+        "er": 1.7000000000000002,
+        "h": -0.5999999999999996,
+        "bb": 0.0
+      },
+      "outcomes": {
+        "outs": "loss",
+        "strikeouts": "loss",
+        "earned_runs": "win",
+        "hits_allowed": "loss",
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Zach Maxwell",
+      "team": null,
+      "opponent": null,
+      "proj": {
+        "outs": null,
+        "k": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "adj": {
+        "outs": null,
+        "k": null
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 3,
+        "k": 1,
+        "er": 0,
+        "h": 1,
+        "bb": 0
+      },
+      "err": {
+        "outs": null,
+        "outs_adj": null,
+        "k": null,
+        "k_adj": null,
+        "er": null,
+        "h": null,
+        "bb": null
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Zack Littell",
+      "team": "Cincinnati Reds",
+      "opponent": "San Diego Padres",
+      "proj": {
+        "outs": 17,
+        "k": 3.8,
+        "er": 2.2,
+        "h": 5.4,
+        "bb": 0.9
+      },
+      "adj": {
+        "outs": 17,
+        "k": 3.3
+      },
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "act": {
+        "outs": 18,
+        "k": 4,
+        "er": 2,
+        "h": 2,
+        "bb": 1
+      },
+      "err": {
+        "outs": 1.0,
+        "outs_adj": 1.0,
+        "k": 0.20000000000000018,
+        "k_adj": 0.7000000000000002,
+        "er": -0.20000000000000018,
+        "h": -3.4000000000000004,
+        "bb": 0.09999999999999998
+      },
+      "outcomes": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      }
+    },
+    {
+      "pitcher_name": "Zebby Matthews",
+      "team": "Minnesota Twins",
+      "opponent": "Los Angeles Angels",
+      "proj": {
+        "outs": 15,
+        "k": 6.4,
+        "er": 2.9,
+        "h": 5.8,
+        "bb": 1.7
+      },
+      "adj": {
+        "outs": 15,
+        "k": 7.6
+      },
+      "lines": {
+        "outs": 16.5,
+        "strikeouts": 6.5,
+        "earned_runs": 2.5,
+        "hits_allowed": 4.5,
+        "walks": 1.5
+      },
+      "recs": {
+        "outs": "UNDER",
+        "strikeouts": "OVER",
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
+        "walks": "OVER"
+      },
+      "act": {
+        "outs": 14,
+        "k": 5,
+        "er": 5,
+        "h": 7,
+        "bb": 2
+      },
+      "err": {
+        "outs": -1.0,
+        "outs_adj": -1.0,
+        "k": -1.4000000000000004,
+        "k_adj": -2.5999999999999996,
+        "er": 2.1,
+        "h": 1.2000000000000002,
+        "bb": 0.30000000000000004
+      },
+      "outcomes": {
+        "outs": "win",
+        "strikeouts": "loss",
+        "earned_runs": "win",
+        "hits_allowed": "win",
+        "walks": "win"
+      }
+    }
+  ],
+  "summary": {
+    "totals": {
+      "wins": 47,
+      "losses": 54,
+      "pushes": 0,
+      "graded": 101
+    },
+    "by_stat": {
+      "outs": {
+        "wins": 11,
+        "losses": 9,
+        "pushes": 0,
+        "graded": 20
+      },
+      "strikeouts": {
+        "wins": 9,
+        "losses": 13,
+        "pushes": 0,
+        "graded": 22
+      },
+      "earned_runs": {
+        "wins": 11,
+        "losses": 11,
+        "pushes": 0,
+        "graded": 22
+      },
+      "hits_allowed": {
+        "wins": 9,
+        "losses": 13,
+        "pushes": 0,
+        "graded": 22
+      },
+      "walks": {
+        "wins": 7,
+        "losses": 8,
+        "pushes": 0,
+        "graded": 15
+      }
+    }
+  }
+}

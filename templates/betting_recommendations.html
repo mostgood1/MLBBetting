@@ -131,6 +131,14 @@
   <!-- Audit modal removed for pitcher-only view -->
 </div>
 <script>
+function fmtNum(v){
+  if(v===null || v===undefined || v==='') return '';
+  const n = Number(v);
+  if(!isFinite(n)) return String(v);
+  const s = n.toFixed(2);
+  return s.replace(/\.00$/,'').replace(/(\.\d)0$/,'$1');
+}
+function fmtEV(n){ const v=Number(n); if(!isFinite(v)) return '-'; return (v*100).toFixed(1)+'%'; }
 const STAKES = { HIGH:100, MEDIUM:50, LOW:25 };
 let RAW_PROPS = [];
 let LOAD_CONTEXT = { mode:'day', label:'Today', params:{} };
@@ -224,7 +232,7 @@ function renderAll(){
     return `<div style='margin-bottom:18px;'>
       <h3 style='margin:4px 0;'>${conf} <span class='badge ${conf}' style='vertical-align:middle;'>${conf}</span> <span class='muted' style='font-weight:400;'>(${arr.length} plays • Stake $${STAKES[conf]})</span></h3>
       <table style='width:100%; border-collapse:collapse;'>
-        <thead><tr><th>Pitcher</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th><th>Stake</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th><th>EV</th><th>Stake</th></tr></thead>
         <tbody>
           ${arr.map(p=>`<tr>
             <td>${p.pitcher_name}</td>
@@ -232,9 +240,10 @@ function renderAll(){
             <td>${formatLine(p)}</td>
             <td>${fmtVal(p.projection)}</td>
             <td>${fmtVal(p.adjusted_projection)}</td>
-            <td>${fmtDiff(p.diff, p.stat)}</td>
+            <td>${fmtDiff(p.diff)}</td>
             <td>${p.recommendation}</td>
             <td>${p.odds_display||''}</td>
+            <td>${fmtEV(p.expected_value)}</td>
             <td class='stake'>$${STAKES[conf]}</td>
           </tr>`).join('')}
         </tbody>
@@ -252,17 +261,18 @@ function renderAll(){
     <td>${formatLine(p)}</td>
     <td>${fmtVal(p.projection)}</td>
     <td>${fmtVal(p.adjusted_projection)}</td>
-    <td>${fmtDiff(p.diff, p.stat)}</td>
+    <td>${fmtDiff(p.diff)}</td>
     <td>${p.recommendation}</td>
     <td>${p.odds_display||''}</td>
+    <td>${fmtEV(p.expected_value)}</td>
     <td>$${STAKES[p.confidence]||0}</td>
   </tr>`).join('');
   updateTabCounts();
 }
-function fmtVal(v){ if(v==null) return ''; return (typeof v==='number')? (Number.isInteger(v)? v : v.toFixed(1)) : v; }
-function fmtDiff(d, stat){ if(d==null) return ''; const sign = d>0?'+':''; const prec = stat==='outs'?0:1; return `${sign}${d.toFixed(prec)}`; }
+function fmtVal(v){ if(v==null) return ''; return fmtNum(v); }
+function fmtDiff(d){ if(d==null) return ''; const sign = d>0?'+':''; return sign + fmtNum(Math.abs(Number(d))); }
 function prettyStat(s){ return {strikeouts:'K', outs:'Outs', earned_runs:'ER', hits_allowed:'Hits', walks:'BB'}[s]||s; }
-function formatLine(p){ if(p.line==null) return ''; return p.line; }
+function formatLine(p){ if(p.line==null) return ''; return fmtNum(p.line); }
 async function loadProps(qs=''){
   try{ const r = await fetch('/api/pitcher-prop-plays'+qs); const js = await r.json(); if(!js.success){ document.getElementById('meta').textContent='No data'; return; }
     let flat=[];

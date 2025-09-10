@@ -1,9 +1,9 @@
 {
-  "date": "2025-09-09",
-  "generated_at": "2025-09-10T02:59:53.792021",
+  "date": "2025-09-10",
+  "generated_at": "2025-09-10T13:51:58.936093",
   "counts": {
-    "recent_form_pitchers_used": 24,
-    "patience_adjustments_used": 27,
+    "recent_form_pitchers_used": 1,
+    "patience_adjustments_used": 28,
     "total_pitchers": 28,
     "park_factors_count": 60,
     "batting_k_rates_count": 30,
@@ -26,9 +26,9 @@
       "patience_stats": 0,
       "recent_form": 1
     },
-    "recent_form_on_demand_used": 2,
-    "synthetic_recent_form_count": 0,
-    "team_mismatches": 4,
+    "recent_form_on_demand_used": 3,
+    "synthetic_recent_form_count": 21,
+    "team_mismatches": 0,
     "opponent_validation_mismatches": 0,
     "opponent_corrections_count": 0
   },
@@ -38,7 +38,7 @@
     "opponent_k_rate": [],
     "patience_stats": [],
     "recent_form": [
-      "Luis Garc\u00eda"
+      "Jonathan Bowlan"
     ]
   }
 }
