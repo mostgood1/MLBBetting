@@ -55,9 +55,9 @@
     "away_team": "Houston Astros",
     "home_team": "Toronto Blue Jays",
     "away_pitcher": "Luis Garcia",
-    "home_pitcher": "TBD",
+    "home_pitcher": "Shane Bieber",
     "away_probable_pitcher": "Luis Garcia",
-    "home_probable_pitcher": "TBD"
+    "home_probable_pitcher": "Shane Bieber"
   },
   {
     "game_pk": 776402,
@@ -74,10 +74,10 @@
     "game_time": "2025-09-09T23:40:00Z",
     "away_team": "Tampa Bay Rays",
     "home_team": "Chicago White Sox",
-    "away_pitcher": "TBD",
+    "away_pitcher": "Adrian Houser",
     "home_pitcher": "Yoendrys G\u00f3mez",
-    "home_probable_pitcher": "Yoendrys G\u00f3mez",
-    "away_probable_pitcher": "TBD"
+    "away_probable_pitcher": "Adrian Houser",
+    "home_probable_pitcher": "Yoendrys G\u00f3mez"
   },
   {
     "game_pk": 776395,
@@ -134,10 +134,10 @@
     "game_time": "2025-09-10T02:05:00Z",
     "away_team": "Boston Red Sox",
     "home_team": "Athletics",
-    "away_pitcher": "Dustin May",
+    "away_pitcher": "TBD",
     "home_pitcher": "Jeffrey Springs",
-    "away_probable_pitcher": "Dustin May",
-    "home_probable_pitcher": "Jeffrey Springs"
+    "home_probable_pitcher": "Jeffrey Springs",
+    "away_probable_pitcher": "TBD"
   },
   {
     "game_pk": 776389,

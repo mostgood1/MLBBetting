@@ -1,0 +1,39 @@
+{
+  "date": "2025-09-09",
+  "generated_at": "2025-09-09T17:53:02.754102",
+  "pitcher_count": 27,
+  "team_mismatches": 4,
+  "opponent_validation_mismatches": 0,
+  "opponent_corrections": 0,
+  "sample_team_mismatches": [
+    {
+      "pitcher_name": "Luis Garc\u00eda",
+      "pitcher_id": "472610",
+      "master_team": "Washington Nationals",
+      "resolved_team": "Houston Astros",
+      "team_source": "game_match"
+    },
+    {
+      "pitcher_name": "Adrian Houser",
+      "pitcher_id": "605288",
+      "master_team": "Chicago White Sox",
+      "resolved_team": "Tampa Bay Rays",
+      "team_source": "game_match"
+    },
+    {
+      "pitcher_name": "Yoendrys G\u00f3mez",
+      "pitcher_id": "672782",
+      "master_team": "New York Yankees",
+      "resolved_team": "Chicago White Sox",
+      "team_source": "game_match"
+    },
+    {
+      "pitcher_name": "Zack Littell",
+      "pitcher_id": "641793",
+      "master_team": "Tampa Bay Rays",
+      "resolved_team": "Cincinnati Reds",
+      "team_source": "game_match"
+    }
+  ],
+  "sample_opponent_mismatches": []
+}

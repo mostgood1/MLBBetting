@@ -1,6 +1,6 @@
 {
   "date": "2025-09-09",
-  "fetched_at": "2025-09-09T08:08:06.698513",
+  "fetched_at": "2025-09-09T12:34:01.556668",
   "games": [
     {
       "away_team": "Pittsburgh Pirates",
@@ -41,7 +41,7 @@
       "away_team": "Houston Astros",
       "home_team": "Toronto Blue Jays",
       "away_pitcher": "Luis Garcia",
-      "home_pitcher": "TBD",
+      "home_pitcher": "Shane Bieber",
       "game_key": "Houston Astros @ Toronto Blue Jays"
     },
     {
@@ -54,7 +54,7 @@
     {
       "away_team": "Tampa Bay Rays",
       "home_team": "Chicago White Sox",
-      "away_pitcher": "TBD",
+      "away_pitcher": "Adrian Houser",
       "home_pitcher": "Yoendrys G\u00f3mez",
       "game_key": "Tampa Bay Rays @ Chicago White Sox"
     },
@@ -96,7 +96,7 @@
     {
       "away_team": "Boston Red Sox",
       "home_team": "Athletics",
-      "away_pitcher": "Dustin May",
+      "away_pitcher": "TBD",
       "home_pitcher": "Jeffrey Springs",
       "game_key": "Boston Red Sox @ Athletics"
     },
