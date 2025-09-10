@@ -3709,6 +3709,23 @@ def betting_recommendations_page():
     """Daily betting recommendations page (confidence grouped)."""
     return render_template('betting_recommendations.html')
 
+@app.route('/api/pitcher-reconciliation')
+def api_pitcher_reconciliation():
+    try:
+        from datetime import datetime
+        date_param = request.args.get('date') or datetime.utcnow().strftime('%Y-%m-%d')
+        live = request.args.get('live') is not None
+        from pitcher_reconciliation import reconcile_projections
+        data = reconcile_projections(date_param, live=live)
+        return jsonify(data)
+    except Exception as e:
+        logger.exception('reconciliation failure')
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/reconciliation')
+def reconciliation_page():
+    return render_template('pitcher_reconciliation.html')
+
 @app.route('/api/betting-recommendations/available-dates')
 def api_betting_recommendations_available_dates():
     """List dates for which betting recommendations files exist."""

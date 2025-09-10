@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pitcher Projections Reconciliation</title>
+<style>
+ body { font-family: Inter, Arial, sans-serif; background:#0b1e39; margin:0; color:#111; }
+ .container { max-width:1250px; margin:0 auto; padding:24px; }
+ .card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:18px; }
+ h1 { color:#163a6b; margin:0 0 6px; }
+ table { width:100%; border-collapse:collapse; }
+ th,td { padding:8px 10px; border-bottom:1px solid #eee; font-size:13px; text-align:left; }
+ th { background:#f5f7fb; font-weight:600; }
+ .muted { color:#555; font-size:12px; }
+ .pill { background:#163a6b; color:#fff; padding:6px 10px; border-radius:8px; font-size:12px; text-decoration:none; display:inline-block; }
+ .neg { color:#dc2626; font-weight:600; }
+ .pos { color:#166534; font-weight:600; }
+ .table-wrap { overflow-x:auto; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div>
+        <h1>Pitcher Projections Reconciliation</h1>
+        <div class="muted" id="meta">Loading...</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <a class="pill" href="/">⬅ Main</a>
+        <a class="pill" href="/pitcher-projections">Projections</a>
+        <a class="pill" href="/betting-recommendations">Pitcher Props</a>
+      </div>
+    </div>
+    <div class="muted" style="margin-top:8px;">Compare model projections vs actual game results. Toggle live to refresh in-progress games.</div>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <input type="date" id="date" />
+      <label class="muted" style="display:flex;align-items:center;gap:4px;font-size:12px;"><input type="checkbox" id="live"/> Live updates</label>
+      <button class="pill" onclick="reload()">Load</button>
+      <button class="pill" style="background:#2563eb;" onclick="exportCSV()">CSV</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table id="rec-table">
+        <thead>
+          <tr>
+            <th>Pitcher</th><th>Team</th><th>Opp</th>
+            <th>Proj Outs</th><th>Adj Outs</th><th>Act Outs</th><th>Err</th><th>Err Adj</th>
+            <th>Proj K</th><th>Adj K</th><th>Act K</th><th>Err</th><th>Err Adj</th>
+            <th>Proj ER</th><th>Act ER</th><th>Err</th>
+            <th>Proj H</th><th>Act H</th><th>Err</th>
+            <th>Proj BB</th><th>Act BB</th><th>Err</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+function cls(v){ if(v==null) return ''; return v<0? 'neg': (v>0?'pos':''); }
+function fmt(v){ if(v==null) return ''; return Number.isInteger(v)? v: Number(v).toFixed(1); }
+async function load(){
+  const date = document.getElementById('date').value || todayISO();
+  const live = document.getElementById('live').checked ? '&live=1' : '';
+  const r = await fetch(`/api/pitcher-reconciliation?date=${date}${live}`);
+  const js = await r.json();
+  document.getElementById('meta').textContent = `Date ${date} • ${js.count||0} pitchers`;
+  const tb = document.querySelector('#rec-table tbody');
+  const rows = (js.rows||[]).map(r=>`<tr>
+    <td>${r.pitcher_name||''}</td>
+    <td>${r.team||''}</td>
+    <td>${r.opponent||''}</td>
+    <td>${fmt(r.proj.outs)}</td><td>${fmt(r.adj.outs)}</td><td>${fmt(r.act.outs)}</td><td class='${cls(r.err.outs)}'>${fmt(r.err.outs)}</td><td class='${cls(r.err.outs_adj)}'>${fmt(r.err.outs_adj)}</td>
+    <td>${fmt(r.proj.k)}</td><td>${fmt(r.adj.k)}</td><td>${fmt(r.act.k)}</td><td class='${cls(r.err.k)}'>${fmt(r.err.k)}</td><td class='${cls(r.err.k_adj)}'>${fmt(r.err.k_adj)}</td>
+    <td>${fmt(r.proj.er)}</td><td>${fmt(r.act.er)}</td><td class='${cls(r.err.er)}'>${fmt(r.err.er)}</td>
+    <td>${fmt(r.proj.h)}</td><td>${fmt(r.act.h)}</td><td class='${cls(r.err.h)}'>${fmt(r.err.h)}</td>
+    <td>${fmt(r.proj.bb)}</td><td>${fmt(r.act.bb)}</td><td class='${cls(r.err.bb)}'>${fmt(r.err.bb)}</td>
+  </tr>`).join('');
+  tb.innerHTML = rows;
+}
+function reload(){ load(); if(document.getElementById('live').checked){ if(window._t) clearTimeout(window._t); window._t = setTimeout(reload, 45000); } }
+function exportCSV(){ const tb = document.querySelector('#rec-table tbody'); const rows = Array.from(tb.querySelectorAll('tr')).map(tr=> Array.from(tr.children).map(td=> '"'+(td.textContent||'').replace(/"/g,'""')+'"').join(',')); const hdr = Array.from(document.querySelectorAll('#rec-table thead th')).map(th=> '"'+th.textContent+'"').join(','); const csv = [hdr, ...rows].join('\n'); const blob = new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`pitcher_reconciliation_${(document.getElementById('date').value||todayISO())}.csv`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},300); }
+// init
+(function(){ document.getElementById('date').value = todayISO(); load(); })();
+</script>
+</body>
+</html>

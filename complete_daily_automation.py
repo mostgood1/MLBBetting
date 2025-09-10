@@ -273,6 +273,23 @@ def complete_daily_automation():
     except Exception as e:
         logger.warning(f"⚠️ Could not generate daily pitcher projections (engine will fallback to on-demand): {e}")
     
+    # Step 2.7: Reconcile projections vs actuals (yesterday final; seed today's live)
+    logger.info("\n📈 STEP 2.7: Reconciling Projections vs Actuals")
+    try:
+        from datetime import timedelta
+        from pitcher_reconciliation import fetch_pitcher_actuals, reconcile_projections
+        utc_today = datetime.utcnow().date()
+        yday = (utc_today - timedelta(days=1)).strftime('%Y-%m-%d')
+        rec = reconcile_projections(yday, live=False)
+        logger.info(f"✅ Reconciled {yday}: {rec.get('count',0)} pitchers")
+        # Prime today's live cache (non-blocking)
+        try:
+            fetch_pitcher_actuals(utc_today.strftime('%Y-%m-%d'), live=True)
+        except Exception:
+            pass
+    except Exception as e:
+        logger.warning(f"⚠️ Reconciliation step skipped: {e}")
+    
     # Step 3: Fetch Real Betting Lines
     logger.info("\n🎯 STEP 3: Fetching Real Betting Lines (DraftKings preferred)")
     logger.info("💰 Connecting to OddsAPI for current betting odds...")
