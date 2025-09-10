@@ -6375,6 +6375,58 @@ def api_live_status():
             
             # Get real live status from MLB API with timeout
             live_status = get_live_status_with_timeout(away_team, home_team, date_param)
+
+            # Fallback/enrichment: query MLB schedule once to fill missing details (game_pk, scores, inning/state)
+            try:
+                if not live_status or not live_status.get('game_pk'):
+                    try:
+                        from live_mlb_data import LiveMLBData as _L
+                        _api = _L()
+                        sched = _api.get_todays_schedule(date_param)
+                        # Traverse schedule to find matching game
+                        for d in (sched or {}).get('dates', []):
+                            for g in d.get('games', []):
+                                ta = (g.get('teams', {}).get('away', {}).get('team', {}) or {}).get('name') or ''
+                                th = (g.get('teams', {}).get('home', {}).get('team', {}) or {}).get('name') or ''
+                                if normalize_team_name(ta) == normalize_team_name(away_team) and normalize_team_name(th) == normalize_team_name(home_team):
+                                    # Basic status
+                                    gs = g.get('status', {}) or {}
+                                    ds = gs.get('detailedState') or gs.get('abstractGameState') or 'Scheduled'
+                                    code = gs.get('statusCode') or ''
+                                    is_final = code in ['F','FT','FR'] or ds.lower().startswith('final')
+                                    is_live = code in ['I','IR','IT','IH'] or ds.lower() in ['in progress','live']
+                                    # Scores
+                                    away_score = (g.get('teams', {}).get('away', {}) or {}).get('score')
+                                    home_score = (g.get('teams', {}).get('home', {}) or {}).get('score')
+                                    # Inning details
+                                    ls = g.get('linescore', {}) or {}
+                                    inning = ls.get('currentInning') or None
+                                    inning_state = ls.get('inningState') or None
+                                    balls = (ls.get('balls') if isinstance(ls.get('balls'), int) else None)
+                                    strikes = (ls.get('strikes') if isinstance(ls.get('strikes'), int) else None)
+                                    outs = (ls.get('outs') if isinstance(ls.get('outs'), int) else None)
+                                    # Attach
+                                    live_status = live_status or {}
+                                    live_status.setdefault('status', ds)
+                                    live_status.setdefault('badge_class', 'live' if is_live else ('final' if is_final else 'scheduled'))
+                                    live_status.setdefault('is_live', is_live)
+                                    live_status.setdefault('is_final', is_final)
+                                    if away_score is not None: live_status['away_score'] = away_score
+                                    if home_score is not None: live_status['home_score'] = home_score
+                                    if inning is not None: live_status['inning'] = inning
+                                    if inning_state is not None: live_status['inning_state'] = inning_state
+                                    if balls is not None: live_status['balls'] = balls
+                                    if strikes is not None: live_status['strikes'] = strikes
+                                    if outs is not None: live_status['outs'] = outs
+                                    live_status['game_pk'] = g.get('gamePk') or live_status.get('game_pk')
+                                    raise StopIteration
+                    except StopIteration:
+                        pass
+                    except Exception:
+                        # best-effort only
+                        pass
+            except Exception:
+                pass
             
             # Merge with our game data
             live_game = {
@@ -6479,6 +6531,21 @@ def api_live_props(away_team, home_team):
                     game_pk = lg.get('game_pk')
                     live_pitcher_stats = lg.get('live_pitcher_stats') or {}
                     break
+        # If we still don't have a game_pk, try to find it from MLB schedule for this matchup
+        if not game_pk:
+            try:
+                sched = mlb.get_todays_schedule(date_param)
+                for d in (sched or {}).get('dates', []):
+                    for g in d.get('games', []):
+                        ta = (g.get('teams', {}).get('away', {}).get('team', {}) or {}).get('name') or ''
+                        th = (g.get('teams', {}).get('home', {}).get('team', {}) or {}).get('name') or ''
+                        if normalize_team_name(ta) == normalize_team_name(away_team) and normalize_team_name(th) == normalize_team_name(home_team):
+                            game_pk = g.get('gamePk')
+                            raise StopIteration
+            except StopIteration:
+                pass
+            except Exception:
+                pass
         if not live_pitcher_stats and game_pk:
             live_pitcher_stats = mlb.get_live_pitcher_stats(game_pk)
         # Build response comparing live stats vs lines
