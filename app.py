@@ -28,12 +28,14 @@ from pitcher_projections import compute_pitcher_projections
 # Initialize Flask app early so route decorators below have a target
 app = Flask(__name__)
 
-# Basic logger
+# Basic logger with env-driven level (default WARNING for production)
+LOG_LEVEL_NAME = os.getenv('APP_LOG_LEVEL', 'WARNING').upper()
+_LEVEL = getattr(logging, LOG_LEVEL_NAME, logging.WARNING)
 logger = logging.getLogger(__name__)
 if not logger.handlers:
-    logger.setLevel(logging.INFO)
+    logger.setLevel(_LEVEL)
     _ch = logging.StreamHandler()
-    _ch.setLevel(logging.INFO)
+    _ch.setLevel(_LEVEL)
     _fmt = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     _ch.setFormatter(_fmt)
     logger.addHandler(_ch)
@@ -265,9 +267,9 @@ def get_live_status_with_timeout(away_team, home_team, date_param, timeout_secon
         logger.warning(f"⚠️ Live status error for {away_team} @ {home_team}: {e}")
         return {'status': 'Scheduled', 'is_final': False, 'is_live': False}
 
-# Logging already configured via setup_safe_logging()
+# Respect previously configured level (from APP_LOG_LEVEL)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(_LEVEL)
 
 # Import comprehensive betting performance tracker
 try:
@@ -5708,7 +5710,21 @@ def api_today_games():
             logger.warning(f"⚠️ Could not check for doubleheaders: {e}")
         
         logger.info(f"Final game count after doubleheader check: {len(games_dict)}")
-        
+
+        # Lightweight cached factor files for inline Details panel on cards
+        try:
+            team_strengths_cache = get_team_strengths_cached()
+        except Exception:
+            team_strengths_cache = {}
+        try:
+            bullpen_cache = get_bullpen_cached()
+        except Exception:
+            bullpen_cache = {}
+        try:
+            weather_cache = get_weather_cached(date_param)
+        except Exception:
+            weather_cache = {}
+
         # Convert to the format expected by the frontend
         enhanced_games = []
         for game_key, game_data in games_dict.items():
@@ -5895,11 +5911,20 @@ def api_today_games():
                     if not p:
                         return None
                     lines = p.get('lines') or {}
+                    # Derive a simple projected pitch count: 3.8 pitches per batter ~ 1.27 per out -> 4.2 per out heuristic
+                    proj_outs = p.get('projected_outs')
+                    proj_pitch_count = None
+                    try:
+                        if isinstance(proj_outs, (int, float)) and proj_outs:
+                            proj_pitch_count = int(round(float(proj_outs) * 4.2))
+                    except Exception:
+                        proj_pitch_count = None
                     return {
                         'pitcher_name': p.get('pitcher_name'),
                         'team': p.get('team'),
                         'opponent': p.get('opponent'),
                         'projected_outs': p.get('projected_outs'),
+                        'projected_pitch_count': p.get('projected_pitch_count', proj_pitch_count),
                         'projected_strikeouts': p.get('projected_strikeouts'),
                         'projected_earned_runs': p.get('projected_earned_runs'),
                         'projected_hits_allowed': p.get('projected_hits_allowed'),
@@ -6067,6 +6092,31 @@ def api_today_games():
                 home_win_prob_final *= 100
             
             # Create enhanced game object with proper structure for template
+            # Build compact factor details for inline card details panel
+            def _bp_rating(q: float) -> str:
+                try:
+                    if q >= 1.2:
+                        return "Elite"
+                    if q >= 1.05:
+                        return "Good"
+                    if q >= 0.95:
+                        return "Average"
+                    return "Below Average"
+                except Exception:
+                    return "Unknown"
+
+            away_bp_stats = (bullpen_cache or {}).get(away_team, {}) if isinstance(bullpen_cache, dict) else {}
+            home_bp_stats = (bullpen_cache or {}).get(home_team, {}) if isinstance(bullpen_cache, dict) else {}
+            away_q = float(away_bp_stats.get('quality_factor', 1.0) or 1.0)
+            home_q = float(home_bp_stats.get('quality_factor', 1.0) or 1.0)
+
+            weather_team_data = {}
+            try:
+                if isinstance(weather_cache, dict) and 'teams' in weather_cache and home_team in weather_cache['teams']:
+                    weather_team_data = weather_cache['teams'][home_team] or {}
+            except Exception:
+                weather_team_data = {}
+
             enhanced_game = {
                 'game_id': game_key,
                 'away_team': away_team,
@@ -6155,6 +6205,31 @@ def api_today_games():
                     game_recommendations, 
                     real_lines, away_team, home_team, away_win_prob_final, home_win_prob_final, predicted_total_final, real_over_under_total
                 ),
+
+                # Compact factor section for inline Details panel (to reduce modal reliance)
+                'card_factors': {
+                    'team_strengths': {
+                        'away': float((team_strengths_cache or {}).get(away_team, 0.0) or 0.0),
+                        'home': float((team_strengths_cache or {}).get(home_team, 0.0) or 0.0)
+                    },
+                    'bullpen': {
+                        'away': {
+                            'rating': _bp_rating(away_q),
+                            'quality_factor': away_q
+                        },
+                        'home': {
+                            'rating': _bp_rating(home_q),
+                            'quality_factor': home_q
+                        }
+                    },
+                    'weather': {
+                        'temperature': ((weather_team_data.get('weather') or {}).get('temperature') if isinstance(weather_team_data, dict) else None),
+                        'wind_speed': ((weather_team_data.get('weather') or {}).get('wind_speed') if isinstance(weather_team_data, dict) else None),
+                        'conditions': ((weather_team_data.get('weather') or {}).get('conditions') if isinstance(weather_team_data, dict) else None),
+                        'park_factor': weather_team_data.get('park_factor', 1.0) if isinstance(weather_team_data, dict) else 1.0,
+                        'total_factor': weather_team_data.get('total_factor', 1.0) if isinstance(weather_team_data, dict) else 1.0
+                    }
+                },
                 
                 # Live status object for template compatibility
                 'live_status': {
@@ -6416,12 +6491,19 @@ def api_live_props(away_team, home_team):
                     if p and p.get('pitcher_name'):
                         starters.append(p)
             names = [p.get('pitcher_name') for p in starters if p]
+            # Build accent-insensitive map from normalized name -> original live stat entry
+            def _strip_accents(s: str) -> str:
+                import unicodedata
+                return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+            def _norm(n: str) -> str:
+                return _strip_accents((n or '').lower().strip())
+            live_by_norm = { _norm(k): v for k, v in (live_pitcher_stats or {}).items() }
             def side_odds(lines, stat, side):
                 lo = (lines or {}).get(stat) or {}
                 return lo.get('over_odds') if side=='OVER' else lo.get('under_odds')
             for p in starters:
                 nm = p.get('pitcher_name')
-                live = live_pitcher_stats.get(nm) or {}
+                live = live_pitcher_stats.get(nm) or live_by_norm.get(_norm(nm)) or {}
                 for stat_key, label in [('strikeouts','K'),('outs','Outs'),('earned_runs','ER'),('hits_allowed','Hits'),('walks','BB')]:
                     line_obj = (p.get('lines') or {}).get(stat_key) or {}
                     line_val = line_obj.get('line')
@@ -6438,9 +6520,19 @@ def api_live_props(away_team, home_team):
                         'under_odds': line_obj.get('under_odds'),
                         'progress': min(1.0, cur/float(line_val)) if isinstance(line_val,(int,float)) and float(line_val)>0 else None
                     })
+            # Include live pitch count snapshot for each starter
+            live_pitch_counts = {}
+            for p in starters:
+                nm = p.get('pitcher_name')
+                live = live_pitcher_stats.get(nm) or live_by_norm.get(_norm(nm)) or {}
+                if live:
+                    live_pitch_counts[nm] = {
+                        'pitch_count': live.get('pitches') or live.get('pitch_count'),
+                        'pitches_by_inning': live.get('pitches_by_inning')
+                    }
         except Exception:
             pass
-        return jsonify({'success': True, 'date': date_param, 'away_team': away_team, 'home_team': home_team, 'game_pk': game_pk, 'live_pitcher_stats': live_pitcher_stats, 'props': props})
+        return jsonify({'success': True, 'date': date_param, 'away_team': away_team, 'home_team': home_team, 'game_pk': game_pk, 'live_pitcher_stats': live_pitcher_stats, 'live_pitch_counts': live_pitch_counts, 'props': props})
     except Exception as e:
         logger.exception('live props failure')
         return jsonify({'success': False, 'error': str(e)}), 500

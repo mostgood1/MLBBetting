@@ -144,13 +144,13 @@
 
         .games-grid {
             display: grid;
-            gap: 15px;
+            gap: 12px;
         }
 
         .game-card {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 14px;
+            padding: 12px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             cursor: pointer;
@@ -163,6 +163,33 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
+
+        /* Inline Details panel to reduce modal reliance */
+        .details-toggle {
+            margin-top: 10px;
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #5ce1e6;
+        }
+        .details-toggle .chev { transition: transform 0.2s ease; }
+    .details-panel { margin-top: 6px; display: none; }
+        .details-panel.open { display: block; }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            padding: 6px;
+        }
+        .details-item h5 { font-size: 0.86rem; color: #aeefff; margin-bottom: 3px; }
+        .details-item .kv { font-size: 0.82rem; opacity: 0.95; }
+        .chip { display:inline-block; padding:2px 6px; border-radius:12px; background: rgba(255,255,255,0.12); margin-right:6px; }
+        @media (max-width: 720px) { .details-grid { grid-template-columns: 1fr; } }
 
     .game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
 
@@ -250,14 +277,14 @@
             font-weight: bold;
         }
 
-    .betting-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .betting-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 
     .betting-item { text-align: center; padding: 8px 6px; background: rgba(79, 209, 199, 0.08); border-radius: 6px; border: 1px solid rgba(79, 209, 199, 0.2); transition: all 0.2s ease; }
         
     /* Compact card grid */
-    .card-grid { display:grid; grid-template-columns: 1.1fr 1.2fr 1.7fr; gap: 10px; align-items:start; }
+    .card-grid { display:grid; grid-template-columns: 1.1fr 1.2fr 1.7fr; gap: 8px; align-items:start; }
     @media (max-width: 980px) { .card-grid { grid-template-columns: 1fr; } }
-    .live-inline { font-size: 0.78rem; opacity: 0.95; display:flex; align-items:center; gap:8px; margin-top:6px; }
+    .live-inline { font-size: 0.76rem; opacity: 0.95; display:flex; align-items:center; gap:6px; margin-top:6px; }
     .live-pill { background: rgba(220,53,69,0.18); border:1px solid rgba(220,53,69,0.35); color:#ff6b6b; padding:2px 6px; border-radius:10px; font-weight:700; }
     .final-pill { background: rgba(40,167,69,0.18); border:1px solid rgba(40,167,69,0.35); color:#66bb6a; padding:2px 6px; border-radius:10px; font-weight:700; }
 
@@ -519,6 +546,8 @@
     .pitcher-col-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
     .pitcher-col-header .name { font-weight: 700; color: #4fd1c7; }
     .props-table { display: grid; gap: 6px; }
+    .pitcher-col-subhdr { font-size: 0.82rem; opacity: 0.9; margin: 2px 0 6px; }
+    .pitcher-col-subhdr .live-pc { color: #ffd166; margin-left: 4px; }
     .prop-row { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius:6px; padding:6px; }
     .prop-row .meta { display:flex; flex-wrap:wrap; gap:8px; font-size:0.78rem; opacity:0.95; margin-bottom:4px; }
     .prop-row .bar { height:6px; background: rgba(255,255,255,0.12); border-radius:6px; overflow:hidden; }
@@ -1285,7 +1314,7 @@
             setInterval(updateLiveGames, 10000);
         }
 
-        async function updateLiveGames() {
+    async function updateLiveGames() {
             try {
                 const date = document.getElementById('game-date').value;
                 const response = await fetch(`/api/live-status?date=${date}`);
@@ -1306,7 +1335,7 @@
             }
         }
 
-        function updateGameCard(liveGame) {
+    function updateGameCard(liveGame) {
             // Find the corresponding game card by composite ID using the selected date
             const dateStr = document.getElementById('game-date').value;
             const compositeId = `${liveGame.away_team}_${liveGame.home_team}_${dateStr}`;
@@ -1343,22 +1372,19 @@
                     console.log(`   Updated badge to: ${liveGame.status}`);
                 }
                 
-                // Remove existing live/final content to prevent duplicates
-                let existingScore = card.querySelector('.live-score');
-                if (existingScore) {
-                    existingScore.remove();
+                // Target the existing inline live container to avoid duplicates
+                const liveInline = card.querySelector('.live-inline');
+                if (liveInline) {
+                    // Clear any previous content we injected
+                    liveInline.innerHTML = '';
                 }
-                
-                let existingAnalysis = card.querySelector('.final-analysis');
-                if (existingAnalysis) {
-                    existingAnalysis.remove();
-                }
-                
-                const gameHeader = card.querySelector('.game-header');
+
                 if (liveGame.is_live && (liveGame.away_score != null || liveGame.home_score != null)) {
                     const liveScoreHtml = createLiveScoreHtml(liveGame);
-                    console.log(`   Adding live score HTML: ${liveScoreHtml}`);
-                    gameHeader.insertAdjacentHTML('afterend', liveScoreHtml);
+                    console.log(`   Rendering live score inline`);
+                    if (liveInline) {
+                        liveInline.innerHTML = liveScoreHtml;
+                    }
 
                     // Kick off live prop poll/update for this game
                     try {
@@ -1367,11 +1393,18 @@
                         pollAndRenderLiveProps(card, away, home);
                     } catch (e) { console.warn('live props poll init failed', e); }
                 } else if (liveGame.is_final && (liveGame.away_score != null || liveGame.home_score != null)) {
-                    // Need to get prediction data for final analysis
+                    // Render final analysis inline and stop any live polling timers
                     const gameId = card.querySelector('[id^="summary-"]').id.replace('summary-', '');
-                    const prediction = { /* We'd need to store this somehow */ };
-                    const finalScoreHtml = createFinalScoreHtml(liveGame, { prediction });
-                    gameHeader.insertAdjacentHTML('afterend', finalScoreHtml);
+                    const finalScoreHtml = createFinalScoreHtml(liveGame, { prediction: {} });
+                    if (liveInline) {
+                        liveInline.innerHTML = finalScoreHtml;
+                    }
+                    // Stop live props intervals on final
+                    const panel = card.querySelector('.pitcher-props-panel');
+                    if (panel && panel._livePropsInterval) {
+                        clearInterval(panel._livePropsInterval);
+                        panel._livePropsInterval = null;
+                    }
                 }
             } else {
                 console.log(`❌ Game card not found for ${liveGame.away_team} @ ${liveGame.home_team}`);
@@ -1390,6 +1423,25 @@
                     const data = await resp.json();
                     if (!data || !data.success) return;
                     renderLivePropsIntoPanel(panel, awayName, homeName, data.props || []);
+                    // Render live pitch counts if available
+                    if (data.live_pitch_counts) {
+                        const fmtInnings = (arr) => {
+                            if (!arr || !Array.isArray(arr) || arr.length === 0) return '';
+                            // Show last up to 3 innings for compactness
+                            const last = arr.slice(-3).map(v => parseInt(v,10)).join('-');
+                            return ` | ${last}`;
+                        };
+                        const awayLive = data.live_pitch_counts[awayName] || {};
+                        const homeLive = data.live_pitch_counts[homeName] || {};
+                        const awayPc = (awayLive.pitch_count ?? awayLive.pitches);
+                        const homePc = (homeLive.pitch_count ?? homeLive.pitches);
+                        const awayPI = fmtInnings(awayLive.pitches_by_inning);
+                        const homePI = fmtInnings(homeLive.pitches_by_inning);
+                        const awayEl = panel.querySelector(`#${panel.id}-away-pc-live`);
+                        const homeEl = panel.querySelector(`#${panel.id}-home-pc-live`);
+                        if (awayEl) awayEl.textContent = (awayPc != null) ? ` (${awayPc} live${awayPI})` : '';
+                        if (homeEl) homeEl.textContent = (homePc != null) ? ` (${homePc} live${homePI})` : '';
+                    }
                 } catch (e) { /* ignore transient */ }
             };
             // Initial and periodic
@@ -1834,9 +1886,58 @@
                         ${createPitcherPropsPanelHtml(game)}
                     </div>
                 </div>
+                ${createInlineDetailsHtml(game)}
             `;
             
             return card;
+        }
+
+        function createInlineDetailsHtml(game) {
+            try {
+                const cf = game.card_factors || {};
+                const ts = cf.team_strengths || {}; const bp = cf.bullpen || {}; const wx = cf.weather || {};
+                const fmt = (x, d='—') => (x==null || x==='') ? d : x;
+                const pct = (x) => (typeof x==='number' ? `${(x*100).toFixed(0)}%` : '—');
+                const qf = (x) => (typeof x==='number' ? x.toFixed(2) : '—');
+                const wxParts = [];
+                if (wx.temperature!=null) wxParts.push(`${wx.temperature}°`);
+                if (wx.wind_speed!=null) wxParts.push(`Wind ${wx.wind_speed} mph`);
+                if (wx.conditions) wxParts.push(`${wx.conditions}`);
+                const wxLine = wxParts.join(' • ');
+
+                const id = `details-${(game.away_team||'').replace(/\s+/g,'_')}-${(game.home_team||'').replace(/\s+/g,'_')}-${game.date}`;
+                return `
+                    <div class="details">
+                        <div class="details-toggle" onclick="(function(btn){ const p = document.getElementById('${id}'); const isOpen = p.classList.toggle('open'); const chev = btn.querySelector('.chev'); chev.style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)'; })(this)">
+                            <span class="chev">▶</span>
+                            <span>Details</span>
+                            <span class="chip">Total ${fmt(game.over_under_total, 'N/A')}</span>
+                        </div>
+                        <div id="${id}" class="details-panel">
+                            <div class="details-grid">
+                                <div class="details-item">
+                                    <h5>Team Strengths</h5>
+                                    <div class="kv">${game.away_team.split(' ').pop()}: <strong>${qf(ts.away)}</strong></div>
+                                    <div class="kv">${game.home_team.split(' ').pop()}: <strong>${qf(ts.home)}</strong></div>
+                                </div>
+                                <div class="details-item">
+                                    <h5>Bullpen</h5>
+                                    <div class="kv">${game.away_team.split(' ').pop()}: <strong>${fmt(bp.away?.rating)}</strong> <span style="opacity:.8">(${qf(bp.away?.quality_factor)})</span></div>
+                                    <div class="kv">${game.home_team.split(' ').pop()}: <strong>${fmt(bp.home?.rating)}</strong> <span style="opacity:.8">(${qf(bp.home?.quality_factor)})</span></div>
+                                </div>
+                                <div class="details-item">
+                                    <h5>Weather & Park</h5>
+                                    <div class="kv">${wxLine || '—'}</div>
+                                    <div class="kv">Park factor: <strong>${qf(wx.park_factor)}</strong> • Total factor: <strong>${qf(wx.total_factor)}</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                console.warn('createInlineDetailsHtml failed', e);
+                return '';
+            }
         }
 
         function createPredictionSummaryHtml(game) {
@@ -1998,9 +2099,15 @@
                 };
                 const awayName = (away && away.pitcher_name) || (game.away_pitcher && game.away_pitcher !== 'TBD' ? game.away_pitcher : null);
                 const homeName = (home && home.pitcher_name) || (game.home_pitcher && game.home_pitcher !== 'TBD' ? game.home_pitcher : null);
-                const awayBlock = awayName ? `
+        const fmtInt = (x) => (x==null||x==='') ? '—' : parseInt(x, 10);
+        const pitchHdr = (p, side) => {
+            const projPC = p.projected_pitch_count;
+            return `<div class="pitcher-col-subhdr" id="${panelId}-${side}-pc">PC: ${fmtInt(projPC)}<span class="live-pc" id="${panelId}-${side}-pc-live"></span></div>`;
+        };
+        const awayBlock = awayName ? `
                     <div class="pitcher-column" data-side="away">
-                        <div class="pitcher-col-header"><span class="name">${awayName}</span><span class="team">${game.away_team}</span></div>
+            <div class="pitcher-col-header"><span class="name">${awayName}</span><span class="team">${game.away_team}</span></div>
+            ${pitchHdr(away, 'away')}
                         ${hasAnyLines(away) ? `<div class="props-table">
                             ${row('away', away, 'strikeouts', 'K', 'projected_strikeouts')}
                             ${row('away', away, 'outs', 'Outs', 'projected_outs')}
@@ -2009,9 +2116,10 @@
                             ${row('away', away, 'walks', 'BB', 'projected_walks')}
                         </div>` : `<div class="props-table"><div class="prop-row"><div class="meta"><span class="stat-label"><strong>No market</strong></span><span style="opacity:0.8;">Awaiting lines</span></div></div></div>`}
                     </div>` : '';
-                const homeBlock = homeName ? `
+        const homeBlock = homeName ? `
                     <div class="pitcher-column" data-side="home">
-                        <div class="pitcher-col-header"><span class="name">${homeName}</span><span class="team">${game.home_team}</span></div>
+            <div class="pitcher-col-header"><span class="name">${homeName}</span><span class="team">${game.home_team}</span></div>
+            ${pitchHdr(home, 'home')}
                         ${hasAnyLines(home) ? `<div class="props-table">
                             ${row('home', home, 'strikeouts', 'K', 'projected_strikeouts')}
                             ${row('home', home, 'outs', 'Outs', 'projected_outs')}

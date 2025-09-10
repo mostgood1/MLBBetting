@@ -252,7 +252,7 @@ class LiveMLBData:
 
     def get_live_pitcher_stats(self, game_pk: int) -> Dict:
         """Return per-pitcher live stats keyed by fullName.
-        Keys: strikeouts, outs, earned_runs, hits_allowed, walks
+        Keys: strikeouts, outs, earned_runs, hits_allowed, walks, pitches (total), pitches_by_inning (list)
         """
         box = self.get_game_boxscore(game_pk)
         out = {}
@@ -270,6 +270,9 @@ class LiveMLBData:
                         er = stats.get('earnedRuns')
                         h = stats.get('hits')
                         ip = stats.get('inningsPitched')
+                        # Pitch count fields if available
+                        pitches = stats.get('numberOfPitches') or stats.get('pitchesThrown')
+                        pitches_by_inning = stats.get('pitchesPerInning') or None
                         outs = self._innings_to_outs(ip)
                         out[name] = {
                             'strikeouts': so if so is not None else 0,
@@ -277,6 +280,9 @@ class LiveMLBData:
                             'earned_runs': er if er is not None else 0,
                             'hits_allowed': h if h is not None else 0,
                             'walks': bb if bb is not None else 0,
+                            'pitches': pitches if pitches is not None else None,
+                            'pitch_count': pitches if pitches is not None else None,
+                            'pitches_by_inning': pitches_by_inning if pitches_by_inning is not None else None,
                         }
         except Exception as e:
             logger.debug(f"Parsing boxscore failed for {game_pk}: {e}")
