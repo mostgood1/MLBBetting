@@ -3911,6 +3911,83 @@ def api_pitcher_reconciliation_mtd():
 def reconciliation_page():
     return render_template('pitcher_reconciliation.html')
 
+# List available reconciliation dates based on saved daily files
+@app.route('/api/pitcher-reconciliation/available-dates')
+def api_pitcher_reconciliation_available_dates():
+    try:
+        import re
+        dates = []
+        data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_results')
+        if os.path.exists(data_dir):
+            for fname in os.listdir(data_dir):
+                m = re.match(r'^pitcher_reconciliation_(\d{4})_(\d{2})_(\d{2})\.json$', fname)
+                if m:
+                    dates.append(f"{m.group(1)}-{m.group(2)}-{m.group(3)}")
+        dates.sort()
+        return jsonify({'success': True, 'dates': dates})
+    except Exception as e:
+        logger.exception('reconciliation available dates failure')
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Return per-day reconciliation summaries across a month or explicit date range
+@app.route('/api/pitcher-reconciliation/daily-summaries')
+def api_pitcher_reconciliation_daily_summaries():
+    try:
+        from datetime import datetime, timedelta
+        month = request.args.get('month')
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        live = request.args.get('live') is not None
+        if month:
+            try:
+                start = datetime.strptime(month+'-01', '%Y-%m-%d')
+            except Exception:
+                return jsonify({'success': False, 'error': 'invalid month'}), 400
+            if start.month == 12:
+                end = start.replace(year=start.year+1, month=1, day=1) - timedelta(days=1)
+            else:
+                end = start.replace(month=start.month+1, day=1) - timedelta(days=1)
+        else:
+            if not start_date or not end_date:
+                return jsonify({'success': False, 'error': 'provide month or start_date/end_date'}), 400
+            try:
+                start = datetime.strptime(start_date, '%Y-%m-%d')
+                end = datetime.strptime(end_date, '%Y-%m-%d')
+            except Exception:
+                return jsonify({'success': False, 'error': 'invalid start_date or end_date'}), 400
+        if end < start:
+            start, end = end, start
+        out = []
+        data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_results')
+        from pitcher_reconciliation import reconcile_projections
+        cur = start.date(); last = end.date()
+        while cur <= last:
+            diso = cur.strftime('%Y-%m-%d')
+            fpath = os.path.join(data_dir, f"pitcher_reconciliation_{diso.replace('-','_')}.json")
+            js = None
+            if os.path.exists(fpath):
+                try:
+                    with open(fpath,'r') as f:
+                        js = json.load(f)
+                except Exception:
+                    js = None
+            if (js is None) and live and (diso == last.strftime('%Y-%m-%d')):
+                try:
+                    js = reconcile_projections(diso, live=True)
+                except Exception:
+                    js = None
+            if js and js.get('summary'):
+                out.append({'date': diso, 'summary': js['summary']})
+            cur += timedelta(days=1)
+        return jsonify({'success': True, 'days': out, 'range': {'start': start.strftime('%Y-%m-%d'), 'end': end.strftime('%Y-%m-%d')}})
+    except Exception as e:
+        logger.exception('reconciliation daily summaries failure')
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/reconciliation-history')
+def reconciliation_history_page():
+    return render_template('reconciliation_history.html')
+
 @app.route('/api/betting-recommendations/available-dates')
 def api_betting_recommendations_available_dates():
     """List dates for which betting recommendations files exist."""

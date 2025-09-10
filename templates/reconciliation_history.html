@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pitcher Reconciliation History</title>
+  <style>
+    body { font-family: Inter, Segoe UI, Arial, sans-serif; background:#0b1e39; color:#111; margin:0; }
+    .container { max-width:1200px; margin:0 auto; padding:24px; }
+    .card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:18px; }
+    .btn { background:#163a6b; color:#fff; padding:10px 16px; border:none; border-radius:10px; cursor:pointer; text-decoration:none; display:inline-block; }
+    .btn.secondary { background:#2a74dc; }
+    .muted { color:#666; font-size:13px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:12px; }
+    .stat { background:#f8fbff; border:1px solid #e2ecf7; border-radius:12px; padding:12px; text-align:center; }
+    .stat .num { font-size:22px; font-weight:700; color:#163a6b; }
+    .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .input { padding:8px 10px; border-radius:8px; border:1px solid #cfe1f8; }
+    .table { width:100%; border-collapse: collapse; }
+    .table th, .table td { border-bottom:1px solid #eee; padding:8px; text-align:left; }
+    .table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .chip { display:inline-block; padding:4px 8px; border-radius:999px; background:#eef6ff; color:#163a6b; font-size:12px; border:1px solid #cfe1f8; }
+    .tabs { display:flex; gap:6px; flex-wrap:wrap; }
+    .tab { background:#fff; color:#163a6b; border:1px solid #cfe1f8; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px; }
+    .tab.active { background:#163a6b; color:#fff; border-color:#163a6b; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h1>📅 Reconciliation History</h1>
+        <a class="btn secondary" href="/" style="text-decoration:none;">⬅ Back to Main</a>
+      </div>
+      <div class="muted">Browse daily reconciliation summaries and view month/range charts.</div>
+      <div class="row" style="margin-top:10px;">
+        <label class="muted">Month:
+          <input type="month" id="month" class="input"/>
+        </label>
+        <button class="btn" onclick="loadMonth()">Load Month</button>
+        <span class="muted">or</span>
+        <label class="muted">Start: <input type="date" id="start" class="input"/></label>
+        <label class="muted">End: <input type="date" id="end" class="input"/></label>
+        <button class="btn" onclick="loadRange()">Load Range</button>
+        <label class="muted" style="display:flex;align-items:center;gap:6px;font-size:12px;"><input type="checkbox" id="live"/> Include today's live</label>
+      </div>
+      <div id="meta" class="muted" style="margin-top:6px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>Summary</h2>
+      <div class="grid" id="summary"></div>
+      <div class="tabs" id="stat-tabs" style="margin-top:10px;">
+        <div class="tab active" data-stat="">All</div>
+        <div class="tab" data-stat="strikeouts">K</div>
+        <div class="tab" data-stat="outs">Outs</div>
+        <div class="tab" data-stat="earned_runs">ER</div>
+        <div class="tab" data-stat="hits_allowed">Hits</div>
+        <div class="tab" data-stat="walks">BB</div>
+      </div>
+      <div class="table-wrap" style="margin-top:10px;">
+        <table class="table">
+          <thead>
+            <tr><th>Date</th><th>Graded</th><th>Wins</th><th>Losses</th><th>Pushes</th><th>Win%</th></tr>
+          </thead>
+          <tbody id="days"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Charts</h2>
+      <div id="charts" class="grid">
+        <div class="stat"><div class="num" id="chart-win"></div><div class="muted">Win% over time</div></div>
+        <div class="stat"><div class="num" id="chart-graded"></div><div class="muted">Graded count over time</div></div>
+      </div>
+      <div class="muted" style="margin-top:6px;">Charts are simple inline for now; can integrate Chart.js later.</div>
+    </div>
+  </div>
+
+  <script>
+    function pct(w,g){ return g? ((w/g)*100).toFixed(0)+'%':'0%'; }
+    function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+    let CURRENT=[]; let STAT_FILTER='';
+
+    function renderSummary(days){
+      const stat = STAT_FILTER || 'ALL';
+      document.getElementById('meta').textContent = `${days.length} day(s) • Stat: ${stat.toUpperCase()}`;
+      // totals
+      const tot = days.reduce((a,d)=>{
+        const t = d.summary?.totals || {}; a.graded+= (t.graded||0); a.wins+= (t.wins||0); a.losses+= (t.losses||0); a.pushes+= (t.pushes||0); return a;
+      }, {graded:0,wins:0,losses:0,pushes:0});
+      const grid=document.getElementById('summary');
+      grid.innerHTML='';
+      const tiles=[
+        {label:'Graded', val: tot.graded},
+        {label:'Wins', val: tot.wins},
+        {label:'Losses', val: tot.losses},
+        {label:'Pushes', val: tot.pushes},
+        {label:'Win%', val: pct(tot.wins, tot.graded)}
+      ];
+      tiles.forEach(t=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${t.val}</div><div class='muted'>${t.label}</div>`; grid.appendChild(d); });
+      // table
+      const tb = document.getElementById('days');
+      const rows = days.slice().sort((a,b)=> a.date<b.date?-1:1).map(d=>{
+        const s = d.summary || {}; const t = s.totals || {}; const bs = s.by_stat || {};
+        let g=t.graded||0,w=t.wins||0,l=t.losses||0,p=t.pushes||0;
+        if(STAT_FILTER){ const sk = bs[STAT_FILTER]||{}; g=sk.graded||0; w=sk.wins||0; l=sk.losses||0; p=sk.pushes||0; }
+        return `<tr><td>${d.date}</td><td>${g}</td><td>${w}</td><td>${l}</td><td>${p}</td><td>${pct(w,g)}</td></tr>`;
+      }).join('');
+      tb.innerHTML = rows || '<tr><td colspan=6 class="muted">No data</td></tr>';
+      // simple charts as numbers for now
+      const series = days.slice().sort((a,b)=> a.date<b.date?-1:1).map(d=>{
+        const s = d.summary || {}; const t = s.totals || {}; const bs = s.by_stat || {};
+        let g=t.graded||0,w=t.wins||0; if(STAT_FILTER){ const sk=bs[STAT_FILTER]||{}; g=sk.graded||0; w=sk.wins||0; }
+        return { date:d.date, winpct: g? Math.round((w/g)*100) : 0, graded: g };
+      });
+      document.getElementById('chart-win').textContent = series.map(x=>x.winpct).join(' › ');
+      document.getElementById('chart-graded').textContent = series.map(x=>x.graded).join(' › ');
+    }
+
+    async function loadMonth(){
+      const m = document.getElementById('month').value; if(!m) return;
+      const live = document.getElementById('live').checked ? '&live=1' : '';
+      const r = await fetch(`/api/pitcher-reconciliation/daily-summaries?month=${m}${live}`);
+      const js = await r.json(); CURRENT = (js.days||[]); renderSummary(CURRENT);
+    }
+    async function loadRange(){
+      const s=document.getElementById('start').value; const e=document.getElementById('end').value; if(!s||!e) return;
+      const live = document.getElementById('live').checked ? '&live=1' : '';
+      const r = await fetch(`/api/pitcher-reconciliation/daily-summaries?start_date=${s}&end_date=${e}${live}`);
+      const js = await r.json(); CURRENT = (js.days||[]); renderSummary(CURRENT);
+    }
+
+    (function init(){
+      // Default to current month
+      const d=new Date(); const m=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; const mm=document.getElementById('month'); mm.value=m;
+      loadMonth();
+      // tabs
+      const box=document.getElementById('stat-tabs');
+      box.addEventListener('click', (e)=>{
+        const el=e.target.closest('.tab'); if(!el) return; STAT_FILTER = el.getAttribute('data-stat')||''; Array.from(box.querySelectorAll('.tab')).forEach(t=> t.classList.toggle('active', t===el)); renderSummary(CURRENT);
+      });
+    })();
+  </script>
+</body>
+</html>
