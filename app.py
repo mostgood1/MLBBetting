@@ -646,7 +646,12 @@ def extract_real_total_line(real_lines, game_key="Unknown"):
     Extract real total line from betting data - NO HARDCODED FALLBACKS
     Returns None if no real line available
     """
-    logger.info(f"🔍 [extract_real_total_line] INPUT real_lines for {game_key}: {real_lines}")
+    # Avoid logging giant payloads here; just note presence/shape at debug level
+    try:
+        rl_keys = list(real_lines.keys()) if isinstance(real_lines, dict) else type(real_lines)
+        logger.debug(f"[extract_real_total_line] keys for {game_key}: {rl_keys}")
+    except Exception:
+        pass
     found_point = None  # Initialize found_point at the start
     
     # If real_lines is None, try alternate key formats
@@ -668,57 +673,52 @@ def extract_real_total_line(real_lines, game_key="Unknown"):
     
     # Method 0: Modern OddsAPI format (markets array)
     if 'markets' in real_lines and isinstance(real_lines['markets'], list):
-        logger.info(f"🔍 [extract_real_total_line] markets for {game_key}: {real_lines['markets']}")
+        logger.debug(f"[extract_real_total_line] markets count for {game_key}: {len(real_lines['markets'])}")
         # Find all totals markets
         totals_markets = [m for m in real_lines['markets'] if m.get('key') == 'totals']
         if not totals_markets:
-            logger.info(f"❌ No totals markets found for {game_key}")
+            logger.debug(f"[extract_real_total_line] No totals markets for {game_key}")
         else:
             # Use the first totals market found
             first_market = totals_markets[0]
             outcomes = first_market.get('outcomes', [])
-            logger.info(f"🔍 [extract_real_total_line] first totals outcomes for {game_key}: {outcomes}")
+            logger.debug(f"[extract_real_total_line] outcomes count for {game_key}: {len(outcomes)}")
             for outcome in outcomes:
-                logger.info(f"🔍 [extract_real_total_line] outcome: {outcome}")
                 total_point = outcome.get('point')
-                logger.info(f"🔍 [extract_real_total_line] outcome point: {total_point} (type: {type(total_point)})")
                 if total_point is not None:
                     try:
                         cast_point = float(total_point)
-                        logger.info(f"✅ Found real total line {cast_point} for {game_key} (first market, cast to float)")
+                        logger.debug(f"[extract_real_total_line] found total {cast_point} for {game_key}")
                         found_point = cast_point
                         break
                     except Exception as e:
-                        logger.warning(f"⚠️ Could not cast total_point '{total_point}' to float for {game_key}: {e}")
+                        logger.debug(f"[extract_real_total_line] cast failed for {game_key}: {e}")
                         found_point = total_point
                         break
             if found_point is None:
-                logger.warning(f"❌ No valid total point found in outcomes for {game_key}")
+                logger.debug(f"[extract_real_total_line] no valid total point in outcomes for {game_key}")
     
     # If we found something from markets, return it
     if found_point is not None:
-        logger.info(f"🔍 [extract_real_total_line] FINAL RETURN for {game_key}: {found_point} (type: {type(found_point)})")
+        logger.debug(f"[extract_real_total_line] return for {game_key}: {found_point}")
         return found_point
     # Method 1: Historical betting lines structure (array format)
     if 'total' in real_lines and isinstance(real_lines['total'], list) and real_lines['total']:
         total_point = real_lines['total'][0].get('point')
         if total_point is not None:
-            logger.info(f"✅ Found real total line {total_point} for {game_key} (historical format)")
-            logger.info(f"🔍 [extract_real_total_line] FINAL RETURN for {game_key}: {total_point} (type: {type(total_point)})")
+            logger.debug(f"[extract_real_total_line] return historical for {game_key}: {total_point}")
             return total_point
     # Method 2: Structured format (object format)
     if 'total_runs' in real_lines and isinstance(real_lines['total_runs'], dict):
         total_line = real_lines['total_runs'].get('line')
         if total_line is not None:
-            logger.info(f"✅ Found real total line {total_line} for {game_key} (structured format)")
-            logger.info(f"🔍 [extract_real_total_line] FINAL RETURN for {game_key}: {total_line} (type: {type(total_line)})")
+            logger.debug(f"[extract_real_total_line] return structured for {game_key}: {total_line}")
             return total_line
     # Method 3: Direct format
     if 'over' in real_lines:
         total_line = real_lines['over']
         if total_line is not None:
-            logger.info(f"✅ Found real total line {total_line} for {game_key} (direct format)")
-            logger.info(f"🔍 [extract_real_total_line] FINAL RETURN for {game_key}: {total_line} (type: {type(total_line)})")
+            logger.debug(f"[extract_real_total_line] return direct for {game_key}: {total_line}")
             return total_line
     # Method 4: Alternative total structure
     if 'total' in real_lines and isinstance(real_lines['total'], dict):
@@ -727,7 +727,7 @@ def extract_real_total_line(real_lines, game_key="Unknown"):
             logger.info(f"✅ Found real total line {total_line} for {game_key} (object format)")
             return total_line
     
-    logger.warning(f"❌ No real total line found for {game_key} - data: {list(real_lines.keys()) if real_lines else 'None'}")
+    logger.debug(f"[extract_real_total_line] no total found for {game_key}")
     return None
 
 # Removed create_sample_data() function - NO FAKE DATA ALLOWED
@@ -736,6 +736,57 @@ def extract_real_total_line(real_lines, game_key="Unknown"):
 _betting_lines_cache = None
 _betting_lines_cache_time = None
 BETTING_LINES_CACHE_DURATION = 300  # 5 minutes
+
+# Lightweight caches for auxiliary modal files (team strengths, bullpen, weather)
+_team_strengths_cache = None
+_team_strengths_mtime = 0.0
+_bullpen_cache = None
+_bullpen_mtime = 0.0
+_weather_cache = {}
+_weather_mtimes = {}
+
+def _load_json_cached(path: str, _cache_ref: str, _mtime_ref: str):
+    """Generic cached JSON loader using file mtime for invalidation."""
+    try:
+        mtime = os.path.getmtime(path)
+        cache = globals()[_cache_ref]
+        last_m = globals()[_mtime_ref]
+        if cache is not None and last_m == mtime:
+            return cache
+        with open(path, 'r') as f:
+            data = json.load(f)
+        globals()[_cache_ref] = data
+        globals()[_mtime_ref] = mtime
+        return data
+    except Exception:
+        return None
+
+def get_team_strengths_cached():
+    path = os.path.join('data', 'master_team_strength.json')
+    ts = _load_json_cached(path, '_team_strengths_cache', '_team_strengths_mtime')
+    return ts or {}
+
+def get_bullpen_cached():
+    path = os.path.join('data', 'bullpen_stats.json')
+    bp = _load_json_cached(path, '_bullpen_cache', '_bullpen_mtime')
+    return bp or {}
+
+def get_weather_cached(date_iso: str):
+    key = date_iso
+    try:
+        path = os.path.join('data', f"park_weather_factors_{date_iso.replace('-', '_')}.json")
+        mtime = os.path.getmtime(path)
+        prev = _weather_cache.get(key)
+        prev_m = _weather_mtimes.get(key)
+        if prev is not None and prev_m == mtime:
+            return prev
+        with open(path, 'r') as f:
+            data = json.load(f)
+        _weather_cache[key] = data
+        _weather_mtimes[key] = mtime
+        return data
+    except Exception:
+        return {}
 
 def load_real_betting_lines():
     """Load real betting lines from historical cache with caching"""
@@ -6399,78 +6450,68 @@ def api_single_prediction(away_team, home_team):
     """API endpoint for single game prediction - powers the modal popups"""
     try:
         date_param = request.args.get('date', get_business_date())
-        logger.info(f"Getting prediction for {away_team} @ {home_team} on {date_param}")
-        
-        # Load unified cache (hardcoded daily predictions)
+        logger.debug(f"Modal prediction for {away_team} @ {home_team} on {date_param}")
+
+        # Load unified cache
         unified_cache = load_unified_cache()
         real_betting_lines = load_real_betting_lines()
         betting_recommendations = load_betting_recommendations()
         predictions_by_date = unified_cache.get('predictions_by_date', {})
         today_data = predictions_by_date.get(date_param, {})
         games_dict = today_data.get('games', {})
-        
+
         # Find the matching game in cache
         matching_game = None
-        for game_key, game_data in games_dict.items():
+        for _game_key, game_data in games_dict.items():
             game_away = normalize_team_name(game_data.get('away_team', ''))
             game_home = normalize_team_name(game_data.get('home_team', ''))
-            
-            if (game_away.lower() == away_team.lower() and 
-                game_home.lower() == home_team.lower()):
+            if (game_away.lower() == away_team.lower() and game_home.lower() == home_team.lower()):
                 matching_game = game_data
                 break
-        
+
         if not matching_game:
             return jsonify({
                 'success': False,
                 'error': f'No prediction found for {away_team} @ {home_team}',
                 'available_games': list(games_dict.keys())[:5]
             }), 404
-        
-        # Extract prediction data from nested structure
+
+        # Extract prediction data
         predictions = matching_game.get('predictions', {})
         predicted_away_score = predictions.get('predicted_away_score', 0) or matching_game.get('predicted_away_score', 0)
         predicted_home_score = predictions.get('predicted_home_score', 0) or matching_game.get('predicted_home_score', 0)
-        # Fix: ensure we get predicted_total_runs from the correct source
         predicted_total_runs = (
-            matching_game.get('predicted_total_runs', 0) or  # Primary source
-            predictions.get('predicted_total_runs', 0) or  # Secondary fallback
-            (predicted_away_score + predicted_home_score)  # Final fallback
+            matching_game.get('predicted_total_runs', 0) or
+            predictions.get('predicted_total_runs', 0) or
+            (predicted_away_score + predicted_home_score)
         )
         away_win_prob = predictions.get('away_win_prob', 0) or matching_game.get('away_win_probability', 0.5)
         home_win_prob = predictions.get('home_win_prob', 0) or matching_game.get('home_win_probability', 0.5)
-        
-        # Extract pitcher data from pitcher_info structure
+
+        # Pitcher info
         pitcher_info = matching_game.get('pitcher_info', {})
         away_pitcher = pitcher_info.get('away_pitcher_name', matching_game.get('away_pitcher', 'TBD'))
         home_pitcher = pitcher_info.get('home_pitcher_name', matching_game.get('home_pitcher', 'TBD'))
-        
-        # Extract comprehensive prediction details
+
+        # Additional details
         comprehensive_details = matching_game.get('comprehensive_details', {})
         winner_prediction = comprehensive_details.get('winner_prediction', {})
         total_runs_prediction = comprehensive_details.get('total_runs_prediction', {})
-        
-        # Build game key for betting lines lookup
+
+        # Betting lines lookup
         game_key = f"{away_team} @ {home_team}"
-        logger.info(f"Looking for betting recommendations with game_key: '{game_key}'")
-        
-        # Get real betting lines for this game using same logic as main API
+        logger.debug(f"Modal: lookup betting recs key: '{game_key}'")
         real_lines = None
-        real_over_under_total = None  # NO HARDCODED FALLBACKS
-        
-        # Load real betting lines data
-        real_betting_lines = load_real_betting_lines()
-        
-        # Try historical data first (from historical_betting_lines_cache.json)
+        real_over_under_total = None
+
+        # Historical data first
         if real_betting_lines and 'historical_data' in real_betting_lines:
             historical_data = real_betting_lines['historical_data']
-            # Try to find by game_id first
             game_id = str(matching_game.get('game_id', ''))
             if game_id and game_id in historical_data:
                 real_lines = historical_data[game_id]
                 real_over_under_total = extract_real_total_line(real_lines, f"{game_key} (ID: {game_id})")
             else:
-                # If no game_id, try to find by team names
                 for bet_game_id, bet_data in historical_data.items():
                     bet_away = bet_data.get('away_team', '')
                     bet_home = bet_data.get('home_team', '')
@@ -6480,124 +6521,84 @@ def api_single_prediction(away_team, home_team):
                         if real_over_under_total:
                             logger.info(f"✅ MODAL BETTING LINES: Found match by teams! Using {real_over_under_total} for {away_team} @ {home_team} (game_id: {bet_game_id})")
                             break
-        
-        # Fallback to structured lines format (from data files)
+
+        # Fallback to structured lines
         if not real_over_under_total and real_betting_lines and 'lines' in real_betting_lines:
             real_lines = real_betting_lines['lines'].get(game_key, None)
             if real_lines:
-                logger.info(f"🔍 MODAL BETTING LINES: Found lines for {game_key}: {real_lines}")
+                logger.debug(f"Modal: found lines for {game_key}")
                 real_over_under_total = extract_real_total_line(real_lines, game_key)
             else:
                 logger.warning(f"🔍 MODAL BETTING LINES: No lines found for {game_key}")
-        
-        # Log final result for modal
+
         if real_over_under_total is None:
             logger.warning(f"❌ MODAL: No real total line available for {game_key} - using predicted total for display only")
-        
-        # Final fallback - if historical cache was loaded but no lines found, try direct file load
+
+        # Final fallback: try today's direct file
         if not real_lines:
-            logger.info(f"🔍 MODAL BETTING LINES: No lines found in cache, attempting direct file load for {game_key}")
+            logger.debug(f"Modal: no lines in cache; try direct file for {game_key}")
             today = datetime.now().strftime('%Y_%m_%d')
             lines_path = f'data/real_betting_lines_{today}.json'
             logger.info(f"🔍 MODAL BETTING LINES: Trying to load {lines_path}")
             try:
                 with open(lines_path, 'r') as f:
                     direct_data = json.load(f)
-                    logger.info(f"🔍 MODAL BETTING LINES: File loaded successfully, checking for lines")
-                    if 'lines' in direct_data:
-                        logger.info(f"🔍 MODAL BETTING LINES: Lines found, looking for {game_key}")
-                        direct_lines = direct_data['lines'].get(game_key, None)
-                        if direct_lines:
-                            logger.info(f"🔍 MODAL BETTING LINES: Game found! Checking for total_runs")
-                            if 'total_runs' in direct_lines:
-                                extracted_total = direct_lines['total_runs'].get('line')
-                                if extracted_total is not None:
-                                    real_over_under_total = extracted_total
-                                    real_lines = direct_lines
-                                    logger.info(f"✅ MODAL BETTING LINES: Found in direct file load! Using {real_over_under_total} for {game_key}")
-                                else:
-                                    logger.warning(f"🔍 MODAL BETTING LINES: total_runs line is None for {game_key}")
-                            else:
-                                logger.warning(f"🔍 MODAL BETTING LINES: No total_runs in {game_key}")
-                        else:
-                            logger.warning(f"🔍 MODAL BETTING LINES: Game {game_key} not found in lines")
-                    else:
-                        logger.warning(f"🔍 MODAL BETTING LINES: No 'lines' key in file")
+                if 'lines' in direct_data:
+                    direct_lines = direct_data['lines'].get(game_key, None)
+                    if direct_lines and 'total_runs' in direct_lines:
+                        extracted_total = direct_lines['total_runs'].get('line')
+                        if extracted_total is not None:
+                            real_over_under_total = extracted_total
+                            real_lines = direct_lines
             except (FileNotFoundError, json.JSONDecodeError) as e:
                 logger.warning(f"🔍 MODAL BETTING LINES: Direct file load failed: {e}")
-        
-        # Get betting recommendations using the same logic as main API
-        betting_recommendations = load_betting_recommendations()
-        
-        # Build game key for betting lines lookup (same as main API)
-        game_key = f"{away_team} @ {home_team}"
-        logger.info(f"Looking for betting recommendations with game_key: '{game_key}'")
-        
-        # Get betting recommendations for this game
+
+        # Betting recommendations for this game
         game_recommendations = None
         if betting_recommendations and 'games' in betting_recommendations:
-            available_keys = list(betting_recommendations['games'].keys())
-            logger.info(f"Available betting recommendation keys: {available_keys}")
             game_recommendations = betting_recommendations['games'].get(game_key, None)
-            logger.info(f"Found betting recommendation: {game_recommendations is not None}")
-        else:
-            logger.warning("No betting recommendations loaded or 'games' key missing")
-        
-        # Load additional factor data for comprehensive modal display
+
+        # Factor data
         try:
-            # Load team strengths
-            team_strengths = {}
-            try:
-                with open('data/master_team_strength.json', 'r') as f:
-                    team_strengths = json.load(f)
-            except (FileNotFoundError, json.JSONDecodeError):
-                logger.warning("Could not load team strengths for modal")
-            
-            # Load bullpen data
+            team_strengths = get_team_strengths_cached()
             bullpen_factors = {}
             try:
-                with open('data/bullpen_stats.json', 'r') as f:
-                    bullpen_data = json.load(f)
-                    for team, stats in bullpen_data.items():
-                        quality = stats.get('quality_factor', 1.0)
-                        if quality >= 1.2:
-                            rating = "Elite"
-                        elif quality >= 1.05:
-                            rating = "Good"
-                        elif quality >= 0.95:
-                            rating = "Average"
-                        else:
-                            rating = "Below Average"
-                        bullpen_factors[team] = {
-                            'rating': rating,
-                            'quality_factor': quality,
-                            'era': stats.get('era', 4.0),
-                            'save_rate': stats.get('save_rate', 0.75)
-                        }
-            except (FileNotFoundError, json.JSONDecodeError):
-                logger.warning("Could not load bullpen data for modal")
-            
-            # Load weather/park factors for today
+                bullpen_data = get_bullpen_cached()
+                for team, stats in bullpen_data.items():
+                    quality = stats.get('quality_factor', 1.0)
+                    if quality >= 1.2:
+                        rating = "Elite"
+                    elif quality >= 1.05:
+                        rating = "Good"
+                    elif quality >= 0.95:
+                        rating = "Average"
+                    else:
+                        rating = "Below Average"
+                    bullpen_factors[team] = {
+                        'rating': rating,
+                        'quality_factor': quality,
+                        'era': stats.get('era', 4.0),
+                        'save_rate': stats.get('save_rate', 0.75)
+                    }
+            except Exception:
+                logger.debug("Modal: bullpen cache unavailable")
+
             weather_factors = {}
             try:
-                today = datetime.now().strftime('%Y-%m-%d')
-                weather_file = f'data/park_weather_factors_{today.replace("-", "_")}.json'
-                with open(weather_file, 'r') as f:
-                    weather_data = json.load(f)
-                    # Find weather for this game's teams (use home team's park)
-                    if 'teams' in weather_data and home_team in weather_data['teams']:
-                        team_data = weather_data['teams'][home_team]
-                        weather_factors = {
-                            'temperature': team_data.get('weather', {}).get('temperature', 'N/A'),
-                            'wind_speed': team_data.get('weather', {}).get('wind_speed', 'N/A'),
-                            'weather_condition': team_data.get('weather', {}).get('conditions', 'N/A'),
-                            'park_factor': team_data.get('park_factor', 1.0),
-                            'total_runs_factor': team_data.get('total_factor', 1.0),
-                            'stadium_name': team_data.get('stadium_name', 'Unknown'),
-                            'humidity': team_data.get('weather', {}).get('humidity', 'N/A')
-                        }
-            except (FileNotFoundError, json.JSONDecodeError):
-                logger.warning("Could not load weather/park factors for modal")
+                weather_data = get_weather_cached(date_param)
+                if 'teams' in weather_data and home_team in weather_data['teams']:
+                    team_data = weather_data['teams'][home_team]
+                    weather_factors = {
+                        'temperature': team_data.get('weather', {}).get('temperature', 'N/A'),
+                        'wind_speed': team_data.get('weather', {}).get('wind_speed', 'N/A'),
+                        'weather_condition': team_data.get('weather', {}).get('conditions', 'N/A'),
+                        'park_factor': team_data.get('park_factor', 1.0),
+                        'total_runs_factor': team_data.get('total_factor', 1.0),
+                        'stadium_name': team_data.get('stadium_name', 'Unknown'),
+                        'humidity': team_data.get('weather', {}).get('humidity', 'N/A')
+                    }
+            except Exception:
+                logger.debug("Modal: weather cache unavailable")
         except Exception as e:
             logger.warning(f"Error loading additional factor data: {e}")
             team_strengths = {}
@@ -6614,8 +6615,6 @@ def api_single_prediction(away_team, home_team):
                 'date': date_param,
                 'away_pitcher': away_pitcher,
                 'home_pitcher': home_pitcher,
-                
-                # Add pitcher quality factors from prediction engine
                 'away_pitcher_factor': pitcher_info.get('away_pitcher_factor', 1.0),
                 'home_pitcher_factor': pitcher_info.get('home_pitcher_factor', 1.0)
             },
@@ -6635,13 +6634,10 @@ def api_single_prediction(away_team, home_team):
                 'over_under_analysis': total_runs_prediction.get('over_under_analysis', {})
             },
             'betting_recommendations': convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines, predicted_total_runs) if game_recommendations else create_basic_betting_recommendations(
-                away_team, home_team, away_win_prob, home_win_prob, predicted_total_runs, 
-                real_over_under_total
+                away_team, home_team, away_win_prob, home_win_prob, predicted_total_runs, real_over_under_total
             ),
             'real_betting_lines': real_lines,
-            'debug_real_over_under_total': real_over_under_total,  # Debug field
-            
-            # Add comprehensive factor data for modal display
+            'debug_real_over_under_total': real_over_under_total,
             'factors': {
                 'team_strengths': {
                     'away_strength': team_strengths.get(away_team, 0.0),
@@ -6660,17 +6656,14 @@ def api_single_prediction(away_team, home_team):
                 }
             }
         }
-        
-        logger.info(f"Successfully found prediction for {away_team} @ {home_team}")
+
+        logger.debug(f"Modal: response ready for {away_team} @ {home_team}")
         return jsonify(prediction_response)
-    
+
     except Exception as e:
         logger.error(f"Error in single prediction API: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/initialize-system', methods=['POST'])
 def initialize_system():
