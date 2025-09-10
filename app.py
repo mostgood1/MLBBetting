@@ -3778,11 +3778,12 @@ def api_pitcher_validation():
 def api_pitcher_prop_plays():
     """Return pitcher prop plays.
 
-    Query params:
+        Query params:
       - date=YYYY-MM-DD : single day (default today)
       - start=YYYY-MM-DD&end=YYYY-MM-DD : inclusive range
       - month=YYYY-MM (ignored if start/end provided) aggregates entire calendar month
-      - aggregate=1 : if present, returns flat list instead of nested by stat
+            - aggregate=1 : if present, returns flat list instead of nested by stat
+            - allow_synth_lines=1 : if present, allows synthesizing a line from projections when no real line is available (default off)
     """
     try:
         from datetime import datetime, timedelta
@@ -3792,6 +3793,7 @@ def api_pitcher_prop_plays():
         end_param = request.args.get('end')
         month_param = request.args.get('month')
         aggregate = request.args.get('aggregate') is not None
+        allow_synth_lines = str(request.args.get('allow_synth_lines') or '').strip().lower() in ('1','true','yes','y')
         # Important: do NOT compute on the fly for "today" — always serve the persisted snapshot
         # Any request params like refresh/live are ignored here to preserve daily line consistency
         data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
@@ -3813,6 +3815,96 @@ def api_pitcher_prop_plays():
                         continue
             # No fallback compute — if all persisted daily files are missing, return None
             return None
+
+        def _load_props_maps_for_date(diso: str):
+            """Build props_by_name and props_by_name_team maps for a given date by merging all same-day snapshot variants.
+            Any file matching bovada_pitcher_props_{YYYY_MM_DD}*.json will be included.
+            """
+            props_by_name_local = {}
+            props_by_name_team_local = {}
+            try:
+                date_us = diso.replace('-', '_')
+                folder = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
+                candidates = []
+                try:
+                    for fn in os.listdir(folder):
+                        if fn.startswith(f'bovada_pitcher_props_{date_us}') and fn.endswith('.json'):
+                            candidates.append(os.path.join(folder, fn))
+                except Exception:
+                    # Fallback to known names when listing fails
+                    candidates = [
+                        os.path.join(folder, f'bovada_pitcher_props_{date_us}.json'),
+                        os.path.join(folder, f'bovada_pitcher_props_{date_us}_enhanced.json'),
+                        os.path.join(folder, f'bovada_pitcher_props_update_{date_us}.json')
+                    ]
+                def norm(s):
+                    try:
+                        return str(s or '').strip().lower()
+                    except Exception:
+                        return str(s or '')
+                stat_key_map = {
+                    'K': 'strikeouts', 'STRIKEOUTS': 'strikeouts', 'SO':'strikeouts',
+                    'OUTS': 'outs', 'ER': 'earned_runs', 'EARNED_RUNS': 'earned_runs',
+                    'HITS': 'hits_allowed', 'H': 'hits_allowed',
+                    'WALKS': 'walks', 'BB': 'walks'
+                }
+                for props_path in candidates:
+                    if not os.path.exists(props_path):
+                        continue
+                    # Robustly read JSON with unknown encoding (utf-8/utf-8-sig/utf-16)
+                    props_js = None
+                    try:
+                        with open(props_path, 'rb') as f:
+                            raw = f.read()
+                        for enc in ('utf-8-sig','utf-8','utf-16','utf-16-le','utf-16-be'):
+                            try:
+                                text = raw.decode(enc)
+                                props_js = json.loads(text)
+                                break
+                            except Exception:
+                                props_js = None
+                        if props_js is None:
+                            continue
+                    except Exception:
+                        continue
+                    # Legacy array format
+                    if isinstance(props_js.get('props'), list):
+                        for entry in (props_js.get('props') or []):
+                            pname = norm(entry.get('pitcher'))
+                            team = norm(entry.get('team'))
+                            key = f"{pname}|{team}" if team else pname
+                            sk = stat_key_map.get(str(entry.get('stat') or '').upper())
+                            if not sk:
+                                continue
+                            if team:
+                                props_by_name_team_local.setdefault(key, {})[sk] = {
+                                    'line': entry.get('line'),
+                                    'over_odds': entry.get('over_odds'),
+                                    'under_odds': entry.get('under_odds')
+                                }
+                            props_by_name_local.setdefault(pname, {})[sk] = {
+                                'line': entry.get('line'),
+                                'over_odds': entry.get('over_odds'),
+                                'under_odds': entry.get('under_odds')
+                            }
+                    # Current dict format keyed by pitcher name
+                    if isinstance(props_js.get('pitcher_props'), dict):
+                        for pname_raw, stats_blob in (props_js.get('pitcher_props') or {}).items():
+                            pname = norm(pname_raw)
+                            if not isinstance(stats_blob, dict):
+                                continue
+                            for sk in ['strikeouts','outs','earned_runs','hits_allowed','walks']:
+                                val = stats_blob.get(sk)
+                                if isinstance(val, dict) and (val.get('line') is not None):
+                                    props_by_name_local.setdefault(pname, {})[sk] = {
+                                        'line': val.get('line'),
+                                        'over_odds': val.get('over_odds'),
+                                        'under_odds': val.get('under_odds')
+                                    }
+            except Exception:
+                props_by_name_local = {}
+                props_by_name_team_local = {}
+            return props_by_name_local, props_by_name_team_local
 
         days = []
         try:
@@ -3860,64 +3952,7 @@ def api_pitcher_prop_plays():
                 continue
             # Attempt to backfill lines/odds per stat from Bovada props snapshot for this day
             # Support both legacy array format { props: [...] } and current dict format { pitcher_props: { name: {stat:{...}} } }
-            props_by_name = {}
-            props_by_name_team = {}
-            try:
-                date_us = diso.replace('-', '_')
-                props_path = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada', f'bovada_pitcher_props_{date_us}.json')
-                if os.path.exists(props_path):
-                    with open(props_path, 'r') as f:
-                        props_js = json.load(f)
-                    # Helpers
-                    def norm(s):
-                        try:
-                            return str(s or '').strip().lower()
-                        except Exception:
-                            return str(s or '')
-                    stat_key_map = {
-                        'K': 'strikeouts', 'STRIKEOUTS': 'strikeouts', 'SO':'strikeouts',
-                        'OUTS': 'outs', 'ER': 'earned_runs', 'EARNED_RUNS': 'earned_runs',
-                        'HITS': 'hits_allowed', 'H': 'hits_allowed',
-                        'WALKS': 'walks', 'BB': 'walks'
-                    }
-                    # Legacy array format
-                    if isinstance(props_js.get('props'), list):
-                        for entry in (props_js.get('props') or []):
-                            pname = norm(entry.get('pitcher'))
-                            team = norm(entry.get('team'))
-                            key = f"{pname}|{team}" if team else pname
-                            sk = stat_key_map.get(str(entry.get('stat') or '').upper())
-                            if not sk:
-                                continue
-                            # Build both name+team and name-only maps
-                            if team:
-                                props_by_name_team.setdefault(key, {})[sk] = {
-                                    'line': entry.get('line'),
-                                    'over_odds': entry.get('over_odds'),
-                                    'under_odds': entry.get('under_odds')
-                                }
-                            props_by_name.setdefault(pname, {})[sk] = {
-                                'line': entry.get('line'),
-                                'over_odds': entry.get('over_odds'),
-                                'under_odds': entry.get('under_odds')
-                            }
-                    # Current dict format keyed by pitcher name
-                    elif isinstance(props_js.get('pitcher_props'), dict):
-                        for pname_raw, stats_blob in (props_js.get('pitcher_props') or {}).items():
-                            pname = norm(pname_raw)
-                            if not isinstance(stats_blob, dict):
-                                continue
-                            for sk in ['strikeouts','outs','earned_runs','hits_allowed','walks']:
-                                val = stats_blob.get(sk)
-                                if isinstance(val, dict) and (val.get('line') is not None):
-                                    props_by_name.setdefault(pname, {})[sk] = {
-                                        'line': val.get('line'),
-                                        'over_odds': val.get('over_odds'),
-                                        'under_odds': val.get('under_odds')
-                                    }
-            except Exception:
-                props_by_name = {}
-                props_by_name_team = {}
+            props_by_name, props_by_name_team = _load_props_maps_for_date(diso)
             # Capture metadata to help the UI indicate snapshot provenance
             per_day_meta[diso] = {
                 'source': 'snapshot',
@@ -3935,11 +3970,13 @@ def api_pitcher_prop_plays():
                 adj_proj = p.get('adjusted_projections') or {}
                 for stat in stats:
                     rec = recs.get(stat)
-                    if rec not in ('OVER','UNDER'):
-                        continue
+                    # Fetch projections early so we can use them for line synthesis and diffs
+                    proj = p.get(f'projected_{stat}') if stat != 'outs' else p.get('projected_outs')
+                    adj = adj_proj.get(stat)
                     line_obj = lines.get(stat) or {}
                     line = line_obj.get('line')
-                    # If line missing, try to backfill from props snapshot for this pitcher/team
+                    line_source = 'snapshot' if (line is not None) else None
+                    # If line missing, try to backfill from same-day props snapshot for this pitcher/team
                     if line is None:
                         try:
                             pname = p.get('pitcher_name')
@@ -3954,6 +3991,7 @@ def api_pitcher_prop_plays():
                                 back = (props_by_name.get(str(pname or '').strip().lower()) or {}).get(stat)
                             if back and (back.get('line') is not None):
                                 line = back.get('line')
+                                line_source = 'backfill'
                                 # patch odds if not present
                                 if 'over_odds' not in line_obj and back.get('over_odds') is not None:
                                     line_obj['over_odds'] = back.get('over_odds')
@@ -3961,11 +3999,38 @@ def api_pitcher_prop_plays():
                                     line_obj['under_odds'] = back.get('under_odds')
                         except Exception:
                             pass
+                    if line is None and allow_synth_lines:
+                        # Synthesize a reasonable market-like line from projections when snapshot lines are unavailable
+                        base_val = adj if (adj is not None) else proj
+                        try:
+                            if base_val is not None:
+                                v = float(base_val)
+                                # Round to nearest 0.5; if whole number, bias to .5 to avoid pushes
+                                line = round(v * 2.0) / 2.0
+                                if abs(line - int(line)) < 1e-9:
+                                    line = line - 0.5 if line >= 0.5 else line + 0.5
+                                line_source = 'synthesized'
+                        except Exception:
+                            line = None
                     if line is None:
                         continue
+                    # Prefer explicit diffs when present
                     diff = diffs_adj.get(stat)
                     if diff is None:
                         diff = diffs_raw.get(stat)
+                    # If no diff in snapshot, derive from projection vs line (using adjusted when available)
+                    if diff is None:
+                        base_val = adj if (adj is not None) else proj
+                        try:
+                            if (base_val is not None) and (line is not None):
+                                diff = float(base_val) - float(line)
+                        except Exception:
+                            diff = None
+                    # If recommendation missing, derive from diff
+                    if rec not in ('OVER','UNDER'):
+                        if diff is None:
+                            continue
+                        rec = 'OVER' if diff > 0 else 'UNDER'
                     entry = {
                         'date': diso,
                         'pitcher_name': p.get('pitcher_name'),
@@ -3974,8 +4039,9 @@ def api_pitcher_prop_plays():
                         'stat': stat,
                         'recommendation': rec,
                         'line': line,
-                        'projection': p.get(f'projected_{stat}') if stat != 'outs' else p.get('projected_outs'),
-                        'adjusted_projection': adj_proj.get(stat),
+                        'line_source': line_source,
+                        'projection': proj,
+                        'adjusted_projection': adj,
                         'diff': diff,
                         'confidence': conf,
                         'over_odds': line_obj.get('over_odds'),
