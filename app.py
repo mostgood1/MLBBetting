@@ -3475,40 +3475,50 @@ def get_confidence_range(unified_cache):
 
 @app.route('/api/predictions/<date>')
 def api_predictions(date):
-    """API endpoint for predictions by date"""
+    """API endpoint for predictions by date (supports 'today' alias).
+    Returns a flat list of game prediction dicts for the specified date.
+    """
     try:
+        # Support 'today' alias using business date
+        req_date = get_business_date() if (date or '').lower() == 'today' else date
+
+        def _collect_predictions_for_date(_cache: dict, _date: str):
+            # Preferred modern structure: predictions_by_date[date]['games']
+            try:
+                by_date = (_cache or {}).get('predictions_by_date', {})
+                day = by_date.get(_date) or {}
+                games = (day.get('games') or {}) if isinstance(day, dict) else {}
+                if isinstance(games, dict) and games:
+                    return [v for v in games.values() if isinstance(v, dict)]
+            except Exception:
+                pass
+
+            # Legacy fallback: top-level items with 'date' fields
+            preds = []
+            try:
+                for _, game_data in (_cache or {}).items():
+                    if isinstance(game_data, dict) and game_data.get('date') == _date:
+                        preds.append(game_data)
+            except Exception:
+                # If unified cache isn't a mapping of dicts, ignore
+                pass
+            return preds
+
         if PERFORMANCE_TRACKING_AVAILABLE:
-            with time_operation(f"api_predictions_{date}"):
+            with time_operation(f"api_predictions_{req_date}"):
                 unified_cache = load_unified_cache()
-                
-                # Filter predictions by date
-                predictions = []
-                for game_id, game_data in unified_cache.items():
-                    if game_data.get('date') == date:
-                        predictions.append(game_data)
-                
-                return jsonify({
-                    'date': date,
-                    'predictions': predictions,
-                    'count': len(predictions),
-                    'status': 'success'
-                })
+                predictions = _collect_predictions_for_date(unified_cache, req_date)
         else:
             unified_cache = load_unified_cache()
-            
-            # Filter predictions by date
-            predictions = []
-            for game_id, game_data in unified_cache.items():
-                if game_data.get('date') == date:
-                    predictions.append(game_data)
-            
-            return jsonify({
-                'date': date,
-                'predictions': predictions,
-                'count': len(predictions),
-                'status': 'success'
-            })
-    
+            predictions = _collect_predictions_for_date(unified_cache, req_date)
+
+        return jsonify({
+            'date': req_date,
+            'predictions': predictions,
+            'count': len(predictions),
+            'status': 'success'
+        })
+
     except Exception as e:
         logger.error(f"Error in API predictions: {e}")
         return jsonify({
@@ -5586,17 +5596,17 @@ def api_today_games():
                 raw_unified_recs, _ = get_app_betting_recommendations()
                 logger.info(f"DEBUG: get_app_betting_recommendations returned type: {type(raw_unified_recs)}")
                 logger.info(f"DEBUG: get_app_betting_recommendations keys: {list(raw_unified_recs.keys())}")
-                print("DEBUG: get_app_betting_recommendations output:", raw_unified_recs)
+                logger.debug("get_app_betting_recommendations output: %s", raw_unified_recs)
             except Exception as inner_e:
                 logger.error(f"❌ Error inside get_app_betting_recommendations: {inner_e}")
                 logger.error(f"❌ Traceback: {traceback.format_exc()}")
-                print("DEBUG: get_app_betting_recommendations error:", inner_e)
+                logger.debug("get_app_betting_recommendations error: %s", inner_e)
                 raw_unified_recs = {}
             unified_betting_recommendations = raw_unified_recs
             logger.info(f"🔍 UNIFIED BETTING RECOMMENDATIONS LOADED: type={type(unified_betting_recommendations)}, length={len(unified_betting_recommendations) if hasattr(unified_betting_recommendations, 'keys') else 'N/A'}")
             logger.info(f"🔍 UNIFIED BETTING RECOMMENDATIONS CONTENTS: {unified_betting_recommendations}")
             logger.info(f"✅ Loaded {len(unified_betting_recommendations)} games with unified betting recommendations")
-            print("DEBUG: Unified betting recommendations loaded:", unified_betting_recommendations)
+            logger.debug("Unified betting recommendations loaded: %s", unified_betting_recommendations)
         except Exception as e:
             logger.error(f"❌ Failed to load unified betting recommendations: {e}")
             logger.error(f"❌ Traceback: {traceback.format_exc()}")
@@ -6500,12 +6510,10 @@ def api_live_props(away_team, home_team):
     try:
         date_param = request.args.get('date', get_business_date())
         # Use today-games payload to find matching game and pitcher lines quickly
-        tg = api_today_games().json if hasattr(api_today_games(), 'json') else None
-        if not tg:
-            # fallback: call endpoint via test client
-            with app.test_client() as c:
-                resp = c.get(f"/api/today-games?date={date_param}")
-                tg = resp.get_json()
+        # Always call the endpoint via a test client to avoid re-entering the route function directly
+        with app.test_client() as c:
+            resp = c.get(f"/api/today-games?date={date_param}")
+            tg = resp.get_json()
         if not (tg and tg.get('games')):
             return jsonify({'success': False, 'error': 'no games found'}), 404
         match = None
@@ -6548,8 +6556,10 @@ def api_live_props(away_team, home_team):
                 pass
         if not live_pitcher_stats and game_pk:
             live_pitcher_stats = mlb.get_live_pitcher_stats(game_pk)
+
         # Build response comparing live stats vs lines
         props = []
+        live_pitch_counts = {}
         try:
             starters = []
             if match.get('pitchers'):
@@ -6588,7 +6598,6 @@ def api_live_props(away_team, home_team):
                         'progress': min(1.0, cur/float(line_val)) if isinstance(line_val,(int,float)) and float(line_val)>0 else None
                     })
             # Include live pitch count snapshot for each starter
-            live_pitch_counts = {}
             for p in starters:
                 nm = p.get('pitcher_name')
                 live = live_pitcher_stats.get(nm) or live_by_norm.get(_norm(nm)) or {}
@@ -6838,6 +6847,30 @@ def initialize_system():
             'success': False,
             'error': str(e)
         })
+
+@app.route('/api/summary')
+def api_summary():
+    """Compact summary for the dashboard header (non-blocking)."""
+    try:
+        date_param = request.args.get('date', get_business_date())
+        # Reuse today-games logic via internal call to avoid duplication
+        with app.test_client() as c:
+            resp = c.get(f"/api/today-games?date={date_param}")
+            data = resp.get_json() or {}
+        games = data.get('games') or []
+        total = len(games)
+        completed = sum(1 for g in games if (g.get('live_status') or {}).get('is_final'))
+        # Placeholder metrics; can be wired to real tracker later
+        summary = {
+            'total_games': total,
+            'completed_games': completed,
+            'prediction_accuracy': 0.0,
+            'avg_score_error': 0.0
+        }
+        return jsonify({'success': True, 'summary': summary, 'date': date_param})
+    except Exception as e:
+        logger.debug(f"summary endpoint fallback: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 200
 
 # ================================================================================
 # HISTORICAL ANALYSIS MOVED TO DEDICATED APP (historical_analysis_app.py)
@@ -8821,7 +8854,7 @@ def show_routes():
         'all_routes': sorted(routes, key=lambda x: x['rule'])
     })
 
-print("DEBUG: Reached end of show_routes function")
+# logger.debug("Reached end of show_routes function")
 
 # Comprehensive Betting Performance API Endpoints
 @app.route('/api/comprehensive-betting-performance')
