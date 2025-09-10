@@ -63,13 +63,18 @@
           <div class="tab" data-stat="walks"><span>BB</span><span class="count">0</span></div>
         </div>
       </div>
-      <div id="props-table"></div>
+      <div id="props-grouped"></div>
+      <div style="margin-top:12px;">
+        <h3 style="margin:8px 0;color:#163a6b;">All Pitcher Prop Plays</h3>
+        <div id="props-table"></div>
+      </div>
     </div>
   </div>
 <script>
 function fmtEV(n){ const v=Number(n); if(!isFinite(v)) return '-'; return (v*100).toFixed(1)+'%'; }
 function confRank(c){ return {HIGH:3, MEDIUM:2, LOW:1}[String(c||'').toUpperCase()]||0; }
 function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+const STAKE_BY_CONF = { HIGH: 100, MEDIUM: 50, LOW: 25 };
 
 async function loadGames(){
   const r = await fetch('/api/betting-recommendations/today');
@@ -105,7 +110,35 @@ function renderProps(){
   const hideLow = document.getElementById('props-hide-low').checked;
   let rows = RAW_PROPS.filter(p=> (!hideLow || p.confidence!=='LOW') && (!ACTIVE_STAT || p.stat===ACTIVE_STAT));
   rows.sort((a,b)=> confRank(b.confidence)-confRank(a.confidence) || (Math.abs(b.diff||0)-Math.abs(a.diff||0)) );
-  const html = '<div class="table-wrap"><table class="table"><thead><tr><th>Conf</th><th>Pitcher</th><th>Team</th><th>Opp</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th></tr></thead><tbody>'+
+  // Grouped sections by confidence
+  const groups = ['HIGH','MEDIUM','LOW'];
+  const groupedHtml = groups.map(g=>{
+    if(hideLow && g==='LOW') return '';
+    const gi = rows.filter(p=> p.confidence===g);
+    if(gi.length===0) return '';
+    const stake = STAKE_BY_CONF[g]||0;
+    const header = `<div class=\"row\" style=\"align-items:center;justify-content:space-between;margin:8px 0;\">
+      <h3 style=\"margin:0;color:#163a6b;\">${g} (${gi.length} plays • Stake $${stake})</h3>
+    </div>`;
+    const table = '<div class="table-wrap"><table class="table"><thead><tr><th>Pitcher</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th><th>Stake</th></tr></thead><tbody>'+
+      gi.map(p=>`<tr>
+        <td>${p.pitcher_name}</td>
+        <td>${({'strikeouts':'K','outs':'Outs','earned_runs':'ER','hits_allowed':'Hits','walks':'BB'})[p.stat]||p.stat}</td>
+        <td>${p.line??''}</td>
+        <td>${p.projection??''}</td>
+        <td>${p.adjusted_projection??''}</td>
+        <td>${p.diff??''}</td>
+        <td>${p.recommendation}</td>
+        <td>${p.odds_display||''}</td>
+        <td>$${stake}</td>
+      </tr>`).join('')+
+      '</tbody></table></div>';
+    return header + table;
+  }).join('');
+  document.getElementById('props-grouped').innerHTML = groupedHtml || '<div class="muted">No plays for current filters.</div>';
+
+  // All plays table
+  const allHtml = '<div class="table-wrap"><table class="table"><thead><tr><th>Conf</th><th>Pitcher</th><th>Team</th><th>Opp</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th><th>Stake</th></tr></thead><tbody>'+
     rows.map(p=>`<tr>
       <td><span class="badge ${p.confidence}">${p.confidence}</span></td>
       <td>${p.pitcher_name}</td>
@@ -118,9 +151,10 @@ function renderProps(){
       <td>${p.diff??''}</td>
       <td>${p.recommendation}</td>
       <td>${p.odds_display||''}</td>
+      <td>$${STAKE_BY_CONF[p.confidence]||0}</td>
     </tr>`).join('')+
     '</tbody></table></div>';
-  document.getElementById('props-table').innerHTML = html;
+  document.getElementById('props-table').innerHTML = allHtml;
   updatePropCounts();
 }
 
