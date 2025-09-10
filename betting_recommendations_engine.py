@@ -754,7 +754,9 @@ def main():
     
     if recommendations:
         logger.info("✅ Enhanced betting recommendations generated successfully!")
-        output_path = f"data/betting_recommendations_{engine.current_date.replace('-', '_')}.json"
+        date_us = engine.current_date.replace('-', '_')
+        output_path = f"data/betting_recommendations_{date_us}.json"
+        enhanced_path = f"data/betting_recommendations_{date_us}_enhanced.json"
         try:
             # If only subset is present, merge into existing file to preserve other games
             if args.only_game and os.path.exists(output_path):
@@ -771,10 +773,12 @@ def main():
                     _json.dump(existing, f, indent=2)
                 logger.info(f"💾 Merged {len(recommendations.get('games', {}))} games into {output_path}")
             else:
-                with open(output_path, "w") as f:
+                # If base file already exists (earlier snapshot), avoid overwriting; write to _enhanced instead
+                target = enhanced_path if os.path.exists(output_path) else output_path
+                with open(target, "w") as f:
                     import json
                     json.dump(recommendations, f, indent=2)
-                logger.info(f"💾 Enhanced recommendations saved to {output_path}")
+                logger.info(f"💾 Recommendations saved to {target}")
         except Exception as e:
             logger.error(f"❌ Failed to write recommendations file: {e}")
     else:

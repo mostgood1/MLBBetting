@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unified Betting Recommendations</title>
+  <style>
+    body { font-family: Inter, Segoe UI, Arial, sans-serif; background:#0b1e39; color:#111; margin:0; }
+    .container { max-width:1250px; margin:0 auto; padding:24px; }
+    .card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:18px; }
+    h1,h2 { color:#163a6b; margin:0 0 8px; }
+    .muted { color:#666; font-size:12px; }
+    .btn { background:#163a6b; color:#fff; padding:8px 12px; border:none; border-radius:8px; cursor:pointer; text-decoration:none; display:inline-block; }
+    .table { width:100%; border-collapse: collapse; }
+    .table th, .table td { border-bottom:1px solid #eee; padding:8px 10px; text-align:left; font-size:13px; }
+    .badge { padding:3px 8px; border-radius:999px; font-size:11px; font-weight:700; }
+    .badge.HIGH { background:#16a34a; color:#fff; }
+    .badge.MEDIUM { background:#2563eb; color:#fff; }
+    .badge.LOW { background:#eab308; color:#111; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:12px; }
+    .stat { background:#f8fbff; border:1px solid #e2ecf7; border-radius:12px; padding:12px; text-align:center; }
+    .stat .num { font-size:22px; font-weight:700; color:#163a6b; }
+    .tabs { display:flex; gap:6px; flex-wrap:wrap; }
+    .tab { background:#fff; color:#163a6b; border:1px solid #cfe1f8; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px; }
+    .tab.active { background:#163a6b; color:#fff; border-color:#163a6b; }
+    .tab .count { background:#e6eefb; color:#163a6b; border-radius:12px; padding:0 6px; margin-left:6px; font-weight:700; font-size:11px; }
+    .tab.active .count { background:#fff; color:#2563eb; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <h1>Unified Betting Recommendations</h1>
+          <div class="muted">Game recommendations and pitcher props in one place (snapshot-first, US/Eastern today).</div>
+        </div>
+        <div class="row">
+          <a class="btn" href="/" style="text-decoration:none;">⬅ Main</a>
+          <a class="btn" href="/betting-guidance" style="background:#2a74dc;">Kelly Guidance</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Game Recommendations (Today)</h2>
+      <div class="muted" id="games-meta"></div>
+      <div id="games-table"></div>
+    </div>
+
+    <div class="card">
+      <h2>Pitcher Prop Recommendations (Today)</h2>
+      <div class="muted" id="props-meta"></div>
+      <div class="row" style="margin:6px 0;">
+        <label class="muted" style="display:flex;align-items:center;gap:6px;font-size:12px;"><input type="checkbox" id="props-hide-low"/> Hide LOW</label>
+        <div class="tabs" id="props-tabs">
+          <div class="tab" data-stat=""><span>All</span><span class="count">0</span></div>
+          <div class="tab" data-stat="strikeouts"><span>K</span><span class="count">0</span></div>
+          <div class="tab" data-stat="outs"><span>Outs</span><span class="count">0</span></div>
+          <div class="tab" data-stat="earned_runs"><span>ER</span><span class="count">0</span></div>
+          <div class="tab" data-stat="hits_allowed"><span>Hits</span><span class="count">0</span></div>
+          <div class="tab" data-stat="walks"><span>BB</span><span class="count">0</span></div>
+        </div>
+      </div>
+      <div id="props-table"></div>
+    </div>
+  </div>
+<script>
+function fmtEV(n){ const v=Number(n); if(!isFinite(v)) return '-'; return (v*100).toFixed(1)+'%'; }
+function confRank(c){ return {HIGH:3, MEDIUM:2, LOW:1}[String(c||'').toUpperCase()]||0; }
+function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+
+async function loadGames(){
+  const r = await fetch('/api/betting-recommendations/today');
+  const js = await r.json();
+  const recs = js.recommendations || [];
+  const meta = document.getElementById('games-meta');
+  meta.textContent = `${js.date||''} • ${recs.length} recommendations`;
+  const rows = recs.map(r=>({
+    game: r.game || `${r.away_team||''} @ ${r.home_team||''}`,
+    bet: `${String(r.type||'').replace('_',' ').toUpperCase()} ${r.recommendation||''}`.trim(),
+    odds: r.american_odds ?? r.odds,
+    conf: String(r.confidence||'').toUpperCase(),
+    ev: r.expected_value
+  }));
+  rows.sort((a,b)=> confRank(b.conf)-confRank(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
+  const html = '<div class="table-wrap"><table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th></tr></thead><tbody>'+
+    rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds??''}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td></tr>`).join('')+
+    '</tbody></table></div>';
+  document.getElementById('games-table').innerHTML = html;
+}
+
+let RAW_PROPS=[]; let ACTIVE_STAT='';
+function updatePropCounts(){
+  const hideLow = document.getElementById('props-hide-low').checked;
+  const base = RAW_PROPS.filter(p=> !hideLow || p.confidence!=='LOW');
+  const byStat={'':base.length};
+  ['strikeouts','outs','earned_runs','hits_allowed','walks'].forEach(k=> byStat[k] = base.filter(p=>p.stat===k).length);
+  document.querySelectorAll('#props-tabs .tab').forEach(t=>{
+    const s = t.getAttribute('data-stat')||''; const el=t.querySelector('.count'); if(el) el.textContent = String(byStat[s]||0);
+  });
+}
+function renderProps(){
+  const hideLow = document.getElementById('props-hide-low').checked;
+  let rows = RAW_PROPS.filter(p=> (!hideLow || p.confidence!=='LOW') && (!ACTIVE_STAT || p.stat===ACTIVE_STAT));
+  rows.sort((a,b)=> confRank(b.confidence)-confRank(a.confidence) || (Math.abs(b.diff||0)-Math.abs(a.diff||0)) );
+  const html = '<div class="table-wrap"><table class="table"><thead><tr><th>Conf</th><th>Pitcher</th><th>Team</th><th>Opp</th><th>Stat</th><th>Line</th><th>Proj</th><th>Adj</th><th>Diff</th><th>Rec</th><th>Odds</th></tr></thead><tbody>'+
+    rows.map(p=>`<tr>
+      <td><span class="badge ${p.confidence}">${p.confidence}</span></td>
+      <td>${p.pitcher_name}</td>
+      <td>${p.team||''}</td>
+      <td>${p.opponent||''}</td>
+      <td>${({'strikeouts':'K','outs':'Outs','earned_runs':'ER','hits_allowed':'Hits','walks':'BB'})[p.stat]||p.stat}</td>
+      <td>${p.line??''}</td>
+      <td>${p.projection??''}</td>
+      <td>${p.adjusted_projection??''}</td>
+      <td>${p.diff??''}</td>
+      <td>${p.recommendation}</td>
+      <td>${p.odds_display||''}</td>
+    </tr>`).join('')+
+    '</tbody></table></div>';
+  document.getElementById('props-table').innerHTML = html;
+  updatePropCounts();
+}
+
+async function loadProps(){
+  const d = todayISO();
+  const r = await fetch(`/api/pitcher-prop-plays?date=${d}`);
+  const js = await r.json();
+  let flat=[];
+  if(js.mode==='aggregate') flat = js.plays || []; else {
+    const plays = js.plays || {}; Object.keys(plays).forEach(stat=>{
+      const grp=plays[stat]; ['HIGH','MEDIUM','LOW'].forEach(c=> (grp[c]||[]).forEach(it=> flat.push(it)) );
+    });
+  }
+  flat.forEach(it=>{ const odds = it.recommendation==='OVER'? it.over_odds : it.under_odds; it.odds_display = odds!=null ? (odds>0?`+${odds}`:odds) : ''; });
+  RAW_PROPS = flat;
+  document.getElementById('props-meta').textContent = `${d} • ${RAW_PROPS.length} plays`;
+  renderProps();
+}
+
+document.getElementById('props-hide-low').addEventListener('change', renderProps);
+Array.from(document.querySelectorAll('#props-tabs .tab')).forEach(t=> t.addEventListener('click', ()=>{
+  Array.from(document.querySelectorAll('#props-tabs .tab')).forEach(x=> x.classList.remove('active'));
+  t.classList.add('active');
+  ACTIVE_STAT = t.getAttribute('data-stat')||'';
+  renderProps();
+}));
+// default active
+document.querySelector('#props-tabs .tab[data-stat=""]').classList.add('active');
+
+// load
+loadGames();
+loadProps();
+</script>
+</body>
+</html>
