@@ -22,143 +22,46 @@ import time
 import subprocess
 import requests
 from collections import defaultdict, Counter
+import sys
+from pitcher_projections import compute_pitcher_projections
 
-# -------------------------------------------------------------
-# Lightweight response caching (in-memory, per-process)
-# -------------------------------------------------------------
-from threading import RLock
+# Initialize Flask app early so route decorators below have a target
+app = Flask(__name__)
 
-_RESPONSE_CACHE = {}
-_CACHE_LOCK = RLock()
+# Basic logger
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    logger.setLevel(logging.INFO)
+    _ch = logging.StreamHandler()
+    _ch.setLevel(logging.INFO)
+    _fmt = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    _ch.setFormatter(_fmt)
+    logger.addHandler(_ch)
 
-def _cache_make_key(name: str, params: dict | None = None) -> str:
-    if not params:
-        return name
-    items = sorted((k, str(v)) for k, v in params.items())
-    return name + '|' + '&'.join(f"{k}={v}" for k, v in items)
-
-def cache_get(name: str, params: dict | None, ttl_seconds: int):
-    now = time.time()
-    key = _cache_make_key(name, params)
-    with _CACHE_LOCK:
-        entry = _RESPONSE_CACHE.get(key)
-        if entry:
-            ts, data = entry
-            if now - ts <= ttl_seconds:
-                return data
-            else:
-                _RESPONSE_CACHE.pop(key, None)
-    return None
-
-def cache_set(name: str, params: dict | None, data):
-    key = _cache_make_key(name, params)
-    with _CACHE_LOCK:
-        _RESPONSE_CACHE[key] = (time.time(), data)
-    return data
-
-# -------------------------------------------------------------
-# Optional compression (smaller payloads -> faster loads)
-# -------------------------------------------------------------
+# Team assets utilities (with safe fallbacks)
 try:
-    from flask_compress import Compress
-    _compress = Compress()
+    from team_assets_utils import get_team_assets, get_team_primary_color, get_team_secondary_color
 except Exception:
-    _compress = None
+    def get_team_assets(team):
+        return {}
+    def get_team_primary_color(team):
+        return "#666666"
+    def get_team_secondary_color(team):
+        return "#333333"
 
-    # --- minimal .env loader so env overrides work on Windows without extra deps ---
-    def _load_dotenv_if_present(path: str = '.env'):
-        try:
-            if not os.path.exists(path):
-                return
-            with open(path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    s = line.strip()
-                    if not s or s.startswith('#'):
-                        continue
-                    if '=' not in s:
-                        continue
-                    k, v = s.split('=', 1)
-                    k = k.strip()
-                    v = v.strip().strip('"').strip("'")
-                    # Don't override if already set in the environment
-                    if k and (k not in os.environ):
-                        os.environ[k] = v
-        except Exception:
-            # Safe best-effort; ignore parsing errors
-            pass
+# Optional live MLB data (with fallback)
+try:
+    from live_mlb_data import get_live_game_status
+except Exception:
+    def get_live_game_status(away_team, home_team, date_param=None):
+        return {'status': 'Scheduled', 'is_final': False, 'is_live': False}
 
-    _load_dotenv_if_present()
-
-# --- FORCE LOGGING CONFIGURATION FOR DEBUG VISIBILITY (safe for Windows consoles) ---
-def setup_safe_logging():
-    import sys
-    # Determine log level from environment (default WARNING to reduce noise)
-    level_name = os.environ.get('LOG_LEVEL', 'WARNING').upper()
-    level = getattr(logging, level_name, logging.INFO)
-
-    root = logging.getLogger()
-    root.setLevel(level)
-
-    # Clear any pre-existing handlers to avoid duplicates
-    for h in list(root.handlers):
-        root.removeHandler(h)
-
-    formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
-
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    console_handler.setFormatter(formatter)
-
-    # If console encoding isn't UTF-8, strip non-ASCII to avoid charmap errors
-    try:
-        enc = (getattr(sys.stdout, 'encoding', None) or '').lower()
-    except Exception:
-        enc = ''
-
-    if 'utf' not in enc:
-        class _AsciiSanitizer(logging.Filter):
-            def filter(self, record):
-                try:
-                    msg = record.getMessage()
-                    safe = msg.encode('ascii', 'ignore').decode('ascii')
-                    record.msg = safe
-                    record.args = ()
-                except Exception:
-                    # If anything goes wrong, let the record pass through
-                    pass
-                return True
-        console_handler.addFilter(_AsciiSanitizer())
-
-    root.addHandler(console_handler)
-
-    # File handler with UTF-8
-    try:
-        file_handler = logging.FileHandler('monitoring_system.log', encoding='utf-8')
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        root.addHandler(file_handler)
-    except Exception:
-        # If file handler fails, continue with console-only logging
-        pass
-
-    # Optionally quiet common noisy libraries
-    if os.environ.get('QUIET_ACCESS_LOGS', '0') in ('1', 'true', 'True'):
-        try:
-            logging.getLogger('werkzeug').setLevel(logging.ERROR)
-        except Exception:
-            pass
-    # If not in DEBUG, reduce noise from requests/urllib3
-    if level > logging.DEBUG:
-        for noisy in ('urllib3', 'requests'):
-            try:
-                logging.getLogger(noisy).setLevel(logging.WARNING)
-            except Exception:
-                pass
-
-    return logging.getLogger(__name__)
-
-logger = setup_safe_logging()
+# Minimal no-op cache to satisfy references
+_APP_CACHE = {}
+def cache_get(namespace: str, tags: dict, ttl_seconds: int = 0):
+    return None
+def cache_set(namespace: str, tags: dict, value):
+    return None
 
 # Try to import optional modules with fallbacks for Render deployment
 # Completely disable admin features for Render deployment to avoid engine dependency issues
@@ -212,187 +115,6 @@ except Exception as e:
     admin_bp = None
 
 import schedule
-
-# Import team assets for colors and logos
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from pitcher_projections import compute_pitcher_projections  # new import
-
-try:
-    from team_assets_utils import get_team_assets, get_team_primary_color, get_team_secondary_color
-    TEAM_ASSETS_AVAILABLE = True
-except ImportError as e:
-    logging.warning(f"Team assets not available: {e}")
-    TEAM_ASSETS_AVAILABLE = False
-    # Fallback functions
-    def get_team_assets(team): return {}
-    def get_team_primary_color(team): return "#666666"
-    def get_team_secondary_color(team): return "#333333"
-
-# Optional live data
-try:
-    from live_mlb_data import get_live_game_status
-    LIVE_DATA_AVAILABLE = True
-except ImportError as e:
-    logging.warning(f"Live MLB data not available: {e}")
-    LIVE_DATA_AVAILABLE = False
-    def get_live_game_status(away_team, home_team): return "Pre-Game"
-
-app = Flask(__name__)
-# Initialize response compression if available
-try:
-    _compress  # type: ignore[name-defined]
-    if _compress is not None:
-        _compress.init_app(app)  # type: ignore[call-arg]
-except NameError:
-    pass
-
-print("DEBUG: Flask app successfully created - all routes will now register properly")
-
-print("DEBUG: Successfully defined Flask app")
-
-# Add a simple test route to verify app is working
-@app.route('/api/test-route')
-def test_route():
-    """Simple test route to verify route registration"""
-    return jsonify({
-        'success': True,
-        'message': 'Test route is working',
-        'timestamp': datetime.now().isoformat()
-    })
-
-print("DEBUG: Test route added")
-
-# Add a debug route to check what routes are registered
-@app.route('/api/debug-routes')
-def debug_routes():
-    """Debug route to show all registered routes"""
-    routes = []
-    for rule in app.url_map.iter_rules():
-        routes.append({
-            'endpoint': rule.endpoint,
-            'methods': list(rule.methods),
-            'rule': str(rule)
-        })
-    return jsonify({
-        'success': True,
-        'total_routes': len(routes),
-        'routes': routes
-    })
-
-print("DEBUG: Debug routes route added")
-
-# ----------------------------------------------------------------------------
-# ROI Metrics & Optimization History Endpoint
-# ----------------------------------------------------------------------------
-@app.route('/api/optimization/roi-metrics')
-def api_roi_metrics():
-    """Return latest ROI metrics from comprehensive_optimized_config plus history.
-    Structure:
-      {
-        'success': bool,
-        'timestamp': ISO,
-        'roi_metrics': {...} | None,
-        'history_events': [...],
-        'latest_weekly_comparison': {...} | None
-      }
-    """
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    config_path = os.path.join(data_dir, 'comprehensive_optimized_config.json')
-    roi_metrics = None
-    latest_cmp = None
-    history_events = []
-    try:
-        if not os.path.exists(config_path):
-            # Fallback search: sometimes Render deploy root differs, try a few alternate locations
-            root_dir = os.path.abspath(os.path.dirname(__file__))
-            candidate_paths = [
-                os.path.join(root_dir, 'comprehensive_optimized_config.json'),
-                os.path.join(os.path.dirname(root_dir), 'data', 'comprehensive_optimized_config.json'),
-                os.path.join(os.path.dirname(root_dir), 'comprehensive_optimized_config.json')
-            ]
-            for p in candidate_paths:
-                if os.path.exists(p):
-                    logger.info(f"ROI metrics: using fallback config path {p}")
-                    config_path = p
-                    break
-        if os.path.exists(config_path):
-            with open(config_path, 'r', encoding='utf-8') as f:
-                cfg = json.load(f)
-            roi_metrics = cfg.get('optimization_metadata', {}).get('roi_metrics')
-        else:
-            logger.warning(f"ROI metrics config file not found at {config_path}")
-    except Exception as e:
-        logger.warning(f"ROI metrics load error: {e}")
-    # Load optimization history
-    try:
-        hist_path = os.path.join(data_dir, 'optimization_history.json')
-        if os.path.exists(hist_path):
-            with open(hist_path, 'r') as f:
-                history_events = json.load(f)
-    except Exception as e:
-        logger.warning(f"Optimization history load error: {e}")
-    # Find latest weekly comparison file
-    try:
-        cmp_files = sorted(glob.glob(os.path.join(data_dir, 'weekly_retune_comparison_*.json')))
-        if cmp_files:
-            with open(cmp_files[-1], 'r') as f:
-                latest_cmp = json.load(f)
-    except Exception as e:
-        logger.warning(f"Weekly comparison load error: {e}")
-    return jsonify({
-        'success': True,
-        'timestamp': datetime.now().isoformat(),
-        'roi_metrics': roi_metrics,
-        'history_events': history_events[-20:],  # Trim to last 20 for payload size
-        'latest_weekly_comparison': latest_cmp
-    })
-
-# Lightweight debug endpoint to inspect presence of data files (useful on Render)
-@app.route('/api/debug-data-files')
-def api_debug_data_files():
-    try:
-        root_dir = os.path.abspath(os.path.dirname(__file__))
-        data_dir = os.path.join(root_dir, 'data')
-        files = []
-        if os.path.isdir(data_dir):
-            for name in os.listdir(data_dir):
-                p = os.path.join(data_dir, name)
-                try:
-                    info = {
-                        'name': name,
-                        'size': os.path.getsize(p) if os.path.isfile(p) else None,
-                        'modified': datetime.fromtimestamp(os.path.getmtime(p)).isoformat() if os.path.exists(p) else None,
-                        'is_dir': os.path.isdir(p)
-                    }
-                    files.append(info)
-                except Exception:
-                    files.append({'name': name, 'error': 'stat_failed'})
-        config_present = any(f['name'] == 'comprehensive_optimized_config.json' for f in files)
-        return jsonify({
-            'success': True,
-            'data_dir': data_dir,
-            'config_present': config_present,
-            'file_count': len(files),
-            'files': sorted(files, key=lambda x: x['name'])[:100]
-        })
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-# Register admin blueprint if available
-if ADMIN_TUNING_AVAILABLE and admin_bp:
-    app.register_blueprint(admin_bp)
-
-# Register historical analysis blueprint
-try:
-    from historical_analysis_endpoint import historical_analysis_bp
-    app.register_blueprint(historical_analysis_bp)
-    logging.info("✅ Historical analysis endpoint registered successfully")
-except ImportError as e:
-    logging.warning(f"Historical analysis endpoint not available: {e}")
-
-# Initialize comprehensive historical analyzer independently so fallbacks work even if other imports fail
 try:
     from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer
     direct_historical_analyzer = ComprehensiveHistoricalAnalyzer()
@@ -1024,7 +746,16 @@ def load_real_betting_lines():
     if (_betting_lines_cache is not None and 
         _betting_lines_cache_time is not None and 
         current_time - _betting_lines_cache_time < BETTING_LINES_CACHE_DURATION):
-        return _betting_lines_cache
+        # If we previously cached an empty fallback, but a fresh file for today now exists, refresh immediately
+        try:
+            today_check = get_business_date().replace('-', '_')
+            today_file = f'data/real_betting_lines_{today_check}.json'
+            if os.path.exists(today_file) and _betting_lines_cache.get('source') == 'empty_fallback':
+                logger.info("🔄 Detected new real betting lines file after empty fallback; refreshing cache now")
+            else:
+                return _betting_lines_cache
+        except Exception:
+            return _betting_lines_cache
     
     today = get_business_date()
     
@@ -3994,6 +3725,7 @@ def api_pitcher_prop_plays():
             - aggregate=1 : if present, returns flat list instead of nested by stat
             - allow_synth_lines=1 : if present, allows synthesizing a line from projections when no real line is available (default off)
             - allow_synth_odds=1 : if present, assume -110 odds when book odds are missing (default off)
+            - include_negatives=1 : if present, include negative EV/Kelly plays (default off)
     """
     try:
         from datetime import datetime, timedelta
@@ -4005,6 +3737,7 @@ def api_pitcher_prop_plays():
         aggregate = request.args.get('aggregate') is not None
         allow_synth_lines = str(request.args.get('allow_synth_lines') or '').strip().lower() in ('1','true','yes','y')
         allow_synth_odds = str(request.args.get('allow_synth_odds') or '').strip().lower() in ('1','true','yes','y')
+        include_negatives = str(request.args.get('include_negatives') or '').strip().lower() in ('1','true','yes','y')
         # Important: do NOT compute on the fly for "today" — always serve the persisted snapshot
         # Any request params like refresh/live are ignored here to preserve daily line consistency
         data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
@@ -4410,6 +4143,21 @@ def api_pitcher_prop_plays():
                         entry['is_play'] = entry['confidence'] == 'HIGH'
                     all_entries.append(entry)
 
+        # Optional filter: by default, drop negative EV/Kelly plays unless include_negatives is set
+        if not include_negatives:
+            def _has_positive(e):
+                try:
+                    ev = e.get('expected_value')
+                    if isinstance(ev, (int, float)) and ev > 0:
+                        return True
+                    kf = e.get('kelly_fraction')
+                    if isinstance(kf, (int, float)) and kf > 0:
+                        return True
+                    return False
+                except Exception:
+                    return False
+            all_entries = [e for e in all_entries if _has_positive(e)]
+
         # Group or aggregate
         if aggregate:
             return jsonify({'success': True, 'mode': 'aggregate', 'count': len(all_entries), 'plays': all_entries, 'meta': per_day_meta})
@@ -4803,8 +4551,9 @@ def api_get_pitcher_prop_recommendations(date_str: str):
 
 @app.route('/pitcher-projections')
 def pitcher_projections_page():
-    # Simple template-less page using JSON fetch for now
-    return render_template('pitcher_projections.html')
+    # Deprecated page: redirect to home where projections are embedded on cards
+    from flask import redirect
+    return redirect('/')
 
 @app.route('/betting-recommendations')
 def betting_recommendations_page():
@@ -6052,6 +5801,133 @@ def api_today_games():
                     away_pitcher = "Wandy Peralta"
                     logger.info(f"🎯 FIXED: Overrode TBD to Wandy Peralta for Padres game")
             
+            # Attach pitcher projections/props for game card enrichment
+            try:
+                # Load daily pitcher projections snapshot (prefer update)
+                date_us = date_param.replace('-', '_')
+                data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
+                snap_paths = [
+                    os.path.join(data_dir, f'pitcher_projections_update_{date_us}.json'),
+                    os.path.join(data_dir, f'pitcher_projections_{date_us}.json'),
+                    os.path.join(data_dir, f'projection_features_{date_us}.json')
+                ]
+                pitcher_snap = None
+                for sp in snap_paths:
+                    if os.path.exists(sp):
+                        try:
+                            with open(sp, 'r', encoding='utf-8') as f:
+                                pitcher_snap = json.load(f)
+                            break
+                        except Exception:
+                            continue
+                # Build quick lookup by normalized name
+                def _normn(s: str) -> str:
+                    try:
+                        import unicodedata
+                        s2 = unicodedata.normalize('NFD', s or '')
+                        s2 = ''.join(c for c in s2 if not unicodedata.combining(c))
+                        return ''.join(ch for ch in s2.lower() if ch.isalnum())
+                    except Exception:
+                        return (s or '').strip().lower()
+                proj_by_name = {}
+                if pitcher_snap and isinstance(pitcher_snap.get('pitchers'), list):
+                    for p in pitcher_snap['pitchers']:
+                        nm = p.get('pitcher_name') or ''
+                        proj_by_name[_normn(nm)] = p
+                # Resolve starters
+                sp_away = _normn(game_data.get('pitcher_info', {}).get('away_pitcher_name') or game_data.get('away_pitcher') or '')
+                sp_home = _normn(game_data.get('pitcher_info', {}).get('home_pitcher_name') or game_data.get('home_pitcher') or '')
+                away_proj = proj_by_name.get(sp_away)
+                home_proj = proj_by_name.get(sp_home)
+                # Keep just a compact subset + lines for UI
+                def _compact(p):
+                    if not p:
+                        return None
+                    lines = p.get('lines') or {}
+                    return {
+                        'pitcher_name': p.get('pitcher_name'),
+                        'team': p.get('team'),
+                        'opponent': p.get('opponent'),
+                        'projected_outs': p.get('projected_outs'),
+                        'projected_strikeouts': p.get('projected_strikeouts'),
+                        'projected_earned_runs': p.get('projected_earned_runs'),
+                        'projected_hits_allowed': p.get('projected_hits_allowed'),
+                        'projected_walks': p.get('projected_walks'),
+                        'lines': {
+                            'outs': (lines.get('outs') or {}),
+                            'strikeouts': (lines.get('strikeouts') or {}),
+                            'earned_runs': (lines.get('earned_runs') or {}),
+                            'hits_allowed': (lines.get('hits_allowed') or {}),
+                            'walks': (lines.get('walks') or {}),
+                            'strikeouts_alts': lines.get('strikeouts_alts') or []
+                        },
+                        'recommendations': p.get('recommendations') or {},
+                        'recommendations_meta': p.get('recommendations_meta') or {}
+                    }
+                pitcher_section = {
+                    'away': _compact(away_proj),
+                    'home': _compact(home_proj)
+                }
+            except Exception as e:
+                logger.debug(f"Pitcher enrichment failed for {game_key}: {e}")
+                pitcher_section = None
+
+            # Attach top prop plays for the two starters (from daily prop rec snapshot if available)
+            try:
+                plays_path = os.path.join(os.path.dirname(__file__), 'data', f"pitcher_prop_recommendations_{date_param.replace('-', '_')}.json")
+                plays_js = None
+                if os.path.exists(plays_path):
+                    with open(plays_path, 'r', encoding='utf-8') as f:
+                        plays_js = json.load(f)
+                top_prop_plays = []
+                if plays_js and isinstance(plays_js.get('plays'), list):
+                    targets = set()
+                    if pitcher_section and pitcher_section.get('away') and pitcher_section['away'].get('pitcher_name'):
+                        targets.add(_normn(pitcher_section['away']['pitcher_name']))
+                    if pitcher_section and pitcher_section.get('home') and pitcher_section['home'].get('pitcher_name'):
+                        targets.add(_normn(pitcher_section['home']['pitcher_name']))
+                    # filter and rank by confidence/EV
+                    def _rank(e):
+                        conf = e.get('confidence')
+                        conf_rank = 0 if conf=='HIGH' else 1 if conf=='MEDIUM' else 2
+                        return (conf_rank, -float(e.get('expected_value') or 0), -abs(float(e.get('diff') or 0)))
+                    def _positive_ev(e):
+                        try:
+                            ev = e.get('expected_value')
+                            if isinstance(ev, (int, float)):
+                                return ev > 0
+                            kf = e.get('kelly_fraction')
+                            if isinstance(kf, (int, float)):
+                                return kf > 0
+                            # As a last resort, allow explicitly flagged plays
+                            if e.get('is_play') is True:
+                                return True
+                            return (str(e.get('confidence') or '').upper() == 'HIGH')
+                        except Exception:
+                            return False
+                    # Limit to target pitchers and positive EV/Kelly plays
+                    sel = [e for e in plays_js['plays'] if _normn(e.get('pitcher_name') or '') in targets and _positive_ev(e)]
+                    sel.sort(key=_rank)
+                    top_prop_plays = sel[:4]
+                pitcher_props_compact = []
+                for e in top_prop_plays:
+                    side_odds = e.get('over_odds') if e.get('recommendation')=='OVER' else e.get('under_odds')
+                    pitcher_props_compact.append({
+                        'pitcher_name': e.get('pitcher_name'),
+                        'team': e.get('team'),
+                        'stat': e.get('stat'),
+                        'prop_type': {'strikeouts':'K','outs':'Outs','earned_runs':'ER','hits_allowed':'Hits','walks':'BB'}.get(e.get('stat'), e.get('stat')),
+                        'side': e.get('recommendation'),
+                        'line': e.get('line'),
+                        'odds': side_odds,
+                        'expected_value': e.get('expected_value'),
+                        'kelly_fraction': e.get('kelly_fraction'),
+                        'confidence': e.get('confidence')
+                    })
+            except Exception as e:
+                logger.debug(f"Prop play enrichment failed for {game_key}: {e}")
+                pitcher_props_compact = []
+
             # Get live status for proper game categorization
             # This is essential for showing completed games in the completed section
             # Use timeout wrapper to prevent API hanging
@@ -6205,6 +6081,10 @@ def api_today_games():
                 'is_final': live_status_data.get('is_final', False),
                 'inning': live_status_data.get('inning', ''),
                 'inning_state': live_status_data.get('inning_state', ''),
+                'balls': live_status_data.get('balls'),
+                'strikes': live_status_data.get('strikes'),
+                'outs_live': live_status_data.get('outs'),
+                'base_state': live_status_data.get('base_state'),
                 
                 # Betting recommendations
                 'confidence': round(max_confidence, 1),
@@ -6233,10 +6113,18 @@ def api_today_games():
                     'home_score': live_status_data.get('home_score', 0),
                     'inning': live_status_data.get('inning', ''),
                     'inning_state': live_status_data.get('inning_state', ''),
+                    'balls': live_status_data.get('balls'),
+                    'strikes': live_status_data.get('strikes'),
+                    'outs': live_status_data.get('outs'),
+                    'base_state': live_status_data.get('base_state'),
                     'status': live_status_data.get('status', 'Scheduled'),
                     'badge_class': live_status_data.get('badge_class', 'scheduled'),
                     'game_time': live_status_data.get('game_time', game_data.get('game_time', 'TBD'))
                 },
+
+                # Pitcher projections/props compact section for cards
+                'pitchers': pitcher_section,
+                'pitcher_prop_plays': pitcher_props_compact,
                 
                 # Comprehensive details for modal
                 'prediction_details': {
@@ -6297,7 +6185,7 @@ def api_live_status():
             logger.info("📦 live-status cache MISS")
         
         # Import the live MLB data fetcher
-        from live_mlb_data import live_mlb_data, get_live_game_status
+        from live_mlb_data import live_mlb_data, get_live_game_status, LiveMLBData
         
         # Load unified cache to get our prediction games
         unified_cache = load_unified_cache()
@@ -6376,6 +6264,10 @@ def api_live_status():
                 'inning': live_status.get('inning', ''),
                 'inning_state': live_status.get('inning_state', ''),
                 'game_pk': live_status.get('game_pk'),
+                'balls': live_status.get('balls'),
+                'strikes': live_status.get('strikes'),
+                'outs': live_status.get('outs'),
+                'base_state': live_status.get('base_state'),
                 
                 # Team colors for dynamic styling
                 'away_team_colors': {
@@ -6389,6 +6281,15 @@ def api_live_status():
                     'text': home_team_assets.get('text_color', '#FFFFFF')
                 }
             }
+            # Attach live pitcher stats if we have game_pk
+            try:
+                game_pk = live_status.get('game_pk')
+                if game_pk:
+                    mlb_api = LiveMLBData()
+                    pstats = mlb_api.get_live_pitcher_stats(game_pk)
+                    live_game['live_pitcher_stats'] = pstats
+            except Exception:
+                pass
             live_games.append(live_game)
         
         logger.info(f"📊 Live status updated for {len(live_games)} games on {date_param}")
@@ -6412,6 +6313,86 @@ def api_live_status():
             'games': [],
             'error': str(e)
         })
+
+@app.route('/api/live-props/<away_team>/<home_team>')
+def api_live_props(away_team, home_team):
+    """Return live tracking for pitcher props for the two starters in a game.
+    Includes current live stats and compares to snapshot lines where available.
+    """
+    try:
+        date_param = request.args.get('date', get_business_date())
+        # Use today-games payload to find matching game and pitcher lines quickly
+        tg = api_today_games().json if hasattr(api_today_games(), 'json') else None
+        if not tg:
+            # fallback: call endpoint via test client
+            with app.test_client() as c:
+                resp = c.get(f"/api/today-games?date={date_param}")
+                tg = resp.get_json()
+        if not (tg and tg.get('games')):
+            return jsonify({'success': False, 'error': 'no games found'}), 404
+        match = None
+        for g in tg['games']:
+            if (normalize_team_name(g['away_team']) == normalize_team_name(away_team) and
+                normalize_team_name(g['home_team']) == normalize_team_name(home_team)):
+                match = g
+                break
+        if not match:
+            return jsonify({'success': False, 'error': 'game not found'}), 404
+        # Get latest live status for game_pk and pitcher stats
+        from live_mlb_data import LiveMLBData
+        mlb = LiveMLBData()
+        # We may not have game_pk here; re-fetch via live-status to get it
+        with app.test_client() as c:
+            ls = c.get(f"/api/live-status?date={date_param}").get_json()
+        game_pk = None
+        live_pitcher_stats = {}
+        if ls and ls.get('games'):
+            for lg in ls['games']:
+                if (normalize_team_name(lg['away_team']) == normalize_team_name(away_team) and
+                    normalize_team_name(lg['home_team']) == normalize_team_name(home_team)):
+                    game_pk = lg.get('game_pk')
+                    live_pitcher_stats = lg.get('live_pitcher_stats') or {}
+                    break
+        if not live_pitcher_stats and game_pk:
+            live_pitcher_stats = mlb.get_live_pitcher_stats(game_pk)
+        # Build response comparing live stats vs lines
+        props = []
+        try:
+            starters = []
+            if match.get('pitchers'):
+                for side in ['away','home']:
+                    p = (match['pitchers'].get(side) or {})
+                    if p and p.get('pitcher_name'):
+                        starters.append(p)
+            names = [p.get('pitcher_name') for p in starters if p]
+            def side_odds(lines, stat, side):
+                lo = (lines or {}).get(stat) or {}
+                return lo.get('over_odds') if side=='OVER' else lo.get('under_odds')
+            for p in starters:
+                nm = p.get('pitcher_name')
+                live = live_pitcher_stats.get(nm) or {}
+                for stat_key, label in [('strikeouts','K'),('outs','Outs'),('earned_runs','ER'),('hits_allowed','Hits'),('walks','BB')]:
+                    line_obj = (p.get('lines') or {}).get(stat_key) or {}
+                    line_val = line_obj.get('line')
+                    if line_val is None:
+                        continue
+                    cur = int(live.get(stat_key) or 0)
+                    props.append({
+                        'pitcher_name': nm,
+                        'stat': stat_key,
+                        'label': label,
+                        'line': line_val,
+                        'current': cur,
+                        'over_odds': line_obj.get('over_odds'),
+                        'under_odds': line_obj.get('under_odds'),
+                        'progress': min(1.0, cur/float(line_val)) if isinstance(line_val,(int,float)) and float(line_val)>0 else None
+                    })
+        except Exception:
+            pass
+        return jsonify({'success': True, 'date': date_param, 'away_team': away_team, 'home_team': home_team, 'game_pk': game_pk, 'live_pitcher_stats': live_pitcher_stats, 'props': props})
+    except Exception as e:
+        logger.exception('live props failure')
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/prediction/<away_team>/<home_team>')
 def api_single_prediction(away_team, home_team):

@@ -388,6 +388,23 @@ def complete_daily_automation():
             logger.warning(f"⚠️ Prop recommendations snapshot step skipped: {ie}")
     except Exception as e:
         logger.warning(f"⚠️ Could not generate daily pitcher projections (engine will fallback to on-demand): {e}")
+
+    # Step 2.61: Verify Bovada props coverage and refresh snapshots if needed
+    try:
+        logger.info("\n🩺 STEP 2.61: Verifying Bovada props coverage & refreshing if low")
+        monitor_script = base_dir / "tools" / "monitor_bovada_props.py"
+        if monitor_script.exists():
+            run_script(monitor_script, "Monitor Bovada Props Coverage", logger, 180)
+        else:
+            logger.debug(f"Monitor script not found: {monitor_script}")
+        # Rebuild projections snapshot again so API sees the latest props immediately
+        rebuild_script = base_dir / "tools" / "rebuild_pitcher_projections.py"
+        if rebuild_script.exists():
+            run_script(rebuild_script, "Rebuild Pitcher Projections (force)", logger, 300)
+        else:
+            logger.debug(f"Rebuild script not found: {rebuild_script}")
+    except Exception as e:
+        logger.warning(f"⚠️ Bovada props monitor/rebuild step skipped: {e}")
     
     # Step 2.7: Reconcile projections vs actuals (yesterday final; seed today's live)
     logger.info("\n📈 STEP 2.7: Reconciling Projections vs Actuals")

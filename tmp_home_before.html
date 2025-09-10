@@ -719,10 +719,10 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚾ MLB-Betting</h1>
+            <h1>? MLB-Betting</h1>
             <p>Advanced MLB Prediction System with Real-Time Betting Analysis</p>
             <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">
-                📊 Comprehensive Analysis Since August 7th • Updated Daily • {{ comprehensive_stats.total_games_analyzed or 0 }} Games Tracked
+                ?? Comprehensive Analysis Since August 7th � Updated Daily � 339 Games Tracked
             </p>
             
             <!-- Admin Navigation -->
@@ -730,29 +730,29 @@
                 <a href="/admin" style="display: inline-block; padding: 8px 16px; background: rgba(255, 215, 0, 0.2); color: #FFD700; text-decoration: none; border-radius: 8px; border: 1px solid #FFD700; font-size: 0.9rem; font-weight: bold; transition: all 0.3s ease;" 
                    onmouseover="this.style.background='rgba(255, 215, 0, 0.3)'; this.style.transform='translateY(-2px)'" 
                    onmouseout="this.style.background='rgba(255, 215, 0, 0.2)'; this.style.transform='translateY(0)'">
-                    🎯 Tuning Dashboard
+                    ?? Tuning Dashboard
                 </a>
                 <button id="run-automation-btn" onclick="runDailyAutomation()" style="padding: 8px 16px; background: rgba(79, 209, 199, 0.2); color: #4fd1c7; border: 1px solid #4fd1c7; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease;" 
                         onmouseover="this.style.background='rgba(79, 209, 199, 0.3)'; this.style.transform='translateY(-2px)'" 
                         onmouseout="this.style.background='rgba(79, 209, 199, 0.2)'; this.style.transform='translateY(0)'">
-                    🚀 Run Daily Update
+                    ?? Run Daily Update
                 </button>
                 <button id="refresh-stats-btn" onclick="refreshDashboardStats()" style="padding: 8px 16px; background: rgba(156, 163, 175, 0.2); color: #9ca3af; border: 1px solid #9ca3af; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; margin-left: 8px;" 
                         onmouseover="this.style.background='rgba(156, 163, 175, 0.3)'; this.style.transform='translateY(-2px)'" 
                         onmouseout="this.style.background='rgba(156, 163, 175, 0.2)'; this.style.transform='translateY(0)'">
-                    📊 Refresh Stats
+                    ?? Refresh Stats
                 </button>
                 <button id="init-system-btn" onclick="initializeSystem()" style="padding: 8px 16px; background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; margin-left: 8px;" 
                         onmouseover="this.style.background='rgba(34, 197, 94, 0.3)'; this.style.transform='translateY(-2px)'" 
                         onmouseout="this.style.background='rgba(34, 197, 94, 0.2)'; this.style.transform='translateY(0)'">
-                    ⚡ Load Real MLB Data
+                    ? Load Real MLB Data
                 </button>
             </div>
         </div>
 
         <div id="summary-stats" class="stats-grid">
             <div class="stat-card" id="tbd-monitor-card">
-                <h3 id="tbd-status-indicator">🔍</h3>
+                <h3 id="tbd-status-indicator">??</h3>
                 <p>TBD Monitor</p>
                 <small id="tbd-status-text">Loading...</small>
                 <div style="margin-top: 8px;">
@@ -760,7 +760,7 @@
                 </div>
             </div>
             <div class="stat-card">
-                <h3>🎯 Pitcher Proj</h3>
+                <h3>?? Pitcher Proj</h3>
                 <p>Now shown on game cards</p>
             </div>
         </div>
@@ -771,21 +771,21 @@
                 <div class="date-selector">
                     <input type="date" id="game-date" style="display: none;" />
                     <button class="btn" onclick="loadToday()">Refresh</button>
-                    <button class="btn secondary" onclick="refreshBettingLines()" id="refresh-betting-lines-btn">💰 Update Betting Lines</button>
-                    <button class="btn secondary" onclick="goToHistoricalAnalysis()">📊 Historical Analysis</button>
-                    <button class="btn secondary" onclick="goToBettingGuidance()">🎯 Betting Guidance</button>
+                    <button class="btn secondary" onclick="refreshBettingLines()" id="refresh-betting-lines-btn">?? Update Betting Lines</button>
+                    <button class="btn secondary" onclick="goToHistoricalAnalysis()">?? Historical Analysis</button>
+                    <button class="btn secondary" onclick="goToBettingGuidance()">?? Betting Guidance</button>
                 </div>
             </div>
 
             <!-- Live Games Section -->
             <div id="live-games-section" style="display: none;">
-                <h3 class="section-title">🔴 Live Games</h3>
+                <h3 class="section-title">?? Live Games</h3>
                 <div id="live-games-container" class="games-grid"></div>
             </div>
 
             <!-- Upcoming Games Section -->
             <div id="upcoming-games-section" style="display: none;">
-                <h3 class="section-title">⏰ Upcoming Games</h3>
+                <h3 class="section-title">? Upcoming Games</h3>
                 <div id="upcoming-games-container" class="games-grid"></div>
             </div>
 
@@ -795,7 +795,7 @@
 
             <!-- Completed Games Section - Moved to bottom -->
             <div id="completed-games-section" style="display: none; margin-top: 30px;">
-                <h3 class="section-title">✅ Completed Games</h3>
+                <h3 class="section-title">? Completed Games</h3>
                 <div id="completed-games-container" class="games-grid"></div>
             </div>
         </div>
@@ -826,8 +826,8 @@
             let inningDisplay = 'LIVE';
             if (liveStatus.inning && liveStatus.inning_state) inningDisplay = `${liveStatus.inning_state} ${liveStatus.inning}`;
             const counts = (liveStatus.balls != null && liveStatus.strikes != null && liveStatus.outs != null)
-                ? ` • B:${liveStatus.balls} S:${liveStatus.strikes} O:${liveStatus.outs}` : '';
-            const bases = liveStatus.base_state ? ` • ${liveStatus.base_state}` : '';
+                ? ` � B:${liveStatus.balls} S:${liveStatus.strikes} O:${liveStatus.outs}` : '';
+            const bases = liveStatus.base_state ? ` � ${liveStatus.base_state}` : '';
             const as = liveStatus.away_score ?? 0, hs = liveStatus.home_score ?? 0;
             return `<span class="live-pill">${inningDisplay}</span> <span>${as}-${hs}${counts}${bases}</span>`;
         }
@@ -860,20 +860,20 @@
             setInterval(loadLiveDashboardStats, 120000);
         });
 
-        // 🔥 LIVE DASHBOARD STATS WIDGET
+        // ?? LIVE DASHBOARD STATS WIDGET
         async function loadLiveDashboardStats() {
             try {
-                console.log('🔄 Loading live dashboard stats from historical analysis API...');
+                console.log('?? Loading live dashboard stats from historical analysis API...');
                 
                 const response = await fetch('/api/historical-analysis/cumulative');
                 if (!response.ok) {
-                    console.warn('❌ Historical analysis API not available, keeping server-side stats');
+                    console.warn('? Historical analysis API not available, keeping server-side stats');
                     return;
                 }
                 
                 const apiData = await response.json();
                 if (!apiData.success || !apiData.data) {
-                    console.warn('❌ Historical analysis API returned error:', apiData.message);
+                    console.warn('? Historical analysis API returned error:', apiData.message);
                     return;
                 }
                 
@@ -881,7 +881,7 @@
                 const betting = data.betting_performance || {};
                 const analysis = data.analysis_period || '2025-08-15 to 2025-08-25';
                 
-                console.log('✅ Live dashboard data loaded:', {
+                console.log('? Live dashboard data loaded:', {
                     totalRecommendations: betting.total_recommendations,
                     accuracy: betting.overall_accuracy,
                     roi: betting.roi_percentage
@@ -910,14 +910,14 @@
                 
                 // Add visual indicator that data is live
                 const header = document.querySelector('.header p');
-                if (header && !header.textContent.includes('🔴 LIVE')) {
-                    header.innerHTML = header.innerHTML.replace('📊 Comprehensive Analysis', '🔴 LIVE Analysis');
+                if (header && !header.textContent.includes('?? LIVE')) {
+                    header.innerHTML = header.innerHTML.replace('?? Comprehensive Analysis', '?? LIVE Analysis');
                 }
                 
-                console.log('✅ Dashboard stats updated with live data');
+                console.log('? Dashboard stats updated with live data');
                 
             } catch (error) {
-                console.warn('⚠️ Could not load live dashboard stats:', error);
+                console.warn('?? Could not load live dashboard stats:', error);
                 // Keep server-side stats if API fails
             }
         }
@@ -967,7 +967,7 @@
             const btn = document.getElementById('refresh-betting-lines-btn');
             const originalText = btn.textContent;
             
-            btn.textContent = '⏳ Updating...';
+            btn.textContent = '? Updating...';
             btn.disabled = true;
             
             try {
@@ -988,7 +988,7 @@
                     const recsGenerated = data.data.recommendations_generated;
                     const recsCount = data.data.recommendations_count;
                     
-                    let message = `✅ Successfully updated ${linesCount} betting lines`;
+                    let message = `? Successfully updated ${linesCount} betting lines`;
                     if (recsGenerated) {
                         message += ` and regenerated recommendations for ${recsCount} games`;
                     }
@@ -1001,12 +1001,12 @@
                     }, 1000);
                     
                 } else {
-                    showNotification(`❌ Failed to update betting lines: ${data.error}`, 'error', 8000);
+                    showNotification(`? Failed to update betting lines: ${data.error}`, 'error', 8000);
                 }
                 
             } catch (error) {
                 console.error('Error refreshing betting lines:', error);
-                showNotification('❌ Network error while updating betting lines', 'error', 8000);
+                showNotification('? Network error while updating betting lines', 'error', 8000);
             } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;
@@ -1085,10 +1085,10 @@
                     const statusText = document.getElementById('tbd-status-text');
                     
                     if (status.tbd_games_count > 0) {
-                        indicator.textContent = '⚠️';
+                        indicator.textContent = '??';
                         statusText.textContent = `${status.tbd_games_count} games with TBD pitchers`;
                     } else {
-                        indicator.textContent = '✅';
+                        indicator.textContent = '?';
                         statusText.textContent = 'All pitchers confirmed';
                     }
                     
@@ -1099,7 +1099,7 @@
                 }
             } catch (error) {
                 console.error('Error updating TBD status:', error);
-                document.getElementById('tbd-status-indicator').textContent = '❌';
+                document.getElementById('tbd-status-indicator').textContent = '?';
                 document.getElementById('tbd-status-text').textContent = 'Monitor error';
             }
         }
@@ -1148,7 +1148,7 @@
             const originalText = btn.textContent;
             
             try {
-                btn.textContent = '🔄 Starting...';
+                btn.textContent = '?? Starting...';
                 btn.disabled = true;
                 
                 const response = await fetch('/api/run-daily-automation', {
@@ -1161,7 +1161,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    btn.textContent = '✅ Running...';
+                    btn.textContent = '? Running...';
                     alert('Daily automation started! This will update all data including betting recommendations for today. Check the console logs for progress. The page will refresh in 30 seconds.');
                     
                     // Refresh the page after 30 seconds to show updated data
@@ -1187,14 +1187,14 @@
             const originalText = btn.textContent;
             
             try {
-                btn.textContent = '🔄 Updating...';
+                btn.textContent = '?? Updating...';
                 btn.disabled = true;
                 
                 const response = await fetch('/api/update-dashboard-stats');
                 const data = await response.json();
                 
                 if (data.status === 'success') {
-                    btn.textContent = '✅ Updated!';
+                    btn.textContent = '? Updated!';
                     
                     // Update the stats display on the page
                     const totalGamesElement = document.querySelector('.stat-card h3');
@@ -1207,7 +1207,7 @@
                         window.location.reload();
                     }, 1500);
                 } else {
-                    btn.textContent = '❌ Error';
+                    btn.textContent = '? Error';
                     alert('Error updating stats: ' + data.message);
                     setTimeout(() => {
                         btn.textContent = originalText;
@@ -1216,7 +1216,7 @@
                 }
             } catch (error) {
                 console.error('Error refreshing stats:', error);
-                btn.textContent = '❌ Error';
+                btn.textContent = '? Error';
                 alert('Error refreshing dashboard statistics.');
                 setTimeout(() => {
                     btn.textContent = originalText;
@@ -1230,10 +1230,10 @@
             const originalText = btn.textContent;
             
             try {
-                btn.textContent = '🔄 Fetching Real MLB Data...';
+                btn.textContent = '?? Fetching Real MLB Data...';
                 btn.disabled = true;
                 
-                showNotification('🚀 Fetching real MLB games from API...', 'info', 5000);
+                showNotification('?? Fetching real MLB games from API...', 'info', 5000);
                 
                 const response = await fetch('/api/initialize-system', {
                     method: 'POST'
@@ -1241,8 +1241,8 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    btn.textContent = '✅ Success!';
-                    showNotification(`✅ Successfully loaded ${data.games_loaded} real MLB games!`, 'success', 5000);
+                    btn.textContent = '? Success!';
+                    showNotification(`? Successfully loaded ${data.games_loaded} real MLB games!`, 'success', 5000);
                     
                     // Show the games that were loaded
                     if (data.real_games && data.real_games.length > 0) {
@@ -1255,8 +1255,8 @@
                         window.location.reload();
                     }, 2000);
                 } else {
-                    btn.textContent = '❌ Failed';
-                    showNotification(`❌ Failed to load real data: ${data.error}`, 'error', 8000);
+                    btn.textContent = '? Failed';
+                    showNotification(`? Failed to load real data: ${data.error}`, 'error', 8000);
                     setTimeout(() => {
                         btn.textContent = originalText;
                         btn.disabled = false;
@@ -1264,8 +1264,8 @@
                 }
             } catch (error) {
                 console.error('Error initializing system:', error);
-                btn.textContent = '❌ Failed';
-                showNotification('❌ Error fetching real MLB data. Check console for details.', 'error', 8000);
+                btn.textContent = '? Failed';
+                showNotification('? Error fetching real MLB data. Check console for details.', 'error', 8000);
                 setTimeout(() => {
                     btn.textContent = originalText;
                     btn.disabled = false;
@@ -1305,7 +1305,7 @@
             const compositeId = `${liveGame.away_team}_${liveGame.home_team}_${dateStr}`;
             
             // Debug logging
-            console.log(`🔍 Looking for live game: ${liveGame.away_team} @ ${liveGame.home_team}`);
+            console.log(`?? Looking for live game: ${liveGame.away_team} @ ${liveGame.home_team}`);
             console.log(`   Status: ${liveGame.status}, Live: ${liveGame.is_live}, Scores: ${liveGame.away_score}-${liveGame.home_score}`);
             
             // Primary: exact match on data-game-id
@@ -1327,7 +1327,7 @@
             }
             
             if (card) {
-                console.log(`✅ Found game card, updating live status`);
+                console.log(`? Found game card, updating live status`);
                 // Update status badge
                 const statusBadge = card.querySelector('.game-status-badge');
                 if (statusBadge) {
@@ -1367,7 +1367,7 @@
                     gameHeader.insertAdjacentHTML('afterend', finalScoreHtml);
                 }
             } else {
-                console.log(`❌ Game card not found for ${liveGame.away_team} @ ${liveGame.home_team}`);
+                console.log(`? Game card not found for ${liveGame.away_team} @ ${liveGame.home_team}`);
             }
         }
 
@@ -1600,7 +1600,7 @@
             card.onclick = () => loadPrediction(game.away_team, game.home_team, game.date);
             
             // Debug: log the entire game object
-            console.log(`🔍 CREATING CARD FOR: ${game.away_team} @ ${game.home_team}`);
+            console.log(`?? CREATING CARD FOR: ${game.away_team} @ ${game.home_team}`);
             console.log('Full game object:', game);
             console.log('Pitcher data:', {
                 away_pitcher: game.away_pitcher,
@@ -1649,7 +1649,7 @@
                         // Handle enhanced data time format: "2025-08-14T17:05:00+00:00"
                         let gameTimeString = game.game_time;
                         
-                        console.log('🕐 Processing game time:', gameTimeString);
+                        console.log('?? Processing game time:', gameTimeString);
                         
                         // The enhanced data should already be in proper ISO format
                         // "2025-08-14T17:05:00+00:00" is valid ISO 8601
@@ -1657,7 +1657,7 @@
                         
                         // Verify the date was parsed correctly
                         if (isNaN(gameDate.getTime())) {
-                            console.error('❌ Invalid date parsed:', gameTimeString);
+                            console.error('? Invalid date parsed:', gameTimeString);
                             displayTime = 'TBD';
                         } else {
                             // Always convert to Central Time for consistency
@@ -1670,14 +1670,14 @@
                             
                             displayTime += ' CT'; // Central Time indicator
                             
-                            console.log('✅ Time converted successfully:', {
+                            console.log('? Time converted successfully:', {
                                 original: gameTimeString,
                                 parsed: gameDate.toISOString(),
                                 central: displayTime
                             });
                         }
                     } catch (error) {
-                        console.error('❌ Error converting game time:', error);
+                        console.error('? Error converting game time:', error);
                         displayTime = 'TBD';
                     }
                 }
@@ -1894,18 +1894,11 @@
                     return `Edge ${s}`;
                 };
                 const oddsStr = (o) => {
-                    if (!o) return '—';
+                    if (!o) return '�';
                     const ov = o.over_odds, un = o.under_odds;
                     const f = (x) => (x==null||x==='')? 'N/A' : (Number(x)>0?`+${x}`:`${x}`);
-                    if (ov==null && un==null) return '—';
+                    if (ov==null && un==null) return '�';
                     return `O ${f(ov)} / U ${f(un)}`;
-                };
-                const hasAnyLines = (p) => {
-                    try {
-                        const L = (p&&p.lines)||{};
-                        const stats = ['strikeouts','outs','earned_runs','hits_allowed','walks'];
-                        return stats.some(st => L[st] && (L[st].line!=null || L[st].over_odds!=null || L[st].under_odds!=null));
-                    } catch { return false; }
                 };
                 const row = (teamSide, p, stat, label, projKey) => {
                     const lines = (p.lines||{});
@@ -1935,7 +1928,7 @@
                             } catch {}
                         }
                     }
-                    const badge = recSide ? `<span class="rec-badge ${recSide.toLowerCase()} ${String(confLabel||'').toLowerCase()}" title="${recSide} • ${confLabel||'Confidence N/A'}">${recSide} ${confLabel? '· '+confLabel : ''}</span>` : '';
+                    const badge = recSide ? `<span class="rec-badge ${recSide.toLowerCase()} ${String(confLabel||'').toLowerCase()}" title="${recSide} � ${confLabel||'Confidence N/A'}">${recSide} ${confLabel? '� '+confLabel : ''}</span>` : '';
                     return `
                         <div class="prop-row" data-side="${teamSide}" data-stat="${stat}" data-rec="${recSide||''}" data-conf="${confLabel||''}">
                             <div class="meta">
@@ -1947,33 +1940,31 @@
                                 <span class="odds">${oddsStr(lineObj)}</span>
                             </div>
                             <div class="bar"><div class="fill" id="${eid}-bar"></div></div>
-                            <div class="current"><span id="${eid}-cur">—</span><span class="target">/ ${lineFmt}</span></div>
+                            <div class="current"><span id="${eid}-cur">�</span><span class="target">/ ${lineFmt}</span></div>
                         </div>
                     `;
                 };
-                const awayName = (away && away.pitcher_name) || (game.away_pitcher && game.away_pitcher !== 'TBD' ? game.away_pitcher : null);
-                const homeName = (home && home.pitcher_name) || (game.home_pitcher && game.home_pitcher !== 'TBD' ? game.home_pitcher : null);
-                const awayBlock = awayName ? `
+                const awayBlock = away && away.pitcher_name ? `
                     <div class="pitcher-column" data-side="away">
-                        <div class="pitcher-col-header"><span class="name">${awayName}</span><span class="team">${game.away_team}</span></div>
-                        ${hasAnyLines(away) ? `<div class="props-table">
+                        <div class="pitcher-col-header"><span class="name">${away.pitcher_name}</span><span class="team">${game.away_team}</span></div>
+                        <div class="props-table">
                             ${row('away', away, 'strikeouts', 'K', 'projected_strikeouts')}
                             ${row('away', away, 'outs', 'Outs', 'projected_outs')}
                             ${row('away', away, 'earned_runs', 'ER', 'projected_earned_runs')}
                             ${row('away', away, 'hits_allowed', 'Hits', 'projected_hits_allowed')}
                             ${row('away', away, 'walks', 'BB', 'projected_walks')}
-                        </div>` : `<div class="props-table"><div class="prop-row"><div class="meta"><span class="stat-label"><strong>No market</strong></span><span style="opacity:0.8;">Awaiting lines</span></div></div></div>`}
+                        </div>
                     </div>` : '';
-                const homeBlock = homeName ? `
+                const homeBlock = home && home.pitcher_name ? `
                     <div class="pitcher-column" data-side="home">
-                        <div class="pitcher-col-header"><span class="name">${homeName}</span><span class="team">${game.home_team}</span></div>
-                        ${hasAnyLines(home) ? `<div class="props-table">
+                        <div class="pitcher-col-header"><span class="name">${home.pitcher_name}</span><span class="team">${game.home_team}</span></div>
+                        <div class="props-table">
                             ${row('home', home, 'strikeouts', 'K', 'projected_strikeouts')}
                             ${row('home', home, 'outs', 'Outs', 'projected_outs')}
                             ${row('home', home, 'earned_runs', 'ER', 'projected_earned_runs')}
                             ${row('home', home, 'hits_allowed', 'Hits', 'projected_hits_allowed')}
                             ${row('home', home, 'walks', 'BB', 'projected_walks')}
-                        </div>` : `<div class="props-table"><div class="prop-row"><div class="meta"><span class="stat-label"><strong>No market</strong></span><span style=\"opacity:0.8;\">Awaiting lines</span></div></div></div>`}
+                        </div>
                     </div>` : '';
                 const dataAttrs = `data-away-pitcher="${(away.pitcher_name||'').replace(/"/g,'&quot;')}" data-home-pitcher="${(home.pitcher_name||'').replace(/"/g,'&quot;')}"`;
                 return `<div id="${panelId}" class="pitcher-props-panel" ${dataAttrs}>${awayBlock}${homeBlock}</div>`;
@@ -1998,7 +1989,7 @@
             const predictedTotalRuns = game.predicted_total_runs || (predictedAwayScore + predictedHomeScore);
             
             // Debug: Check what's happening with predicted total runs
-            console.log(`🐛 DEBUGGING Total Runs for ${game.away_team} @ ${game.home_team}:`);
+            console.log(`?? DEBUGGING Total Runs for ${game.away_team} @ ${game.home_team}:`);
             console.log(`  - game.predicted_total_runs: ${game.predicted_total_runs}`);
             console.log(`  - predictedAwayScore: ${predictedAwayScore}`);
             console.log(`  - predictedHomeScore: ${predictedHomeScore}`);
@@ -2059,10 +2050,10 @@
                     
                     marketVsModelHtml = `
                         <div class="analysis-item ${favoriteWon ? 'analysis-correct' : 'analysis-incorrect'}">
-                            <strong>Market Favorite:</strong> ${favoriteWon ? '✅ Won' : '❌ Lost'}
+                            <strong>Market Favorite:</strong> ${favoriteWon ? '? Won' : '? Lost'}
                         </div>
                         <div class="analysis-item ${modelBeatMarket ? 'analysis-correct' : 'analysis-incorrect'}">
-                            <strong>Model vs Market:</strong> ${modelBeatMarket ? '✅ Beat Market' : '❌ Followed Market'}
+                            <strong>Model vs Market:</strong> ${modelBeatMarket ? '? Beat Market' : '? Followed Market'}
                         </div>
                     `;
                 }
@@ -2074,7 +2065,7 @@
                     
                     totalBetHtml = `
                         <div class="analysis-item ${modelCorrectTotal ? 'analysis-correct' : 'analysis-incorrect'}">
-                            <strong>Total Bet:</strong> ${modelCorrectTotal ? '✅ Correct' : '❌ Incorrect'} (Line: ${totalAnalysis.line})
+                            <strong>Total Bet:</strong> ${modelCorrectTotal ? '? Correct' : '? Incorrect'} (Line: ${totalAnalysis.line})
                         </div>
                     `;
                 }
@@ -2082,7 +2073,7 @@
                 if (marketVsModelHtml || totalBetHtml) {
                     bettingAnalysisHtml = `
                         <div class="betting-comparison">
-                            <h6>📈 Model vs Market Performance</h6>
+                            <h6>?? Model vs Market Performance</h6>
                             <div class="betting-grid">
                                 ${marketVsModelHtml}
                                 ${totalBetHtml}
@@ -2105,19 +2096,19 @@
                     </div>
                 </div>
                 <div class="final-analysis">
-                    <h5>📊 Prediction Analysis (Grade: ${grade})</h5>
+                    <h5>?? Prediction Analysis (Grade: ${grade})</h5>
                     <div class="analysis-grid">
                         <div class="analysis-item ${winnerCorrect ? 'analysis-correct' : 'analysis-incorrect'}">
-                            <strong>Winner:</strong> ${winnerCorrect ? '✅ Correct' : '❌ Incorrect'}
+                            <strong>Winner:</strong> ${winnerCorrect ? '? Correct' : '? Incorrect'}
                         </div>
                         <div class="analysis-item">
-                            <strong>Score Error:</strong> ±${avgScoreDiff.toFixed(2)} runs
+                            <strong>Score Error:</strong> �${avgScoreDiff.toFixed(2)} runs
                         </div>
                         <div class="analysis-item">
                             <strong>Total Runs:</strong> ${actualTotalRuns} (predicted ${predictedTotalRuns})
                         </div>
                         <div class="analysis-item">
-                            <strong>Total Accuracy:</strong> ±${totalRunsDiff} runs (${totalRunsAccuracy})
+                            <strong>Total Accuracy:</strong> �${totalRunsDiff} runs (${totalRunsAccuracy})
                         </div>
                     </div>
                     ${bettingAnalysisHtml}
@@ -2159,7 +2150,7 @@
                         const bettingRecs = data.betting_recommendations;  // Get from top level of data object
                         if (bettingRecs && bettingRecs.best_bet) {
                             const bestBet = bettingRecs.best_bet;
-                            const icon = bestBet.edge_rating || '🎯';
+                            const icon = bestBet.edge_rating || '??';
                             summaryElement.innerHTML += `
                                 <div class="prediction-item betting-tip" style="background: rgba(79, 209, 199, 0.2); border-left: 2px solid #4fd1c7;">
                                     <div class="value" style="font-size: 0.8em;">${icon} ${bestBet.recommendation || bestBet.bet || 'Value Bet'}</div>
@@ -2239,7 +2230,7 @@
             }
 
             let html = '<div class="betting-recommendations" data-added="true">';
-            html += '<h4>💰 Betting Recommendations</h4>';
+            html += '<h4>?? Betting Recommendations</h4>';
             
             // Add summary if available
             if (bettingRecs.summary) {
@@ -2256,8 +2247,8 @@
                     const isPositiveEV = bet.expected_value && bet.expected_value > 0;
                     const cssClasses = isPositiveEV ? `${confidenceClass} positive-ev` : confidenceClass;
                     
-                    const icon = bet.edge_rating || (bet.confidence === 'HIGH' ? '🔥' : 
-                               bet.confidence === 'MEDIUM' ? '⚡' : '💡');
+                    const icon = bet.edge_rating || (bet.confidence === 'HIGH' ? '??' : 
+                               bet.confidence === 'MEDIUM' ? '?' : '??');
                     
                     // Display the recommendation with enhanced formatting
                     const recommendation = bet.recommendation || `${bet.direction?.toUpperCase()} ${bet.line}`;
@@ -2305,7 +2296,7 @@
             else if (bettingRecs.recommendations && bettingRecs.recommendations.length > 0) {
                 bettingRecs.recommendations.forEach(rec => {
                     if (rec !== "No significant value bets identified") {
-                        html += `<div class="value-bet medium-confidence">⚡ ${rec}</div>`;
+                        html += `<div class="value-bet medium-confidence">? ${rec}</div>`;
                     }
                 });
             }
@@ -2313,14 +2304,14 @@
             // If no value bets found
             if ((!bettingRecs.value_bets || bettingRecs.value_bets.length === 0) && 
                 (!bettingRecs.recommendations || bettingRecs.recommendations.every(r => r.includes("No significant")))) {
-                html += '<div class="no-value-bet">💡 No significant value bets identified - consider live betting opportunities</div>';
+                html += '<div class="no-value-bet">?? No significant value bets identified - consider live betting opportunities</div>';
             }
 
             // Add best bet highlight if available
             if (bettingRecs.best_bet) {
                 html += `
                     <div style="margin-top: 10px; padding: 8px; background: rgba(79, 209, 199, 0.2); border-left: 3px solid #4fd1c7; border-radius: 4px;">
-                        <strong>🎯 Best Bet:</strong> ${bettingRecs.best_bet.recommendation}
+                        <strong>?? Best Bet:</strong> ${bettingRecs.best_bet.recommendation}
                     </div>
                 `;
             }
@@ -2333,7 +2324,7 @@
             document.getElementById('modal-body').innerHTML = 'Loading detailed prediction...';
             document.getElementById('prediction-modal').style.display = 'block';
             
-            console.log(`🔍 Loading prediction for: ${awayTeam} @ ${homeTeam} on ${date}`);
+            console.log(`?? Loading prediction for: ${awayTeam} @ ${homeTeam} on ${date}`);
             
             try {
                 const url = `/api/prediction/${awayTeam}/${homeTeam}?date=${date}`;
@@ -2379,7 +2370,7 @@
         }
 
         function displayPredictionDetails(data) {
-            console.log('🎯 displayPredictionDetails called with:', data);
+            console.log('?? displayPredictionDetails called with:', data);
             console.log('Betting recommendations:', data.betting_recommendations);
             
             const prediction = data.prediction;  // Extract prediction from data object
@@ -2442,7 +2433,7 @@
                     
                     <!-- Add comprehensive factors section -->
                     <div style="margin-top: 20px;">
-                        <h3>📊 Model Factors</h3>
+                        <h3>?? Model Factors</h3>
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
                             ${data.factors ? `
                                 <!-- Team Strengths -->
@@ -2466,9 +2457,9 @@
                                 <!-- Weather & Park -->
                                 ${data.factors.weather_park && Object.keys(data.factors.weather_park).length > 0 ? `
                                 <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #66bb6a; grid-column: 1 / -1;">
-                                    <div style="font-weight: bold; color: #66bb6a; margin-bottom: 8px;">🌤️ Weather & Park Factors</div>
+                                    <div style="font-weight: bold; color: #66bb6a; margin-bottom: 8px;">??? Weather & Park Factors</div>
                                     <div style="font-size: 0.9em; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                                        <div>Temp: ${data.factors.weather_park.temperature}°F</div>
+                                        <div>Temp: ${data.factors.weather_park.temperature}�F</div>
                                         <div>Wind: ${data.factors.weather_park.wind_speed} mph</div>
                                         <div>Conditions: ${data.factors.weather_park.weather_condition}</div>
                                         <div>Park Factor: ${data.factors.weather_park.park_factor.toFixed(2)}</div>
@@ -2477,13 +2468,13 @@
                                 </div>
                                 ` : `
                                 <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #888; grid-column: 1 / -1;">
-                                    <div style="font-weight: bold; color: #888; margin-bottom: 8px;">🌤️ Weather & Park Factors</div>
+                                    <div style="font-weight: bold; color: #888; margin-bottom: 8px;">??? Weather & Park Factors</div>
                                     <div style="font-size: 0.9em; color: #888; font-style: italic;">Weather data not available</div>
                                 </div>
                                 `}
                             ` : `
                                 <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #888; grid-column: 1 / -1;">
-                                    <div style="font-weight: bold; color: #888; margin-bottom: 8px;">📊 Model Factors</div>
+                                    <div style="font-weight: bold; color: #888; margin-bottom: 8px;">?? Model Factors</div>
                                     <div style="font-size: 0.9em; color: #888; font-style: italic;">Factor details not available</div>
                                 </div>
                             `}
@@ -2534,7 +2525,7 @@
             // Add enhanced betting recommendations section
             const bettingRecs = data.betting_recommendations;  // Get from top level of data object
             if (bettingRecs && (bettingRecs.value_bets || bettingRecs.summary)) {
-                html += '<div style="margin-top: 20px;"><h3>💰 Betting Recommendations</h3>';
+                html += '<div style="margin-top: 20px;"><h3>?? Betting Recommendations</h3>';
                 
                 // Add summary if available
                 if (bettingRecs.summary) {
@@ -2546,8 +2537,8 @@
                     bettingRecs.value_bets.forEach(bet => {
                         const confidenceColor = bet.confidence === 'HIGH' ? '#ff6b6b' : 
                                                bet.confidence === 'MEDIUM' ? '#ffa726' : '#66bb6a';
-                        const icon = bet.edge_rating || (bet.confidence === 'HIGH' ? '🔥' : 
-                                   bet.confidence === 'MEDIUM' ? '⚡' : '💡');
+                        const icon = bet.edge_rating || (bet.confidence === 'HIGH' ? '??' : 
+                                   bet.confidence === 'MEDIUM' ? '?' : '??');
                         
                         // Format Expected Value for modal - LIMITED TO 2 DECIMAL PLACES MAX
                         let evModalDisplay = '';
@@ -2581,12 +2572,12 @@
                     if (bettingRecs.best_bet) {
                         html += `
                             <div style="margin-top: 15px; padding: 12px; background: rgba(79, 209, 199, 0.2); border: 2px solid #4fd1c7; border-radius: 8px;">
-                                <strong style="color: #4fd1c7;">🎯 Recommended Best Bet:</strong> ${bettingRecs.best_bet.recommendation || bettingRecs.best_bet.bet}
+                                <strong style="color: #4fd1c7;">?? Recommended Best Bet:</strong> ${bettingRecs.best_bet.recommendation || bettingRecs.best_bet.bet}
                             </div>
                         `;
                     }
                 } else {
-                    html += '<div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-style: italic; opacity: 0.8; text-align: center;">💡 No strong value bets identified - consider live betting opportunities</div>';
+                    html += '<div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-style: italic; opacity: 0.8; text-align: center;">?? No strong value bets identified - consider live betting opportunities</div>';
                 }
                 
                 html += '</div>';
@@ -2627,6 +2618,6 @@
     </script>
     
     <!-- Monitoring Widget -->
-    <script src="{{ url_for('static', filename='js/monitoring-widget.js') }}"></script>
+    <script src="/static/js/monitoring-widget.js"></script>
 </body>
 </html>

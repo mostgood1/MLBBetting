@@ -214,6 +214,73 @@ class LiveMLBData:
         self.base_url = "https://statsapi.mlb.com/api/v1"
         self.schedule_url = f"{self.base_url}/schedule"
         self.game_url = f"{self.base_url}/game"
+        # Tiny in-memory cache for boxscores to limit API calls during polling
+        self._boxscore_cache = {}
+
+    def _get_json(self, url: str):
+        import urllib.request, json
+        with urllib.request.urlopen(url, timeout=3) as resp:
+            return json.loads(resp.read().decode('utf-8'))
+
+    def get_game_boxscore(self, game_pk: int) -> Dict:
+        try:
+            import time
+            now = time.time()
+            cache = self._boxscore_cache.get(game_pk)
+            if cache and (now - cache['t'] < 5):
+                return cache['data']
+            url = f"{self.game_url}/{game_pk}/boxscore"
+            data = self._get_json(url)
+            self._boxscore_cache[game_pk] = {'t': now, 'data': data}
+            return data
+        except Exception as e:
+            logger.warning(f"Boxscore fetch failed for {game_pk}: {e}")
+            return {}
+
+    @staticmethod
+    def _innings_to_outs(ip_str: str):
+        try:
+            if not ip_str:
+                return None
+            # MLB uses x.y where y in {0,1,2} as outs
+            parts = str(ip_str).split('.')
+            innings = int(parts[0])
+            extra = int(parts[1]) if len(parts) > 1 else 0
+            return innings * 3 + extra
+        except Exception:
+            return None
+
+    def get_live_pitcher_stats(self, game_pk: int) -> Dict:
+        """Return per-pitcher live stats keyed by fullName.
+        Keys: strikeouts, outs, earned_runs, hits_allowed, walks
+        """
+        box = self.get_game_boxscore(game_pk)
+        out = {}
+        try:
+            for side in ['away', 'home']:
+                team = (box.get('teams') or {}).get(side) or {}
+                players = team.get('players') or {}
+                for pid, pdata in players.items():
+                    person = (pdata.get('person') or {})
+                    name = person.get('fullName')
+                    stats = (pdata.get('stats') or {}).get('pitching') or {}
+                    if name and stats:
+                        so = stats.get('strikeOuts')
+                        bb = stats.get('baseOnBalls')
+                        er = stats.get('earnedRuns')
+                        h = stats.get('hits')
+                        ip = stats.get('inningsPitched')
+                        outs = self._innings_to_outs(ip)
+                        out[name] = {
+                            'strikeouts': so if so is not None else 0,
+                            'outs': outs if outs is not None else 0,
+                            'earned_runs': er if er is not None else 0,
+                            'hits_allowed': h if h is not None else 0,
+                            'walks': bb if bb is not None else 0,
+                        }
+        except Exception as e:
+            logger.debug(f"Parsing boxscore failed for {game_pk}: {e}")
+        return out
         
     def get_todays_schedule(self, date: str = None) -> Dict:
         """Get today's MLB schedule with live status"""
@@ -316,6 +383,12 @@ class LiveMLBData:
             inning = ''
             inning_state = ''
             
+            # Initialize additional live detail fields
+            balls = None
+            strikes = None
+            outs = None
+            base_state = ''
+
             if status_code in ['F', 'FT', 'FR']:
                 game_status = 'Final'
                 badge_class = 'final'
@@ -333,6 +406,33 @@ class LiveMLBData:
                         game_status = f"Live - {inning_state} {inning_ordinal}"
                     elif inning:
                         game_status = f"Live - Inning {inning}"
+                    # Enhanced live counts and base state if available
+                    try:
+                        balls = linescore.get('balls')
+                        strikes = linescore.get('strikes')
+                        outs = linescore.get('outs')
+                        offense = linescore.get('offense', {}) or {}
+                        on1 = bool(offense.get('first'))
+                        on2 = bool(offense.get('second'))
+                        on3 = bool(offense.get('third'))
+                        if on1 and on2 and on3:
+                            base_state = 'Bases loaded'
+                        elif on2 and on3:
+                            base_state = '2nd & 3rd'
+                        elif on1 and on3:
+                            base_state = '1st & 3rd'
+                        elif on1 and on2:
+                            base_state = '1st & 2nd'
+                        elif on3:
+                            base_state = 'Runner on 3rd'
+                        elif on2:
+                            base_state = 'Runner on 2nd'
+                        elif on1:
+                            base_state = 'Runner on 1st'
+                        else:
+                            base_state = 'Bases empty'
+                    except Exception:
+                        pass
             elif status_code in ['S', 'P', 'PW']:
                 game_status = 'Scheduled'
                 badge_class = 'scheduled'
@@ -367,6 +467,10 @@ class LiveMLBData:
                 'is_final': status_code in ['F', 'FT', 'FR'],
                 'inning': inning,
                 'inning_state': inning_state,
+                'balls': balls,
+                'strikes': strikes,
+                'outs': outs,
+                'base_state': base_state,
                 'raw_data': game_data
             }
             

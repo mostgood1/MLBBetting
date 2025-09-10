@@ -1,51 +1,30 @@
 {
   "api_predictions_2025-08-19": [
     {
-      "timestamp": "2025-09-10T09:55:09.497268",
+      "timestamp": "2025-09-10T12:37:26.477723",
       "function": "api_predictions_2025-08-19",
       "execution_time": 0.0,
       "success": false,
       "error": "'str' object has no attribute 'get'"
     },
     {
-      "timestamp": "2025-09-10T09:58:04.309776",
+      "timestamp": "2025-09-10T12:39:23.645676",
       "function": "api_predictions_2025-08-19",
       "execution_time": 0.013,
       "success": false,
       "error": "'str' object has no attribute 'get'"
     },
     {
-      "timestamp": "2025-09-10T10:00:10.542907",
+      "timestamp": "2025-09-10T12:42:27.563383",
       "function": "api_predictions_2025-08-19",
-      "execution_time": 0.008,
+      "execution_time": 0.03,
       "success": false,
       "error": "'str' object has no attribute 'get'"
     },
     {
-      "timestamp": "2025-09-10T10:03:05.382238",
+      "timestamp": "2025-09-10T12:44:24.732218",
       "function": "api_predictions_2025-08-19",
-      "execution_time": 0.01,
-      "success": false,
-      "error": "'str' object has no attribute 'get'"
-    },
-    {
-      "timestamp": "2025-09-10T10:05:11.584382",
-      "function": "api_predictions_2025-08-19",
-      "execution_time": 0.008,
-      "success": false,
-      "error": "'str' object has no attribute 'get'"
-    },
-    {
-      "timestamp": "2025-09-10T10:08:06.459858",
-      "function": "api_predictions_2025-08-19",
-      "execution_time": 0.003,
-      "success": false,
-      "error": "'str' object has no attribute 'get'"
-    },
-    {
-      "timestamp": "2025-09-10T10:10:12.623738",
-      "function": "api_predictions_2025-08-19",
-      "execution_time": 0.0,
+      "execution_time": 0.034,
       "success": false,
       "error": "'str' object has no attribute 'get'"
     }

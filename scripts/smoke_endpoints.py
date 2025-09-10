@@ -32,16 +32,42 @@ def _fetch_json_test_client(client, path: str):
     return resp.get_json()
 
 
+def _summarize_today_games(payload: dict) -> str:
+    success = payload.get("success")
+    date = payload.get("date")
+    count = payload.get("count")
+    parts = [f"success={success}", f"date={date}", f"count={count}"]
+    games = payload.get("games") or []
+    if games:
+        g = games[0]
+        fields = {
+            "has_pitchers": bool(g.get("pitchers")),
+            "has_prop_plays": len(g.get("pitcher_prop_plays") or []),
+            "live_fields": [g.get("balls"), g.get("strikes"), g.get("outs_live"), g.get("base_state")],
+        }
+        parts.append(f"first_game={fields}")
+    return " | ".join(parts)
+
+
+def _flatten_prop_plays(js: dict) -> list:
+    if js.get("mode") == "aggregate":
+        plays = js.get("plays", [])
+    else:
+        plays = []
+        plays_by_stat = js.get("plays", {})
+        for _, grp in (plays_by_stat or {}).items():
+            for conf in ("HIGH", "MEDIUM", "LOW"):
+                plays.extend(grp.get(conf, []))
+    return plays
+
+
 def main():
     try_network = _network_mode_available()
     if try_network:
         try:
-            today_payload = _fetch_json_network("/api/betting-recommendations/today")
-            recs = today_payload.get("recommendations", [])
-            print(f"Recommendations (today): {len(recs)} items")
-            print("By type:", dict(Counter([str(x.get("type")).lower() for x in recs])))
-            print("By conf:", dict(Counter([str(x.get("confidence")).upper() for x in recs])))
-            today = today_payload.get("date")
+            tg = _fetch_json_network("/api/today-games")
+            print("/api/today-games:", _summarize_today_games(tg))
+            today = tg.get("date")
             js = _fetch_json_network(f"/api/pitcher-prop-plays?date={today}")
         except Exception as e:
             print(f"Network mode failed ({e}); falling back to Flask test_client...")
@@ -55,24 +81,13 @@ def main():
         from app import app as flask_app
 
         with flask_app.test_client() as client:
-            today_payload = _fetch_json_test_client(client, "/api/betting-recommendations/today")
-            recs = today_payload.get("recommendations", [])
-            print(f"Recommendations (today): {len(recs)} items")
-            print("By type:", dict(Counter([str(x.get("type")).lower() for x in recs])))
-            print("By conf:", dict(Counter([str(x.get("confidence")).upper() for x in recs])))
-
-            today = today_payload.get("date")
+            tg = _fetch_json_test_client(client, "/api/today-games")
+            print("/api/today-games:", _summarize_today_games(tg))
+            today = tg.get("date")
             js = _fetch_json_test_client(client, f"/api/pitcher-prop-plays?date={today}")
 
-    if js.get("mode") == "aggregate":
-        plays = js.get("plays", [])
-    else:
-        plays = []
-        plays_by_stat = js.get("plays", {})
-        for stat, grp in (plays_by_stat or {}).items():
-            for conf in ("HIGH", "MEDIUM", "LOW"):
-                plays.extend(grp.get(conf, []))
-    print(f"Pitcher props (today): {len(plays)} plays")
+    plays = _flatten_prop_plays(js)
+    print(f"/api/pitcher-prop-plays: {len(plays)} plays")
     by_stat = {}
     for p in plays:
         stat = p.get("stat")
