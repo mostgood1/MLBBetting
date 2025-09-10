@@ -3701,15 +3701,21 @@ def api_pitcher_prop_plays():
         data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
 
         def _load_day(diso: str, refresh: bool = False):
-            fn = f"pitcher_projections_{diso.replace('-', '_')}.json"
-            path = os.path.join(data_dir, fn)
-            if os.path.exists(path):
-                try:
-                    with open(path,'r') as f:
-                        return json.load(f)
-                except Exception:
-                    return None
-            # No fallback compute — if the snapshot is missing, we return None
+            """Load the canonical daily pitcher projections snapshot.
+            Falls back to projection_features or update snapshot if the main file is missing.
+            """
+            date_us = diso.replace('-', '_')
+            primary = os.path.join(data_dir, f"pitcher_projections_{date_us}.json")
+            update = os.path.join(data_dir, f"pitcher_projections_update_{date_us}.json")
+            features = os.path.join(data_dir, f"projection_features_{date_us}.json")
+            for path in (primary, update, features):
+                if os.path.exists(path):
+                    try:
+                        with open(path,'r') as f:
+                            return json.load(f)
+                    except Exception:
+                        continue
+            # No fallback compute — if all persisted daily files are missing, return None
             return None
 
         days = []
@@ -3757,39 +3763,65 @@ def api_pitcher_prop_plays():
             if not day_data:
                 continue
             # Attempt to backfill lines/odds per stat from Bovada props snapshot for this day
-            props_map = {}
+            # Support both legacy array format { props: [...] } and current dict format { pitcher_props: { name: {stat:{...}} } }
+            props_by_name = {}
+            props_by_name_team = {}
             try:
                 date_us = diso.replace('-', '_')
                 props_path = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada', f'bovada_pitcher_props_{date_us}.json')
                 if os.path.exists(props_path):
                     with open(props_path, 'r') as f:
                         props_js = json.load(f)
-                    # Build name+team keyed map: { key: { stat: { line, over_odds, under_odds } } }
+                    # Helpers
                     def norm(s):
                         try:
                             return str(s or '').strip().lower()
                         except Exception:
-                            return str(s)
+                            return str(s or '')
                     stat_key_map = {
                         'K': 'strikeouts', 'STRIKEOUTS': 'strikeouts', 'SO':'strikeouts',
                         'OUTS': 'outs', 'ER': 'earned_runs', 'EARNED_RUNS': 'earned_runs',
                         'HITS': 'hits_allowed', 'H': 'hits_allowed',
                         'WALKS': 'walks', 'BB': 'walks'
                     }
-                    for entry in (props_js.get('props') or []):
-                        pname = norm(entry.get('pitcher'))
-                        team = norm(entry.get('team'))
-                        key = f"{pname}|{team}"
-                        sk = stat_key_map.get(str(entry.get('stat') or '').upper())
-                        if not sk:
-                            continue
-                        props_map.setdefault(key, {})[sk] = {
-                            'line': entry.get('line'),
-                            'over_odds': entry.get('over_odds'),
-                            'under_odds': entry.get('under_odds')
-                        }
+                    # Legacy array format
+                    if isinstance(props_js.get('props'), list):
+                        for entry in (props_js.get('props') or []):
+                            pname = norm(entry.get('pitcher'))
+                            team = norm(entry.get('team'))
+                            key = f"{pname}|{team}" if team else pname
+                            sk = stat_key_map.get(str(entry.get('stat') or '').upper())
+                            if not sk:
+                                continue
+                            # Build both name+team and name-only maps
+                            if team:
+                                props_by_name_team.setdefault(key, {})[sk] = {
+                                    'line': entry.get('line'),
+                                    'over_odds': entry.get('over_odds'),
+                                    'under_odds': entry.get('under_odds')
+                                }
+                            props_by_name.setdefault(pname, {})[sk] = {
+                                'line': entry.get('line'),
+                                'over_odds': entry.get('over_odds'),
+                                'under_odds': entry.get('under_odds')
+                            }
+                    # Current dict format keyed by pitcher name
+                    elif isinstance(props_js.get('pitcher_props'), dict):
+                        for pname_raw, stats_blob in (props_js.get('pitcher_props') or {}).items():
+                            pname = norm(pname_raw)
+                            if not isinstance(stats_blob, dict):
+                                continue
+                            for sk in ['strikeouts','outs','earned_runs','hits_allowed','walks']:
+                                val = stats_blob.get(sk)
+                                if isinstance(val, dict) and (val.get('line') is not None):
+                                    props_by_name.setdefault(pname, {})[sk] = {
+                                        'line': val.get('line'),
+                                        'over_odds': val.get('over_odds'),
+                                        'under_odds': val.get('under_odds')
+                                    }
             except Exception:
-                props_map = {}
+                props_by_name = {}
+                props_by_name_team = {}
             # Capture metadata to help the UI indicate snapshot provenance
             per_day_meta[diso] = {
                 'source': 'snapshot',
@@ -3816,8 +3848,14 @@ def api_pitcher_prop_plays():
                         try:
                             pname = p.get('pitcher_name')
                             team = p.get('team')
-                            key = f"{str(pname or '').strip().lower()}|{str(team or '').strip().lower()}"
-                            back = props_map.get(key, {}).get(stat)
+                            key_team = f"{str(pname or '').strip().lower()}|{str(team or '').strip().lower()}"
+                            back = None
+                            # Prefer name+team when available
+                            if team:
+                                back = (props_by_name_team.get(key_team) or {}).get(stat)
+                            # Fallback to name-only map
+                            if back is None:
+                                back = (props_by_name.get(str(pname or '').strip().lower()) or {}).get(stat)
                             if back and (back.get('line') is not None):
                                 line = back.get('line')
                                 # patch odds if not present
