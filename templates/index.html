@@ -1367,12 +1367,22 @@
             
             if (card) {
                 console.log(`✅ Found game card, updating live status`);
-                // Update status badge
-                const statusBadge = card.querySelector('.game-status-badge');
-                if (statusBadge) {
-                    statusBadge.className = `game-status-badge badge-${liveGame.badge_class}`;
-                    statusBadge.textContent = liveGame.status;
-                    console.log(`   Updated badge to: ${liveGame.status}`);
+                // Update header-center
+                const headerCenter = card.querySelector('.header-center');
+                if (headerCenter) {
+                    if (liveGame.is_live) {
+                        // Replace with dynamic batter + last play
+                        headerCenter.innerHTML = `
+                            <div class="live-header" data-dynamic="header-center">
+                                ${liveGame.current_batter ? `<div class="batter-line">${liveGame.current_batter}</div>` : ''}
+                                ${liveGame.last_play ? `<div class=\"last-play-line\">${liveGame.last_play}</div>` : ''}
+                            </div>
+                        `;
+                    } else {
+                        // Non-live: show time + pill
+                        const timeHtml = liveGame.game_time && !liveGame.game_time.includes('T') ? `<div class="game-time">${liveGame.game_time}</div>` : '';
+                        headerCenter.innerHTML = `${timeHtml}<span class="game-status-badge badge-${liveGame.badge_class}">${liveGame.status}</span>`;
+                    }
                 }
 
                 // Update pitch-metrics (live pitches/IP) for away and home if available
@@ -1816,8 +1826,15 @@
                         </div>
                     </div>
                     <div class="header-center">
-                        ${displayTime ? `<div class="game-time">${displayTime}</div>` : ''}
-                        <span class="game-status-badge badge-${liveStatus.badge_class}">${displayStatus}</span>
+                        ${liveStatus.is_live ? `
+                            <div class="live-header" data-dynamic="header-center">
+                                ${liveStatus.current_batter ? `<div class="batter-line">${liveStatus.current_batter}</div>` : ''}
+                                ${liveStatus.last_play ? `<div class=\"last-play-line\">${liveStatus.last_play}</div>` : ''}
+                            </div>
+                        ` : `
+                            ${displayTime ? `<div class=\"game-time\">${displayTime}</div>` : ''}
+                            <span class=\"game-status-badge badge-${liveStatus.badge_class}\">${displayStatus}</span>
+                        `}
                     </div>
                     <div class="header-right game-teams" style="justify-content: end;">
                         <div class="team-info" style="background: linear-gradient(135deg, ${homeColors.primary}, ${homeColors.secondary}); color: ${homeColors.text}; border-radius: 8px; padding: 6px 8px;">
