@@ -231,6 +231,18 @@
     .prop-tracker .push-badge { background: #9ca3af; color: #0f172a; padding: 1px 6px; border-radius: 10px; font-size: 0.68rem; font-weight: 800; margin-left: 2px; }
     .prop-trackers { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 
+        /* At-bat count chip (balls-strikes) */
+        .count-chip {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            font-size: 0.72rem;
+            color: #fff;
+        }
+
         .pitcher-matchup .vs-separator {
             font-size: 0.8rem;
             opacity: 0.5;
@@ -1307,7 +1319,6 @@
                 html.push('<div class="prop-trackers">');
                 for (const m of markets) {
                     const line = lines[m.key];
-                    if (line == null) continue; // only render if we have a market line
                     const liveVal = pm[m.liveKey] ?? '-';
                     // Infer side from projection if available; otherwise default pending neutral style
                     let sideStr = 'over';
@@ -1319,7 +1330,7 @@
                     const pendingClass = `${sideStr} pending`;
                     const id = `prop-${m.key}-${side}-${compositeId}`;
                     const projTxt = (typeof projVal === 'number') ? Number(projVal).toFixed(1) : '-';
-                    const lineTxt = (typeof line === 'number') ? Number(line).toFixed(1) : line;
+                    const lineTxt = (typeof line === 'number') ? Number(line).toFixed(1) : '—';
                     const edgeTxt = (typeof projVal === 'number' && typeof line === 'number') ? (projVal - line).toFixed(1) : null;
                     html.push(`
                         <div class="prop-tracker ${pendingClass}" id="${id}" data-prop-market="${m.key}" data-prop-side="${sideStr}" data-prop-line="${line}">
@@ -1350,14 +1361,8 @@
             } else if (half.startsWith('bottom')) {
                 pitcher = awayPitcher || '';
             }
-            // Primary cases
+            // Only show when both are known; otherwise, show nothing
             if (batter && pitcher) return `${batter} vs ${pitcher}`;
-            if (batter) return `${batter}`;
-            if (pitcher) return `vs ${pitcher}`;
-            // Fallback: if inning half/batter missing, try show both SPs if present
-            const a = awayPitcher && awayPitcher !== 'TBD' ? awayPitcher : '';
-            const h = homePitcher && homePitcher !== 'TBD' ? homePitcher : '';
-            if (a && h) return `${a} vs ${h}`;
             return '';
         }
 
@@ -1402,9 +1407,10 @@
                             liveGame.home_pitcher,
                             typeof liveGame.is_top_inning === 'boolean' ? liveGame.is_top_inning : undefined
                         );
+                        const countChip = (liveGame.balls != null && liveGame.strikes != null) ? `<span class="count-chip">${liveGame.balls}-${liveGame.strikes}</span>` : '';
                         headerCenter.innerHTML = `
                             <div class="live-header" data-dynamic="header-center">
-                                ${vsLine ? `<div class="batter-line">${vsLine}</div>` : ''}
+                                ${vsLine ? `<div class=\"batter-line\">${vsLine}${countChip ? ` ${countChip}` : ''}</div>` : (liveGame.current_batter ? `<div class=\"batter-line\">${liveGame.current_batter}${countChip ? ` ${countChip}` : ''}</div>` : '')}
                                 ${liveGame.last_play ? `<div class=\"last-play-line\">${liveGame.last_play}</div>` : ''}
                             </div>
                         `;
@@ -1867,7 +1873,12 @@
                     <div class="header-center">
                         ${liveStatus.is_live ? `
                             <div class="live-header" data-dynamic="header-center">
-                                ${liveVsLine ? `<div class="batter-line">${liveVsLine}</div>` : (liveStatus.current_batter ? `<div class="batter-line">${liveStatus.current_batter}</div>` : '')}
+                                ${(() => {
+                                    const countChip = (liveStatus.balls != null && liveStatus.strikes != null) ? `<span class="count-chip">${liveStatus.balls}-${liveStatus.strikes}</span>` : '';
+                                    if (liveVsLine) return `<div class="batter-line">${liveVsLine}${countChip ? ` ${countChip}` : ''}</div>`;
+                                    if (liveStatus.current_batter) return `<div class="batter-line">${liveStatus.current_batter}${countChip ? ` ${countChip}` : ''}</div>`;
+                                    return '';
+                                })()}
                                 ${liveStatus.last_play ? `<div class=\"last-play-line\">${liveStatus.last_play}</div>` : ''}
                             </div>
                         ` : `
@@ -1918,7 +1929,7 @@
                         <div class="prediction-summary" id="summary-${game.game_id}">
                             ${createPredictionSummaryHtml(game)}
                         </div>
-                        ${game.betting_recommendations && (game.betting_recommendations.value_bets || game.betting_recommendations.recommendations) ? createBettingRecommendationsHtml(game.betting_recommendations, game.away_team, game.home_team) : ''}
+                        ${game.betting_recommendations ? createBettingRecommendationsHtml(game.betting_recommendations, game.away_team, game.home_team) : ''}
                         ${bettingLinesHtml}
                     </div>
                 </div>
@@ -2256,7 +2267,7 @@
         }
 
         function createBettingRecommendationsHtml(bettingRecs, awayTeam, homeTeam) {
-            if (!bettingRecs || (!bettingRecs.value_bets && !bettingRecs.recommendations)) {
+            if (!bettingRecs) {
                 return '';
             }
 
@@ -2333,9 +2344,10 @@
             }
 
             // If no value bets found
-            if ((!bettingRecs.value_bets || bettingRecs.value_bets.length === 0) && 
-                (!bettingRecs.recommendations || bettingRecs.recommendations.every(r => r.includes("No significant")))) {
-                html += '<div class="no-value-bet">💡 No significant value bets identified - consider live betting opportunities</div>';
+            const noValueBets = (!bettingRecs.value_bets || bettingRecs.value_bets.length === 0);
+            const noLegacy = (!bettingRecs.recommendations || bettingRecs.recommendations.every(r => r.includes("No significant")));
+            if (noValueBets && noLegacy) {
+                html += '<div class="no-value-bet">💡 No strong value bets identified for this game yet. Lines or projections may still be updating.</div>';
             }
 
             // Add best bet highlight if available
