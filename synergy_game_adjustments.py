@@ -120,7 +120,9 @@ def build_game_synergy(date_str: str):
     if not pred_doc:
         return None
     games = extract_games_for_date(pred_doc, date_str)
-    dist_path = os.path.join(DIST_DIR, f'pitcher_prop_distributions_{date_str.replace('-', '_')}.json')
+    # Build distribution path with a precomputed date tag to avoid complex expressions in f-strings
+    _tag = date_str.replace('-', '_')
+    dist_path = os.path.join(DIST_DIR, f"pitcher_prop_distributions_{_tag}.json")
     dist_doc = load_json(dist_path) or {}
     out_games = {}
     total_deltas = []
@@ -166,7 +168,7 @@ def build_game_synergy(date_str: str):
             'max_win_prob_delta': max_wp_delta
         }
     }
-    path = os.path.join(DIST_DIR, f'pitcher_game_synergy_{date_str.replace('-', '_')}.json')
+    path = os.path.join(DIST_DIR, f"pitcher_game_synergy_{_tag}.json")
     tmp = path + '.tmp'
     os.makedirs(DIST_DIR, exist_ok=True)
     with open(tmp,'w',encoding='utf-8') as f:

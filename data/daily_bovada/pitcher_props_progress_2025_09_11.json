@@ -1,0 +1,136 @@
+{
+  "date": "2025-09-11",
+  "timestamp": "2025-09-11T19:55:34.050194",
+  "iteration": 7,
+  "coverage": {
+    "covered_pitchers": 13,
+    "total_pitchers": 13,
+    "percent": 100.0
+  },
+  "newly_filled_pitchers": [],
+  "all_pitcher_markets": {
+    "mackenzie gore (was)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "ryan weathers (mia)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "cam schlittler (nyy)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "tyler holton (det)": {
+      "markets_with_lines": [
+        "strikeouts"
+      ],
+      "market_count": 1
+    },
+    "gavin williams (cle)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "stephen kolek (kc)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "david peterson (nym)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "jesus luzardo (phi)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "mccade brown (col)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "randy vasquez": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "outs"
+      ],
+      "market_count": 4
+    },
+    "randy vasquez (sd)": {
+      "markets_with_lines": [
+        "walks"
+      ],
+      "market_count": 1
+    },
+    "bryce miller (sea)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "jose soriano (laa)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    }
+  },
+  "all_games_started": false,
+  "active_game_count": 9
+}

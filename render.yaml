@@ -8,6 +8,10 @@ services:
     pythonVersion: "3.11.9"
     buildCommand: bash build.sh
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --timeout 180 --max-requests 1000 --preload
+    disk:
+      name: data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
@@ -19,3 +23,38 @@ services:
         value: "."
       - key: PYTHONUNBUFFERED
         value: "1"
+  - type: worker
+    name: mlb-betting-props-updater
+    env: python
+    region: oregon
+    plan: free
+    runtime: python
+    pythonVersion: "3.11.9"
+    buildCommand: bash build.sh
+    startCommand: python continuous_pitcher_props_updater.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: PYTHONPATH
+        value: "."
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PITCHER_PROPS_POLL_INTERVAL_SEC
+        value: "600"
+      - key: PITCHER_PROPS_FAST_INTERVAL_SEC
+        value: "180"
+      - key: PITCHER_PROPS_MAX_AGE_MIN
+        value: "480"
+      - key: PITCHER_PROPS_MIN_MARKETS
+        value: "1"
+      - key: PITCHER_PROPS_SSE_MAX_EVENTS
+        value: "20"
+      # Optional: enable git syncing of data dir if desired
+      - key: PITCHER_PROPS_AUTO_GIT
+        value: "0"
+      # Optional: secure token to allow worker to push events/files to web app if using cross-process ingest
+      - key: PITCHER_SSE_INGEST_TOKEN
+        generateValue: true
+      # Required for bridge: set to your web service URL (e.g., https://mlb-betting-system.onrender.com)
+      - key: WEB_BASE_URL
+        value: "https://REPLACE_WITH_WEB_URL"

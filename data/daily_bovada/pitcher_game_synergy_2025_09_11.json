@@ -1,0 +1,200 @@
+{
+  "date": "2025-09-11",
+  "built_at": "2025-09-11T19:48:32.562331",
+  "games": {
+    "Pittsburgh Pirates_vs_Baltimore Orioles": {
+      "away_team": "Pittsburgh Pirates",
+      "home_team": "Baltimore Orioles",
+      "away_pitcher": "Johan Oviedo",
+      "home_pitcher": "Cade Povich",
+      "baseline": {
+        "away_win_prob": 0.48,
+        "home_win_prob": 0.52,
+        "predicted_total": 8.6
+      },
+      "adjusted": {
+        "away_win_prob": 0.48,
+        "home_win_prob": 0.52,
+        "predicted_total": 8.85
+      },
+      "deltas": {
+        "away_win_prob": 0.0,
+        "home_win_prob": 0.0,
+        "predicted_total": 0.25
+      }
+    },
+    "Tampa Bay Rays_vs_Chicago White Sox": {
+      "away_team": "Tampa Bay Rays",
+      "home_team": "Chicago White Sox",
+      "away_pitcher": "Ian Seymour",
+      "home_pitcher": "Shane Smith",
+      "baseline": {
+        "away_win_prob": 0.489,
+        "home_win_prob": 0.511,
+        "predicted_total": 10.1
+      },
+      "adjusted": {
+        "away_win_prob": 0.489,
+        "home_win_prob": 0.511,
+        "predicted_total": 10.35
+      },
+      "deltas": {
+        "away_win_prob": 0.0,
+        "home_win_prob": 0.0,
+        "predicted_total": 0.25
+      }
+    },
+    "Houston Astros_vs_Toronto Blue Jays": {
+      "away_team": "Houston Astros",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "Cristian Javier",
+      "home_pitcher": "Kevin Gausman",
+      "baseline": {
+        "away_win_prob": 0.46,
+        "home_win_prob": 0.54,
+        "predicted_total": 10.5
+      },
+      "adjusted": {
+        "away_win_prob": 0.45999999999999996,
+        "home_win_prob": 0.54,
+        "predicted_total": 10.75
+      },
+      "deltas": {
+        "away_win_prob": -0.0,
+        "home_win_prob": 0.0,
+        "predicted_total": 0.25
+      }
+    },
+    "Washington Nationals_vs_Miami Marlins": {
+      "away_team": "Washington Nationals",
+      "home_team": "Miami Marlins",
+      "away_pitcher": "MacKenzie Gore",
+      "home_pitcher": "Ryan Weathers",
+      "baseline": {
+        "away_win_prob": 0.455,
+        "home_win_prob": 0.545,
+        "predicted_total": 7.4
+      },
+      "adjusted": {
+        "away_win_prob": 0.45499999999999996,
+        "home_win_prob": 0.545,
+        "predicted_total": 7.65
+      },
+      "deltas": {
+        "away_win_prob": -0.0,
+        "home_win_prob": 0.0,
+        "predicted_total": 0.25
+      }
+    },
+    "Detroit Tigers_vs_New York Yankees": {
+      "away_team": "Detroit Tigers",
+      "home_team": "New York Yankees",
+      "away_pitcher": "Tyler Holton",
+      "home_pitcher": "Cam Schlittler",
+      "baseline": {
+        "away_win_prob": 0.477,
+        "home_win_prob": 0.523,
+        "predicted_total": 7.6
+      },
+      "adjusted": {
+        "away_win_prob": 0.477,
+        "home_win_prob": 0.523,
+        "predicted_total": 7.85
+      },
+      "deltas": {
+        "away_win_prob": 0.0,
+        "home_win_prob": 0.0,
+        "predicted_total": 0.25
+      }
+    },
+    "Kansas City Royals_vs_Cleveland Guardians": {
+      "away_team": "Kansas City Royals",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": "Stephen Kolek",
+      "home_pitcher": "Gavin Williams",
+      "baseline": {
+        "away_win_prob": 0.487,
+        "home_win_prob": 0.513,
+        "predicted_total": 10.2
+      },
+      "adjusted": {
+        "away_win_prob": 0.487,
+        "home_win_prob": 0.513,
+        "predicted_total": 10.45
+      },
+      "deltas": {
+        "away_win_prob": 0.0,
+        "home_win_prob": 0.0,
+        "predicted_total": 0.25
+      }
+    },
+    "New York Mets_vs_Philadelphia Phillies": {
+      "away_team": "New York Mets",
+      "home_team": "Philadelphia Phillies",
+      "away_pitcher": "David Peterson",
+      "home_pitcher": "Jes\u00fas Luzardo",
+      "baseline": {
+        "away_win_prob": 0.455,
+        "home_win_prob": 0.545,
+        "predicted_total": 10.2
+      },
+      "adjusted": {
+        "away_win_prob": 0.45499999999999996,
+        "home_win_prob": 0.545,
+        "predicted_total": 10.45
+      },
+      "deltas": {
+        "away_win_prob": -0.0,
+        "home_win_prob": 0.0,
+        "predicted_total": 0.25
+      }
+    },
+    "Colorado Rockies_vs_San Diego Padres": {
+      "away_team": "Colorado Rockies",
+      "home_team": "San Diego Padres",
+      "away_pitcher": "McCade Brown",
+      "home_pitcher": "Randy V\u00e1squez",
+      "baseline": {
+        "away_win_prob": 0.376,
+        "home_win_prob": 0.624,
+        "predicted_total": 8.3
+      },
+      "adjusted": {
+        "away_win_prob": 0.376,
+        "home_win_prob": 0.624,
+        "predicted_total": 8.55
+      },
+      "deltas": {
+        "away_win_prob": 0.0,
+        "home_win_prob": 0.0,
+        "predicted_total": 0.25
+      }
+    },
+    "Los Angeles Angels_vs_Seattle Mariners": {
+      "away_team": "Los Angeles Angels",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "Jos\u00e9 Soriano",
+      "home_pitcher": "Bryce Miller",
+      "baseline": {
+        "away_win_prob": 0.429,
+        "home_win_prob": 0.571,
+        "predicted_total": 9.7
+      },
+      "adjusted": {
+        "away_win_prob": 0.42900000000000005,
+        "home_win_prob": 0.571,
+        "predicted_total": 9.95
+      },
+      "deltas": {
+        "away_win_prob": 0.0,
+        "home_win_prob": 0.0,
+        "predicted_total": 0.25
+      }
+    }
+  },
+  "summary": {
+    "games": 9,
+    "avg_total_abs_delta": 0.25,
+    "max_win_prob_delta": 0.0
+  }
+}

@@ -67,6 +67,11 @@ from math import pow
 
 from fetch_bovada_pitcher_props import main as fetch_props_main
 from generate_pitcher_prop_projections import main as generate_props_main
+try:
+    from tools.pitcher_sse_worker_bridge import send_events as bridge_send  # type: ignore
+except Exception:
+    def bridge_send(_events):
+        return False
 
 # Lazy import to avoid circular startup cost if MLB API unavailable briefly
 _live_data_mod = None
@@ -89,7 +94,9 @@ def normalize_pitcher_key(name: str) -> str:
 
 
 def load_props_file(date_str: str) -> Dict[str, Any]:
-    path = os.path.join('data', 'daily_bovada', f'bovada_pitcher_props_{date_str.replace('-', '_')}.json')
+    # Build path using a pre-sanitized date tag to avoid complex expressions inside f-strings
+    date_tag = date_str.replace('-', '_')
+    path = os.path.join('data', 'daily_bovada', f"bovada_pitcher_props_{date_tag}.json")
     if not os.path.exists(path):
         return {}
     try:
@@ -129,7 +136,8 @@ def all_games_started(games) -> bool:
 
 
 def write_progress(date_str: str, progress: Dict[str, Any]):
-    out_path = os.path.join('data', 'daily_bovada', f'pitcher_props_progress_{date_str.replace('-', '_')}.json')
+    tag = date_str.replace('-', '_')
+    out_path = os.path.join('data', 'daily_bovada', f"pitcher_props_progress_{tag}.json")
     tmp_path = out_path + '.tmp'
     try:
         with open(tmp_path, 'w', encoding='utf-8') as f:
@@ -337,7 +345,9 @@ def main():
     previous_lines_snapshot: Dict[str, Dict[str, Dict[str, float]]] = {}
 
     def load_line_history_path(date_str: str) -> str:
-        return os.path.join('data', 'daily_bovada', f'pitcher_prop_line_history_{date_str.replace('-', '_')}.json')
+        # Precompute date tag to keep f-string simple and robust
+        tag = date_str.replace('-', '_')
+        return os.path.join('data', 'daily_bovada', f"pitcher_prop_line_history_{tag}.json")
 
     def append_line_history_events(date_str: str, events: list[dict]):
         if not events:
@@ -454,7 +464,13 @@ def main():
             try:
                 from app import broadcast_pitcher_update  # type: ignore
                 for ev in initial_events:
+                    ev['date'] = date_str
                     broadcast_pitcher_update({'type': 'line_initial', **ev})
+            except Exception:
+                pass
+            # Optional relay to web app for persistence if running cross-process
+            try:
+                _ = bridge_send([{'type':'line_initial', **ev} for ev in initial_events])
             except Exception:
                 pass
         if line_events:
@@ -463,7 +479,13 @@ def main():
             try:
                 from app import broadcast_pitcher_update  # type: ignore
                 for ev in line_events[-sse_burst_limit:]:  # limit burst configurable
+                    ev['date'] = date_str
                     broadcast_pitcher_update({'type': 'line_move', **ev})
+            except Exception:
+                pass
+            # Optional relay to web app for persistence
+            try:
+                _ = bridge_send([{'type':'line_move', **ev} for ev in line_events[-sse_burst_limit:]])
             except Exception:
                 pass
             # Incremental distribution updates for affected pitchers (Phase 2)
@@ -475,7 +497,12 @@ def main():
                     try:
                         from app import broadcast_pitcher_update  # type: ignore
                         for pk, deltas in dist_changes.items():
-                            broadcast_pitcher_update({'type':'distribution_update','pitcher': pk, 'deltas': deltas, 'ts': datetime.utcnow().isoformat()})
+                            payload = {'type':'distribution_update','pitcher': pk, 'deltas': deltas, 'date': date_str, 'ts': datetime.utcnow().isoformat()}
+                            broadcast_pitcher_update(payload)
+                        try:
+                            _ = bridge_send([{'type':'distribution_update','pitcher': pk, 'deltas': deltas, 'date': date_str, 'ts': datetime.utcnow().isoformat()} for pk, deltas in dist_changes.items()])
+                        except Exception:
+                            pass
                     except Exception:
                         pass
             except Exception as _e:
@@ -582,7 +609,16 @@ def main():
 
         # Periodic ingestion & calibration triggers
         if ingest_interval > 0 and iteration % ingest_interval == 0:
+            # Load outcomes locally and also emit to web app for persistence
+            before = len(realized_doc.get('pitcher_market_outcomes', []))
             ingest_completed_game_outcomes(date_str)
+            after = len(realized_doc.get('pitcher_market_outcomes', []))
+            if after > before:
+                new_items = [r for r in realized_doc.get('pitcher_market_outcomes', []) if r.get('date') == date_str][-max(0, after-before):]
+                try:
+                    _ = bridge_send([{'type':'final_outcomes_batch','date': date_str, 'outcomes': new_items}])
+                except Exception:
+                    pass
         if calibration_interval > 0 and iteration % calibration_interval == 0:
             calibration_pass()
         if snapshot_interval > 0 and iteration % snapshot_interval == 0:
