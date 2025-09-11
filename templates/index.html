@@ -1927,6 +1927,12 @@
             }
             const count = (liveStatus.balls != null && liveStatus.strikes != null) ? ` | ${liveStatus.balls}-${liveStatus.strikes}` : '';
             const bases = liveStatus.base_state ? ` | ${liveStatus.base_state}` : '';
+            const outsVal = (liveStatus.outs != null) ? ` | Outs ${liveStatus.outs}` : '';
+            // Optional runner dots
+            const r1 = liveStatus.on_first ? '●' : '○';
+            const r2 = liveStatus.on_second ? '●' : '○';
+            const r3 = liveStatus.on_third ? '●' : '○';
+            const runners = (liveStatus.on_first || liveStatus.on_second || liveStatus.on_third) ? ` | ${r1} ${r2} ${r3}` : '';
             const batter = liveStatus.current_batter ? ` | ${liveStatus.current_batter}` : '';
             
             // Pitcher live stat summary if available
@@ -1942,7 +1948,7 @@
                         <span class="team-score">${liveStatus.away_score ?? 0}</span>
                         ${ak ? `<div style="font-size: 0.72rem; opacity: 0.85; margin-top: 2px;">${ak}</div>` : ''}
                     </div>
-                    <div style="color: #dc3545; font-weight: bold; font-size: 0.9em;">${inningDisplay}${count}${bases}${batter}</div>
+                    <div style="color: #dc3545; font-weight: bold; font-size: 0.9em;">${inningDisplay}${count}${outsVal}${bases}${runners}${batter}</div>
                     <div style="background: ${defaultHomeColors.primary}; color: ${defaultHomeColors.text}; padding: 4px 8px; border-radius: 4px; border: 1px solid ${defaultHomeColors.secondary};">
                         <span class="team-score">${liveStatus.home_score ?? 0}</span>
                         ${hk ? `<div style="font-size: 0.72rem; opacity: 0.85; margin-top: 2px; text-align: right;">${hk}</div>` : ''}

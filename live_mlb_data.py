@@ -345,11 +345,22 @@ class LiveMLBData:
             
             # Parse base state (if linescore has offense info)
             base_state = None
+            outs_in_half = None
+            on_first = False
+            on_second = False
+            on_third = False
             current_batter = None
             count_balls = None
             count_strikes = None
             try:
                 linescore_all = game_data.get('linescore', {}) or game.get('linescore', {})
+                # Outs in current half-inning
+                if isinstance(linescore_all, dict):
+                    try:
+                        outs_in_half = linescore_all.get('outs')
+                    except Exception:
+                        outs_in_half = None
+
                 offense = linescore_all.get('offense', {}) if isinstance(linescore_all, dict) else {}
                 on_first = bool(offense.get('first')) if isinstance(offense.get('first'), (dict, list)) or offense.get('first') else False
                 on_second = bool(offense.get('second')) if isinstance(offense.get('second'), (dict, list)) or offense.get('second') else False
@@ -413,6 +424,10 @@ class LiveMLBData:
                 'inning': inning,
                 'inning_state': inning_state,
                 'base_state': base_state,
+                'outs': outs_in_half,
+                'on_first': on_first,
+                'on_second': on_second,
+                'on_third': on_third,
                 'current_batter': current_batter,
                 'balls': count_balls,
                 'strikes': count_strikes,
