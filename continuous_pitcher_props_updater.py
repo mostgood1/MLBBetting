@@ -460,6 +460,12 @@ def main():
                 generate_props_main()
             except Exception as e:
                 print(f"[PitcherPropsUpdater] Secondary generation error: {e}")
+                # Build pitcher distributions for synergy layer (best-effort)
+                try:
+                    from pitcher_distributions import build_and_save_distributions  # type: ignore
+                    build_and_save_distributions(date_str)
+                except Exception as e:
+                    print(f"[PitcherPropsUpdater] Distribution build error: {e}")
 
             # Optional git commit for remote sync (Render) if enabled
             if AUTO_GIT:

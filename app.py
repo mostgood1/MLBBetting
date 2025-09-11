@@ -3298,6 +3298,44 @@ def api_pitcher_props_model_diagnostics():
         logger.error(f"Error in api_pitcher_props_model_diagnostics: {e}\n{traceback.format_exc()}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/pitcher-game-synergy')
+def api_pitcher_game_synergy():
+    """Placeholder synergy endpoint exposing current pitcher distribution snapshot stats.
+    Future: include deltas vs prior snapshot & impact on game win/total probabilities.
+    """
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        safe = date_str.replace('-', '_')
+        base_dir = os.path.join('data','daily_bovada')
+        path = os.path.join(base_dir, f'pitcher_prop_distributions_{safe}.json')
+        distributions = None
+        if os.path.exists(path):
+            try:
+                with open(path,'r',encoding='utf-8') as f:
+                    distributions = json.load(f)
+            except Exception:
+                distributions = None
+        pitcher_count = 0
+        markets_covered = {}
+        if isinstance(distributions, dict):
+            pts = distributions.get('pitchers') or {}
+            pitcher_count = len(pts)
+            for pk, md in pts.items():
+                if isinstance(md, dict):
+                    for mk in md.keys():
+                        markets_covered[mk] = markets_covered.get(mk,0)+1
+        return jsonify({
+            'success': True,
+            'date': date_str,
+            'pitcher_count': pitcher_count,
+            'markets_covered': markets_covered,
+            'snapshot_present': bool(distributions),
+            'built_at': distributions.get('built_at') if isinstance(distributions, dict) else None
+        })
+    except Exception as e:
+        logger.error(f"Error in api_pitcher_game_synergy: {e}\n{traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/betting-guidance/performance')
 def api_betting_guidance_performance():
     """Historical performance by bet type for betting guidance page"""
