@@ -5349,6 +5349,7 @@ def api_live_status():
                 'current_batter': live_status.get('current_batter'),
                 'balls': live_status.get('balls'),
                 'strikes': live_status.get('strikes'),
+                'last_play': live_status.get('last_play'),
                 'game_pk': live_status.get('game_pk'),
                 # Live pitcher metrics if present in cache
                 'pitching_metrics': {

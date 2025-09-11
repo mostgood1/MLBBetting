@@ -396,6 +396,11 @@ class LiveMLBData:
                     if isinstance(count, dict):
                         count_balls = count.get('balls')
                         count_strikes = count.get('strikes')
+                    # Last play text
+                    result = current_play.get('result', {}) if isinstance(current_play, dict) else {}
+                    last_play_text = None
+                    if isinstance(result, dict):
+                        last_play_text = result.get('description') or result.get('event')
             except Exception as _:
                 pass
 
@@ -431,6 +436,7 @@ class LiveMLBData:
                 'current_batter': current_batter,
                 'balls': count_balls,
                 'strikes': count_strikes,
+                'last_play': last_play_text if 'last_play_text' in locals() else None,
                 'raw_data': game_data
             }
             
