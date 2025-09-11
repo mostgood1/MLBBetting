@@ -1447,16 +1447,9 @@
                     console.warn('⚠️ Could not update prop trackers:', e);
                 }
                 
-                // Remove existing live/final content to prevent duplicates
-                let existingScore = card.querySelector('.live-score');
-                if (existingScore) {
-                    existingScore.remove();
-                }
-                
-                let existingAnalysis = card.querySelector('.final-analysis');
-                if (existingAnalysis) {
-                    existingAnalysis.remove();
-                }
+                // Remove ALL existing live/final content to prevent duplicates
+                card.querySelectorAll('.live-score').forEach(el => el.remove());
+                card.querySelectorAll('.final-analysis').forEach(el => el.remove());
                 
                 const gameHeader = card.querySelector('.game-header');
                 if (liveGame.is_live && (liveGame.away_score != null || liveGame.home_score != null)) {
@@ -1863,8 +1856,7 @@
                                 </div>
                             </div>
                         </div>
-                        ${liveStatus.is_live ? createLiveScoreHtml(liveStatus, awayColors, homeColors) : ''}
-                        ${liveStatus.is_final ? createFinalScoreHtml(liveStatus, game, awayColors, homeColors) : ''}
+                        
                     </div>
                     <div class="card-section">
                         <div class="prediction-summary" id="summary-${game.game_id}">
@@ -1918,7 +1910,7 @@
             `;
         }
 
-        function createLiveScoreHtml(liveStatus, awayColors = null, homeColors = null) {
+    function createLiveScoreHtml(liveStatus, awayColors = null, homeColors = null) {
             // Only hide if scores are truly missing; show 0-0 as valid
             if (liveStatus.away_score == null && liveStatus.home_score == null) {
                 return '';
@@ -1937,14 +1929,23 @@
             const bases = liveStatus.base_state ? ` | ${liveStatus.base_state}` : '';
             const batter = liveStatus.current_batter ? ` | ${liveStatus.current_batter}` : '';
             
+            // Pitcher live stat summary if available
+            const pm = liveStatus.pitching_metrics || {};
+            const ak = pm.away && (pm.away.strikeouts != null || pm.away.outs != null)
+                ? `K ${pm.away.strikeouts ?? '-'} / Outs ${pm.away.outs ?? '-'}` : '';
+            const hk = pm.home && (pm.home.strikeouts != null || pm.home.outs != null)
+                ? `K ${pm.home.strikeouts ?? '-'} / Outs ${pm.home.outs ?? '-'}` : '';
+
             return `
                 <div class="live-score">
                     <div style="background: ${defaultAwayColors.primary}; color: ${defaultAwayColors.text}; padding: 4px 8px; border-radius: 4px; border: 1px solid ${defaultAwayColors.secondary};">
                         <span class="team-score">${liveStatus.away_score ?? 0}</span>
+                        ${ak ? `<div style="font-size: 0.72rem; opacity: 0.85; margin-top: 2px;">${ak}</div>` : ''}
                     </div>
                     <div style="color: #dc3545; font-weight: bold; font-size: 0.9em;">${inningDisplay}${count}${bases}${batter}</div>
                     <div style="background: ${defaultHomeColors.primary}; color: ${defaultHomeColors.text}; padding: 4px 8px; border-radius: 4px; border: 1px solid ${defaultHomeColors.secondary};">
                         <span class="team-score">${liveStatus.home_score ?? 0}</span>
+                        ${hk ? `<div style="font-size: 0.72rem; opacity: 0.85; margin-top: 2px; text-align: right;">${hk}</div>` : ''}
                     </div>
                 </div>
             `;
