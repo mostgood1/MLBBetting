@@ -259,6 +259,19 @@ except ImportError as e:
     def get_live_game_status(away_team, home_team): return "Pre-Game"
 
 app = Flask(__name__)
+# Avoid caching delays on critical JSON APIs (Render/CDN/browser)
+@app.after_request
+def _add_no_cache_headers(response):
+    try:
+        p = request.path or ''
+        if p.startswith('/api/pitcher-props'):
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+    except Exception:
+        pass
+    return response
+
 # Initialize response compression if available
 try:
     _compress  # type: ignore[name-defined]
@@ -3678,6 +3691,23 @@ def api_pitcher_props_unified():
     except Exception as e:
         logger.error(f"Error in api_pitcher_props_unified: {e}\n{traceback.format_exc()}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/health/unified-meta')
+def api_health_unified_meta():
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        safe_date = date_str.replace('-', '_')
+        base_dir = os.path.join('data', 'daily_bovada')
+        props_path = os.path.join(base_dir, f'bovada_pitcher_props_{safe_date}.json')
+        last_known_path = os.path.join(base_dir, f'pitcher_last_known_lines_{safe_date}.json')
+        exists_props = os.path.exists(props_path)
+        exists_last = os.path.exists(last_known_path)
+        size_props = os.path.getsize(props_path) if exists_props else 0
+        size_last = os.path.getsize(last_known_path) if exists_last else 0
+        return jsonify({'ok': True, 'date': date_str, 'props_file': props_path, 'props_exists': exists_props, 'props_size': size_props,
+                        'last_known_file': last_known_path, 'last_known_exists': exists_last, 'last_known_size': size_last})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
 
 @app.route('/api/pitcher-game-synergy')
 def api_pitcher_game_synergy():

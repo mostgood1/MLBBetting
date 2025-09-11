@@ -3208,7 +3208,9 @@
                  try {
                      const selDate = document.getElementById('game-date')?.value || '';
                      console.debug('[UNIFIED] fetching unified props for date:', selDate);
-                     const r = await fetch(`/api/pitcher-props/unified${selDate?`?date=${encodeURIComponent(selDate)}`:''}`);
+                     const bust = `t=${Date.now()}`;
+                     const q = selDate?`date=${encodeURIComponent(selDate)}&${bust}`:bust;
+                     const r = await fetch(`/api/pitcher-props/unified?${q}`);
                      if(!r.ok) { console.warn('[UNIFIED] fetch not ok', r.status); return; }
                      const data = await r.json();
                      if(!data.success) { console.warn('[UNIFIED] response not successful', data); return; }
@@ -3267,11 +3269,9 @@
             } catch(e){ console.warn('snapshot patch error', e); }
             finally { setTimeout(snapshotPatch, 300000); } // 5 min
           }
-          document.addEventListener('DOMContentLoaded', ()=>{ startSSE(); snapshotPatch(); });
-          // Kick unified prime slightly after initial load to allow game cards to render
-          setTimeout(()=> primeFromUnified(), 1500);
+          document.addEventListener('DOMContentLoaded', ()=>{ startSSE(); snapshotPatch(); primeFromUnified(); });
           // Periodic refresh every 60s to keep EV / Kelly / lines current
-          setInterval(()=> { primeFromUnified(); }, 60000);
+          setInterval(()=> { primeFromUnified(); }, 30000);
           // === Pitcher Sidebar Rendering ===
           function renderPitcherSidebar(){
              const root = document.getElementById('pitcherSidebarContent');
