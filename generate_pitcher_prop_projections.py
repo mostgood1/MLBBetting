@@ -12,7 +12,7 @@ from typing import Dict, Any, List
 
 DEFAULT_EDGE_THRESHOLD = float(os.environ.get('PITCHER_PROPS_EDGE_THRESHOLD', 0.5))
 DEFAULT_PITCHES_PER_OUT = 5.1
-STD_FACTORS = {  # crude historical dispersion approximations
+STD_FACTORS = {  # crude historical dispersion approximations; may be overridden by calibration
     'strikeouts': 1.2,
     'outs': 2.0,
     'hits_allowed': 1.5,
@@ -23,6 +23,7 @@ KELLY_CAP = float(os.environ.get('PITCHER_PROPS_KELLY_CAP', 0.1))  # 10% default
 OPPONENT_FACTORS_FILE = os.path.join('data', 'enhanced_features.json')
 VOLATILITY_FILE = os.path.join('data', 'daily_bovada', 'pitcher_prop_volatility.json')
 REALIZED_RESULTS_FILE = os.path.join('data', 'daily_bovada', 'pitcher_prop_realized_results.json')
+CALIBRATION_FILE = os.path.join('data','daily_bovada','pitcher_prop_calibration_meta.json')
 
 def normalize_name(name: str) -> str:
     try:
@@ -119,7 +120,7 @@ def dynamic_std(market: str, pitcher_key: str, base: float) -> float:
     return base
 
 def over_probability(proj: float, line: float, market: str, pitcher_key: str = ''):
-    base = STD_FACTORS.get(market, 1.5)
+    base = CALIB_OVERRIDES.get(market) or STD_FACTORS.get(market, 1.5)
     std = dynamic_std(market, pitcher_key, base)
     return 1 - normal_cdf((line - proj)/std)
 
@@ -179,6 +180,9 @@ def load_opponent_context():
             games = int(meta.get('games_played', 0) or 0)
             # Derive rough offensive strength scalar: >1500 => tougher matchup
             strength = (elo - 1500)/400.0  # ~ +/-1.25 at extremes
+            recent_form = float(meta.get('recent_form', 0) or 0)
+            # Decay: recent_form modifies strength modestly
+            strength += (recent_form/100.0)*0.15
             ctx[team.lower().replace('_',' ')] = {
                 'elo': elo,
                 'games': games,
@@ -188,6 +192,16 @@ def load_opponent_context():
             continue
     return ctx
 
+def load_calibration_overrides():
+    meta = load_json(CALIBRATION_FILE) or {}
+    mk = meta.get('markets', {}) if isinstance(meta, dict) else {}
+    overrides = {}
+    for m, info in mk.items():
+        if isinstance(info, dict) and 'suggested_std' in info:
+            overrides[m] = info['suggested_std']
+    return overrides
+
+CALIB_OVERRIDES = load_calibration_overrides()
 OPP_CONTEXT = load_opponent_context()
 
 def main():
@@ -219,10 +233,9 @@ def main():
 
     for p_key, markets in pitcher_props.items():
         st = by_name.get(p_key, {})
-        # Determine opponent for adjustment
-        opponent = team_info.get('opponent') if p_key in team_map else team_map.get(p_key, {}).get('opponent')
-        proj = project_pitcher(p_key, st, opponent)
         team_info = team_map.get(p_key, {'team': None, 'opponent': None})
+        opponent = team_info.get('opponent')
+        proj = project_pitcher(p_key, st, opponent)
         plays = []
         for market_key in ['strikeouts', 'outs', 'hits_allowed', 'walks', 'earned_runs']:
             mkt = markets.get(market_key)

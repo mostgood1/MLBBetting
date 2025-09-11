@@ -37,6 +37,7 @@ import json
 import time
 import traceback
 import subprocess
+import gzip
 from datetime import datetime, timedelta
 from typing import Dict, Any, Tuple
 from math import pow
@@ -116,6 +117,9 @@ def write_progress(date_str: str, progress: Dict[str, Any]):
 
 
 VOLATILITY_FILE = os.path.join('data','daily_bovada','pitcher_prop_volatility.json')
+REALIZED_RESULTS_FILE = os.path.join('data','daily_bovada','pitcher_prop_realized_results.json')
+CALIBRATION_FILE = os.path.join('data','daily_bovada','pitcher_prop_calibration_meta.json')
+INTRADAY_SNAP_DIR = os.path.join('data','daily_bovada','intraday_snapshots')
 
 def load_volatility_doc():
     if os.path.exists(VOLATILITY_FILE):
@@ -138,6 +142,158 @@ def save_volatility_doc(doc):
         pass
 
 vol_doc = load_volatility_doc()
+
+def load_realized_results():
+    if os.path.exists(REALIZED_RESULTS_FILE):
+        try:
+            with open(REALIZED_RESULTS_FILE,'r',encoding='utf-8') as f:
+                d=json.load(f)
+            if isinstance(d, dict):
+                return d
+        except Exception:
+            pass
+    return {'games': [], 'pitcher_market_outcomes': []}
+
+def save_realized_results(doc):
+    tmp = REALIZED_RESULTS_FILE + '.tmp'
+    try:
+        with open(tmp,'w',encoding='utf-8') as f:
+            json.dump(doc,f,indent=2)
+        os.replace(tmp, REALIZED_RESULTS_FILE)
+    except Exception:
+        pass
+
+realized_doc = load_realized_results()
+
+def ingest_completed_game_outcomes(date_str: str):
+    """Ingest completed game pitcher outcomes (outs, strikeouts, walks, ER, hits) when available.
+    Expects a file data/games_<date>.json with final stats or an extended live feed structure.
+    Appends to realized_doc if not already present.
+    """
+    games_path = os.path.join('data', f'games_{date_str}.json')
+    if not os.path.exists(games_path):
+        return
+    try:
+        with open(games_path,'r',encoding='utf-8') as f:
+            gdata = json.load(f)
+    except Exception:
+        return
+    iterable = []
+    if isinstance(gdata, list):
+        iterable = gdata
+    elif isinstance(gdata, dict):
+        if 'games' in gdata and isinstance(gdata['games'], list):
+            iterable = gdata['games']
+        elif 'games' in gdata and isinstance(gdata['games'], dict):
+            iterable = list(gdata['games'].values())
+    new_events = 0
+    for g in iterable:
+        status = (g.get('status') or '').lower()
+        if status not in ('final', 'completed'):  # skip unfinished
+            continue
+        for side in ('away','home'):
+            p_name = g.get(f'{side}_pitcher') or g.get('pitcher_info',{}).get(f'{side}_pitcher_name')
+            if not p_name:
+                continue
+            key = p_name.lower().strip()
+            # Expect basic stat fields
+            line_stats = g.get('pitcher_stats',{}).get(key) or {}
+            # fallback direct keys
+            k = line_stats.get('strikeouts') or g.get(f'{side}_pitcher_strikeouts')
+            outs = line_stats.get('outs_recorded') or g.get(f'{side}_pitcher_outs')
+            er = line_stats.get('earned_runs') or g.get(f'{side}_pitcher_er')
+            walks = line_stats.get('walks') or g.get(f'{side}_pitcher_walks')
+            hits = line_stats.get('hits_allowed') or g.get(f'{side}_pitcher_hits')
+            if outs is None and k is None:
+                continue
+            outcome_entry = {
+                'date': date_str,
+                'pitcher': key,
+                'markets': {
+                    'strikeouts': k,
+                    'outs': outs,
+                    'earned_runs': er,
+                    'walks': walks,
+                    'hits_allowed': hits
+                }
+            }
+            # de-dup
+            if not any(r.get('pitcher')==key and r.get('date')==date_str for r in realized_doc['pitcher_market_outcomes']):
+                realized_doc['pitcher_market_outcomes'].append(outcome_entry)
+                new_events += 1
+    if new_events:
+        save_realized_results(realized_doc)
+
+def calibration_pass():
+    """Adjust baseline STD_FACTORS in calibration meta file based on historical prediction accuracy vs. realized outcomes.
+    For each market: compute absolute error distribution from projections stored in recommendation files vs. realized.
+    """
+    try:
+        meta = {'updated_at': datetime.utcnow().isoformat(), 'markets': {}}
+        # Aggregate errors
+        # Scan recommendation files (recent 30 days)
+        rec_files = sorted([f for f in os.listdir(os.path.join('data','daily_bovada')) if f.startswith('pitcher_prop_recommendations_')])[-30:]
+        errors = {}
+        for rf in rec_files:
+            try:
+                with open(os.path.join('data','daily_bovada', rf),'r',encoding='utf-8') as f:
+                    rec = json.load(f)
+                recs = rec.get('recommendations', [])
+                date_tag = rec.get('date') or rf.split('recommendations_')[-1].split('.json')[0]
+                # Build realized lookup per pitcher/date
+                realized_map = {(r['pitcher'], r['date']): r for r in realized_doc.get('pitcher_market_outcomes', [])}
+                for r in recs:
+                    pitcher = r.get('pitcher')
+                    key = (pitcher, date_tag)
+                    realized_entry = realized_map.get(key)
+                    if not realized_entry:
+                        continue
+                    proj = r.get('projections', {})
+                    for mkt, proj_val in proj.items():
+                        if mkt not in ('strikeouts','outs','earned_runs','walks','hits_allowed'):
+                            continue
+                        realized_val = realized_entry['markets'].get(mkt)
+                        if realized_val is None:
+                            continue
+                        try:
+                            err = abs(float(proj_val) - float(realized_val))
+                        except Exception:
+                            continue
+                        errors.setdefault(mkt, []).append(err)
+            except Exception:
+                continue
+        for mkt, arr in errors.items():
+            if not arr:
+                continue
+            avg_err = sum(arr)/len(arr)
+            # Map average error to target std suggestion (heuristic): target std ~ avg_err * 1.25
+            target_std = max(0.4, min(3.5, avg_err * 1.25))
+            meta['markets'][mkt] = {'avg_abs_error': round(avg_err,3), 'suggested_std': target_std, 'sample_size': len(arr)}
+        # Persist calibration suggestions
+        tmp = CALIBRATION_FILE + '.tmp'
+        with open(tmp,'w',encoding='utf-8') as f:
+            json.dump(meta,f,indent=2)
+        os.replace(tmp, CALIBRATION_FILE)
+        return True
+    except Exception:
+        return False
+
+def snapshot_intraday(date_str: str, iteration: int, summary: dict):
+    try:
+        os.makedirs(INTRADAY_SNAP_DIR, exist_ok=True)
+        snap = {
+            'date': date_str,
+            'iteration': iteration,
+            'ts': datetime.utcnow().isoformat(),
+            'coverage_pct': summary.get('coverage',{}).get('percent'),
+            'pitcher_count': summary.get('coverage',{}).get('total_pitchers')
+        }
+        raw = json.dumps(snap).encode('utf-8')
+        path = os.path.join(INTRADAY_SNAP_DIR, f'snap_{date_str}_{iteration}.json.gz')
+        with gzip.open(path,'wb') as gz:
+            gz.write(raw)
+    except Exception:
+        pass
 
 
 def main():
@@ -336,6 +492,14 @@ def main():
         write_progress(date_str, progress_doc)
 
         previous_summary = summary
+
+        # Periodic ingestion & calibration triggers
+        if iteration % 5 == 0:  # every 5 loops attempt ingestion of completed games
+            ingest_completed_game_outcomes(date_str)
+        if iteration % 20 == 0:  # occasional calibration
+            calibration_pass()
+
+        snapshot_intraday(date_str, iteration, progress_doc)
 
         # Adaptive interval: if coverage < 50% use fast interval
         target_sleep = fast_interval if pct < 50.0 else poll_interval
