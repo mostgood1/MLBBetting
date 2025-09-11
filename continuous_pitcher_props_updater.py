@@ -303,6 +303,10 @@ def main():
     fast_interval = int(os.environ.get('PITCHER_PROPS_FAST_INTERVAL_SEC', 180))
     max_age_min = int(os.environ.get('PITCHER_PROPS_MAX_AGE_MIN', 480))
     min_markets = int(os.environ.get('PITCHER_PROPS_MIN_MARKETS', 1))
+    ingest_interval = int(os.environ.get('PITCHER_PROPS_INGEST_INTERVAL', 5))
+    calibration_interval = int(os.environ.get('PITCHER_PROPS_CALIBRATION_INTERVAL', 20))
+    snapshot_interval = int(os.environ.get('PITCHER_PROPS_SNAPSHOT_INTERVAL', 3))
+    sse_burst_limit = int(os.environ.get('PITCHER_PROPS_SSE_MAX_EVENTS', 20))
 
     start_time = datetime.utcnow()
     last_fetch_time = None
@@ -417,7 +421,7 @@ def main():
             # Attempt live broadcast for recent events (non-fatal if unavailable)
             try:
                 from app import broadcast_pitcher_update  # type: ignore
-                for ev in line_events[-20:]:  # limit burst
+                for ev in line_events[-sse_burst_limit:]:  # limit burst configurable
                     broadcast_pitcher_update({'type': 'line_move', **ev})
             except Exception:
                 pass
@@ -431,8 +435,7 @@ def main():
                     continue
                 delta = float(new_line) - float(old_line)
                 rec = vol_doc.setdefault(pk, {}).setdefault(mk, {'var': 0.5, 'updates': 0})
-                # Exponential weighting
-                alpha = 0.2
+                alpha = 0.2  # smoothing factor
                 rec['var'] = (1-alpha)*rec['var'] + alpha*(delta*delta)
                 rec['updates'] = rec.get('updates',0) + 1
             save_volatility_doc(vol_doc)
@@ -494,12 +497,12 @@ def main():
         previous_summary = summary
 
         # Periodic ingestion & calibration triggers
-        if iteration % 5 == 0:  # every 5 loops attempt ingestion of completed games
+        if ingest_interval > 0 and iteration % ingest_interval == 0:
             ingest_completed_game_outcomes(date_str)
-        if iteration % 20 == 0:  # occasional calibration
+        if calibration_interval > 0 and iteration % calibration_interval == 0:
             calibration_pass()
-
-        snapshot_intraday(date_str, iteration, progress_doc)
+        if snapshot_interval > 0 and iteration % snapshot_interval == 0:
+            snapshot_intraday(date_str, iteration, progress_doc)
 
         # Adaptive interval: if coverage < 50% use fast interval
         target_sleep = fast_interval if pct < 50.0 else poll_interval
