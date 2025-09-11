@@ -436,8 +436,14 @@ class LiveMLBData:
                     if isinstance(result, dict):
                         last_play_text = result.get('description') or result.get('event')
 
-                # Fallback: schedule hydrate often omits liveData; fetch feed/live only for in-progress games
-                if status_code in ['I', 'IH', 'IT', 'IR'] and (count_balls is None or count_strikes is None or current_batter is None or last_play_text is None):
+                # Fallback: schedule hydrate often omits liveData; fetch feed/live when game appears in progress
+                # Be more permissive: trigger if marked live OR we have inning/outs evidence the game is underway
+                is_apparently_live = (
+                    (status_code in ['I', 'IH', 'IT', 'IR']) or
+                    bool(inning) or
+                    (outs_in_half is not None and outs_in_half >= 0)
+                )
+                if is_apparently_live and (count_balls is None or count_strikes is None or current_batter is None or last_play_text is None):
                     game_pk = game.get('gamePk')
                     feed = self._get_feed_live(game_pk)
                     try:
