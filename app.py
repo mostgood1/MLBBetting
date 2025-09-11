@@ -4703,19 +4703,15 @@ def api_today_games():
             from app_betting_integration import get_app_betting_recommendations
             try:
                 raw_unified_recs, _ = get_app_betting_recommendations()
-                logger.info(f"DEBUG: get_app_betting_recommendations returned type: {type(raw_unified_recs)}")
-                logger.info(f"DEBUG: get_app_betting_recommendations keys: {list(raw_unified_recs.keys())}")
-                print("DEBUG: get_app_betting_recommendations output:", raw_unified_recs)
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(f"get_app_betting_recommendations returned type: {type(raw_unified_recs)}")
+                    logger.debug(f"get_app_betting_recommendations keys sample: {list(raw_unified_recs.keys())[:5] if hasattr(raw_unified_recs, 'keys') else 'N/A'}")
             except Exception as inner_e:
                 logger.error(f"❌ Error inside get_app_betting_recommendations: {inner_e}")
                 logger.error(f"❌ Traceback: {traceback.format_exc()}")
-                print("DEBUG: get_app_betting_recommendations error:", inner_e)
                 raw_unified_recs = {}
             unified_betting_recommendations = raw_unified_recs
-            logger.info(f"🔍 UNIFIED BETTING RECOMMENDATIONS LOADED: type={type(unified_betting_recommendations)}, length={len(unified_betting_recommendations) if hasattr(unified_betting_recommendations, 'keys') else 'N/A'}")
-            logger.info(f"🔍 UNIFIED BETTING RECOMMENDATIONS CONTENTS: {unified_betting_recommendations}")
-            logger.info(f"✅ Loaded {len(unified_betting_recommendations)} games with unified betting recommendations")
-            print("DEBUG: Unified betting recommendations loaded:", unified_betting_recommendations)
+            logger.info(f"✅ Loaded unified betting recommendations for {len(unified_betting_recommendations) if hasattr(unified_betting_recommendations, 'keys') else 0} games")
         except Exception as e:
             logger.error(f"❌ Failed to load unified betting recommendations: {e}")
             logger.error(f"❌ Traceback: {traceback.format_exc()}")
@@ -4842,6 +4838,17 @@ def api_today_games():
             logger.warning(f"⚠️ Could not check for doubleheaders: {e}")
         
         logger.info(f"Final game count after doubleheader check: {len(games_dict)}")
+
+        # Build a fast lookup map for live status to avoid per-game API calls
+        live_status_map = {}
+        try:
+            for lg in live_games:
+                a = normalize_team_name(lg.get('away_team', ''))
+                h = normalize_team_name(lg.get('home_team', ''))
+                if a and h:
+                    live_status_map[(a, h)] = lg
+        except Exception:
+            live_status_map = {}
         
         # Load pitcher projections helpers for PPO/pitch count surfacing
         try:
@@ -5012,10 +5019,8 @@ def api_today_games():
                     away_pitcher = "Wandy Peralta"
                     logger.info(f"🎯 FIXED: Overrode TBD to Wandy Peralta for Padres game")
             
-            # Get live status for proper game categorization
-            # This is essential for showing completed games in the completed section
-            # Use timeout wrapper to prevent API hanging
-            live_status_data = get_live_status_with_timeout(away_team, home_team, date_param) or {'status': 'Scheduled', 'is_final': False, 'is_live': False}
+            # Get live status from pre-fetched schedule to avoid per-game API calls
+            live_status_data = live_status_map.get((away_team, home_team)) or {'status': 'Scheduled', 'is_final': False, 'is_live': False}
             
             # CRITICAL FIX: Preserve correct pitcher data for finished/live games
             # Don't let live status override with TBD when we have real pitcher names
