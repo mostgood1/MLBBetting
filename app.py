@@ -4630,6 +4630,19 @@ def api_today_games():
             from live_mlb_data import LiveMLBData
             mlb_api = LiveMLBData()
             live_games = mlb_api.get_enhanced_games_data(date_param)
+            # Build a map of probable pitchers by normalized matchup to fill TBDs later
+            probable_by_matchup = {}
+            try:
+                for lg in live_games:
+                    a = normalize_team_name(lg.get('away_team', ''))
+                    h = normalize_team_name(lg.get('home_team', ''))
+                    if a and h:
+                        probable_by_matchup[(a, h)] = {
+                            'away': lg.get('away_pitcher'),
+                            'home': lg.get('home_pitcher')
+                        }
+            except Exception as _:
+                probable_by_matchup = {}
             
             # Group live games by team matchup
             live_matchups = {}
@@ -4829,6 +4842,20 @@ def api_today_games():
             pitcher_info = game_data.get('pitcher_info', {})
             away_pitcher = pitcher_info.get('away_pitcher_name', game_data.get('away_pitcher', 'TBD'))
             home_pitcher = pitcher_info.get('home_pitcher_name', game_data.get('home_pitcher', 'TBD'))
+
+            # If we still have TBD, try to fill from schedule probable pitchers map
+            try:
+                norm_key = (normalize_team_name(away_team), normalize_team_name(home_team))
+                pp = probable_by_matchup.get(norm_key)
+                if pp:
+                    if (not away_pitcher or away_pitcher == 'TBD') and pp.get('away') and pp['away'] != 'TBD':
+                        away_pitcher = pp['away']
+                        logger.info(f"🔄 Filled away pitcher from MLB schedule: {away_team} -> {away_pitcher}")
+                    if (not home_pitcher or home_pitcher == 'TBD') and pp.get('home') and pp['home'] != 'TBD':
+                        home_pitcher = pp['home']
+                        logger.info(f"🔄 Filled home pitcher from MLB schedule: {home_team} -> {home_pitcher}")
+            except Exception as _:
+                pass
             
             # Only log pitcher debug for TBD games
             if 'TBD' in f"{away_pitcher} {home_pitcher}":
