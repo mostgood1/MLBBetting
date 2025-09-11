@@ -411,6 +411,12 @@ def main():
 
         props_payload = load_props_file(date_str)
         summary = extract_pitcher_market_summary(props_payload)
+        # Relay full props snapshot to web so the site can serve latest lines (even without git)
+        try:
+            if props_payload:
+                _ = bridge_send([{'type': 'props_snapshot', 'date': date_str, 'doc': props_payload}])
+        except Exception:
+            pass
 
         # Line movement detection (compare each market line & odds)
         line_events = []
@@ -460,6 +466,23 @@ def main():
                 prev_p[mk]['over_odds'] = new_over
                 prev_p[mk]['under_odds'] = new_under
             previous_lines_snapshot[p_key] = prev_p
+
+        # Persist last-known lines snapshot for fallback rendering (even if Bovada delists later)
+        try:
+            tag = date_str.replace('-', '_')
+            lk_path = os.path.join('data','daily_bovada', f"pitcher_last_known_lines_{tag}.json")
+            os.makedirs(os.path.dirname(lk_path), exist_ok=True)
+            doc = {
+                'date': date_str,
+                'updated_at': datetime.utcnow().isoformat(),
+                'pitchers': previous_lines_snapshot
+            }
+            tmp = lk_path + '.tmp'
+            with open(tmp, 'w', encoding='utf-8') as f:
+                json.dump(doc, f, indent=2)
+            os.replace(tmp, lk_path)
+        except Exception as _e:
+            print(f"[PitcherPropsUpdater] last-known save error: {_e}")
         if initial_events:
             try:
                 from app import broadcast_pitcher_update  # type: ignore
@@ -540,6 +563,16 @@ def main():
             # Regenerate recommendations again (ensures updated odds/lines stored)
             try:
                 generate_props_main()
+                # After generation, attempt to send fresh recommendations snapshot to the web
+                try:
+                    tag = date_str.replace('-', '_')
+                    rec_path = os.path.join('data','daily_bovada', f"pitcher_prop_recommendations_{tag}.json")
+                    if os.path.exists(rec_path):
+                        with open(rec_path,'r',encoding='utf-8') as rf:
+                            rec_doc = json.load(rf)
+                        _ = bridge_send([{'type': 'recommendations_snapshot', 'date': date_str, 'doc': rec_doc}])
+                except Exception:
+                    pass
                 # Always rebuild full distributions & game synergy after successful generation
                 try:
                     from pitcher_distributions import build_and_save_distributions  # type: ignore

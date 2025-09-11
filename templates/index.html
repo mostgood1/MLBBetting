@@ -218,30 +218,29 @@
     .pitch-metrics .ppo { color: #aaa; font-size: 0.7rem; }
 
     /* Compact props tracker */
-    .prop-tracker { margin-top: 4px; font-size: 0.76rem; display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); }
-    .prop-tracker .label { opacity: 0.8; font-size: 0.72rem; }
-    .prop-tracker .market { font-weight: 700; letter-spacing: 0.2px; }
-    .prop-tracker .line { opacity: 0.9; }
-    .prop-tracker .progress { font-weight: 700; }
-    .prop-tracker .proj { opacity: 0.9; }
+    .prop-tracker { margin-top: 4px; font-size: 0.76rem; display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color:#fff; }
+    .prop-tracker .label { font-size: 0.72rem; color:#fff; opacity:1; }
+    .prop-tracker .market { font-weight: 700; letter-spacing: 0.2px; color:#fff; }
+    .prop-tracker .line { color:#fff; opacity:1; }
+    .prop-tracker .progress { font-weight: 700; color:#fff; }
+    .prop-tracker .proj { color:#fff; opacity:1; }
     
-        /* Edge strength styling for unified prop trackers */
-        .prop-tracker.edge-strong { box-shadow: 0 0 0 2px #d32f2f inset; }
-        .prop-tracker.edge-medium { box-shadow: 0 0 0 2px #f57c00 inset; }
-        .prop-tracker.edge-small { box-shadow: 0 0 0 2px #fbc02d inset; }
-    .prop-tracker.over.pending { color: #ff6b6b; border-color: rgba(255, 107, 107, 0.35); }
-    .prop-tracker.over.crossed { color: #22c55e; border-color: rgba(34, 197, 94, 0.35); }
-    .prop-tracker.under.pending { color: #22c55e; border-color: rgba(34, 197, 94, 0.35); }
-    .prop-tracker.under.crossed { color: #ff6b6b; border-color: rgba(255, 107, 107, 0.35); }
+        /* Edge strength styling for unified prop trackers (boxed colors) */
+        .prop-tracker.edge-strong { box-shadow: 0 0 0 2px #22c55e inset; }
+        .prop-tracker.edge-medium { box-shadow: 0 0 0 2px #f59e0b inset; }
+        .prop-tracker.edge-small { box-shadow: 0 0 0 2px #3b82f6 inset; }
+    /* Keep text white regardless of state */
+    .prop-tracker.over.pending,
+    .prop-tracker.over.crossed,
+    .prop-tracker.under.pending,
+    .prop-tracker.under.crossed { color:#fff; border-color: rgba(255,255,255,0.12); }
     .prop-tracker .hit-badge { background: #22c55e; color: #0b1c12; padding: 1px 6px; border-radius: 10px; font-size: 0.68rem; font-weight: 800; margin-left: 2px; }
     .prop-tracker .miss-badge { background: #ef4444; color: #1a0b0b; padding: 1px 6px; border-radius: 10px; font-size: 0.68rem; font-weight: 800; margin-left: 2px; }
     .prop-tracker .push-badge { background: #9ca3af; color: #0f172a; padding: 1px 6px; border-radius: 10px; font-size: 0.68rem; font-weight: 800; margin-left: 2px; }
     .prop-trackers { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
     /* Live value + tiny progress bar for readability */
-    .prop-tracker .live { font-weight: 700; font-size: 0.75rem; opacity: 0.95; }
-    .prop-tracker .bar { display: inline-block; width: 70px; height: 4px; background: rgba(255,255,255,0.12); border-radius: 3px; margin-left: 6px; vertical-align: middle; overflow: hidden; }
-    .prop-tracker .bar .fill { height: 100%; width: 0%; background: linear-gradient(90deg, #4fd1c7, #22c55e); }
-    .prop-tracker .bar.over .fill { background: linear-gradient(90deg, #ef4444, #f59e0b); }
+    .prop-tracker .live { font-weight: 700; font-size: 0.75rem; opacity: 0.95; color:#fff; }
+    /* Removed the right-side progress bar to save space */
 
         /* At-bat count chip (balls-strikes) */
         .count-chip {
@@ -736,12 +735,11 @@
     @keyframes flashLine { 0%{background:rgba(255,230,150,0.9);} 50%{background:rgba(255,230,150,0.2);} 100%{background:transparent;} }
     /* edge coloring */
     .edge { margin-left:4px; font-weight:600; }
-    .edge-strong { color:#16a34a; }
-    .edge-medium { color:#2563eb; }
-    .edge-small { color:#555; }
-    .edge-negative { color:#dc2626; }
-    .odds { margin-left:6px; font-size:11px; color:#444; font-weight:500; }
+    /* Keep chip text white even when edge classes are present */
+    .prop-tracker.edge-strong, .prop-tracker.edge-medium, .prop-tracker.edge-small { color:#fff; }
+    .odds { margin-left:6px; font-size:11px; color:#fff; opacity:0.85; font-weight:500; }
     </style>
+    <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="white" stroke="black" stroke-width="4"/><path d="M20,30 C40,50 60,50 80,30" stroke="red" stroke-width="4" fill="none"/><path d="M20,70 C40,50 60,50 80,70" stroke="red" stroke-width="4" fill="none"/></svg>' />
 </head>
 <body>
     <div class="container">
@@ -1371,22 +1369,68 @@
                 const ix = (window.__UNIFIED_NAME_INDEX || {});
                 const backendKey = ix[pk] || pk;
                 const bundle = data[backendKey];
-                if(!bundle) return '<div class="prop-trackers" data-pitcher="'+pk+'"></div>';
+                if(!bundle){
+                    // Unified dataset not ready for this pitcher; attempt minimal render from in-memory line store
+                    const store = (window.__PITCHER_PROP_LINES||{})[pk] || {};
+                    const mkts = Object.keys(store);
+                    if(mkts.length === 0){
+                        return '<div class="prop-trackers" data-pitcher="'+pk+'"></div>';
+                    }
+                    const html = ['<div class="prop-trackers" data-pitcher="'+pk+'">'];
+                    mkts.forEach(mk => {
+                        const lineVal = store[mk];
+                        if(typeof lineVal !== 'number') return;
+                        const id = `prop-${mk}-${side}-${compositeId}`;
+                        html.push(`<div class=\"prop-tracker over\" id=\"${id}\" data-prop-market=\"${mk}\" data-prop-side=\"over\" data-prop-line=\"${lineVal}\" data-pitcher=\"${pk}\">\n                            <span class=\"label\">${mk==='strikeouts'?'K': mk==='hits_allowed'?'H': mk==='earned_runs'?'ER': mk==='walks'?'BB': mk==='outs'?'Outs': mk}</span>\n                            <span class=\"proj\">Proj -</span>\n                            <span class=\"line\">Line ${Number(lineVal).toFixed(1)}</span>\n                            <span class=\"live\" data-live=\"${mk}\">Live: —</span>\n                        </div>`);
+                    });
+                    html.push('</div>');
+                    return html.join('');
+                }
                 let markets = bundle.markets || {};
                 try { console.debug('[PROPS] build for', pitcherName, 'key=', backendKey, 'markets=', Object.keys(markets).length); } catch(_){ }
-                // Fallback: if no enriched markets, synthesize from lines + simple_projection
+                // Fallback: if no enriched markets, synthesize from lines first (even without projections)
                 if(Object.keys(markets).length === 0){
                     const lines = bundle.lines || {};
                     const proj = bundle.simple_projection || {};
                     const synth = {};
+                    let anyLines = false;
                     Object.entries(lines).forEach(([mk, info])=>{
-                        const lineVal = (info && typeof info.line === 'number') ? info.line : null;
-                        const projVal = proj[mk];
-                        if(lineVal!=null && typeof projVal === 'number'){
-                            synth[mk] = { line: lineVal, proj: projVal, edge: projVal - lineVal };
+                        // Prefer bundle line, else try in-memory fallback store (from SSE/snapshot)
+                        let lineVal = (info && typeof info.line === 'number') ? info.line : null;
+                        if(lineVal==null){
+                            try {
+                                const nk = normName(pitcherName);
+                                const storeLine = (window.__PITCHER_PROP_LINES||{})[nk]?.[mk];
+                                if(typeof storeLine === 'number') lineVal = storeLine;
+                            } catch(_){ }
+                        }
+                        if(lineVal != null){
+                            anyLines = true;
+                            const projVal = proj[mk];
+                            const obj = { line: lineVal };
+                            if(typeof projVal === 'number'){
+                                obj.proj = projVal;
+                                obj.edge = projVal - lineVal;
+                            }
+                            synth[mk] = obj;
                         }
                     });
-                    markets = synth;
+                    if(anyLines){
+                        markets = synth;
+                    }
+                }
+                // If still empty (no lines at all), synthesize projection-only markets so cards show props even without lines
+                if(Object.keys(markets).length === 0){
+                    const proj = bundle.simple_projection || {};
+                    const synthProjOnly = {};
+                    ['strikeouts','outs','hits_allowed','walks','earned_runs'].forEach(mk=>{
+                        const projVal = proj[mk];
+                        if(typeof projVal === 'number'){
+                            // No line yet -> show Proj and placeholder line '—'
+                            synthProjOnly[mk] = { line: null, proj: projVal };
+                        }
+                    });
+                    markets = synthProjOnly;
                 }
                 const order = ['strikeouts','outs','hits_allowed','walks','earned_runs'];
                 const html = ['<div class="prop-trackers" data-pitcher="'+pk+'">'];
@@ -1402,15 +1446,23 @@
                     if(edge != null){ if(edge < -0.5) sideStr='under'; }
                     const id = `prop-${mk}-${side}-${compositeId}`;
                     const edgeTxt = edge!=null? ` (${edge.toFixed(1)})` : '';
-                    const probTxt = info.p_over!=null? `p${(info.p_over*100).toFixed(0)}%` : '';
-                    const evTxt = info.ev_over!=null? `EV ${(info.ev_over*100).toFixed(0)}%` : '';
-                    const kTxt = info.kelly_over!=null? `K ${Number(info.kelly_over).toFixed(2)}` : '';
+                    // Simplified: hide probability/EV/Kelly details on cards for readability
                     let edgeClass='';
                     if(edge!=null){ const a=Math.abs(edge); if(a>=1.5) edgeClass='edge-strong'; else if(a>=1.0) edgeClass='edge-medium'; else if(a>=0.5) edgeClass='edge-small'; }
                     const oddsTxt = (info.over_odds||info.under_odds)? `<div class=\"odds\" style=\"font-size:10px;opacity:0.75;\">O ${info.over_odds||''} / U ${info.under_odds||''}</div>`: '';
-                    const metaLine = [probTxt, evTxt, kTxt].filter(Boolean).join(' • ');
-                    html.push(`<div class=\"prop-tracker ${sideStr} ${edgeClass}\" id=\"${id}\" data-prop-market=\"${mk}\" data-prop-side=\"${sideStr}\" data-prop-line=\"${lineVal != null ? lineVal : ''}\" data-pitcher=\"${pk}\">\n                        <span class=\"label\">${mk==='strikeouts'?'K': mk==='hits_allowed'?'H': mk==='earned_runs'?'ER': mk==='walks'?'BB': mk==='outs'?'Outs': mk}</span>\n                        <span class=\"proj\">Proj ${projVal!=null?Number(projVal).toFixed(1):'-'}${edgeTxt}</span>\n                        <span class=\"line\">Line ${lineVal!=null?Number(lineVal).toFixed(1):'—'}</span>\n                        ${metaLine ? `<span class=\"progress\" style=\"font-size:10px;\">${metaLine}</span>` : ''}\n                        <span class=\"live\" data-live=\"${mk}\">Live: —</span><span class=\"bar\"><span class=\"fill\"></span></span>\n                        ${oddsTxt}\n                    </div>`);
+                    html.push(`<div class=\"prop-tracker ${sideStr} ${edgeClass}\" id=\"${id}\" data-prop-market=\"${mk}\" data-prop-side=\"${sideStr}\" data-prop-line=\"${lineVal != null ? lineVal : ''}\" data-pitcher=\"${pk}\">\n                        <span class=\"label\">${mk==='strikeouts'?'K': mk==='hits_allowed'?'H': mk==='earned_runs'?'ER': mk==='walks'?'BB': mk==='outs'?'Outs': mk}</span>\n                        <span class=\"proj\">Proj ${projVal!=null?Number(projVal).toFixed(1):'-'}${edgeTxt}</span>\n                        <span class=\"line\">Line ${lineVal!=null?Number(lineVal).toFixed(1):'—'}</span>\n                        <span class=\"live\" data-live=\"${mk}\">Live: —</span>\n                        ${oddsTxt}\n                    </div>`);
                 });
+                // If still nothing rendered, do a minimal lines-only render so live updates can attach
+                if(rendered === 0){
+                    const lines = (bundle.lines || {});
+                    Object.entries(lines).forEach(([mk, info])=>{
+                        const lineVal = (info && typeof info.line === 'number') ? info.line : null;
+                        if(lineVal==null) return;
+                        const id = `prop-${mk}-${side}-${compositeId}`;
+                        html.push(`<div class=\"prop-tracker over\" id=\"${id}\" data-prop-market=\"${mk}\" data-prop-side=\"over\" data-prop-line=\"${lineVal}\" data-pitcher=\"${pk}\">\n                            <span class=\"label\">${mk==='strikeouts'?'K': mk==='hits_allowed'?'H': mk==='earned_runs'?'ER': mk==='walks'?'BB': mk==='outs'?'Outs': mk}</span>\n                            <span class=\"proj\">Proj -</span>\n                            <span class=\"line\">Line ${Number(lineVal).toFixed(1)}</span>\n                            <span class=\"live\" data-live=\"${mk}\">Live: —</span>\n                        </div>`);
+                        rendered++;
+                    });
+                }
                 if(rendered === 0){
                     Object.entries(markets).forEach(([mk, info])=>{
                         const projVal = info.proj;
@@ -1449,6 +1501,17 @@
                     }
                 });
             } catch(e){ console.warn('rebuildAllGameCardPitcherProps failed', e); }
+        }
+
+        // Ensure calls that reference this function don't throw; debounce full rebuild to keep UI snappy
+        let __propsRepaintTimer = null;
+        function forceRepaintPitcherOnCards(_pitcherKey){
+            try {
+                if(__propsRepaintTimer){ clearTimeout(__propsRepaintTimer); }
+                __propsRepaintTimer = setTimeout(()=>{
+                    try { rebuildAllGameCardPitcherProps(); } catch(_){}
+                }, 150);
+            } catch(_) { /* no-op */ }
         }
 
         // Helper: Build "Batter vs Pitcher" string using inning half
@@ -1616,10 +1679,26 @@
                     console.log(`   Adding live score HTML: ${liveScoreHtml}`);
                     gameHeader.insertAdjacentHTML('afterend', liveScoreHtml);
                 } else if (liveGame.is_final && (liveGame.away_score != null || liveGame.home_score != null)) {
-                    // Need to get prediction data for final analysis
-                    const gameId = card.querySelector('[id^="summary-"]').id.replace('summary-', '');
-                    const prediction = { /* We'd need to store this somehow */ };
-                    const finalScoreHtml = createFinalScoreHtml(liveGame, { prediction });
+                    // Use stored full game object if available for prediction context
+                    let fullGame = null;
+                    try {
+                        const idEl = card.querySelector('[id^="summary-"]');
+                        if (idEl) {
+                            const gameId = idEl.id.replace('summary-', '');
+                            fullGame = (window.__GAME_BY_ID || {})[gameId] || null;
+                        }
+                    } catch(_){}
+                    // Fallback minimal object to avoid undefineds
+                    if(!fullGame){
+                        fullGame = {
+                            away_team: liveGame.away_team,
+                            home_team: liveGame.home_team,
+                            predicted_away_score: liveGame.predicted_away_score || 0,
+                            predicted_home_score: liveGame.predicted_home_score || 0,
+                            predicted_total_runs: liveGame.predicted_total_runs || 0
+                        };
+                    }
+                    const finalScoreHtml = createFinalScoreHtml(liveGame, fullGame);
                     gameHeader.insertAdjacentHTML('afterend', finalScoreHtml);
                 }
             } else {
@@ -1627,19 +1706,18 @@
             }
         }
 
-        async function loadSummary() {
+    async function loadSummary() {
             try {
                 const response = await fetch('/api/summary');
                 const data = await response.json();
                 
                 if (data.success) {
-                    const summary = data.summary;
-                    document.getElementById('total-games').textContent = summary.total_games;
-                    document.getElementById('completed-games').textContent = summary.completed_games;
-                    document.getElementById('prediction-accuracy').textContent = 
-                        (summary.prediction_accuracy * 100).toFixed(2) + '%';
-                    document.getElementById('avg-error').textContent = 
-                        summary.avg_score_error.toFixed(2);
+            const summary = data.summary || {};
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            setText('total-games', summary.total_games ?? '');
+            setText('completed-games', summary.completed_games ?? '');
+            setText('prediction-accuracy', (summary.prediction_accuracy != null ? (summary.prediction_accuracy * 100).toFixed(2) + '%' : ''));
+            setText('avg-error', (summary.avg_score_error != null ? Number(summary.avg_score_error).toFixed(2) : ''));
                 }
             } catch (error) {
                 console.error('Error loading summary:', error);
@@ -1662,6 +1740,12 @@
                 
                 if (data.success && data.games.length > 0) {
                     console.log('Processing games...');
+                    
+                    // Build a quick lookup of full games by game_id for later (finals UI)
+                    window.__GAME_BY_ID = window.__GAME_BY_ID || {};
+                    try {
+                        data.games.forEach(g => { if (g && g.game_id != null) window.__GAME_BY_ID[g.game_id] = g; });
+                    } catch(_){ }
                     
                     // Categorize games
                     const liveGames = [];
@@ -3093,11 +3177,10 @@
                                 div.dataset.propLine=lineVal;
                                 div.id = `prop-${mkt}-${side}-${compositeId}`;
                                 const label = (mkt==='strikeouts'?'K': mkt==='hits_allowed'?'H': mkt==='earned_runs'?'ER': mkt==='walks'?'BB': mkt==='outs'?'Outs': mkt);
-                                div.innerHTML = `<span class="label">${label}</span>`+
-                                                `<span class="proj">Proj ?</span>`+
-                                                `<span class="line">Line ${Number(lineVal).toFixed(1)}</span>`+
-                                                ` <span class="live" data-live="${mkt}">Live: —</span>`+
-                                                `<span class="bar"><span class="fill"></span></span>`;
+                                div.innerHTML = `<span class=\"label\">${label}</span>`+
+                                                `<span class=\"proj\">Proj ?</span>`+
+                                                `<span class=\"line\">Line ${Number(lineVal).toFixed(1)}</span>`+
+                                                ` <span class=\"live\" data-live=\"${mkt}\">Live: —</span>`;
                                 container.appendChild(div);
                             });
                         });

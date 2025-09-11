@@ -354,6 +354,41 @@ def main() -> bool:
     if not events:
         logger.warning("No events retrieved; writing empty stub file")
     props = parse_pitcher_props(events)
+    # Merge with today's previously saved props so we don't lose lines once games are in-progress/final
+    # Keep a union of markets seen throughout the day (retain previous when newly fetched is missing)
+    try:
+        if os.path.exists(out_path):
+            with open(out_path, 'r', encoding='utf-8') as f:
+                prev_doc = json.load(f)
+            prev_pitcher_props = prev_doc.get('pitcher_props', {}) if isinstance(prev_doc, dict) else {}
+            if isinstance(prev_pitcher_props, dict) and prev_pitcher_props:
+                merged = dict(props) if isinstance(props, dict) else {}
+                for p_key, prev_markets in prev_pitcher_props.items():
+                    cur_markets = merged.setdefault(p_key, {}) if isinstance(merged, dict) else {}
+                    if not isinstance(cur_markets, dict):
+                        cur_markets = {}
+                        merged[p_key] = cur_markets
+                    if isinstance(prev_markets, dict):
+                        for mkt, prev_info in prev_markets.items():
+                            # If market missing or has no line in the new fetch, retain previous snapshot
+                            take_prev = False
+                            try:
+                                new_info = cur_markets.get(mkt)
+                                if not isinstance(new_info, dict):
+                                    take_prev = True
+                                else:
+                                    if new_info.get('line') is None:
+                                        take_prev = True
+                            except Exception:
+                                take_prev = True
+                            if take_prev and isinstance(prev_info, dict):
+                                # Mark as stale to indicate it originated from an earlier snapshot today
+                                prev_copy = dict(prev_info)
+                                prev_copy.setdefault('_stale', True)
+                                cur_markets[mkt] = prev_copy
+                props = merged
+    except Exception as e:
+        logger.warning(f"Merge with previous props failed: {e}")
     # If we are missing core markets widely (e.g., only walks captured), try enrichment
     have_walks_only = props and all(set(v.keys()) <= {'walks', 'strikeouts_alts'} for v in props.values())
     missing_k = all('strikeouts' not in v for v in props.values()) if props else True

@@ -3232,6 +3232,38 @@ def _process_ingested_event(ev: dict):
             outcomes = ev.get('outcomes') or []
             if isinstance(outcomes, list):
                 _save_realized_results_and_daily(d, outcomes)
+        # Persist full props snapshot so web has the latest lines file (for unified/current endpoints)
+        if et == 'props_snapshot':
+            d = ev.get('date') or datetime.utcnow().strftime('%Y-%m-%d')
+            doc = ev.get('doc') or {}
+            if isinstance(doc, dict):
+                try:
+                    safe = d.replace('-', '_')
+                    base_dir = os.path.join('data', 'daily_bovada')
+                    os.makedirs(base_dir, exist_ok=True)
+                    path = os.path.join(base_dir, f'bovada_pitcher_props_{safe}.json')
+                    tmp = path + '.tmp'
+                    with open(tmp, 'w', encoding='utf-8') as f:
+                        json.dump(doc, f, indent=2)
+                    os.replace(tmp, path)
+                except Exception:
+                    pass
+        # Persist recommendations snapshot (optional, used by unified endpoint for plays/EV context)
+        if et == 'recommendations_snapshot':
+            d = ev.get('date') or datetime.utcnow().strftime('%Y-%m-%d')
+            doc = ev.get('doc') or {}
+            if isinstance(doc, dict):
+                try:
+                    safe = d.replace('-', '_')
+                    base_dir = os.path.join('data', 'daily_bovada')
+                    os.makedirs(base_dir, exist_ok=True)
+                    path = os.path.join(base_dir, f'pitcher_prop_recommendations_{safe}.json')
+                    tmp = path + '.tmp'
+                    with open(tmp, 'w', encoding='utf-8') as f:
+                        json.dump(doc, f, indent=2)
+                    os.replace(tmp, path)
+                except Exception:
+                    pass
     except Exception:
         pass
 
@@ -3416,38 +3448,44 @@ def api_pitcher_props_unified():
     """Unified pitcher props + projections + EV/Kelly in one call (15s cache)."""
     try:
         date_str = request.args.get('date') or get_business_date()
-        safe_date = date_str.replace('-','_')
+        safe_date = date_str.replace('-', '_')
+
         # Cache
         global _UNIFIED_PITCHER_CACHE
         if '_UNIFIED_PITCHER_CACHE' not in globals():
             _UNIFIED_PITCHER_CACHE = {}
         now_ts = time.time()
         cached = _UNIFIED_PITCHER_CACHE.get(date_str)
-        if cached and (now_ts - cached.get('ts',0) < 15):
+        if cached and (now_ts - cached.get('ts', 0) < 15):
             return jsonify(cached['payload'])
 
         from generate_pitcher_prop_projections import project_pitcher, build_team_map, compute_ev, kelly_fraction
 
-        base_dir = os.path.join('data','daily_bovada')
+        base_dir = os.path.join('data', 'daily_bovada')
         props_path = os.path.join(base_dir, f'bovada_pitcher_props_{safe_date}.json')
         rec_path = os.path.join(base_dir, f'pitcher_prop_recommendations_{safe_date}.json')
-        stats_path = os.path.join('data','master_pitcher_stats.json')
+        stats_path = os.path.join('data', 'master_pitcher_stats.json')
         games_path = os.path.join('data', f'games_{date_str}.json')
+        last_known_path = os.path.join(base_dir, f'pitcher_last_known_lines_{safe_date}.json')
 
         def _load_json(path, default):
             if not os.path.exists(path):
                 return default
             try:
-                with open(path,'r',encoding='utf-8') as f:
+                with open(path, 'r', encoding='utf-8') as f:
                     return json.load(f)
             except Exception:
                 return default
 
         props_doc = _load_json(props_path, {})
         pitcher_props = props_doc.get('pitcher_props', {}) if isinstance(props_doc, dict) else {}
+        last_known = _load_json(last_known_path, {})
+        last_known_pitchers = last_known.get('pitchers', {}) if isinstance(last_known, dict) else {}
+
         requested_date = date_str
         source_date = date_str
         source_file = props_path if os.path.exists(props_path) else None
+
         # Fallback: if no props for requested date, choose the most recent available Bovada file
         try:
             if not pitcher_props:
@@ -3467,12 +3505,12 @@ def api_pitcher_props_unified():
                             source_file = fp
                             # Extract date from filename: bovada_pitcher_props_YYYY_MM_DD.json
                             import re
-                            m = re.search(r"bovada_pitcher_props_(\d{4})_(\d{2})_(\d{2})\.json$", fp.replace('\\','/'))
+                            m = re.search(r"bovada_pitcher_props_(\d{4})_(\d{2})_(\d{2})\.json$", fp.replace('\\', '/'))
                             if m:
                                 source_date = f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
                             logger.info(f"[UNIFIED] Using fallback Bovada file: {fp} (source_date={source_date}) for requested {requested_date}")
                             break
-                    except Exception as _e:
+                    except Exception:
                         continue
         except Exception as _e:
             logger.warning(f"[UNIFIED] Fallback search for Bovada props failed: {_e}")
@@ -3489,7 +3527,7 @@ def api_pitcher_props_unified():
 
         stats_by_name = {}
         for _, pdata in (stats_core or {}).items():
-            pname = str(pdata.get('name','')).strip()
+            pname = str(pdata.get('name', '')).strip()
             if pname:
                 stats_by_name[normalize_name(pname)] = pdata
 
@@ -3510,7 +3548,32 @@ def api_pitcher_props_unified():
             opponent = team_info.get('opponent')
             proj = project_pitcher(norm_key, st, opponent) if st else {}
             markets_out = {}
-            for market_key, info in mkts.items():
+
+            # Fill missing lines from last-known snapshot
+            augmented_mkts = dict(mkts)
+            try:
+                lk = last_known_pitchers.get(norm_key, {})
+                if isinstance(lk, dict):
+                    for mk, lk_info in lk.items():
+                        if mk not in augmented_mkts and isinstance(lk_info, dict) and lk_info.get('line') is not None:
+                            augmented_mkts[mk] = {
+                                'line': lk_info.get('line'),
+                                'over_odds': lk_info.get('over_odds'),
+                                'under_odds': lk_info.get('under_odds'),
+                                '_stale': True
+                            }
+                        elif mk in augmented_mkts and isinstance(augmented_mkts.get(mk), dict):
+                            if augmented_mkts[mk].get('line') is None and lk_info.get('line') is not None:
+                                augmented_mkts[mk]['line'] = lk_info.get('line')
+                                if 'over_odds' not in augmented_mkts[mk]:
+                                    augmented_mkts[mk]['over_odds'] = lk_info.get('over_odds')
+                                if 'under_odds' not in augmented_mkts[mk]:
+                                    augmented_mkts[mk]['under_odds'] = lk_info.get('under_odds')
+                                augmented_mkts[mk]['_stale'] = True
+            except Exception:
+                pass
+
+            for market_key, info in augmented_mkts.items():
                 if not isinstance(info, dict):
                     continue
                 line_val = info.get('line')
@@ -3528,23 +3591,23 @@ def api_pitcher_props_unified():
                     if over_odds:
                         k_over = kelly_fraction(p_over, over_odds)
                     if under_odds:
-                        k_under = kelly_fraction(1-p_over, under_odds)
+                        k_under = kelly_fraction(1 - p_over, under_odds)
                 markets_out[market_key] = {
                     'line': line_val,
                     'proj': proj_val,
-                    'edge': round(edge,2),
-                    'p_over': round(p_over,3) if p_over is not None else None,
-                    'ev_over': round(ev_over,3) if ev_over is not None else None,
-                    'ev_under': round(ev_under,3) if ev_under is not None else None,
-                    'kelly_over': round(k_over,4),
-                    'kelly_under': round(k_under,4),
+                    'edge': round(edge, 2),
+                    'p_over': round(p_over, 3) if p_over is not None else None,
+                    'ev_over': round(ev_over, 3) if ev_over is not None else None,
+                    'ev_under': round(ev_under, 3) if ev_under is not None else None,
+                    'kelly_over': round(k_over, 4),
+                    'kelly_under': round(k_under, 4),
                     'over_odds': over_odds,
                     'under_odds': under_odds
                 }
             rec = recs_by_pitcher.get(norm_key)
             merged[norm_key] = {
                 'raw_key': raw_key,
-                'lines': mkts,
+                'lines': augmented_mkts,
                 'simple_projection': proj,
                 'markets': markets_out,
                 'plays': rec.get('plays') if rec else None,
@@ -3554,13 +3617,56 @@ def api_pitcher_props_unified():
                 'pitch_count': proj.get('pitch_count') if proj else None
             }
 
+        # Also include projection-only bundles for pitchers in today's games who have no lines
+        try:
+            def _iter_game_pitchers(gdoc):
+                if isinstance(gdoc, list):
+                    for g in gdoc:
+                        away = (g.get('away_pitcher') or '').strip()
+                        home = (g.get('home_pitcher') or '').strip()
+                        if away:
+                            yield away
+                        if home:
+                            yield home
+                elif isinstance(gdoc, dict):
+                    games = gdoc.get('games') or {}
+                    for _, g in games.items():
+                        away = (g.get('away_pitcher') or '').strip()
+                        home = (g.get('home_pitcher') or '').strip()
+                        if away:
+                            yield away
+                        if home:
+                            yield home
+
+            for pname in _iter_game_pitchers(games_doc):
+                nk = normalize_name(pname)
+                if nk in merged:
+                    continue
+                st = stats_by_name.get(nk, {})
+                team_info = team_map.get(nk, {'team': None, 'opponent': None})
+                opponent = team_info.get('opponent')
+                proj = project_pitcher(nk, st, opponent) if st else {}
+                merged[nk] = {
+                    'raw_key': pname,
+                    'lines': {},
+                    'simple_projection': proj,
+                    'markets': {},
+                    'plays': None,
+                    'team': team_info.get('team'),
+                    'opponent': opponent,
+                    'normalized': nk,
+                    'pitch_count': proj.get('pitch_count') if proj else None
+                }
+        except Exception:
+            pass
+
         payload = {
             'success': True,
             'date': date_str,
             'meta': {
                 'pitchers': len(merged),
                 'generated_at': datetime.utcnow().isoformat(),
-                'markets_total': sum(len(v.get('markets',{})) for v in merged.values()),
+                'markets_total': sum(len(v.get('markets', {})) for v in merged.values()),
                 'requested_date': requested_date,
                 'source_date': source_date,
                 'source_file': source_file
