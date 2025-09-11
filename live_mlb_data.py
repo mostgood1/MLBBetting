@@ -324,12 +324,15 @@ class LiveMLBData:
                 badge_class = 'live'
                 # Add inning info if available - check both locations
                 linescore = game_data.get('linescore', {}) or game.get('linescore', {})
+                is_top_flag = None
                 if linescore:
                     inning = linescore.get('currentInning', '')
                     inning_state = linescore.get('inningState', '')
                     # Fallback: some payloads only include boolean isTopInning
                     if (not inning_state) and isinstance(linescore.get('isTopInning'), bool):
                         inning_state = 'Top' if linescore.get('isTopInning') else 'Bottom'
+                    if isinstance(linescore.get('isTopInning'), bool):
+                        is_top_flag = linescore.get('isTopInning')
                     if inning and inning_state:
                         # Format as "Top 6th" or "Bottom 6th"
                         inning_ordinal = linescore.get('currentInningOrdinal', f"{inning}th")
@@ -431,7 +434,7 @@ class LiveMLBData:
                 'is_final': status_code in ['F', 'FT', 'FR'],
                 'inning': inning,
                 'inning_state': inning_state,
-                'is_top_inning': linescore.get('isTopInning') if isinstance(linescore, dict) else None,
+                'is_top_inning': is_top_flag,
                 'base_state': base_state,
                 'outs': outs_in_half,
                 'on_first': on_first,
