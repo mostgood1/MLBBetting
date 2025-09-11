@@ -3422,7 +3422,14 @@ def api_pitcher_props_unified():
         if cached and (now_ts - cached.get('ts', 0) < 15):
             return jsonify(cached['payload'])
 
-        from generate_pitcher_prop_projections import project_pitcher, build_team_map, compute_ev, kelly_fraction
+        # Try to import heavy projection helpers; if unavailable, we'll degrade gracefully
+        try:
+            from generate_pitcher_prop_projections import project_pitcher, build_team_map, compute_ev, kelly_fraction
+            _proj_available = True
+        except Exception as _imp_err:
+            logger.warning(f"[UNIFIED] Projection module unavailable, serving lines-only payload: {_imp_err}")
+            _proj_available = False
+            project_pitcher = build_team_map = compute_ev = kelly_fraction = None  # type: ignore
 
         base_dir = os.path.join('data', 'daily_bovada')
         props_path = os.path.join(base_dir, f'bovada_pitcher_props_{safe_date}.json')
@@ -3514,7 +3521,7 @@ def api_pitcher_props_unified():
         else:
             stats_core = stats_doc
         games_doc = _load_json(games_path, [])
-        team_map = build_team_map(games_doc)
+        team_map = build_team_map(games_doc) if _proj_available else {}
 
         stats_by_name = {}
         for _, pdata in (stats_core or {}).items():
@@ -3536,8 +3543,8 @@ def api_pitcher_props_unified():
             norm_key = normalize_name(name_only)
             st = stats_by_name.get(norm_key, {})
             team_info = team_map.get(norm_key, {'team': None, 'opponent': None})
-            opponent = team_info.get('opponent')
-            proj = project_pitcher(norm_key, st, opponent) if st else {}
+            opponent = team_info.get('opponent') if _proj_available else None
+            proj = (project_pitcher(norm_key, st, opponent) if (st and _proj_available) else {})
             markets_out = {}
 
             # Fill missing lines from last-known snapshot
@@ -3575,26 +3582,41 @@ def api_pitcher_props_unified():
                     continue
                 over_odds = info.get('over_odds')
                 under_odds = info.get('under_odds')
-                p_over, ev_over, ev_under = compute_ev(proj_val, line_val, market_key, over_odds, under_odds, norm_key)
-                edge = proj_val - line_val
-                k_over = k_under = 0.0
-                if p_over is not None:
-                    if over_odds:
-                        k_over = kelly_fraction(p_over, over_odds)
-                    if under_odds:
-                        k_under = kelly_fraction(1 - p_over, under_odds)
-                markets_out[market_key] = {
-                    'line': line_val,
-                    'proj': proj_val,
-                    'edge': round(edge, 2),
-                    'p_over': round(p_over, 3) if p_over is not None else None,
-                    'ev_over': round(ev_over, 3) if ev_over is not None else None,
-                    'ev_under': round(ev_under, 3) if ev_under is not None else None,
-                    'kelly_over': round(k_over, 4),
-                    'kelly_under': round(k_under, 4),
-                    'over_odds': over_odds,
-                    'under_odds': under_odds
-                }
+                if _proj_available:
+                    p_over, ev_over, ev_under = compute_ev(proj_val, line_val, market_key, over_odds, under_odds, norm_key)
+                    edge = proj_val - line_val
+                    k_over = k_under = 0.0
+                    if p_over is not None:
+                        if over_odds:
+                            k_over = kelly_fraction(p_over, over_odds)
+                        if under_odds:
+                            k_under = kelly_fraction(1 - p_over, under_odds)
+                    markets_out[market_key] = {
+                        'line': line_val,
+                        'proj': proj_val,
+                        'edge': round(edge, 2),
+                        'p_over': round(p_over, 3) if p_over is not None else None,
+                        'ev_over': round(ev_over, 3) if ev_over is not None else None,
+                        'ev_under': round(ev_under, 3) if ev_under is not None else None,
+                        'kelly_over': round(k_over, 4),
+                        'kelly_under': round(k_under, 4),
+                        'over_odds': over_odds,
+                        'under_odds': under_odds
+                    }
+                else:
+                    # Lines-only market payload to avoid breaking UI when projections module missing
+                    markets_out[market_key] = {
+                        'line': line_val,
+                        'proj': proj_val,
+                        'edge': None,
+                        'p_over': None,
+                        'ev_over': None,
+                        'ev_under': None,
+                        'kelly_over': 0.0,
+                        'kelly_under': 0.0,
+                        'over_odds': over_odds,
+                        'under_odds': under_odds
+                    }
             rec = recs_by_pitcher.get(norm_key)
             merged[norm_key] = {
                 'raw_key': raw_key,
@@ -3634,9 +3656,9 @@ def api_pitcher_props_unified():
                 if nk in merged:
                     continue
                 st = stats_by_name.get(nk, {})
-                team_info = team_map.get(nk, {'team': None, 'opponent': None})
-                opponent = team_info.get('opponent')
-                proj = project_pitcher(nk, st, opponent) if st else {}
+                team_info = (team_map.get(nk, {'team': None, 'opponent': None}) if _proj_available else {'team': None, 'opponent': None})
+                opponent = team_info.get('opponent') if _proj_available else None
+                proj = (project_pitcher(nk, st, opponent) if (st and _proj_available) else {})
                 merged[nk] = {
                     'raw_key': pname,
                     'lines': {},
@@ -3668,6 +3690,19 @@ def api_pitcher_props_unified():
         return jsonify(payload)
     except Exception as e:
         logger.error(f"Error in api_pitcher_props_unified: {e}\n{traceback.format_exc()}")
+        # Serve stale cached payload if available to avoid frontend errors
+        try:
+            date_str = request.args.get('date') or get_business_date()
+        except Exception:
+            date_str = get_business_date()
+        try:
+            stale = _UNIFIED_PITCHER_CACHE.get(date_str)
+            if stale and stale.get('payload'):
+                payload = dict(stale['payload'])
+                payload['stale'] = True
+                return jsonify(payload)
+        except Exception:
+            pass
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/health/unified-meta')
@@ -6000,8 +6035,8 @@ def api_live_status():
         else:
             logger.info("📦 live-status cache MISS")
         
-        # Import the live MLB data fetcher
-        from live_mlb_data import live_mlb_data, get_live_game_status
+        # Import the live MLB data fetcher (reuse global instance to leverage caches)
+        from live_mlb_data import live_mlb_data as mlb_api, get_live_game_status
         
         # Load unified cache to get our prediction games
         unified_cache = load_unified_cache()
@@ -6011,8 +6046,7 @@ def api_live_status():
         
         # Check for doubleheaders and add missing games from live data (same logic as today-games API)
         try:
-            from live_mlb_data import LiveMLBData
-            mlb_api = LiveMLBData()
+            # Use global mlb_api instance for schedule/feed caches
             live_games_data = mlb_api.get_enhanced_games_data(date_param)
             # Build fast lookup map for live status by normalized matchup
             live_status_map = {}
@@ -6276,6 +6310,23 @@ def api_live_status():
     
     except Exception as e:
         logger.error(f"Error in API live-status: {e}")
+        # Serve last known payload if available to avoid frontend JSON parse errors
+        try:
+            date_param = request.args.get('date', get_business_date())
+        except Exception:
+            date_param = get_business_date()
+        try:
+            stale = cache_get('live_status', {'date': date_param}, ttl_seconds=3600)
+        except Exception:
+            stale = None
+        if stale:
+            try:
+                stale_payload = dict(stale)
+                stale_payload['stale'] = True
+                stale_payload['success'] = True
+                return jsonify(stale_payload)
+            except Exception:
+                pass
         return jsonify({
             'success': False,
             'games': [],
