@@ -401,6 +401,8 @@ class LiveMLBData:
             current_batter = None
             count_balls = None
             count_strikes = None
+            # Number of pitches in the current plate appearance
+            current_ab_pitches = None
             last_play_text = None
             try:
                 linescore_all = game_data.get('linescore', {}) or game.get('linescore', {})
@@ -446,6 +448,23 @@ class LiveMLBData:
                     if isinstance(count, dict):
                         count_balls = count.get('balls')
                         count_strikes = count.get('strikes')
+                    # Pitch count for the current at-bat from playEvents
+                    try:
+                        events = current_play.get('playEvents') or []
+                        # Count items marked as pitches
+                        if isinstance(events, list):
+                            pc = 0
+                            for ev in events:
+                                try:
+                                    if ev.get('isPitch') is True:
+                                        pc += 1
+                                except Exception:
+                                    # Fallback: some payloads use type: 'pitch'
+                                    if (ev or {}).get('type') == 'pitch':
+                                        pc += 1
+                            current_ab_pitches = pc
+                    except Exception:
+                        pass
                     # Last play text
                     result = current_play.get('result', {}) if isinstance(current_play, dict) else {}
                     if isinstance(result, dict):
@@ -474,6 +493,22 @@ class LiveMLBData:
                             count_balls = count.get('balls')
                         if count_strikes is None:
                             count_strikes = count.get('strikes')
+                        # pitch count for current AB (fallback source)
+                        if current_ab_pitches is None:
+                            try:
+                                events = current_play.get('playEvents') or []
+                                if isinstance(events, list):
+                                    pc = 0
+                                    for ev in events:
+                                        try:
+                                            if ev.get('isPitch') is True:
+                                                pc += 1
+                                        except Exception:
+                                            if (ev or {}).get('type') == 'pitch':
+                                                pc += 1
+                                    current_ab_pitches = pc
+                            except Exception:
+                                pass
                         # last play description
                         result = current_play.get('result') or {}
                         if last_play_text is None and isinstance(result, dict):
@@ -516,6 +551,7 @@ class LiveMLBData:
                 'current_batter': current_batter,
                 'balls': count_balls,
                 'strikes': count_strikes,
+                'pitch_count_ab': current_ab_pitches,
                 'last_play': last_play_text,
                 'raw_data': game_data
             }

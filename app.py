@@ -6247,6 +6247,7 @@ def api_live_status():
                     'current_batter': live_status.get('current_batter'),
                     'balls': live_status.get('balls'),
                     'strikes': live_status.get('strikes'),
+                    'pitch_count_ab': live_status.get('pitch_count_ab'),
                     'last_play': live_status.get('last_play'),
                     'away_pitcher': live_status.get('away_pitcher') or game_data.get('away_pitcher'),
                     'home_pitcher': live_status.get('home_pitcher') or game_data.get('home_pitcher'),

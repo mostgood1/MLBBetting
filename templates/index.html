@@ -1572,10 +1572,11 @@
                             liveGame.home_pitcher,
                             typeof liveGame.is_top_inning === 'boolean' ? liveGame.is_top_inning : undefined
                         );
-                        const countChip = (liveGame.balls != null && liveGame.strikes != null) ? `<span class="count-chip">${liveGame.balls}-${liveGame.strikes}</span>` : '';
+            const countChip = (liveGame.balls != null && liveGame.strikes != null) ? `<span class="count-chip">${liveGame.balls}-${liveGame.strikes}</span>` : '';
+            const pitchAb = (liveGame.pitch_count_ab != null) ? `<span class="count-chip" title="Pitches this AB">${liveGame.pitch_count_ab}p</span>` : '';
                         headerCenter.innerHTML = `
                             <div class="live-header" data-dynamic="header-center">
-                                ${vsLine ? `<div class=\"batter-line\">${vsLine}${countChip ? ` ${countChip}` : ''}</div>` : (liveGame.current_batter ? `<div class=\"batter-line\">${liveGame.current_batter}${countChip ? ` ${countChip}` : ''}</div>` : '')}
+                ${vsLine ? `<div class=\"batter-line\">${vsLine}${countChip ? ` ${countChip}` : ''}${pitchAb ? ` ${pitchAb}` : ''}</div>` : (liveGame.current_batter ? `<div class=\"batter-line\">${liveGame.current_batter}${countChip ? ` ${countChip}` : ''}${pitchAb ? ` ${pitchAb}` : ''}</div>` : '')}
                                 ${liveGame.last_play ? `<div class=\"last-play-line\">${liveGame.last_play}</div>` : ''}
                             </div>
                         `;
@@ -2074,8 +2075,9 @@
                             <div class="live-header" data-dynamic="header-center">
                                 ${(() => {
                                     const countChip = (liveStatus.balls != null && liveStatus.strikes != null) ? `<span class="count-chip">${liveStatus.balls}-${liveStatus.strikes}</span>` : '';
-                                    if (liveVsLine) return `<div class="batter-line">${liveVsLine}${countChip ? ` ${countChip}` : ''}</div>`;
-                                    if (liveStatus.current_batter) return `<div class="batter-line">${liveStatus.current_batter}${countChip ? ` ${countChip}` : ''}</div>`;
+                                    const pitchAb = (liveStatus.pitch_count_ab != null) ? `<span class="count-chip" title="Pitches this AB">${liveStatus.pitch_count_ab}p</span>` : '';
+                                    if (liveVsLine) return `<div class="batter-line">${liveVsLine}${countChip ? ` ${countChip}` : ''}${pitchAb ? ` ${pitchAb}` : ''}</div>`;
+                                    if (liveStatus.current_batter) return `<div class="batter-line">${liveStatus.current_batter}${countChip ? ` ${countChip}` : ''}${pitchAb ? ` ${pitchAb}` : ''}</div>`;
                                     return '';
                                 })()}
 
@@ -2198,6 +2200,7 @@
                 inningDisplay = `${liveStatus.inning_state} ${liveStatus.inning}`;
             }
             const count = (liveStatus.balls != null && liveStatus.strikes != null) ? ` | ${liveStatus.balls}-${liveStatus.strikes}` : '';
+            const pitchAb = (liveStatus.pitch_count_ab != null) ? ` | ${liveStatus.pitch_count_ab}p` : '';
             const bases = liveStatus.base_state ? ` | ${liveStatus.base_state}` : '';
             const outsVal = (liveStatus.outs != null) ? ` | Outs ${liveStatus.outs}` : '';
             // Optional runner dots
@@ -2212,7 +2215,7 @@
                     <div style="background: ${defaultAwayColors.primary}; color: ${defaultAwayColors.text}; padding: 4px 8px; border-radius: 4px; border: 1px solid ${defaultAwayColors.secondary};">
                         <span class="team-score">${liveStatus.away_score ?? 0}</span>
                     </div>
-                    <div style="color: #dc3545; font-weight: bold; font-size: 0.9em;">${inningDisplay}${count}${outsVal}${bases}${runners}${batter}</div>
+                    <div style="color: #dc3545; font-weight: bold; font-size: 0.9em;">${inningDisplay}${count}${pitchAb}${outsVal}${bases}${runners}${batter}</div>
                     ${liveStatus.last_play ? `<div style="grid-column: 1 / -1; font-size: 0.8rem; opacity: 0.9; margin-top: 4px;">Last play: ${liveStatus.last_play}</div>` : ''}
                     <div style="background: ${defaultHomeColors.primary}; color: ${defaultHomeColors.text}; padding: 4px 8px; border-radius: 4px; border: 1px solid ${defaultHomeColors.secondary};">
                         <span class="team-score">${liveStatus.home_score ?? 0}</span>
