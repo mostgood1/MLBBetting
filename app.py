@@ -3148,6 +3148,156 @@ def api_pitcher_props_recap():
             'date': request.args.get('date')
         }), 500
 
+# -------------------------------------------------------------
+# Pitcher Props Line History & Diagnostics / SSE Stream
+# -------------------------------------------------------------
+
+_PITCHER_SSE_SUBSCRIBERS = []  # simple in-memory list of queues (per connection)
+
+def broadcast_pitcher_update(event: dict):
+    """Broadcast a pitcher prop related event to all SSE subscribers.
+    Event should be JSON-serializable. Failures are swallowed (best-effort)."""
+    try:
+        import json as _json
+        dead = []
+        payload = f"data: {_json.dumps(event)}\n\n".encode('utf-8')
+        for q in list(_PITCHER_SSE_SUBSCRIBERS):
+            try:
+                q.put(payload, block=False)
+            except Exception:
+                dead.append(q)
+        if dead:
+            for d in dead:
+                try:
+                    _PITCHER_SSE_SUBSCRIBERS.remove(d)
+                except ValueError:
+                    pass
+    except Exception:
+        pass
+
+@app.route('/api/pitcher-props/stream')
+def api_pitcher_props_stream():
+    """Server-Sent Events stream for real-time pitcher prop line movements / updates.
+    Usage (frontend):
+      const es = new EventSource('/api/pitcher-props/stream');
+      es.onmessage = ev => { const data = JSON.parse(ev.data); ... };
+    """
+    from queue import Queue, Empty
+    from flask import Response
+    q: Queue = Queue(maxsize=1000)
+    _PITCHER_SSE_SUBSCRIBERS.append(q)
+
+    def gen():
+        # Initial hello (client can treat as heartbeat origin)
+        import json as _json
+        yield f"data: {_json.dumps({'type':'sse_hello','ts': datetime.utcnow().isoformat()})}\n\n"
+        while True:
+            try:
+                item = q.get(timeout=30)
+                yield item
+            except Empty:
+                # heartbeat keep-alive
+                yield f"data: {{\"type\": \"heartbeat\", \"ts\": \"{datetime.utcnow().isoformat()}\"}}\n\n"
+            except GeneratorExit:
+                break
+            except Exception:
+                break
+    headers = {'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive'}
+    return Response(gen(), headers=headers)
+
+@app.route('/api/pitcher-props/line-history')
+def api_pitcher_props_line_history():
+    """Return recorded intraday line movement history events for pitcher props.
+    Query params:
+      date (optional) -> defaults to business date.
+      limit (optional int) -> max events to return (default 500).
+    File format written by continuous_pitcher_props_updater.py:
+      data/daily_bovada/pitcher_prop_line_history_<DATE>.json
+      {"date":"YYYY-MM-DD","events":[ {...}, ... ]}
+    """
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        limit = int(request.args.get('limit', '500'))
+        safe_date = date_str.replace('-', '_')
+        path = os.path.join('data','daily_bovada', f'pitcher_prop_line_history_{safe_date}.json')
+        events = []
+        if os.path.exists(path):
+            try:
+                with open(path,'r',encoding='utf-8') as f:
+                    doc = json.load(f)
+                if isinstance(doc, dict) and isinstance(doc.get('events'), list):
+                    events = doc['events'][-limit:]
+            except Exception:
+                pass
+        return jsonify({'success': True, 'date': date_str, 'count': len(events), 'events': events})
+    except Exception as e:
+        logger.error(f"Error in api_pitcher_props_line_history: {e}\n{traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/pitcher-props/model-diagnostics')
+def api_pitcher_props_model_diagnostics():
+    """Return model diagnostics aggregating volatility, calibration, realized outcomes, and recent recommendation coverage.
+    Provides a quick bundle to support frontend dashboards & monitoring.
+    """
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        safe_date = date_str.replace('-', '_')
+        base_dir = os.path.join('data','daily_bovada')
+        def _load(name):
+            path = os.path.join(base_dir, name)
+            if not os.path.exists(path):
+                return None
+            try:
+                with open(path,'r',encoding='utf-8') as f:
+                    return json.load(f)
+            except Exception:
+                return None
+        volatility = _load('pitcher_prop_volatility.json') or {}
+        calibration = _load('pitcher_prop_calibration_meta.json') or {}
+        realized = _load('pitcher_prop_realized_results.json') or {}
+        # Latest recommendations file for coverage stats
+        rec_files = [f for f in os.listdir(base_dir) if f.startswith('pitcher_prop_recommendations_')]
+        rec_files.sort()
+        latest_rec = None
+        if rec_files:
+            try:
+                with open(os.path.join(base_dir, rec_files[-1]), 'r', encoding='utf-8') as f:
+                    latest_rec = json.load(f)
+            except Exception:
+                latest_rec = None
+        coverage = {}
+        if isinstance(latest_rec, dict):
+            props = latest_rec.get('recommendations') or []
+            market_counts = {}
+            for r in props:
+                mk = r.get('market')
+                if mk:
+                    market_counts[mk] = market_counts.get(mk,0)+1
+            coverage = {'total_recommendations': len(props), 'by_market': market_counts}
+        # Line movement recent count
+        line_history_path = os.path.join(base_dir, f'pitcher_prop_line_history_{safe_date}.json')
+        line_event_count = 0
+        if os.path.exists(line_history_path):
+            try:
+                with open(line_history_path,'r',encoding='utf-8') as f:
+                    doc = json.load(f)
+                if isinstance(doc, dict) and isinstance(doc.get('events'), list):
+                    line_event_count = len(doc['events'])
+            except Exception:
+                pass
+        return jsonify({
+            'success': True,
+            'date': date_str,
+            'volatility': volatility,
+            'calibration': calibration,
+            'realized_outcomes': realized,
+            'coverage': coverage,
+            'line_event_count': line_event_count
+        })
+    except Exception as e:
+        logger.error(f"Error in api_pitcher_props_model_diagnostics: {e}\n{traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/betting-guidance/performance')
 def api_betting_guidance_performance():
     """Historical performance by bet type for betting guidance page"""
