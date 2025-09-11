@@ -210,14 +210,18 @@ class LiveMLBData:
     """
     Integration with MLB Stats API for live game data
     """
-    
+
     def __init__(self):
         self.base_url = "https://statsapi.mlb.com/api/v1"
         self.schedule_url = f"{self.base_url}/schedule"
         self.game_url = f"{self.base_url}/game"
         # Tiny in-memory cache for per-game live feed lookups
-        self._feed_cache: Dict[str, Dict] = {}
+        self._feed_cache = {}
         self._feed_cache_ttl = 3  # seconds
+        # Tiny in-memory cache for schedule to avoid repeated slow calls
+        self._schedule_cache = {}
+        self._schedule_cache_ts = {}
+        self._schedule_ttl = 8  # seconds
 
     def _get_feed_live(self, game_pk: str) -> Dict:
         """Fetch /game/{gamePk}/feed/live with a very short TTL cache.
@@ -248,17 +252,28 @@ class LiveMLBData:
             date = datetime.now().strftime('%Y-%m-%d')
             
         try:
-            # Use API call with pitcher and team data hydration
+            # Return cached value if fresh
+            import time as _time
+            ts = self._schedule_cache_ts.get(date, 0)
+            if (date in self._schedule_cache) and (_time.time() - ts < self._schedule_ttl):
+                return self._schedule_cache.get(date, {})
+
+            # Use API call with pitcher and team data hydration (shorter timeout)
             url = f"{self.schedule_url}?sportId=1&date={date}&hydrate=probablePitcher,linescore,team,game(content(summary),tickets)"
-            
-            response = requests.get(url, timeout=10)
+            response = requests.get(url, timeout=5)
             response.raise_for_status()
-            
-            return response.json()
+            data = response.json() or {}
+            # Cache and return
+            self._schedule_cache[date] = data
+            self._schedule_cache_ts[date] = _time.time()
+            return data
             
         except Exception as e:
             # Avoid emojis/non-ASCII to prevent Windows console errors
             logger.warning(f"Error fetching MLB schedule for date {date}: {e}")
+            # Fallback to last cached schedule if available
+            if date in self._schedule_cache:
+                return self._schedule_cache.get(date, {})
             return {}
     
     def get_game_status(self, game_pk: str) -> Dict:

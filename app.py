@@ -264,7 +264,7 @@ app = Flask(__name__)
 def _add_no_cache_headers(response):
     try:
         p = request.path or ''
-        if p.startswith('/api/pitcher-props'):
+        if p.startswith('/api/pitcher-props') or p.startswith('/api/live-status'):
             response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
             response.headers['Pragma'] = 'no-cache'
             response.headers['Expires'] = '0'
@@ -283,6 +283,33 @@ except NameError:
 print("DEBUG: Flask app successfully created - all routes will now register properly")
 
 print("DEBUG: Successfully defined Flask app")
+
+# Warm critical caches shortly after startup to reduce first-hit latency (non-blocking)
+def _warm_caches_async():
+    try:
+        def _worker():
+            try:
+                # tiny delay to ensure server fully initialized
+                time.sleep(1.5)
+                # Warm unified
+                with app.test_request_context(f"/api/pitcher-props/unified?date={get_business_date()}"):
+                    try:
+                        api_pitcher_props_unified()
+                    except Exception:
+                        pass
+                # Warm live-status (will use cached schedule and avoid heavy calls)
+                with app.test_request_context(f"/api/live-status?date={get_business_date()}"):
+                    try:
+                        api_live_status()
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+        threading.Thread(target=_worker, daemon=True).start()
+    except Exception:
+        pass
+
+_warm_caches_async()
 
 # Add a simple test route to verify app is working
 @app.route('/api/test-route')
@@ -6134,7 +6161,11 @@ def api_live_status():
 
                 import requests  # local import to avoid module-wide requirement
                 url = f"https://statsapi.mlb.com/api/v1/game/{game_pk}/boxscore"
-                resp = requests.get(url, timeout=3)
+                # Short timeout and one retry to reduce tail latency
+                try:
+                    resp = requests.get(url, timeout=3)
+                except Exception:
+                    resp = requests.get(url, timeout=3)
                 resp.raise_for_status()
                 data = resp.json()
                 result: Dict[str, Dict[str, Any]] = {}
@@ -6217,7 +6248,10 @@ def api_live_status():
                 live_status = live_status_map.get((normalize_team_name(away_team), normalize_team_name(home_team)), {})
                 if not live_status:
                     # Fallback to timeout-based lookup only if not found (should be rare)
-                    live_status = get_live_status_with_timeout(away_team, home_team, date_param)
+                    try:
+                        live_status = get_live_status_with_timeout(away_team, home_team, date_param)
+                    except Exception:
+                        live_status = {}
                 
                 # Merge with our game data
                 # Try to infer probable/starter names from cache to map live pitches
