@@ -3495,6 +3495,34 @@ def api_pitcher_props_unified():
         last_known = _load_json(last_known_path, {})
         last_known_pitchers = last_known.get('pitchers', {}) if isinstance(last_known, dict) else {}
 
+        # If last-known snapshot is missing but we have current props, synthesize it now.
+        try:
+            if (not last_known_pitchers) and pitcher_props:
+                lk_doc = {'date': date_str, 'updated_at': datetime.utcnow().isoformat(), 'pitchers': {}}
+                for raw_key, mkts in pitcher_props.items():
+                    name_only = raw_key.split('(')[0].strip()
+                    nk = normalize_name(name_only)
+                    out = {}
+                    if isinstance(mkts, dict):
+                        for mk, info in mkts.items():
+                            if isinstance(info, dict) and info.get('line') is not None:
+                                out[mk] = {
+                                    'line': info.get('line'),
+                                    'over_odds': info.get('over_odds'),
+                                    'under_odds': info.get('under_odds')
+                                }
+                    if out:
+                        lk_doc['pitchers'][nk] = out
+                if lk_doc['pitchers']:
+                    os.makedirs(os.path.dirname(last_known_path), exist_ok=True)
+                    tmp = last_known_path + '.tmp'
+                    with open(tmp, 'w', encoding='utf-8') as f:
+                        json.dump(lk_doc, f, indent=2)
+                    os.replace(tmp, last_known_path)
+                    last_known_pitchers = lk_doc['pitchers']
+        except Exception:
+            pass
+
         requested_date = date_str
         source_date = date_str
         source_file = props_path if os.path.exists(props_path) else None
