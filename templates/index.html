@@ -221,6 +221,7 @@
     .prop-tracker .market { font-weight: 700; letter-spacing: 0.2px; }
     .prop-tracker .line { opacity: 0.9; }
     .prop-tracker .progress { font-weight: 700; }
+    .prop-tracker .proj { opacity: 0.9; }
     .prop-tracker.over.pending { color: #ff6b6b; border-color: rgba(255, 107, 107, 0.35); }
     .prop-tracker.over.crossed { color: #22c55e; border-color: rgba(34, 197, 94, 0.35); }
     .prop-tracker.under.pending { color: #22c55e; border-color: rgba(34, 197, 94, 0.35); }
@@ -1317,10 +1318,14 @@
                     }
                     const pendingClass = `${sideStr} pending`;
                     const id = `prop-${m.key}-${side}-${compositeId}`;
+                    const projTxt = (typeof projVal === 'number') ? Number(projVal).toFixed(1) : '-';
+                    const lineTxt = (typeof line === 'number') ? Number(line).toFixed(1) : line;
+                    const edgeTxt = (typeof projVal === 'number' && typeof line === 'number') ? (projVal - line).toFixed(1) : null;
                     html.push(`
                         <div class="prop-tracker ${pendingClass}" id="${id}" data-prop-market="${m.key}" data-prop-side="${sideStr}" data-prop-line="${line}">
                             <span class="label">${m.label}</span>
-                            <span class="line">${line}</span>
+                            <span class="proj">Proj ${projTxt}${edgeTxt !== null ? ` (${edgeTxt})` : ''}</span>
+                            <span class="line">Line ${lineTxt}</span>
                             <span class="progress">${liveVal}</span>
                         </div>
                     `);
