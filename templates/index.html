@@ -1338,6 +1338,21 @@
             }
         }
 
+        // Helper: Build "Batter vs Pitcher" string using inning half
+        function buildBatterVsPitcher(batter, inningState, awayPitcher, homePitcher) {
+            const half = (inningState || '').toLowerCase();
+            let pitcher = '';
+            if (half.startsWith('top')) {
+                pitcher = homePitcher || '';
+            } else if (half.startsWith('bottom')) {
+                pitcher = awayPitcher || '';
+            }
+            if (batter && pitcher) return `${batter} vs ${pitcher}`;
+            if (batter) return `${batter}`;
+            if (pitcher) return `vs ${pitcher}`;
+            return '';
+        }
+
         function updateGameCard(liveGame) {
             // Find the corresponding game card by composite ID using the selected date
             const dateStr = document.getElementById('game-date').value;
@@ -1371,10 +1386,16 @@
                 const headerCenter = card.querySelector('.header-center');
                 if (headerCenter) {
                     if (liveGame.is_live) {
-                        // Replace with dynamic batter + last play
+                        // Replace with dynamic batter vs pitcher + last play
+                        const vsLine = buildBatterVsPitcher(
+                            liveGame.current_batter,
+                            liveGame.inning_state,
+                            liveGame.away_pitcher,
+                            liveGame.home_pitcher
+                        );
                         headerCenter.innerHTML = `
                             <div class="live-header" data-dynamic="header-center">
-                                ${liveGame.current_batter ? `<div class="batter-line">${liveGame.current_batter}</div>` : ''}
+                                ${vsLine ? `<div class="batter-line">${vsLine}</div>` : ''}
                                 ${liveGame.last_play ? `<div class=\"last-play-line\">${liveGame.last_play}</div>` : ''}
                             </div>
                         `;
@@ -1817,6 +1838,14 @@
                 `;
             }
             
+            // Build Batter vs Pitcher line for live header (Top -> home pitcher, Bottom -> away pitcher)
+            const liveVsLine = liveStatus.is_live ? buildBatterVsPitcher(
+                liveStatus.current_batter,
+                liveStatus.inning_state,
+                (liveStatus.away_pitcher || game.away_pitcher),
+                (liveStatus.home_pitcher || game.home_pitcher)
+            ) : '';
+
             card.innerHTML = `
                 <div class="game-header">
                     <div class="header-left game-teams">
@@ -1828,7 +1857,7 @@
                     <div class="header-center">
                         ${liveStatus.is_live ? `
                             <div class="live-header" data-dynamic="header-center">
-                                ${liveStatus.current_batter ? `<div class="batter-line">${liveStatus.current_batter}</div>` : ''}
+                                ${liveVsLine ? `<div class="batter-line">${liveVsLine}</div>` : (liveStatus.current_batter ? `<div class="batter-line">${liveStatus.current_batter}</div>` : '')}
                                 ${liveStatus.last_play ? `<div class=\"last-play-line\">${liveStatus.last_play}</div>` : ''}
                             </div>
                         ` : `
