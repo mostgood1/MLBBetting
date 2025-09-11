@@ -5341,6 +5341,7 @@ def api_live_status():
                 'game_time': live_status.get('game_time', game_data.get('game_time', 'TBD')),
                 'inning': live_status.get('inning', ''),
                 'inning_state': live_status.get('inning_state', ''),
+                'is_top_inning': live_status.get('is_top_inning'),
                 'base_state': live_status.get('base_state'),
                 'outs': live_status.get('outs'),
                 'on_first': live_status.get('on_first'),
@@ -5350,6 +5351,8 @@ def api_live_status():
                 'balls': live_status.get('balls'),
                 'strikes': live_status.get('strikes'),
                 'last_play': live_status.get('last_play'),
+                'away_pitcher': live_status.get('away_pitcher') or game_data.get('away_pitcher'),
+                'home_pitcher': live_status.get('home_pitcher') or game_data.get('home_pitcher'),
                 'game_pk': live_status.get('game_pk'),
                 # Live pitcher metrics if present in cache
                 'pitching_metrics': {

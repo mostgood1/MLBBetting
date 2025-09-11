@@ -1339,17 +1339,25 @@
         }
 
         // Helper: Build "Batter vs Pitcher" string using inning half
-        function buildBatterVsPitcher(batter, inningState, awayPitcher, homePitcher) {
-            const half = (inningState || '').toLowerCase();
+        function buildBatterVsPitcher(batter, inningState, awayPitcher, homePitcher, isTopInning) {
+            let half = (inningState || '').toLowerCase();
+            if (!half && typeof isTopInning === 'boolean') {
+                half = isTopInning ? 'top' : 'bottom';
+            }
             let pitcher = '';
             if (half.startsWith('top')) {
                 pitcher = homePitcher || '';
             } else if (half.startsWith('bottom')) {
                 pitcher = awayPitcher || '';
             }
+            // Primary cases
             if (batter && pitcher) return `${batter} vs ${pitcher}`;
             if (batter) return `${batter}`;
             if (pitcher) return `vs ${pitcher}`;
+            // Fallback: if inning half/batter missing, try show both SPs if present
+            const a = awayPitcher && awayPitcher !== 'TBD' ? awayPitcher : '';
+            const h = homePitcher && homePitcher !== 'TBD' ? homePitcher : '';
+            if (a && h) return `${a} vs ${h}`;
             return '';
         }
 
@@ -1391,7 +1399,8 @@
                             liveGame.current_batter,
                             liveGame.inning_state,
                             liveGame.away_pitcher,
-                            liveGame.home_pitcher
+                            liveGame.home_pitcher,
+                            typeof liveGame.is_top_inning === 'boolean' ? liveGame.is_top_inning : undefined
                         );
                         headerCenter.innerHTML = `
                             <div class="live-header" data-dynamic="header-center">
@@ -1843,7 +1852,8 @@
                 liveStatus.current_batter,
                 liveStatus.inning_state,
                 (liveStatus.away_pitcher || game.away_pitcher),
-                (liveStatus.home_pitcher || game.home_pitcher)
+                (liveStatus.home_pitcher || game.home_pitcher),
+                typeof liveStatus.is_top_inning === 'boolean' ? liveStatus.is_top_inning : undefined
             ) : '';
 
             card.innerHTML = `

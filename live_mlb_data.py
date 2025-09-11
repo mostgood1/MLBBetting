@@ -327,6 +327,9 @@ class LiveMLBData:
                 if linescore:
                     inning = linescore.get('currentInning', '')
                     inning_state = linescore.get('inningState', '')
+                    # Fallback: some payloads only include boolean isTopInning
+                    if (not inning_state) and isinstance(linescore.get('isTopInning'), bool):
+                        inning_state = 'Top' if linescore.get('isTopInning') else 'Bottom'
                     if inning and inning_state:
                         # Format as "Top 6th" or "Bottom 6th"
                         inning_ordinal = linescore.get('currentInningOrdinal', f"{inning}th")
@@ -414,10 +417,10 @@ class LiveMLBData:
                 'game_date': game_date,
                 'away_team': away_team,
                 'home_team': home_team,
-                'away_score': away_score,
-                'home_score': home_score,
                 'away_pitcher': away_pitcher,
                 'home_pitcher': home_pitcher,
+                'away_score': away_score,
+                'home_score': home_score,
                 'away_abbreviation': away_abbreviation,
                 'home_abbreviation': home_abbreviation,
                 'away_team_assets': away_assets,
@@ -428,6 +431,7 @@ class LiveMLBData:
                 'is_final': status_code in ['F', 'FT', 'FR'],
                 'inning': inning,
                 'inning_state': inning_state,
+                'is_top_inning': linescore.get('isTopInning') if isinstance(linescore, dict) else None,
                 'base_state': base_state,
                 'outs': outs_in_half,
                 'on_first': on_first,
