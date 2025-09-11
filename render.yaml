@@ -8,10 +8,9 @@ services:
     pythonVersion: "3.11.9"
     buildCommand: bash build.sh
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --timeout 180 --max-requests 1000 --preload
-    disk:
-      name: data
-      mountPath: /opt/render/project/src/data
-      sizeGB: 1
+  # Note: No persistent disk on web to avoid shadowing repo 'data' folder with empty volume.
+  # The app reads git-tracked daily files immediately after deploy. A separate worker can
+  # maintain a disk if needed for persistence.
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
@@ -57,7 +56,7 @@ services:
         value: "0"
       # Optional: secure token to allow worker to push events/files to web app if using cross-process ingest
       - key: PITCHER_SSE_INGEST_TOKEN
-  value: "REPLACE_WITH_SECURE_TOKEN"
+        value: "REPLACE_WITH_SECURE_TOKEN"
       # Required for bridge: set to your web service URL (e.g., https://mlb-betting-system.onrender.com)
       - key: WEB_BASE_URL
         value: "https://REPLACE_WITH_WEB_URL"
