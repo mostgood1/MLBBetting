@@ -5,10 +5,11 @@ Provides real-time game status, scores, and start times
 
 import requests
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional
 import os
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -214,6 +215,32 @@ class LiveMLBData:
         self.base_url = "https://statsapi.mlb.com/api/v1"
         self.schedule_url = f"{self.base_url}/schedule"
         self.game_url = f"{self.base_url}/game"
+        # Tiny in-memory cache for per-game live feed lookups
+        self._feed_cache: Dict[str, Dict] = {}
+        self._feed_cache_ttl = 3  # seconds
+
+    def _get_feed_live(self, game_pk: str) -> Dict:
+        """Fetch /game/{gamePk}/feed/live with a very short TTL cache.
+        Returns {} on failure.
+        """
+        try:
+            if not game_pk:
+                return {}
+            # Check cache
+            cached = self._feed_cache.get(str(game_pk))
+            now = time.time()
+            if cached and (now - cached.get('_ts', 0)) < self._feed_cache_ttl:
+                return cached.get('data', {})
+
+            url = f"{self.game_url}/{game_pk}/feed/live"
+            resp = requests.get(url, timeout=3)
+            resp.raise_for_status()
+            data = resp.json() or {}
+            # store
+            self._feed_cache[str(game_pk)] = {'_ts': now, 'data': data}
+            return data
+        except Exception:
+            return {}
         
     def get_todays_schedule(self, date: str = None) -> Dict:
         """Get today's MLB schedule with live status"""
@@ -359,6 +386,7 @@ class LiveMLBData:
             current_batter = None
             count_balls = None
             count_strikes = None
+            last_play_text = None
             try:
                 linescore_all = game_data.get('linescore', {}) or game.get('linescore', {})
                 # Outs in current half-inning
@@ -390,7 +418,7 @@ class LiveMLBData:
                 else:
                     base_state = 'Bases empty'
 
-                # Try to extract current batter and count from liveData if available
+                # Try to extract current batter and count from liveData if available on schedule payload
                 live_data = game.get('liveData', {})
                 if isinstance(live_data, dict):
                     plays = live_data.get('plays', {})
@@ -405,9 +433,32 @@ class LiveMLBData:
                         count_strikes = count.get('strikes')
                     # Last play text
                     result = current_play.get('result', {}) if isinstance(current_play, dict) else {}
-                    last_play_text = None
                     if isinstance(result, dict):
                         last_play_text = result.get('description') or result.get('event')
+
+                # Fallback: schedule hydrate often omits liveData; fetch feed/live only for in-progress games
+                if status_code in ['I', 'IH', 'IT', 'IR'] and (count_balls is None or count_strikes is None or current_batter is None or last_play_text is None):
+                    game_pk = game.get('gamePk')
+                    feed = self._get_feed_live(game_pk)
+                    try:
+                        current_play = ((feed.get('liveData') or {}).get('plays') or {}).get('currentPlay') or {}
+                        # batter
+                        matchup = current_play.get('matchup') or {}
+                        batter = matchup.get('batter') or {}
+                        if current_batter is None and isinstance(batter, dict):
+                            current_batter = batter.get('fullName') or batter.get('lastName')
+                        # count
+                        count = current_play.get('count') or {}
+                        if count_balls is None:
+                            count_balls = count.get('balls')
+                        if count_strikes is None:
+                            count_strikes = count.get('strikes')
+                        # last play description
+                        result = current_play.get('result') or {}
+                        if last_play_text is None and isinstance(result, dict):
+                            last_play_text = result.get('description') or result.get('event')
+                    except Exception:
+                        pass
             except Exception as _:
                 pass
 
@@ -444,7 +495,7 @@ class LiveMLBData:
                 'current_batter': current_batter,
                 'balls': count_balls,
                 'strikes': count_strikes,
-                'last_play': last_play_text if 'last_play_text' in locals() else None,
+                'last_play': last_play_text,
                 'raw_data': game_data
             }
             
