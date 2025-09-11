@@ -718,6 +718,110 @@ _unified_cache = None
 _unified_cache_time = None
 UNIFIED_CACHE_DURATION = 60  # 1 minute
 
+# Lightweight home snapshot cache to speed up initial page load
+_HOME_SNAPSHOT = None  # type: ignore[var-annotated]
+_HOME_SNAPSHOT_TS = 0.0
+HOME_SNAPSHOT_TTL = 60  # seconds
+
+def _build_home_snapshot() -> dict:
+    """Build a fast snapshot for the home page using only local cached files.
+    Avoids heavy engines and external calls to keep first render snappy.
+    """
+    try:
+        date_today = get_business_date()
+        uc = load_unified_cache()
+        predictions_by_date = uc.get('predictions_by_date', {}) if isinstance(uc, dict) else {}
+        today = predictions_by_date.get(date_today, {}) if isinstance(predictions_by_date, dict) else {}
+        games_dict = today.get('games', {}) if isinstance(today, dict) else {}
+
+        predictions_list = []
+        for gk, gd in (games_dict.items() if isinstance(games_dict, dict) else []):
+            try:
+                away = gd.get('away_team') or gd.get('away') or ''
+                home = gd.get('home_team') or gd.get('home') or ''
+                preds = gd.get('predictions', {}) if isinstance(gd, dict) else {}
+                away_score = preds.get('predicted_away_score', gd.get('predicted_away_score'))
+                home_score = preds.get('predicted_home_score', gd.get('predicted_home_score'))
+                total_runs = preds.get('predicted_total_runs', gd.get('predicted_total_runs'))
+                away_wp = preds.get('away_win_prob', gd.get('away_win_probability', 0.5))
+                home_wp = preds.get('home_win_prob', gd.get('home_win_probability', 0.5))
+                pitcher_info = gd.get('pitcher_info', {}) if isinstance(gd, dict) else {}
+                predictions_list.append({
+                    'game_id': gk,
+                    'away_team': away,
+                    'home_team': home,
+                    'away_logo': get_team_logo_url(away),
+                    'home_logo': get_team_logo_url(home),
+                    'date': date_today,
+                    'away_pitcher': pitcher_info.get('away_pitcher_name', gd.get('away_pitcher', 'TBD')),
+                    'home_pitcher': pitcher_info.get('home_pitcher_name', gd.get('home_pitcher', 'TBD')),
+                    'predicted_away_score': round(float(away_score), 1) if isinstance(away_score, (int, float)) else None,
+                    'predicted_home_score': round(float(home_score), 1) if isinstance(home_score, (int, float)) else None,
+                    'predicted_total_runs': round(float(total_runs), 1) if isinstance(total_runs, (int, float)) else None,
+                    'away_win_probability': round((away_wp * 100.0) if (isinstance(away_wp, (int, float)) and away_wp <= 1) else (away_wp or 0), 1),
+                    'home_win_probability': round((home_wp * 100.0) if (isinstance(home_wp, (int, float)) and home_wp <= 1) else (home_wp or 0), 1),
+                    'confidence': round(max(
+                        (away_wp * 100.0) if (isinstance(away_wp, (int, float)) and away_wp <= 1) else (away_wp or 0),
+                        (home_wp * 100.0) if (isinstance(home_wp, (int, float)) and home_wp <= 1) else (home_wp or 0)
+                    ), 1),
+                    'recommendation': 'PENDING',
+                    'bet_grade': 'N/A',
+                    'predicted_winner': away if (isinstance(away_wp, (int, float)) and away_wp > home_wp) else home,
+                    'over_under_recommendation': 'PREDICTION_ONLY',
+                    'status': 'Scheduled',
+                    'real_betting_lines': None,
+                    'betting_recommendations': {'value_bets': [], 'summary': 'warming'}
+                })
+            except Exception:
+                continue
+
+        # Compute summary stats with existing helper (robust)
+        try:
+            stats = calculate_performance_stats(predictions_list)
+        except Exception:
+            stats = {'total_games': len(predictions_list), 'premium_predictions': 0}
+
+        # Comprehensive insights from unified cache only
+        try:
+            comp = generate_comprehensive_dashboard_insights(uc)
+        except Exception:
+            comp = {
+                'total_games_analyzed': 0,
+                'total_dates_covered': 0,
+                'date_range': {'start': date_today, 'end': date_today, 'days_of_data': 1},
+                'betting_performance': {},
+                'score_analysis': {},
+                'data_sources': {}
+            }
+
+        return {
+            'date': date_today,
+            'predictions': predictions_list,
+            'stats': stats,
+            'comprehensive_stats': comp,
+            'betting_recommendations': {'games': {}, 'summary': {'source': 'snapshot'}}
+        }
+    except Exception:
+        # Safe minimal snapshot
+        return {
+            'date': get_business_date(),
+            'predictions': [],
+            'stats': {'total_games': 0, 'premium_predictions': 0},
+            'comprehensive_stats': {},
+            'betting_recommendations': {'games': {}}
+        }
+
+def _get_home_snapshot(force_rebuild: bool = False) -> dict:
+    global _HOME_SNAPSHOT, _HOME_SNAPSHOT_TS
+    now = time.time()
+    if (not force_rebuild) and _HOME_SNAPSHOT and (now - _HOME_SNAPSHOT_TS < HOME_SNAPSHOT_TTL):
+        return _HOME_SNAPSHOT
+    # Rebuild in current thread (home API can opt to background this)
+    snap = _build_home_snapshot()
+    _HOME_SNAPSHOT = snap
+    _HOME_SNAPSHOT_TS = now
+    return snap
+
 def load_unified_cache():
     """Load our archaeological treasure - the unified predictions cache with caching"""
     global _unified_cache, _unified_cache_time
@@ -2330,7 +2434,23 @@ def home():
     today = get_business_date()
     
     try:
-        # Load our treasure trove of data
+        # Fast path: serve a lightweight snapshot to render instantly
+        snap = _get_home_snapshot()
+        # Kick a background refresh of the snapshot so later hits are fresh
+        def _bg_refresh():
+            try:
+                _get_home_snapshot(force_rebuild=True)
+            except Exception:
+                pass
+        threading.Thread(target=_bg_refresh, daemon=True).start()
+
+        # Also pre-load unified cache for downstream routes without blocking
+        try:
+            threading.Thread(target=load_unified_cache, daemon=True).start()
+        except Exception:
+            pass
+
+        # Heavy path (runs in-request but we still have snapshot fallback)
         unified_cache = load_unified_cache()
         
         # Load real betting lines with error handling
@@ -2524,20 +2644,20 @@ def home():
         
         # Calculate performance statistics
         stats = calculate_performance_stats(today_predictions)
-        
+
         # Generate comprehensive archaeological insights from all data
         comprehensive_stats = generate_comprehensive_dashboard_insights(unified_cache)
-        
+
         logger.info(f"Home page loaded - {len(today_predictions)} today's games, {stats.get('premium_predictions', 0)} premium")
-        
+
         return render_template('index.html', 
-                             predictions=today_predictions,
-                             stats=stats,
-                             comprehensive_stats=comprehensive_stats,
-                             today_date=today,
-                             games_count=len(today_predictions),
-                             betting_recommendations=betting_recommendations)
-    
+                 predictions=today_predictions or snap.get('predictions', []),
+                 stats=stats or snap.get('stats', {}),
+                 comprehensive_stats=comprehensive_stats or snap.get('comprehensive_stats', {}),
+                 today_date=today,
+                 games_count=len(today_predictions) if today_predictions else len(snap.get('predictions', [])),
+                 betting_recommendations=betting_recommendations or snap.get('betting_recommendations', {'games': {}}))
+
     except Exception as e:
         logger.error(f"Error in home route: {e}")
         logger.error(traceback.format_exc())
@@ -2573,13 +2693,14 @@ def home():
                 'sources': {}
             }
         }
-        
+
+        snap = _get_home_snapshot()
         return render_template('index.html', 
-                             predictions=[],
-                             stats={'total_games': 0, 'premium_predictions': 0},
-                             comprehensive_stats=default_comprehensive_stats,
-                             today_date=today,
-                             games_count=0)
+                 predictions=snap.get('predictions', []),
+                 stats=snap.get('stats', {'total_games': 0, 'premium_predictions': 0}),
+                 comprehensive_stats=snap.get('comprehensive_stats', default_comprehensive_stats),
+                 today_date=today,
+                 games_count=len(snap.get('predictions', [])))
 
 @app.route('/monitoring')
 def monitoring_dashboard():
