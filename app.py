@@ -3234,6 +3234,32 @@ def api_pitcher_props_line_history():
         logger.error(f"Error in api_pitcher_props_line_history: {e}\n{traceback.format_exc()}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/pitcher-props/current')
+def api_pitcher_props_current():
+    """Return latest raw Bovada pitcher props snapshot for today (or supplied date).
+    Query params:
+      date (optional, YYYY-MM-DD)
+      pitchers (optional comma-separated substrings filter)
+    """
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        safe_date = date_str.replace('-', '_')
+        path = os.path.join('data','daily_bovada', f'bovada_pitcher_props_{safe_date}.json')
+        if not os.path.exists(path):
+            return jsonify({'success': True, 'date': date_str, 'pitchers': 0, 'pitcher_props': {}})
+        with open(path,'r',encoding='utf-8') as f:
+            doc = json.load(f)
+        pitcher_props = doc.get('pitcher_props', {}) if isinstance(doc, dict) else {}
+        filt = request.args.get('pitchers')
+        if filt:
+            terms = [t.strip().lower() for t in filt.split(',') if t.strip()]
+            if terms:
+                pitcher_props = {k:v for k,v in pitcher_props.items() if any(t in k for t in terms)}
+        return jsonify({'success': True, 'date': date_str, 'retrieved_at': doc.get('retrieved_at'), 'pitchers': len(pitcher_props), 'pitcher_props': pitcher_props})
+    except Exception as e:
+        logger.error(f"Error in api_pitcher_props_current: {e}\n{traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/pitcher-props/model-diagnostics')
 def api_pitcher_props_model_diagnostics():
     """Return model diagnostics aggregating volatility, calibration, realized outcomes, and recent recommendation coverage.
@@ -3345,6 +3371,27 @@ def api_pitcher_game_synergy():
                             counts[mk] = counts.get(mk,0) + 1
             for mk,v in agg.items():
                 avg_std[mk] = round(v / max(1, counts.get(mk,1)), 3)
+        # Load synergy deltas if present
+        synergy_path = os.path.join('data','daily_bovada', f'pitcher_game_synergy_{safe}.json')
+        synergy_summary = None
+        synergy_games = None
+        if os.path.exists(synergy_path):
+            try:
+                with open(synergy_path,'r',encoding='utf-8') as f:
+                    sdoc = json.load(f)
+                if isinstance(sdoc, dict):
+                    synergy_summary = sdoc.get('summary')
+                    # Provide minimal deltas listing (avoid large payload) top 10 by abs win prob delta
+                    gitems = []
+                    games = sdoc.get('games', {})
+                    for gk, gv in games.items():
+                        d = (gv.get('deltas') or {})
+                        if 'away_win_prob' in d:
+                            gitems.append({'game': gk, 'away_wp_delta': d.get('away_win_prob'), 'home_wp_delta': d.get('home_win_prob'), 'total_delta': d.get('predicted_total')})
+                    gitems.sort(key=lambda x: abs(x.get('away_wp_delta') or 0) + abs(x.get('home_wp_delta') or 0), reverse=True)
+                    synergy_games = gitems[:10]
+            except Exception:
+                pass
         return jsonify({
             'success': True,
             'date': date_str,
@@ -3352,7 +3399,9 @@ def api_pitcher_game_synergy():
             'markets_covered': markets_covered,
             'avg_std': avg_std,
             'snapshot_present': bool(distributions),
-            'built_at': distributions.get('built_at') if isinstance(distributions, dict) else None
+            'built_at': distributions.get('built_at') if isinstance(distributions, dict) else None,
+            'synergy_summary': synergy_summary,
+            'synergy_top_games': synergy_games
         })
     except Exception as e:
         logger.error(f"Error in api_pitcher_game_synergy: {e}\n{traceback.format_exc()}")

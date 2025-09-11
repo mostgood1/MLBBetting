@@ -284,24 +284,10 @@ def run_data_updates():
         
         comprehensive_success = True
         
-        # Full data update (force starters-only scope for pitcher stats)
+        # Full data update
         comprehensive_script = base_dir / "daily_data_updater.py"
         if comprehensive_script.exists():
-            prev_scope = os.environ.get('DAILY_PITCHER_SCOPE')
-            prev_verbose = os.environ.get('DAILY_UPDATER_VERBOSE')
-            os.environ['DAILY_PITCHER_SCOPE'] = 'today'
-            os.environ['DAILY_UPDATER_VERBOSE'] = '1'
-            try:
-                success = run_script(comprehensive_script, "Comprehensive Data Update", logger, 1200)
-            finally:
-                if prev_scope is None:
-                    os.environ.pop('DAILY_PITCHER_SCOPE', None)
-                else:
-                    os.environ['DAILY_PITCHER_SCOPE'] = prev_scope
-                if prev_verbose is None:
-                    os.environ.pop('DAILY_UPDATER_VERBOSE', None)
-                else:
-                    os.environ['DAILY_UPDATER_VERBOSE'] = prev_verbose
+            success = run_script(comprehensive_script, "Comprehensive Data Update", logger, 1200)
             comprehensive_success = comprehensive_success and success
         else:
             logger.warning("⚠️ Comprehensive data updater not found")

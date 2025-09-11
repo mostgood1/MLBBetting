@@ -33,20 +33,14 @@ class EngineConfigManager:
                 "team_strength_multiplier": 0.20,
                 "pitcher_era_weight": 0.70,
                 "pitcher_whip_weight": 0.30,
-                "game_chaos_variance": 0.42,
-                # For projected pitch count heuristic when explicit projections absent
-                "pitches_per_out_default": 5.1
+                "game_chaos_variance": 0.42
             },
             "betting_parameters": {
                 "min_edge": 0.03,
                 "kelly_fraction": 0.25,
                 "max_kelly_bet": 10.0,
                 "high_confidence_ev": 0.10,
-                "medium_confidence_ev": 0.05,
-                # New: toggle for integrated daily pitcher projection blending
-                'INTEGRATE_DAILY_PITCHERS': True,
-                # Weight of projection vs simulation when blending expected runs (projection, simulation)
-                'PITCHER_BLEND_WEIGHTS': [0.6, 0.4]
+                "medium_confidence_ev": 0.05
             },
             "simulation_parameters": {
                 "default_sim_count": 2000,

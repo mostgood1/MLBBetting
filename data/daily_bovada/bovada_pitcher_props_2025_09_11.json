@@ -1,12 +1,57 @@
 {
   "date": "2025-09-11",
-  "retrieved_at": "2025-09-11T14:07:52.318592",
+  "retrieved_at": "2025-09-11T15:16:26.046045",
   "pitcher_props": {
-    "johan oviedo (pit)": {
-      "strikeouts_alts": []
-    },
     "cade povich (bal)": {
-      "strikeouts_alts": []
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": "-110",
+        "under_odds": "-120"
+      },
+      "strikeouts_alts": [],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-125",
+        "under_odds": "-115"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-170",
+        "under_odds": "+130"
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": "-105",
+        "under_odds": "-135"
+      }
+    },
+    "johan oviedo (pit)": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": "-150",
+        "under_odds": "+115"
+      },
+      "strikeouts_alts": [],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-150",
+        "under_odds": "+110"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-110",
+        "under_odds": "-130"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-190",
+        "under_odds": "+145"
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": "+140",
+        "under_odds": "-180"
+      }
     },
     "ian seymour (tb)": {
       "strikeouts_alts": []
@@ -15,68 +60,179 @@
       "strikeouts_alts": []
     },
     "cristian javier (hou)": {
-      "strikeouts_alts": []
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": "-120",
+        "under_odds": "-110"
+      },
+      "strikeouts_alts": [],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "+115",
+        "under_odds": "-155"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-115",
+        "under_odds": "-125"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-220",
+        "under_odds": "+155"
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": "-140",
+        "under_odds": "EVEN"
+      }
     },
     "kevin gausman (tor)": {
-      "strikeouts_alts": []
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": "+105",
+        "under_odds": "-135"
+      },
+      "strikeouts_alts": [],
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "-110",
+        "under_odds": "-130"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "EVEN",
+        "under_odds": "-140"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-110",
+        "under_odds": "-130"
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": "-180",
+        "under_odds": "+140"
+      }
     },
     "mackenzie gore (was)": {
-      "strikeouts_alts": []
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": "-105",
+        "under_odds": "-125"
+      },
+      "strikeouts_alts": [],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "+105",
+        "under_odds": "-145"
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": "-165",
+        "under_odds": "+125"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-125",
+        "under_odds": "-115"
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": "-110",
+        "under_odds": "-130"
+      }
     },
     "ryan weathers (mia)": {
-      "strikeouts_alts": []
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": "-135",
+        "under_odds": "+105"
+      },
+      "strikeouts_alts": [],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": "-160",
+        "under_odds": "+120"
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": "-105",
+        "under_odds": "-135"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "+170",
+        "under_odds": "-250"
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": "-105",
+        "under_odds": "-135"
+      }
     },
     "cam schlittler (nyy)": {
       "strikeouts_alts": []
     },
     "stephen kolek (kc)": {
-      "strikeouts_alts": []
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": "-145",
+        "under_odds": "+110"
+      },
+      "strikeouts_alts": [],
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "-135",
+        "under_odds": "-105"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-120",
+        "under_odds": "-120"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-130",
+        "under_odds": "-110"
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": "EVEN",
+        "under_odds": "-140"
+      }
     },
     "gavin williams (cle)": {
-      "strikeouts_alts": []
-    },
-    "david peterson (nym)": {
-      "walks": {
-        "line": 2.5,
-        "over_odds": "+150",
-        "under_odds": "-200"
-      }
-    },
-    "jesus luzardo (phi)": {
+      "strikeouts_alts": [],
       "walks": {
         "line": 1.5,
-        "over_odds": "-200",
-        "under_odds": "+150"
-      }
-    },
-    "mccade brown (col)": {
-      "walks": {
-        "line": 1.5,
+        "over_odds": "-160",
+        "under_odds": "+120"
+      },
+      "outs": {
+        "line": 17.5,
         "over_odds": "-115",
         "under_odds": "-125"
       }
     },
-    "randy vasquez (sd)": {
-      "walks": {
-        "line": 1.5,
-        "over_odds": "+170",
-        "under_odds": "-250"
-      }
+    "david peterson (nym)": {
+      "strikeouts_alts": []
     },
-    "bryce miller (sea)": {
-      "walks": {
-        "line": 1.5,
-        "over_odds": "+125",
-        "under_odds": "-165"
-      }
+    "jesus luzardo (phi)": {
+      "strikeouts_alts": []
+    },
+    "mccade brown (col)": {
+      "strikeouts_alts": []
+    },
+    "randy vasquez (sd)": {
+      "strikeouts_alts": []
     },
     "jose soriano (laa)": {
-      "walks": {
-        "line": 2.5,
-        "over_odds": "+120",
-        "under_odds": "-160"
-      }
+      "strikeouts_alts": []
+    },
+    "bryce miller (sea)": {
+      "strikeouts_alts": []
     }
   },
-  "event_count": 28
+  "event_count": 37
 }

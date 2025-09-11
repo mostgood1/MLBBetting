@@ -12,6 +12,13 @@ from typing import Dict, Any, List
 
 DEFAULT_EDGE_THRESHOLD = float(os.environ.get('PITCHER_PROPS_EDGE_THRESHOLD', 0.5))
 DEFAULT_PITCHES_PER_OUT = 5.1
+
+# Enhanced pitch count modeling parameters
+RECENT_WINDOW_INNINGS = 30  # innings for weighted recent form if available
+MIN_IP_FOR_STABILITY = 20
+MAX_PITCHES_PER_OUT = 5.8
+MIN_PITCHES_PER_OUT = 4.6
+
 STD_FACTORS = {  # crude historical dispersion approximations; may be overridden by calibration
     'strikeouts': 1.2,
     'outs': 2.0,
@@ -49,6 +56,29 @@ def project_pitcher(pitcher: str, stats: Dict[str, Any], opponent: str | None = 
     walks = float(stats.get('walks', 0) or 0)
     era = float(stats.get('era', 4.2) or 4.2)
     whip = float(stats.get('whip', 1.3) or 1.3)
+    # Additional fields if present
+    pitches_thrown = float(stats.get('pitches_thrown', 0) or 0)
+    recent_pitches = float(stats.get('recent_pitches', 0) or 0)
+    recent_outs = float(stats.get('recent_outs', 0) or 0)
+    avg_pitches_per_out = None
+    if pitches_thrown > 0 and innings_pitched > 0:
+        try:
+            avg_pitches_per_out = pitches_thrown / (innings_pitched * 3)
+        except Exception:
+            avg_pitches_per_out = None
+    if recent_pitches > 0 and recent_outs > 0:
+        try:
+            recent_ppo = recent_pitches / recent_outs
+            if avg_pitches_per_out:
+                # Weighted blend favoring recent form modestly
+                avg_pitches_per_out = 0.65 * avg_pitches_per_out + 0.35 * recent_ppo
+            else:
+                avg_pitches_per_out = recent_ppo
+        except Exception:
+            pass
+    if avg_pitches_per_out is None:
+        avg_pitches_per_out = DEFAULT_PITCHES_PER_OUT
+    avg_pitches_per_out = max(MIN_PITCHES_PER_OUT, min(MAX_PITCHES_PER_OUT, avg_pitches_per_out))
     ip_per_start = 5.5
     if games_started > 0 and innings_pitched > 0:
         try:
@@ -74,7 +104,15 @@ def project_pitcher(pitcher: str, stats: Dict[str, Any], opponent: str | None = 
     bb_per_inning = (walks / innings_pitched) if innings_pitched > 0 else 0.35
     hits_per_inning = max(0.1, whip - bb_per_inning)
     ha = round(hits_per_inning * ip_per_start, 1)
-    pitch_count = round(outs * DEFAULT_PITCHES_PER_OUT, 0)
+    # Pitch count: scaled by customized pitches per out, with opponent strength influencing workload risk
+    opponent_factor = 0.0
+    if opponent:
+        okey = opponent.lower().replace('_',' ')
+        oinfo = OPP_CONTEXT.get(okey)
+        if oinfo:
+            opponent_factor = max(-0.15, min(0.15, -0.08 * oinfo.get('strength', 0)))  # tough offense -> slight downward adjustment
+    adjusted_pitches_per_out = avg_pitches_per_out * (1 + opponent_factor)
+    pitch_count = round(outs * adjusted_pitches_per_out, 0)
     return {'outs': outs,'strikeouts': ks,'earned_runs': er,'hits_allowed': ha,'walks': round(bb_per_inning * ip_per_start, 1),'pitch_count': pitch_count}
 
 def american_to_profit_mult(odds: str):

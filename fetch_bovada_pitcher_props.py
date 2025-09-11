@@ -50,11 +50,17 @@ HEADERS = {
 }
 
 TARGET_KEYWORDS = {
-    'strikeouts': ['pitcher strikeouts', 'player strikeouts', 'total strikeouts'],
-    'outs': ['pitcher outs', 'outs recorded', 'pitcher outs recorded'],
-    'hits_allowed': ['hits allowed', 'pitcher hits allowed'],
-    'walks': ['walks allowed', 'pitcher walks allowed', 'pitcher walks'],
-    'earned_runs': ['earned runs', 'pitcher earned runs'],
+    'strikeouts': [
+        'pitcher strikeouts', 'player strikeouts', 'total strikeouts', 'strikeouts',
+        'strike outs', 'total ks', 'k total', "k's", 'pitcher ks', 'player ks'
+    ],
+    'outs': [
+        'pitcher outs', 'outs recorded', 'pitcher outs recorded', 'recorded outs',
+        'total outs', 'outs total'
+    ],
+    'hits_allowed': ['hits allowed', 'pitcher hits allowed', 'total hits allowed'],
+    'walks': ['walks allowed', 'pitcher walks allowed', 'pitcher walks', 'total walks allowed'],
+    'earned_runs': ['earned runs', 'pitcher earned runs', 'total earned runs'],
 }
 ALT_STRIKEOUT_HINTS = ['alt strikeouts', 'alternate strikeouts']
 
@@ -141,6 +147,7 @@ def fetch_raw_events() -> List[Dict[str, Any]]:
 
 def parse_pitcher_props(events: List[Dict[str, Any]]) -> Dict[str, Any]:
     pitcher_props: Dict[str, Dict[str, Any]] = {}
+    unmatched_strikeout_markets = []  # instrumentation for debugging missing K lines
     for ev in events:
         display_groups = ev.get('displayGroups', []) or []
         for dg in display_groups:
@@ -149,10 +156,31 @@ def parse_pitcher_props(events: List[Dict[str, Any]]) -> Dict[str, Any]:
                 mk_desc = str(mk.get('description', '')).strip()
                 pitcher_name = ''
                 if ' - ' in mk_desc:
-                    parts = mk_desc.split(' - ')
+                    parts = [p.strip() for p in mk_desc.split(' - ') if p.strip()]
                     if len(parts) >= 2:
-                        pitcher_name = parts[-1].strip()
-                        market_label = ' - '.join(parts[:-1])
+                        # Heuristic: choose part that looks like a player name (contains space, not containing stat keywords)
+                        stat_tokens = {'strikeout','strikeouts','outs','walks','earned','runs','hits','allowed','total','player','pitcher','ks'}
+                        candidate_parts = [p for p in parts if any(ch.isalpha() for ch in p)]
+                        # Score each part
+                        best = None
+                        best_score = -1
+                        for p in candidate_parts:
+                            low = p.lower()
+                            tokens = set(low.replace("'s"," ").split())
+                            stat_overlap = len(tokens & stat_tokens)
+                            # Higher score for fewer stat tokens & more capitalized words
+                            cap_words = sum(1 for w in p.split() if w and w[0].isupper())
+                            score = cap_words - stat_overlap*2 + (1 if '(' in p and ')' in p else 0)
+                            if score > best_score:
+                                best_score = score
+                                best = p
+                        if best and best_score >= 0:
+                            pitcher_name = best
+                            # Market label is everything except chosen name
+                            market_label = ' - '.join([p for p in parts if p != best])
+                        else:
+                            pitcher_name = parts[-1]
+                            market_label = ' - '.join(parts[:-1])
                     else:
                         market_label = mk_desc
                 else:
@@ -168,7 +196,28 @@ def parse_pitcher_props(events: List[Dict[str, Any]]) -> Dict[str, Any]:
                     stat_key = 'strikeouts'
                     is_alt_strikeouts = True
                 if not stat_key:
-                    continue
+                    # Broader heuristic classification if keywords missed
+                    if 'strike' in market_label_lc or ' k ' in market_label_lc or market_label_lc.endswith(' ks'):
+                        stat_key = 'strikeouts'
+                    elif 'out' in market_label_lc and 'pitch' in market_label_lc:
+                        stat_key = 'outs'
+                    elif 'hits allowed' in market_label_lc:
+                        stat_key = 'hits_allowed'
+                    elif 'earned run' in market_label_lc:
+                        stat_key = 'earned_runs'
+                    elif 'walk' in market_label_lc:
+                        stat_key = 'walks'
+                    if not stat_key:
+                        if any(sub in market_label_lc for sub in ['strike', ' ks', ' k ', 'strike outs']):
+                            unmatched_strikeout_markets.append({
+                                'raw_description': mk_desc,
+                                'parsed_pitcher_name': pitcher_name,
+                                'market_label_lc': market_label_lc,
+                                'parts_debug': parts if 'parts' in locals() else None,
+                                'outcome_participants': [oc.get('participant') or oc.get('competitor') for oc in (mk.get('outcomes') or [])],
+                                'has_handicap': any((oc.get('price') or {}).get('handicap') is not None or oc.get('handicap') is not None for oc in (mk.get('outcomes') or []))
+                            })
+                        continue
                 outcomes = mk.get('outcomes', []) or []
                 if not pitcher_name:
                     for oc in outcomes:
@@ -219,6 +268,16 @@ def parse_pitcher_props(events: List[Dict[str, Any]]) -> Dict[str, Any]:
                                 continue
                 except Exception as e:
                     logger.debug(f"Market parse error {mk_desc}: {e}")
+    # Write unmatched strikeout market hints for today's date if any (helps adapt parser quickly)
+    if unmatched_strikeout_markets:
+        try:
+            date_tag = datetime.utcnow().strftime('%Y_%m_%d')
+            dbg_path = os.path.join(DATA_DIR, f'debug_unmatched_strikeout_markets_{date_tag}.json')
+            with open(dbg_path, 'w', encoding='utf-8') as f:
+                json.dump({'count': len(unmatched_strikeout_markets), 'items': unmatched_strikeout_markets[:200]}, f, indent=2)
+            logger.info(f"Wrote unmatched strikeout market debug file: {dbg_path} (count={len(unmatched_strikeout_markets)})")
+        except Exception:
+            pass
     return pitcher_props
 
 

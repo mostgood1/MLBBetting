@@ -11,7 +11,30 @@ Purpose:
 Behavior:
   - Interval-based loop (default 600s) adjustable via env var
     PITCHER_PROPS_POLL_INTERVAL_SEC.
-  - Faster early polling while coverage < 50% (default 180s) via
+                        synergy_doc = build_game_synergy(date_str)
+                        if synergy_doc and isinstance(synergy_doc, dict):
+                            # Broadcast top deltas (limit) via SSE
+                            try:
+                                from app import broadcast_pitcher_update  # type: ignore
+                                games = synergy_doc.get('games', {})
+                                # sort by sum abs win prob delta
+                                items = []
+                                for gk, gv in games.items():
+                                    d = gv.get('deltas', {})
+                                    score = abs(d.get('away_win_prob',0)) + abs(d.get('home_win_prob',0))
+                                    items.append((score, gk, d))
+                                items.sort(reverse=True)
+                                for _, gk, d in items[:8]:
+                                    broadcast_pitcher_update({'type':'synergy_delta','game': gk, 'deltas': d, 'date': date_str, 'ts': datetime.utcnow().isoformat()})
+                            except Exception:
+                                pass
+                    except Exception as e2:
+                        print(f"[PitcherPropsUpdater] Synergy build error: {e2}")
+                    # Refresh unified betting engine predictions (best-effort) after synergy
+                    try:
+                        subprocess.run(["python","unified_betting_engine.py"], check=False)
+                    except Exception as e3:
+                        print(f"[PitcherPropsUpdater] Unified engine refresh error: {e3}")
     PITCHER_PROPS_FAST_INTERVAL_SEC.
   - Stops once all scheduled games have started (live or final) OR reaches
     max age in minutes (PITCHER_PROPS_MAX_AGE_MIN, default 480).
@@ -381,6 +404,7 @@ def main():
 
         # Line movement detection (compare each market line & odds)
         line_events = []
+        initial_events = []
         current_pitcher_props = props_payload.get('pitcher_props', {}) if isinstance(props_payload, dict) else {}
         for p_key, markets in current_pitcher_props.items():
             prev_p = previous_lines_snapshot.get(p_key, {})
@@ -398,7 +422,7 @@ def main():
                     prev_mk.get('over_odds') != new_over or
                     prev_mk.get('under_odds') != new_under
                 )
-                if changed and prev_mk:  # skip first appearance as movement event; treat as initial snapshot
+                if changed and prev_mk:  # movement event
                     line_events.append({
                         'ts': datetime.utcnow().isoformat(),
                         'pitcher': p_key,
@@ -410,12 +434,29 @@ def main():
                         'old_under_odds': prev_mk.get('under_odds'),
                         'new_under_odds': new_under
                     })
+                elif changed and not prev_mk and new_line is not None:
+                    # First time we've seen this market -> broadcast initial snapshot so frontend can display without waiting for movement
+                    initial_events.append({
+                        'ts': datetime.utcnow().isoformat(),
+                        'pitcher': p_key,
+                        'market': mk,
+                        'line': new_line,
+                        'over_odds': new_over,
+                        'under_odds': new_under
+                    })
                 # update snapshot structure staged
                 prev_p.setdefault(mk, {})
                 prev_p[mk]['line'] = new_line
                 prev_p[mk]['over_odds'] = new_over
                 prev_p[mk]['under_odds'] = new_under
             previous_lines_snapshot[p_key] = prev_p
+        if initial_events:
+            try:
+                from app import broadcast_pitcher_update  # type: ignore
+                for ev in initial_events:
+                    broadcast_pitcher_update({'type': 'line_initial', **ev})
+            except Exception:
+                pass
         if line_events:
             append_line_history_events(date_str, line_events)
             # Attempt live broadcast for recent events (non-fatal if unavailable)
@@ -472,12 +513,35 @@ def main():
             # Regenerate recommendations again (ensures updated odds/lines stored)
             try:
                 generate_props_main()
+                # Always rebuild full distributions & game synergy after successful generation
+                try:
+                    from pitcher_distributions import build_and_save_distributions  # type: ignore
+                    dist_changed = build_and_save_distributions(date_str)
+                    if dist_changed:
+                        try:
+                            from app import broadcast_pitcher_update  # type: ignore
+                            broadcast_pitcher_update({'type': 'distribution_rebuild', 'date': date_str, 'ts': datetime.utcnow().isoformat()})
+                        except Exception:
+                            pass
+                    try:
+                        from synergy_game_adjustments import build_game_synergy  # type: ignore
+                        build_game_synergy(date_str)
+                    except Exception as e2:
+                        print(f"[PitcherPropsUpdater] Synergy build error: {e2}")
+                except Exception as e2:
+                    print(f"[PitcherPropsUpdater] Distribution build error: {e2}")
             except Exception as e:
                 print(f"[PitcherPropsUpdater] Secondary generation error: {e}")
                 # Build pitcher distributions for synergy layer (best-effort)
                 try:
                     from pitcher_distributions import build_and_save_distributions  # type: ignore
                     build_and_save_distributions(date_str)
+                    # Build game synergy adjustments (Phase 4) best-effort
+                    try:
+                        from synergy_game_adjustments import build_game_synergy  # type: ignore
+                        build_game_synergy(date_str)
+                    except Exception as e2:
+                        print(f"[PitcherPropsUpdater] Synergy build error: {e2}")
                 except Exception as e:
                     print(f"[PitcherPropsUpdater] Distribution build error: {e}")
 

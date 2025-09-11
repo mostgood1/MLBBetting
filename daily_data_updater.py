@@ -18,26 +18,24 @@ logger = logging.getLogger(__name__)
 
 class DailyMLBDataUpdater:
     """Updates core MLB data files daily"""
-
+    
     def __init__(self, data_dir: str = "data"):
         self.data_dir = data_dir
         self.mlb_api_base = "https://statsapi.mlb.com/api/v1"
         self.current_season = 2025
-        # Verbose progress control
-        self.verbose = str(os.environ.get('DAILY_UPDATER_VERBOSE', '0')).strip() in ('1','true','yes','y')
-
+        
         # Ensure data directory exists
         os.makedirs(self.data_dir, exist_ok=True)
-
+        
         # File paths
         self.team_strength_file = os.path.join(self.data_dir, "master_team_strength.json")
         self.pitcher_stats_file = os.path.join(self.data_dir, "master_pitcher_stats.json")
         self.bullpen_stats_file = os.path.join(self.data_dir, "bullpen_stats.json")
-
+        
         # Team name mappings for consistency
         self.team_name_map = {
             "Arizona D-backs": "Arizona Diamondbacks",
-            "Chi White Sox": "Chicago White Sox",
+            "Chi White Sox": "Chicago White Sox", 
             "Chi Cubs": "Chicago Cubs",
             "LA Angels": "Los Angeles Angels",
             "LA Dodgers": "Los Angeles Dodgers",
@@ -46,7 +44,7 @@ class DailyMLBDataUpdater:
             "SD Padres": "San Diego Padres",
             "SF Giants": "San Francisco Giants",
             "TB Rays": "Tampa Bay Rays",
-            "WSH Nationals": "Washington Nationals",
+            "WSH Nationals": "Washington Nationals"
         }
     
     def normalize_team_name(self, name: str) -> str:
@@ -98,51 +96,42 @@ class DailyMLBDataUpdater:
     
     def fetch_pitcher_stats(self) -> Dict[str, Dict[str, Any]]:
         """Fetch current pitcher statistics"""
-        logger.info("⚾ Fetching pitcher statistics (all active pitchers)...")
-
+        logger.info("⚾ Fetching pitcher statistics...")
+        
         try:
             # Get all active players
             url = f"{self.mlb_api_base}/sports/1/players?season={self.current_season}"
-            response = requests.get(url, timeout=60)
+            response = requests.get(url, timeout=30)
             response.raise_for_status()
             data = response.json()
-            people = data.get('people', [])
-            logger.info(f"📥 Players returned from MLB API: {len(people)}")
-
-            pitcher_stats: Dict[str, Dict[str, Any]] = {}
+            
+            pitcher_stats = {}
             pitcher_count = 0
-
+            
             # Get all players who are pitchers
-            total_people = len(people)
-            pitchers_seen = 0
-            for idx, player in enumerate(people, start=1):
+            for player in data.get('people', []):
                 player_id = str(player.get('id', ''))
                 player_name = player.get('fullName', '')
-
+                
                 # Check if this is a pitcher
                 position = player.get('primaryPosition', {}).get('abbreviation', '')
                 if position not in ['P', 'SP', 'RP', 'CP']:
                     continue
-                pitchers_seen += 1
-                if self.verbose and (pitchers_seen % 25 == 0):
-                    logger.info(f"   ▶ Processing pitcher {pitchers_seen} of ~{total_people} players")
-
+                
                 try:
                     # Get detailed stats for this pitcher
-                    stats_url = (
-                        f"{self.mlb_api_base}/people/{player_id}/stats?stats=season&group=pitching&season={self.current_season}"
-                    )
-                    stats_response = requests.get(stats_url, timeout=15)
+                    stats_url = f"{self.mlb_api_base}/people/{player_id}/stats?stats=season&group=pitching&season={self.current_season}"
+                    stats_response = requests.get(stats_url, timeout=10)
                     stats_response.raise_for_status()
                     stats_data = stats_response.json()
-
+                    
                     # Extract pitching stats
                     for stat_group in stats_data.get('stats', []):
                         for split in stat_group.get('splits', []):
                             stat = split.get('stat', {})
                             team_data = split.get('team', {})
                             team_name = self.normalize_team_name(team_data.get('name', ''))
-
+                            
                             era = float(stat.get('era', 999))
                             whip = float(stat.get('whip', 9.99))
                             innings_pitched = float(stat.get('inningsPitched', 0))
@@ -151,7 +140,7 @@ class DailyMLBDataUpdater:
                             games_started = int(stat.get('gamesStarted', 0))
                             wins = int(stat.get('wins', 0))
                             losses = int(stat.get('losses', 0))
-
+                            
                             # Only include pitchers with meaningful innings
                             if innings_pitched > 1.0:
                                 pitcher_stats[player_id] = {
@@ -165,109 +154,23 @@ class DailyMLBDataUpdater:
                                     'games_started': games_started,
                                     'wins': wins,
                                     'losses': losses,
-                                    'last_updated': datetime.now().isoformat(),
+                                    'last_updated': datetime.now().isoformat()
                                 }
                                 pitcher_count += 1
-
+                                
                                 if pitcher_count % 50 == 0:
                                     logger.info(f"📊 Processed {pitcher_count} pitchers...")
-                                elif self.verbose and (pitcher_count % 10 == 0):
-                                    logger.info(f"   ▶ Processed {pitcher_count} pitchers so far")
-
+                
                 except Exception as e:
                     logger.debug(f"Could not get stats for pitcher {player_name}: {e}")
                     continue
-
+            
             logger.info(f"✅ Fetched stats for {len(pitcher_stats)} pitchers")
             return pitcher_stats
-
+            
         except Exception as e:
             logger.error(f"❌ Error fetching pitcher stats: {e}")
             return {}
-
-    def get_todays_starting_pitcher_ids(self) -> List[str]:
-        """Return MLB IDs for today's probable starting pitchers (away+home for each game)."""
-        try:
-            today = datetime.now().strftime('%Y-%m-%d')
-            url = f"{self.mlb_api_base}/schedule?sportId=1&date={today}&hydrate=probablePitcher"
-            response = requests.get(url, timeout=30)
-            response.raise_for_status()
-            data = response.json()
-            ids: List[str] = []
-            for date_data in data.get('dates', []):
-                for game in date_data.get('games', []):
-                    away = game.get('teams', {}).get('away', {}).get('probablePitcher')
-                    home = game.get('teams', {}).get('home', {}).get('probablePitcher')
-                    if away and away.get('id') is not None:
-                        ids.append(str(away['id']))
-                    if home and home.get('id') is not None:
-                        ids.append(str(home['id']))
-            ids = [pid for pid in ids if pid]
-            logger.info(f"🎯 Probable starters today: {len(ids)}")
-            return ids
-        except Exception as e:
-            logger.error(f"❌ Error fetching probable starters: {e}")
-            return []
-
-    def fetch_todays_starting_pitcher_stats(self) -> Dict[str, Dict[str, Any]]:
-        """Fetch current-season stats for only today's probable starters."""
-        logger.info("⚾ Fetching pitcher statistics (today's starters only)...")
-        ids = self.get_todays_starting_pitcher_ids()
-        if not ids:
-            logger.warning("⚠️ No probable starters found for today")
-            return {}
-        out: Dict[str, Dict[str, Any]] = {}
-        for i, pid in enumerate(ids, start=1):
-            try:
-                # Player info
-                player_url = f"{self.mlb_api_base}/people/{pid}"
-                p_resp = requests.get(player_url, timeout=15)
-                p_resp.raise_for_status()
-                p_json = p_resp.json()
-                person = (p_json.get('people') or [{}])[0]
-                name = person.get('fullName', '')
-                # Stats
-                stats_url = f"{self.mlb_api_base}/people/{pid}/stats?stats=season&group=pitching&season={self.current_season}"
-                s_resp = requests.get(stats_url, timeout=15)
-                s_resp.raise_for_status()
-                s_json = s_resp.json()
-                found = False
-                for stat_group in s_json.get('stats', []) or []:
-                    for split in stat_group.get('splits', []) or []:
-                        stat = split.get('stat', {})
-                        team_data = split.get('team', {})
-                        team_name = self.normalize_team_name(team_data.get('name', ''))
-                        era = float(stat.get('era', 999))
-                        whip = float(stat.get('whip', 9.99))
-                        innings_pitched = float(stat.get('inningsPitched', 0))
-                        strikeouts = int(stat.get('strikeOuts', 0))
-                        walks = int(stat.get('baseOnBalls', 0))
-                        games_started = int(stat.get('gamesStarted', 0))
-                        wins = int(stat.get('wins', 0))
-                        losses = int(stat.get('losses', 0))
-                        out[pid] = {
-                            'name': name,
-                            'team': team_name,
-                            'era': era,
-                            'whip': whip,
-                            'strikeouts': strikeouts,
-                            'walks': walks,
-                            'innings_pitched': innings_pitched,
-                            'games_started': games_started,
-                            'wins': wins,
-                            'losses': losses,
-                            'last_updated': datetime.now().isoformat()
-                        }
-                        found = True
-                        break
-                    if found:
-                        break
-                if self.verbose or (i % 5 == 0):
-                    logger.info(f"   ▶ Starter {i}/{len(ids)} updated: {name}")
-            except Exception as e:
-                logger.warning(f"   ⚠️ Failed to fetch stats for starter id={pid}: {e}")
-        logger.info(f"✅ Collected stats for {len(out)}/{len(ids)} starters")
-        return out
     
     def calculate_bullpen_stats(self, pitcher_stats: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
         """Calculate bullpen quality stats for all teams"""
@@ -369,63 +272,27 @@ class DailyMLBDataUpdater:
     def update_pitcher_stats(self) -> bool:
         """Update pitcher statistics data"""
         logger.info("🔄 Updating pitcher statistics...")
-
+        
         try:
-            scope = str(os.environ.get('DAILY_PITCHER_SCOPE', 'all')).strip().lower()
-            if scope in ('starters', 'today', 'today_starters'):
-                logger.info("   ▶ Scope: today starters only (DAILY_PITCHER_SCOPE)")
-                new_stats = self.fetch_todays_starting_pitcher_stats()
-                # Merge into existing master file to keep reliever data for bullpen calc
-                current: Dict[str, Dict[str, Any]] = {}
-                if os.path.exists(self.pitcher_stats_file):
-                    try:
-                        with open(self.pitcher_stats_file, 'r') as f:
-                            current = json.load(f)
-                    except Exception:
-                        current = {}
-                updated = 0
-                for k, v in new_stats.items():
-                    current[k] = v
-                    updated += 1
-                if updated > 0:
-                    # Backup existing
-                    if os.path.exists(self.pitcher_stats_file):
-                        backup_file = (
-                            f"{self.pitcher_stats_file}.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-                        )
-                        os.rename(self.pitcher_stats_file, backup_file)
-                        logger.info(f"📁 Backup created: {backup_file}")
-                    with open(self.pitcher_stats_file, 'w') as f:
-                        json.dump(current, f, indent=2)
-                    logger.info(
-                        f"✅ Updated starters in master pitcher file: {updated} entries (total now {len(current)})"
-                    )
-                    return True
-                else:
-                    logger.warning("⚠️ No starter stats updated - keeping existing master file")
-                    return False
-            else:
-                new_stats = self.fetch_pitcher_stats()
-
+            new_stats = self.fetch_pitcher_stats()
+            
             if new_stats:
                 # Create backup of existing data
                 if os.path.exists(self.pitcher_stats_file):
-                    backup_file = (
-                        f"{self.pitcher_stats_file}.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-                    )
+                    backup_file = f"{self.pitcher_stats_file}.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
                     os.rename(self.pitcher_stats_file, backup_file)
                     logger.info(f"📁 Backup created: {backup_file}")
-
+                
                 # Save new data
                 with open(self.pitcher_stats_file, 'w') as f:
                     json.dump(new_stats, f, indent=2)
-
+                
                 logger.info(f"✅ Pitcher stats updated successfully")
                 return True
             else:
                 logger.warning("⚠️ No new pitcher stats available - keeping existing")
                 return False
-
+                
         except Exception as e:
             logger.error(f"❌ Error updating pitcher stats: {e}")
             return False

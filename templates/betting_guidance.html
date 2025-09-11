@@ -159,6 +159,108 @@
   </div>
 
   <script>
+    // --- Existing utility functions above ---
+    // Inject real-time pitcher props state + SSE handling
+    const pitcherState = { markets: {}, lastSnapshotTs: null };
+
+    function upsertPitcherMarket(ev){
+      const p = ev.pitcher || ev.pitcher_key; if(!p) return;
+      const mk = ev.market; if(!mk) return;
+      const entry = pitcherState.markets[p] = pitcherState.markets[p] || {};
+      if(ev.type==='line_initial'){
+        entry[mk] = { line: ev.line, over_odds: ev.over_odds, under_odds: ev.under_odds, last_update: ev.ts || new Date().toISOString() };
+      } else if(ev.type==='line_move') {
+        entry[mk] = { line: ev.new_line, over_odds: ev.new_over_odds, under_odds: ev.new_under_odds, last_update: ev.ts || new Date().toISOString() };
+      }
+    }
+
+    function renderPitcherMarkets(){
+      const container = document.getElementById('prop-snapshot');
+      if(!container) return;
+      const marketFilter = document.getElementById('prop-market').value;
+      const hideLow = document.getElementById('prop-hide-low').checked; // Placeholder if we later tag confidence
+      const rows = [];
+      Object.entries(pitcherState.markets).forEach(([pitcher, mkts])=>{
+        Object.entries(mkts).forEach(([m, info])=>{
+          if(marketFilter !== 'ALL' && m !== marketFilter) return;
+          rows.push({ pitcher, market: m, line: info.line, over_odds: info.over_odds, under_odds: info.under_odds, ts: info.last_update });
+        });
+      });
+      rows.sort((a,b)=> a.pitcher.localeCompare(b.pitcher) || a.market.localeCompare(b.market));
+      if(!rows.length){ container.innerHTML = '<div class="muted">No live pitcher markets yet.</div>'; return; }
+      container.innerHTML = `<div class='table-wrap'><table class='table'><thead><tr><th>Pitcher</th><th>Market</th><th>Line</th><th>Over</th><th>Under</th><th>Updated</th></tr></thead><tbody>`+
+        rows.map(r=>`<tr><td>${r.pitcher}</td><td>${r.market}</td><td>${r.line??''}</td><td>${r.over_odds??''}</td><td>${r.under_odds??''}</td><td style='font-size:11px;'>${(r.ts||'').split('T')[1]?.slice(0,8)||''}</td></tr>`).join('')+
+        '</tbody></table></div>';
+    }
+
+    function handleDistributionUpdate(ev){
+      // Could highlight pitcher row or refetch recommendations; placeholder for future enhancement
+      console.debug('distribution_update', ev.pitcher, ev.deltas);
+    }
+    function handleDistributionRebuild(ev){
+      console.debug('distribution_rebuild', ev.date);
+    }
+    function handleSynergyDelta(ev){
+      console.debug('synergy_delta', ev.game, ev.deltas);
+    }
+
+    function startPitcherSSE(){
+      try{
+        const es = new EventSource('/api/pitcher-props/stream');
+        es.onmessage = (msg)=>{
+          if(!msg.data) return;
+            try{ const ev = JSON.parse(msg.data); if(!ev || !ev.type) return;
+              switch(ev.type){
+                case 'line_initial':
+                case 'line_move':
+                  upsertPitcherMarket(ev);
+                  renderPitcherMarkets();
+                  break;
+                case 'distribution_update':
+                  handleDistributionUpdate(ev); break;
+                case 'distribution_rebuild':
+                  handleDistributionRebuild(ev); break;
+                case 'synergy_delta':
+                  handleSynergyDelta(ev); break;
+                default:
+                  break;
+              }
+            }catch(e){ console.warn('SSE parse error', e); }
+        };
+        es.onerror = ()=>{ console.warn('SSE error; will attempt reconnect in 10s'); setTimeout(startPitcherSSE, 10000); };
+      }catch(e){ console.warn('SSE init failed', e); setTimeout(startPitcherSSE, 15000); }
+    }
+
+    async function snapshotFallback(){
+      try{
+        const res = await fetch('/api/pitcher-props/current');
+        if(!res.ok) throw new Error('snapshot http '+res.status);
+        const data = await res.json();
+        if(data && data.pitcher_props){
+          Object.entries(data.pitcher_props).forEach(([p, mkts])=>{
+            Object.entries(mkts).forEach(([m, info])=>{
+              if(!info || typeof info !== 'object') return;
+              if(info.line !== undefined){
+                 pitcherState.markets[p] = pitcherState.markets[p] || {};
+                 pitcherState.markets[p][m] = { line: info.line, over_odds: info.over_odds, under_odds: info.under_odds, last_update: data.retrieved_at || new Date().toISOString() };
+              }
+            });
+          });
+          renderPitcherMarkets();
+        }
+      }catch(e){ console.warn('snapshot fallback error', e); }
+      finally { setTimeout(snapshotFallback, 180000); /* 3 min */ }
+    }
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      // existing startup calls...
+      startPitcherSSE();
+      snapshotFallback();
+      const selMk = document.getElementById('prop-market');
+      const hideLow = document.getElementById('prop-hide-low');
+      if(selMk) selMk.addEventListener('change', renderPitcherMarkets);
+      if(hideLow) hideLow.addEventListener('change', renderPitcherMarkets);
+    });
     function fmtPct(n){ return (Number(n)||0).toFixed(1) + '%'; }
     function fmtEV(n){ const v=Number(n); if(!isFinite(v)) return '-'; return (v*100).toFixed(1)+'%'; }
     const confOrder = c => ({'HIGH':3,'MEDIUM':2,'LOW':1}[String(c||'').toUpperCase()]||0);
@@ -1040,8 +1142,8 @@
                     else correct = sideKey==='OVER' ? (total>ln) : (total<ln);
                   }
                 } else if(typeNorm==='moneyline'){
-                  const winner = (Number(fs.away_score)>Number(fs.home_score)) ? 'AWAY' : 'HOME';
-                  if(sideKey==='AWAY'||sideKey==='HOME') correct = (sideKey===winner);
+                  const winner = (Number(fs.away_score) > Number(fs.home_score)) ? 'AWAY' : 'HOME';
+                  if(sideKey==='AWAY' || sideKey==='HOME') correct = (sideKey === winner);
                 }
               }
             }

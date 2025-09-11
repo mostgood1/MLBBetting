@@ -718,6 +718,17 @@
                 gap: 15px;
             }
         }
+
+    /* highlight updated line */
+    .prop-tracker .line-updated { animation: flashLine 2s ease-in-out; }
+    @keyframes flashLine { 0%{background:rgba(255,230,150,0.9);} 50%{background:rgba(255,230,150,0.2);} 100%{background:transparent;} }
+    /* edge coloring */
+    .edge { margin-left:4px; font-weight:600; }
+    .edge-strong { color:#16a34a; }
+    .edge-medium { color:#2563eb; }
+    .edge-small { color:#555; }
+    .edge-negative { color:#dc2626; }
+    .odds { margin-left:6px; font-size:11px; color:#444; font-weight:500; }
     </style>
 </head>
 <body>
@@ -1315,27 +1326,39 @@
                 ];
                 const lines = (pm.lines || {});
                 const proj = (pm.proj || {});
+                const pitcherKey = (pm.pitcher_key || pm.name || '').toLowerCase();
                 const html = [];
-                html.push('<div class="prop-trackers">');
+                html.push('<div class="prop-trackers" data-pitcher="'+pitcherKey+'">');
                 for (const m of markets) {
-                    const line = lines[m.key];
+                    let lineVal = (lines[m.key] != null ? lines[m.key] : undefined);
+                    // Fallback: use globally cached lines from snapshot/SSE if available
+                    if(lineVal == null && window.__PITCHER_PROP_LINES){
+                        const pkNorm = pitcherKey.replace(/[^a-z0-9]+/g,' ').trim();
+                        for(const storedKey in window.__PITCHER_PROP_LINES){
+                            const skNorm = storedKey.replace(/[^a-z0-9]+/g,' ').trim();
+                            if(skNorm === pkNorm || skNorm.includes(pkNorm) || pkNorm.includes(skNorm)){
+                                const mkLines = window.__PITCHER_PROP_LINES[storedKey];
+                                if(mkLines && typeof mkLines[m.key] === 'number'){
+                                    lineVal = mkLines[m.key];
+                                }
+                            }
+                        }
+                    }
                     const liveVal = pm[m.liveKey] ?? '-';
-                    // Infer side from projection if available; otherwise default pending neutral style
-                    let sideStr = 'over';
                     const projVal = proj[m.key];
-                    if (typeof projVal === 'number') {
-                        const edge = projVal - Number(line);
+                    let sideStr = 'over';
+                    if (typeof projVal === 'number' && typeof lineVal === 'number') {
+                        const edge = projVal - lineVal;
                         if (edge > 0.5) sideStr = 'over'; else if (edge < -0.5) sideStr = 'under'; else sideStr = 'over';
                     }
-                    const pendingClass = `${sideStr} pending`;
                     const id = `prop-${m.key}-${side}-${compositeId}`;
-                    const projTxt = (typeof projVal === 'number') ? Number(projVal).toFixed(1) : '-';
-                    const lineTxt = (typeof line === 'number') ? Number(line).toFixed(1) : '—';
-                    const edgeTxt = (typeof projVal === 'number' && typeof line === 'number') ? (projVal - line).toFixed(1) : null;
+                    const projTxt = (typeof projVal === 'number') ? projVal.toFixed(1) : '-';
+                    const lineTxt = (typeof lineVal === 'number') ? lineVal.toFixed(1) : '—';
+                    const edgeTxt = (typeof projVal === 'number' && typeof lineVal === 'number') ? (projVal - lineVal).toFixed(1) : '';
                     html.push(`
-                        <div class="prop-tracker ${pendingClass}" id="${id}" data-prop-market="${m.key}" data-prop-side="${sideStr}" data-prop-line="${line}">
+                        <div class="prop-tracker ${sideStr}" id="${id}" data-prop-market="${m.key}" data-prop-side="${sideStr}" data-prop-line="${lineVal != null ? lineVal : ''}" data-pitcher="${pitcherKey}">
                             <span class="label">${m.label}</span>
-                            <span class="proj">Proj ${projTxt}${edgeTxt !== null ? ` (${edgeTxt})` : ''}</span>
+                            <span class="proj">Proj ${projTxt}${edgeTxt ? ` (${edgeTxt})` : ''}</span>
                             <span class="line">Line ${lineTxt}</span>
                             <span class="progress">${liveVal}</span>
                         </div>
@@ -1879,6 +1902,7 @@
                                     if (liveStatus.current_batter) return `<div class="batter-line">${liveStatus.current_batter}${countChip ? ` ${countChip}` : ''}</div>`;
                                     return '';
                                 })()}
+
                                 ${liveStatus.last_play ? `<div class=\"last-play-line\">${liveStatus.last_play}</div>` : ''}
                             </div>
                         ` : `
@@ -1905,7 +1929,9 @@
                                         ${game.pitching_metrics && game.pitching_metrics.away ? `
                                         <span class="proj">Proj: ${game.pitching_metrics.away.projected_pitch_count ?? '-'}<span class="ppo"> (PPO ${game.pitching_metrics.away.pp_out ?? '-'})</span></span>
                                         ${game.pitching_metrics.away.live_pitches != null ? `<span class="live"> • Live: ${game.pitching_metrics.away.live_pitches}${game.pitching_metrics.away.inning ? ` (IP ${game.pitching_metrics.away.inning})` : ''}</span>` : ''}
+
                                         ` : ''}
+
                                     </div>
                                     ${buildAllPropTrackersHTML(game.pitching_metrics && game.pitching_metrics.away, 'away', compositeId)}
                                 </div>
@@ -1915,9 +1941,12 @@
                                     <span class="pitcher-name">${game.home_pitcher || 'TBD'}</span>
                                     <div class="pitch-metrics" id="pitch-metrics-home-${compositeId}">
                                         ${game.pitching_metrics && game.pitching_metrics.home ? `
+
                                         <span class="proj">Proj: ${game.pitching_metrics.home.projected_pitch_count ?? '-'}<span class="ppo"> (PPO ${game.pitching_metrics.home.pp_out ?? '-'})</span></span>
                                         ${game.pitching_metrics.home.live_pitches != null ? `<span class="live"> • Live: ${game.pitching_metrics.home.live_pitches}${game.pitching_metrics.home.inning ? ` (IP ${game.pitching_metrics.home.inning})` : ''}</span>` : ''}
+
                                         ` : ''}
+
                                     </div>
                                     ${buildAllPropTrackersHTML(game.pitching_metrics && game.pitching_metrics.home, 'home', compositeId)}
                                 </div>
@@ -2131,7 +2160,7 @@
                         <span style="color: #ff6b6b;">${liveStatus.away_team ? liveStatus.away_team.substring(0, 3) : 'AWAY'}</span>
                         <span class="team-score">${actualAwayScore}</span>
                     </div>
-                    <div style="color: #28a745; font-weight: bold;">FINAL</div>
+                    <div style="color: #28a745; font-weight: bold; font-size: 0.9em;">FINAL</div>
                     <div>
                         <span style="color: #4ecdc4;">${liveStatus.home_team ? liveStatus.home_team.substring(0, 3) : 'HOME'}</span>
                         <span class="team-score">${actualHomeScore}</span>
@@ -2642,13 +2671,245 @@
             document.getElementById('modal-body').innerHTML = html;
         }
 
-        function loadToday() {
-            document.getElementById('game-date').value = new Date().toISOString().split('T')[0];
-            loadTodaysGames();
+        // Maintain global pitcher lines map for initial card render fallback
+        window.__PITCHER_PROP_LINES = window.__PITCHER_PROP_LINES || {};
+
+        // augment existing SSE script updateTracker to store global lines
+        (function(){
+          const origUpdateTracker = window.__updatePitcherTrackerFn; // none yet
+        })();
+        
+        // Daily automation function
+        async function runDailyAutomation() {
+            const btn = document.getElementById('run-automation-btn');
+            const originalText = btn.textContent;
+            
+            try {
+                btn.textContent = '🔄 Starting...';
+                btn.disabled = true;
+                
+                const response = await fetch('/api/run-daily-automation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.textContent = '✅ Running...';
+                    alert('Daily automation started! This will update all data including betting recommendations for today. Check the console logs for progress. The page will refresh in 30 seconds.');
+                    
+                    // Refresh the page after 30 seconds to show updated data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 30000);
+                } else {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    alert('Error starting automation: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error starting automation:', error);
+                btn.textContent = originalText;
+                btn.disabled = false;
+                alert('Error starting daily automation.');
+            }
         }
 
-        function closeModal() {
-            document.getElementById('prediction-modal').style.display = 'none';
+        // Refresh dashboard stats function
+        async function refreshDashboardStats() {
+            const btn = document.getElementById('refresh-stats-btn');
+            const originalText = btn.textContent;
+            
+            try {
+                btn.textContent = '🔄 Updating...';
+                btn.disabled = true;
+                
+                const response = await fetch('/api/update-dashboard-stats');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    btn.textContent = '✅ Updated!';
+                    
+                    // Update the stats display on the page
+                    const totalGamesElement = document.querySelector('.stat-card h3');
+                    if (totalGamesElement && data.stats) {
+                        totalGamesElement.textContent = data.stats.total_games_analyzed || 0;
+                    }
+                    
+                    // Refresh the page to show all updated stats
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    btn.textContent = '❌ Error';
+                    alert('Error updating stats: ' + data.message);
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Error refreshing stats:', error);
+                btn.textContent = '❌ Error';
+                alert('Error refreshing dashboard statistics.');
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        async function initializeSystem() {
+            const btn = document.getElementById('init-system-btn');
+            const originalText = btn.textContent;
+            
+            try {
+                btn.textContent = '🔄 Fetching Real MLB Data...';
+                btn.disabled = true;
+                
+                showNotification('🚀 Fetching real MLB games from API...', 'info', 5000);
+                
+                const response = await fetch('/api/initialize-system', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.textContent = '✅ Success!';
+                    showNotification(`✅ Successfully loaded ${data.games_loaded} real MLB games!`, 'success', 5000);
+                    
+                    // Show the games that were loaded
+                    if (data.real_games && data.real_games.length > 0) {
+                        const gamesList = data.real_games.join(', ');
+                        console.log('Real games loaded:', gamesList);
+                    }
+                    
+                    // Refresh the page to show the real data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    btn.textContent = '❌ Failed';
+                    showNotification(`❌ Failed to load real data: ${data.error}`, 'error', 8000);
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }, 3000);
+                }
+            } catch (error) {
+                console.error('Error initializing system:', error);
+                btn.textContent = '❌ Failed';
+                showNotification('❌ Error fetching real MLB data. Check console for details.', 'error', 8000);
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }, 3000);
+            }
+        }
+
+        function startLiveUpdates() {
+            // Check for live games more frequently (every 10 seconds)
+            setInterval(updateLiveGames, 10000);
+        }
+
+        async function updateLiveGames() {
+            try {
+                const date = document.getElementById('game-date').value;
+                const response = await fetch(`/api/live-status?date=${date}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const liveGames = data.games.filter(game => game.is_live || game.is_final);
+                    
+                    for (const liveGame of liveGames) {
+                        updateGameCard(liveGame);
+                    }
+                    
+                    // Update timestamp
+                    console.log(`Live update: ${new Date().toLocaleTimeString()} - ${liveGames.length} games updated`);
+                }
+            } catch (error) {
+                console.error('Error updating live games:', error);
+            }
+        }
+
+        // Helper: Build compact trackers for all common pitcher props
+        function buildAllPropTrackersHTML(pm, side, compositeId) {
+            try {
+                if (!pm) return '';
+                const markets = [
+                    { key: 'strikeouts', label: 'K', liveKey: 'strikeouts' },
+                    { key: 'outs', label: 'Outs', liveKey: 'outs' },
+                    { key: 'walks', label: 'BB', liveKey: 'walks' },
+                    { key: 'hits_allowed', label: 'H', liveKey: 'hits_allowed' },
+                    { key: 'earned_runs', label: 'ER', liveKey: 'earned_runs' }
+                ];
+                const lines = (pm.lines || {});
+                const proj = (pm.proj || {});
+                const pitcherKey = (pm.pitcher_key || pm.name || '').toLowerCase();
+                const html = [];
+                html.push('<div class="prop-trackers" data-pitcher="'+pitcherKey+'">');
+                for (const m of markets) {
+                    let lineVal = (lines[m.key] != null ? lines[m.key] : undefined);
+                    // Fallback: use globally cached lines from snapshot/SSE if available
+                    if(lineVal == null && window.__PITCHER_PROP_LINES){
+                        const pkNorm = pitcherKey.replace(/[^a-z0-9]+/g,' ').trim();
+                        for(const storedKey in window.__PITCHER_PROP_LINES){
+                            const skNorm = storedKey.replace(/[^a-z0-9]+/g,' ').trim();
+                            if(skNorm === pkNorm || skNorm.includes(pkNorm) || pkNorm.includes(skNorm)){
+                                const mkLines = window.__PITCHER_PROP_LINES[storedKey];
+                                if(mkLines && typeof mkLines[m.key] === 'number'){
+                                    lineVal = mkLines[m.key];
+                                }
+                            }
+                        }
+                    }
+                    const liveVal = pm[m.liveKey] ?? '-';
+                    const projVal = proj[m.key];
+                    let sideStr = 'over';
+                    if (typeof projVal === 'number' && typeof lineVal === 'number') {
+                        const edge = projVal - lineVal;
+                        if (edge > 0.5) sideStr = 'over'; else if (edge < -0.5) sideStr = 'under'; else sideStr = 'over';
+                    }
+                    const id = `prop-${m.key}-${side}-${compositeId}`;
+                    const projTxt = (typeof projVal === 'number') ? projVal.toFixed(1) : '-';
+                    const lineTxt = (typeof lineVal === 'number') ? lineVal.toFixed(1) : '—';
+                    const edgeTxt = (typeof projVal === 'number' && typeof lineVal === 'number') ? (projVal - lineVal).toFixed(1) : '';
+                    html.push(`
+                        <div class="prop-tracker ${sideStr}" id="${id}" data-prop-market="${m.key}" data-prop-side="${sideStr}" data-prop-line="${lineVal != null ? lineVal : ''}" data-pitcher="${pitcherKey}">
+                            <span class="label">${m.label}</span>
+                            <span class="proj">Proj ${projTxt}${edgeTxt ? ` (${edgeTxt})` : ''}</span>
+                            <span class="line">Line ${lineTxt}</span>
+                            <span class="progress">${liveVal}</span>
+                        </div>
+                    `);
+                }
+                html.push('</div>');
+                return html.join('');
+            } catch (e) {
+                console.warn('buildAllPropTrackersHTML error', e);
+                return '';
+            }
+        }
+
+        // Helper: Build "Batter vs Pitcher" string using inning half
+        function buildBatterVsPitcher(batter, inningState, awayPitcher, homePitcher, isTopInning) {
+            let half = (inningState || '').toLowerCase();
+            if (!half && typeof isTopInning === 'boolean') {
+                half = isTopInning ? 'top' : 'bottom';
+            }
+            let pitcher = '';
+            if (half.startsWith('top')) {
+                pitcher = homePitcher || '';
+            } else if (half.startsWith('bottom')) {
+                pitcher = awayPitcher || '';
+            }
+            // Only show when both are known; otherwise, show nothing
+            if (batter && pitcher) return `${batter} vs ${pitcher}`;
+            return '';
         }
 
         // Close modal when clicking outside
@@ -2658,6 +2919,105 @@
                 modal.style.display = 'none';
             }
         }
+
+        // === LIVE PITCHER PROP LINES (SSE) FOR INDEX PAGE ===
+        (function(){
+          const norm = s => String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+          function classifyEdge(edge){
+            const a = Math.abs(edge);
+            if(a >= 1.5) return 'edge-strong';
+            if(a >= 1.0) return 'edge-medium';
+            if(a >= 0.5) return 'edge-small';
+            return '';
+          }
+          function ensureEdgeSpan(projSpan){
+            let sp = projSpan.querySelector('span.edge');
+            if(!sp){ sp = document.createElement('span'); sp.className='edge'; projSpan.appendChild(sp); }
+            return sp;
+          }
+          let es;
+          function updateTracker(pitcherKey, market, payload){
+            const trackers = document.querySelectorAll('.prop-tracker');
+            const pk = norm(pitcherKey);
+            trackers.forEach(tr => {
+              const attr = norm(tr.getAttribute('data-pitcher'));
+              if(!attr) return;
+              if(attr===pk || pk.includes(attr) || attr.includes(pk)){
+                if(tr.getAttribute('data-prop-market') === market){
+                  const newLine = (payload.new_line !== undefined ? payload.new_line : (payload.line !== undefined ? payload.line : null));
+                  const overOdds = payload.new_over_odds || payload.over_odds || null;
+                  const underOdds = payload.new_under_odds || payload.under_odds || null;
+                  if(newLine!=null){
+                    const lineSpan = tr.querySelector('.line');
+                    if(lineSpan){
+                      lineSpan.textContent = 'Line ' + Number(newLine).toFixed(1);
+                      lineSpan.classList.add('line-updated');
+                      setTimeout(()=> lineSpan && lineSpan.classList.remove('line-updated'), 3000);
+                    }
+                    tr.dataset.propLine = newLine;
+                  }
+                  if(overOdds || underOdds){
+                    let oddsSpan = tr.querySelector('.odds');
+                    if(!oddsSpan){ oddsSpan = document.createElement('span'); oddsSpan.className='odds'; tr.appendChild(oddsSpan); }
+                    const fmt = o => o==null?'' : String(o).replace(/undefined|null/gi,'');
+                    oddsSpan.textContent = `O ${fmt(overOdds)} / U ${fmt(underOdds)}`.trim();
+                  }
+                  // Recompute edge
+                    try {
+                      const projSpan = tr.querySelector('.proj');
+                      if(projSpan){
+                        const m = projSpan.textContent.match(/Proj\s+(\d+(?:\.\d+)?)/i);
+                        const lineVal = parseFloat(tr.dataset.propLine);
+                        if(m && !isNaN(lineVal)){
+                          const projVal = parseFloat(m[1]);
+                          const edge = projVal - lineVal;
+                          let edgeSpan = ensureEdgeSpan(projSpan);
+                          edgeSpan.textContent = `(${edge.toFixed(1)})`;
+                          edgeSpan.className = 'edge ' + classifyEdge(edge) + (edge < 0 ? ' edge-negative' : '');
+                        }
+                      }
+                    } catch(_e){}
+                }
+              }
+            });
+          }
+          function handleEvent(ev){
+            switch(ev.type){
+              case 'line_initial':
+              case 'line_move':
+                updateTracker(ev.pitcher, ev.market, ev);
+                break;
+              default:
+                break;
+            }
+          }
+          function startSSE(){
+            try {
+              es = new EventSource('/api/pitcher-props/stream');
+              es.onmessage = (msg)=>{ if(!msg.data) return; try { const ev = JSON.parse(msg.data); if(ev && ev.type) handleEvent(ev); } catch(e){ console.warn('SSE parse', e); } };
+              es.onerror = ()=>{ try { es.close(); } catch(_){}; setTimeout(startSSE, 10000); };
+            } catch(e){ console.warn('SSE init failed', e); setTimeout(startSSE, 15000); }
+          }
+          async function snapshotPatch(){
+            try {
+              const r = await fetch('/api/pitcher-props/current');
+              if(r.ok){
+                const data = await r.json();
+                const props = data.pitcher_props || {};
+                Object.entries(props).forEach(([p, mkts])=>{
+                  Object.entries(mkts).forEach(([market, info])=>{
+                    if(info && typeof info.line === 'number'){
+                      updateTracker(p, market, { line: info.line, over_odds: info.over_odds, under_odds: info.under_odds });
+                    }
+                  });
+                });
+              }
+            } catch(e){ console.warn('snapshot patch error', e); }
+            finally { setTimeout(snapshotPatch, 300000); } // 5 min
+          }
+          document.addEventListener('DOMContentLoaded', ()=>{ startSSE(); snapshotPatch(); });
+        })();
+        // === END LIVE PITCHER PROP LINES ===
     </script>
     
     <!-- Monitoring Widget -->
