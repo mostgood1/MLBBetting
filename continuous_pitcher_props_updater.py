@@ -425,6 +425,20 @@ def main():
                     broadcast_pitcher_update({'type': 'line_move', **ev})
             except Exception:
                 pass
+            # Incremental distribution updates for affected pitchers (Phase 2)
+            try:
+                from pitcher_distributions import update_distributions_for_pitchers  # type: ignore
+                changed_pitchers = list({ev['pitcher'] for ev in line_events if ev.get('pitcher')})
+                dist_changes = update_distributions_for_pitchers(date_str, changed_pitchers)
+                if dist_changes:
+                    try:
+                        from app import broadcast_pitcher_update  # type: ignore
+                        for pk, deltas in dist_changes.items():
+                            broadcast_pitcher_update({'type':'distribution_update','pitcher': pk, 'deltas': deltas, 'ts': datetime.utcnow().isoformat()})
+                    except Exception:
+                        pass
+            except Exception as _e:
+                print(f"[PitcherPropsUpdater] Incremental distribution update error: {_e}")
             # Update simple volatility estimates per pitcher/market (EW variance of line changes)
             for ev in line_events:
                 pk = ev['pitcher']

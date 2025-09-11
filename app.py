@@ -3324,11 +3324,33 @@ def api_pitcher_game_synergy():
                 if isinstance(md, dict):
                     for mk in md.keys():
                         markets_covered[mk] = markets_covered.get(mk,0)+1
+        # Basic volatility-of-distribution metric: average std (where available)
+        avg_std = {}
+        if isinstance(distributions, dict):
+            pts = distributions.get('pitchers') or {}
+            agg = {}
+            counts = {}
+            for pk, md in pts.items():
+                if isinstance(md, dict):
+                    for mk, dist_info in md.items():
+                        if not isinstance(dist_info, dict):
+                            continue
+                        st = dist_info.get('std')
+                        if st is None and dist_info.get('dist') == 'poisson':
+                            lam = dist_info.get('lambda')
+                            if isinstance(lam,(int,float)):
+                                st = lam ** 0.5
+                        if isinstance(st,(int,float)):
+                            agg[mk] = agg.get(mk,0.0) + st
+                            counts[mk] = counts.get(mk,0) + 1
+            for mk,v in agg.items():
+                avg_std[mk] = round(v / max(1, counts.get(mk,1)), 3)
         return jsonify({
             'success': True,
             'date': date_str,
             'pitcher_count': pitcher_count,
             'markets_covered': markets_covered,
+            'avg_std': avg_std,
             'snapshot_present': bool(distributions),
             'built_at': distributions.get('built_at') if isinstance(distributions, dict) else None
         })

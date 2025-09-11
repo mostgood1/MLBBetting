@@ -186,6 +186,131 @@ def build_and_save_distributions(date_str: str):
     doc = build_distributions(date_str)
     return save_distributions(doc)
 
+# ---------------- Incremental / Single Pitcher Utilities (Phase 2) ----------------
+
+def load_distributions(date_str: str) -> Dict[str, Any]:
+    safe = date_str.replace('-','_')
+    path = os.path.join(BASE_DIR, f'pitcher_prop_distributions_{safe}.json')
+    doc = load_json(path)
+    if not isinstance(doc, dict):
+        return {'date': date_str, 'built_at': datetime.utcnow().isoformat(), 'pitcher_count':0, 'pitchers': {}}
+    if 'pitchers' not in doc or not isinstance(doc['pitchers'], dict):
+        doc['pitchers'] = {}
+    return doc
+
+def load_recommendations(date_str: str):
+    safe = date_str.replace('-','_')
+    rec_path = os.path.join(BASE_DIR, f'pitcher_prop_recommendations_{safe}.json')
+    rec_doc = load_json(rec_path) or {}
+    return rec_doc.get('recommendations') or []
+
+def _build_single_entry(p_key: str, recs: list, vol_doc: dict, calib_doc: dict):
+    # Aggregate projections for this pitcher
+    proj_map = {}
+    raw_name = None
+    for r in recs:
+        name = r.get('pitcher') or r.get('name')
+        if not name:
+            continue
+        nk = normalize_name(name)
+        if nk != p_key:
+            continue
+        raw_name = raw_name or name
+        mkt = r.get('market')
+        pv = r.get('proj_value') or r.get('proj')
+        if mkt and isinstance(pv,(int,float)):
+            if mkt in proj_map:
+                proj_map[mkt] = 0.5*(proj_map[mkt] + float(pv))
+            else:
+                proj_map[mkt] = float(pv)
+    if not proj_map:
+        return None
+    entry = {}
+    # reuse distribution construction logic inline to avoid code duplication
+    # OUTS
+    if 'outs' in proj_map:
+        mean_outs = proj_map['outs']
+        std_outs = dynamic_std('outs', p_key, STD_BASE['outs'], vol_doc, calib_doc)
+        p_ge = {str(k): 1 - normal_cdf((k - 0.5 - mean_outs)/std_outs) for k in OUTS_PROB_THRESH}
+        entry['outs'] = {'mean': round(mean_outs,2), 'std': round(std_outs,3), 'dist':'normal', 'p_ge': {k: round(v,3) for k,v in p_ge.items()}}
+    # STRIKEOUTS
+    if 'strikeouts' in proj_map:
+        mean_k = max(0.1, proj_map['strikeouts'])
+        if mean_k <= 12:
+            lam = mean_k
+            p_ge = {str(k): round(poisson_sf(k, lam),3) for k in K_PROB_THRESH}
+            entry['strikeouts'] = {'mean': round(mean_k,2), 'dist':'poisson', 'lambda': round(lam,3), 'p_ge': p_ge}
+        else:
+            std_k = dynamic_std('strikeouts', p_key, STD_BASE['strikeouts'], vol_doc, calib_doc)
+            p_ge = {str(k): round(1 - normal_cdf((k-0.5-mean_k)/std_k),3) for k in K_PROB_THRESH}
+            entry['strikeouts'] = {'mean': round(mean_k,2), 'std': round(std_k,3), 'dist':'normal', 'p_ge': p_ge}
+    # ER
+    if 'earned_runs' in proj_map:
+        mean_er = max(0.05, proj_map['earned_runs'])
+        std_er = dynamic_std('earned_runs', p_key, STD_BASE['earned_runs'], vol_doc, calib_doc)
+        var_er = max(0.01, std_er**2)
+        shape = (mean_er**2)/var_er if var_er>0 else 1.0
+        scale = mean_er/shape if shape>0 else mean_er
+        entry['earned_runs'] = {'mean': round(mean_er,2), 'dist':'gamma', 'shape': round(shape,3), 'scale': round(scale,3)}
+    if 'hits_allowed' in proj_map:
+        lam = max(0.2, proj_map['hits_allowed'])
+        entry['hits_allowed'] = {'mean': round(lam,2), 'dist':'poisson', 'lambda': round(lam,3)}
+    if 'walks' in proj_map:
+        lam = max(0.05, proj_map['walks'])
+        entry['walks'] = {'mean': round(lam,2), 'dist':'poisson', 'lambda': round(lam,3)}
+    return entry if entry else None
+
+def update_distributions_for_pitchers(date_str: str, pitchers: list[str]):
+    if not pitchers:
+        return {}
+    vol_doc = load_json(VOLATILITY_FILE) or {}
+    calib_doc = load_json(CALIBRATION_FILE) or {}
+    recs = load_recommendations(date_str)
+    doc = load_distributions(date_str)
+    changed = {}
+    for p in set(pitchers):
+        new_entry = _build_single_entry(p, recs, vol_doc, calib_doc)
+        if not new_entry:
+            continue
+        old_entry = doc['pitchers'].get(p)
+        # Detect meaningful change (std delta or lambda/mean variance change)
+        significant = False
+        deltas = {}
+        if old_entry:
+            for mk, nm in new_entry.items():
+                om = old_entry.get(mk)
+                if not om:
+                    significant = True
+                    deltas[mk] = {'added': True}
+                    continue
+                # prefer std comparison if present else mean difference
+                std_new = nm.get('std') or math.sqrt(nm.get('lambda', 0)) if nm.get('dist')=='poisson' else None
+                std_old = om.get('std') or math.sqrt(om.get('lambda', 0)) if om.get('dist')=='poisson' else None
+                if std_new is not None and std_old is not None:
+                    d = abs(std_new - std_old)
+                    if d >= 0.05:
+                        significant = True
+                    deltas[mk] = {'std_old': std_old, 'std_new': std_new, 'delta_std': round(d,4)}
+                else:
+                    mean_new = nm.get('mean')
+                    mean_old = om.get('mean')
+                    if isinstance(mean_new,(int,float)) and isinstance(mean_old,(int,float)):
+                        d = abs(mean_new - mean_old)
+                        if d >= 0.2:
+                            significant = True
+                        deltas[mk] = {'mean_old': mean_old, 'mean_new': mean_new, 'delta_mean': round(d,4)}
+        else:
+            significant = True
+            deltas = {mk: {'added': True} for mk in new_entry.keys()}
+        if significant:
+            doc['pitchers'][p] = new_entry
+            changed[p] = deltas
+    if changed:
+        doc['pitcher_count'] = len(doc['pitchers'])
+        doc['built_at'] = datetime.utcnow().isoformat()
+        save_distributions(doc)
+    return changed
+
 def main():  # manual run
     from datetime import datetime as _dt
     date_str = _dt.utcnow().strftime('%Y-%m-%d')
