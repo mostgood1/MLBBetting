@@ -1,0 +1,82 @@
+{
+  "date": "2025-09-11",
+  "retrieved_at": "2025-09-11T14:07:52.318592",
+  "pitcher_props": {
+    "johan oviedo (pit)": {
+      "strikeouts_alts": []
+    },
+    "cade povich (bal)": {
+      "strikeouts_alts": []
+    },
+    "ian seymour (tb)": {
+      "strikeouts_alts": []
+    },
+    "shane smith (cws)": {
+      "strikeouts_alts": []
+    },
+    "cristian javier (hou)": {
+      "strikeouts_alts": []
+    },
+    "kevin gausman (tor)": {
+      "strikeouts_alts": []
+    },
+    "mackenzie gore (was)": {
+      "strikeouts_alts": []
+    },
+    "ryan weathers (mia)": {
+      "strikeouts_alts": []
+    },
+    "cam schlittler (nyy)": {
+      "strikeouts_alts": []
+    },
+    "stephen kolek (kc)": {
+      "strikeouts_alts": []
+    },
+    "gavin williams (cle)": {
+      "strikeouts_alts": []
+    },
+    "david peterson (nym)": {
+      "walks": {
+        "line": 2.5,
+        "over_odds": "+150",
+        "under_odds": "-200"
+      }
+    },
+    "jesus luzardo (phi)": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-200",
+        "under_odds": "+150"
+      }
+    },
+    "mccade brown (col)": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-115",
+        "under_odds": "-125"
+      }
+    },
+    "randy vasquez (sd)": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": "+170",
+        "under_odds": "-250"
+      }
+    },
+    "bryce miller (sea)": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": "+125",
+        "under_odds": "-165"
+      }
+    },
+    "jose soriano (laa)": {
+      "walks": {
+        "line": 2.5,
+        "over_odds": "+120",
+        "under_odds": "-160"
+      }
+    }
+  },
+  "event_count": 28
+}

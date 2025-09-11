@@ -206,3 +206,10 @@ This system provides the best of both worlds: the sophisticated analysis of our 
 **Status**: ✅ **FULLY IMPLEMENTED AND OPERATIONAL**
 **Performance**: ✅ **Validated and optimized**
 **Integration**: ✅ **Seamlessly integrated into existing pipeline**
+
+## Kelly Sizing
+A capped Kelly fraction (`kelly_fraction`) is now produced for each pitcher prop recommendation.
+
+Env var: `PITCHER_PROPS_KELLY_CAP` (default 0.10) limits maximum suggested fraction of bankroll.
+
+Field surfaced via API in each `pitcher_prop_plays` entry.

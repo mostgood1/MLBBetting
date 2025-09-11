@@ -1,0 +1,73 @@
+{
+  "date": "2025-09-11",
+  "generated_at": "2025-09-11T14:34:41.811508",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "count": 2,
+  "recommendations": [
+    {
+      "pitcher_key": "david peterson (nym)",
+      "pitcher": "david peterson (nym)",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 16.5,
+        "strikeouts": 5.2,
+        "earned_runs": 2.6,
+        "hits_allowed": 5.2,
+        "walks": 1.9,
+        "pitch_count": 84.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "UNDER",
+          "line": 2.5,
+          "proj": 1.9,
+          "edge": -0.6,
+          "confidence": "LOW",
+          "p_over": 0.274,
+          "ev_over": -0.314,
+          "ev_under": 0.089,
+          "selected_ev": 0.089,
+          "over_odds": "+150",
+          "under_odds": "-200",
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "jose soriano (laa)",
+      "pitcher": "jose soriano (laa)",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 16.5,
+        "strikeouts": 5.2,
+        "earned_runs": 2.6,
+        "hits_allowed": 5.2,
+        "walks": 1.9,
+        "pitch_count": 84.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "UNDER",
+          "line": 2.5,
+          "proj": 1.9,
+          "edge": -0.6,
+          "confidence": "LOW",
+          "p_over": 0.274,
+          "ev_over": -0.397,
+          "ev_under": 0.179,
+          "selected_ev": 0.179,
+          "over_odds": "+120",
+          "under_odds": "-160",
+          "kelly_fraction": 0.1
+        }
+      ]
+    }
+  ]
+}
