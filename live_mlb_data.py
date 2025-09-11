@@ -315,6 +315,8 @@ class LiveMLBData:
             # Initialize inning variables
             inning = ''
             inning_state = ''
+            # Always define this to avoid UnboundLocalError in return
+            is_top_flag = None
             
             if status_code in ['F', 'FT', 'FR']:
                 game_status = 'Final'
@@ -324,7 +326,6 @@ class LiveMLBData:
                 badge_class = 'live'
                 # Add inning info if available - check both locations
                 linescore = game_data.get('linescore', {}) or game.get('linescore', {})
-                is_top_flag = None
                 if linescore:
                     inning = linescore.get('currentInning', '')
                     inning_state = linescore.get('inningState', '')
