@@ -38,6 +38,90 @@ class UnifiedBettingEngine:
         logger.info(f"🎯 Unified Betting Engine initialized for {self.current_date}")
         logger.info(f"📊 Using predictions: {self.predictions_cache_path}")
         logger.info(f"💰 Using betting lines: {self.betting_lines_path}")
+        # Pitcher distribution snapshot (phase 3 synergy)
+        self.pitcher_distributions_path = os.path.join(self.root_dir, 'data', 'daily_bovada', f'pitcher_prop_distributions_{self.current_date.replace('-', '_')}.json')
+        self.pitcher_distributions = self._load_pitcher_distributions()
+        if self.pitcher_distributions:
+            logger.info(f"🧪 Loaded pitcher distributions: {len(self.pitcher_distributions.get('pitchers',{}))} pitchers")
+
+    # ---------------- Pitcher Distribution Synergy ----------------
+    def _load_pitcher_distributions(self):
+        try:
+            if os.path.exists(self.pitcher_distributions_path):
+                with open(self.pitcher_distributions_path,'r',encoding='utf-8') as f:
+                    return json.load(f)
+        except Exception:
+            return None
+        return None
+
+    def _normalize_pitcher_key(self, name: str) -> str:
+        import unicodedata
+        try:
+            t = unicodedata.normalize('NFD', name)
+            t = ''.join(ch for ch in t if unicodedata.category(ch) != 'Mn')
+            return t.lower().strip()
+        except Exception:
+            return (name or '').lower().strip()
+
+    def _pitcher_variance_adjustment(self, pitcher_name: str, market: str, default: float = 0.0) -> float:
+        """Return a variance (std) for a pitcher market if available; else default.
+        Used to adjust confidence scaling (higher std -> damp edge)."""
+        try:
+            if not self.pitcher_distributions:
+                return default
+            pkey = self._normalize_pitcher_key(pitcher_name)
+            dist = self.pitcher_distributions.get('pitchers', {}).get(pkey, {})
+            mk = dist.get(market)
+            if not mk:
+                return default
+            if mk.get('dist') == 'poisson':
+                lam = mk.get('lambda')
+                if isinstance(lam,(int,float)):
+                    return max(default, lam**0.5)
+            std = mk.get('std')
+            if isinstance(std,(int,float)):
+                return max(default, float(std))
+        except Exception:
+            return default
+        return default
+
+    def _apply_pitcher_distribution_influence(self, game_predictions: Dict) -> Dict:
+        """Adjust game-level predicted total & win probabilities modestly based on starter ER/outs distribution variance.
+        Heuristic: Higher starter ER variance increases total runs uncertainty; slightly widen predicted total toward market mean.
+        Also adjust favorite win probability damping if favorite's pitcher has high ER variance relative to opponent.
+        """
+        if not self.pitcher_distributions:
+            return game_predictions
+        preds = game_predictions.get('predictions', {})
+        away_pitcher = game_predictions.get('pitcher_info', {}).get('away_pitcher_name') or game_predictions.get('away_pitcher')
+        home_pitcher = game_predictions.get('pitcher_info', {}).get('home_pitcher_name') or game_predictions.get('home_pitcher')
+        if not away_pitcher or not home_pitcher:
+            return game_predictions
+        away_er_std = self._pitcher_variance_adjustment(away_pitcher, 'earned_runs', 0.6)
+        home_er_std = self._pitcher_variance_adjustment(home_pitcher, 'earned_runs', 0.6)
+        # Adjust predicted total: add small fraction of std differential
+        pt = preds.get('predicted_total_runs')
+        if isinstance(pt,(int,float)) and pt>0:
+            adj = (away_er_std + home_er_std)/10.0  # e.g., if combined std 3.0 -> +0.3 bump
+            preds['predicted_total_runs'] = round(pt + adj, 2)
+        # Win prob damping: if favorite pitcher variance >> opponent, reduce edge a bit
+        away_wp = preds.get('away_win_prob')
+        home_wp = preds.get('home_win_prob')
+        if isinstance(away_wp,(int,float)) and isinstance(home_wp,(int,float)):
+            fav_is_away = away_wp > home_wp
+            fav_std = away_er_std if fav_is_away else home_er_std
+            dog_std = home_er_std if fav_is_away else away_er_std
+            if fav_std - dog_std > 0.8:  # significant higher variance
+                # reduce favorite probability slightly proportionally (cap 2.5% shift)
+                shift = min(0.025, (fav_std - dog_std)*0.01)
+                if fav_is_away:
+                    preds['away_win_prob'] = max(0.5, away_wp - shift)
+                    preds['home_win_prob'] = 1 - preds['away_win_prob']
+                else:
+                    preds['home_win_prob'] = max(0.5, home_wp - shift)
+                    preds['away_win_prob'] = 1 - preds['home_win_prob']
+        game_predictions['predictions'] = preds
+        return game_predictions
     
     def load_predictions(self) -> Dict:
         """Load predictions from unified cache"""
@@ -119,49 +203,8 @@ class UnifiedBettingEngine:
     
     def get_betting_line_key(self, prediction_key: str) -> str:
         """Convert prediction key format to betting line key format"""
-        # Convert "Boston Red Sox_vs_New York Yankees" to betting lines key format.
-        # Also normalize standalone nicknames (e.g. "Athletics" -> "Oakland Athletics").
-        nickname_map = {
-            'Athletics': 'Oakland Athletics',
-            'Guardians': 'Cleveland Guardians',
-            'Dodgers': 'Los Angeles Dodgers',
-            'Yankees': 'New York Yankees',
-            'Mets': 'New York Mets',
-            'Phillies': 'Philadelphia Phillies',
-            'Mariners': 'Seattle Mariners',
-            'Giants': 'San Francisco Giants',
-            'Cardinals': 'St. Louis Cardinals',
-            'Braves': 'Atlanta Braves',
-            'Astros': 'Houston Astros',
-            'Rangers': 'Texas Rangers',
-            'Angels': 'Los Angeles Angels',
-            'Padres': 'San Diego Padres',
-            'Rockies': 'Colorado Rockies',
-            'Diamondbacks': 'Arizona Diamondbacks',
-            'Twins': 'Minnesota Twins',
-            'White Sox': 'Chicago White Sox',
-            'Red Sox': 'Boston Red Sox',
-            'Pirates': 'Pittsburgh Pirates',
-            'Orioles': 'Baltimore Orioles',
-            'Royals': 'Kansas City Royals',
-            'Nationals': 'Washington Nationals',
-            'Marlins': 'Miami Marlins',
-            'Tigers': 'Detroit Tigers',
-            'Blue Jays': 'Toronto Blue Jays',
-            'Cubs': 'Chicago Cubs',
-            'Rays': 'Tampa Bay Rays',
-            'Brewers': 'Milwaukee Brewers',
-            'Reds': 'Cincinnati Reds'
-        }
-        try:
-            if '_vs_' in prediction_key:
-                away, home = prediction_key.split('_vs_', 1)
-                away = nickname_map.get(away, away)
-                home = nickname_map.get(home, home)
-                return f"{away} @ {home}"
-        except Exception:
-            pass
-        return prediction_key.replace('_vs_', ' @ ')
+        # Convert "Boston Red Sox_vs_New York Yankees" to "Boston Red Sox @ New York Yankees"
+        return prediction_key.replace("_vs_", " @ ")
     
     def american_to_decimal(self, american_odds: str) -> Optional[float]:
         """Convert American odds to decimal probability"""
@@ -521,6 +564,12 @@ class UnifiedBettingEngine:
         for game_key, game_predictions in predictions.items():
             logger.debug(f"🎯 Analyzing {game_key}")
             
+            # Apply pitcher distribution influence (adjust predictions heuristically)
+            try:
+                game_predictions = self._apply_pitcher_distribution_influence(game_predictions)
+            except Exception:
+                pass
+
             # Extract pitcher info from the correct location
             pitcher_info = game_predictions.get('pitcher_info', {})
             away_pitcher = pitcher_info.get('away_pitcher_name', game_predictions.get('away_pitcher', 'TBD'))
@@ -572,14 +621,12 @@ class UnifiedBettingEngine:
         # Summary
         all_recommendations['summary'] = {
             'total_games_analyzed': len(predictions),
-            # Use converted key format when checking presence of betting lines
-            'games_with_betting_lines': len([
-                g for g in predictions.keys()
-                if self.get_betting_line_key(g) in betting_lines
-            ]),
+            'games_with_betting_lines': len([g for g in predictions.keys() if g in betting_lines]),
             'total_value_bets': total_value_bets,
             'high_confidence_bets': len([bet for game in all_recommendations['games'].values() for bet in game['value_bets'] if bet['confidence'] == 'high']),
-            'medium_confidence_bets': len([bet for game in all_recommendations['games'].values() for bet in game['value_bets'] if bet['confidence'] == 'medium'])
+            'medium_confidence_bets': len([bet for game in all_recommendations['games'].values() for bet in game['value_bets'] if bet['confidence'] == 'medium']),
+            'pitcher_distribution_pitchers': len(self.pitcher_distributions.get('pitchers',{})) if self.pitcher_distributions else 0,
+            'pitcher_distribution_built_at': self.pitcher_distributions.get('built_at') if self.pitcher_distributions else None
         }
         
         logger.info(f"📊 Analysis complete: {total_value_bets} total value bets found across {len(predictions)} games")
