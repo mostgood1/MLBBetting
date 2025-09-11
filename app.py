@@ -424,6 +424,23 @@ def get_live_status_with_timeout(away_team, home_team, date_param, timeout_secon
 
 # Logging already configured via setup_safe_logging()
 logger = logging.getLogger(__name__)
+
+# --- Name normalization helpers (accent-insensitive) ---
+def normalize_name(name: Optional[str]) -> str:
+    """Lowercase, strip, and remove diacritics for robust key matching.
+    Keeps spaces intact; collapses repeated whitespace.
+    """
+    try:
+        s = (name or '').strip().lower()
+        if not s:
+            return ''
+        import unicodedata, re
+        s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
+        # collapse whitespace
+        s = re.sub(r"\s+", " ", s)
+        return s
+    except Exception:
+        return (name or '').strip().lower()
 logger.setLevel(logging.INFO)
 
 # Import comprehensive betting performance tracker
@@ -2669,8 +2686,15 @@ def _load_bovada_pitcher_props(date_str: str) -> Dict[str, Any]:
             with open(path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             props = data.get('pitcher_props', {}) or {}
-            # Normalize keys to lowercase for matching
-            return {str(k).strip().lower(): v for k, v in props.items()}
+            # Normalize keys (accent-insensitive)
+            result = {}
+            for k, v in props.items():
+                key_lc = str(k).strip().lower()
+                key_norm = normalize_name(k)
+                result[key_lc] = v
+                if key_norm and key_norm != key_lc:
+                    result[key_norm] = v
+            return result
     except Exception as e:
         logger.warning(f"Could not load Bovada pitcher props for {date_str}: {e}")
     return {}
@@ -2688,13 +2712,17 @@ def _load_master_pitcher_stats() -> Dict[str, Dict[str, Any]]:
             data = data['pitcher_data']
         elif isinstance(data, dict) and 'refresh_info' in data and 'pitcher_data' in data['refresh_info']:
             data = data['refresh_info']['pitcher_data']
-        # Build lookup by lowercase name
+        # Build lookup by lowercase and accent-insensitive name
         by_name = {}
         if isinstance(data, dict):
             for pid, p in data.items():
                 name = str(p.get('name', '')).strip()
                 if name:
-                    by_name[name.lower()] = p
+                    key_lc = name.lower()
+                    key_norm = normalize_name(name)
+                    by_name[key_lc] = p
+                    if key_norm and key_norm != key_lc:
+                        by_name[key_norm] = p
         return by_name
     except Exception as e:
         logger.warning(f"Could not load master pitcher stats: {e}")
@@ -2711,8 +2739,17 @@ def _load_pitches_per_out_overrides() -> Dict[str, float]:
             if os.path.exists(path):
                 with open(path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                # Normalize keys to lowercase names
-                return {str(k).strip().lower(): float(v) for k, v in data.items() if v is not None}
+                # Normalize keys to lowercase and accent-insensitive names
+                result = {}
+                for k, v in data.items():
+                    if v is None:
+                        continue
+                    key_lc = str(k).strip().lower()
+                    key_norm = normalize_name(k)
+                    result[key_lc] = float(v)
+                    if key_norm and key_norm != key_lc:
+                        result[key_norm] = float(v)
+                return result
         except Exception as e:
             logger.warning(f"Failed loading pitches-per-out overrides from {path}: {e}")
     return {}
@@ -2743,13 +2780,9 @@ def _load_boxscore_pitcher_stats(date_str: Optional[str] = None) -> Dict[str, Di
                 name = str(person.get('fullName') or person.get('name') or '').strip()
                 pitching = stats.get('pitching') if isinstance(stats.get('pitching'), dict) else {}
                 if name:
-                    key = name.lower()
-                    # Also make an accent-insensitive key for robust matching
-                    try:
-                        import unicodedata
-                        key_ascii = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('ascii').lower()
-                    except Exception:
-                        key_ascii = key
+                    key = normalize_name(name)
+                    # Also keep the pure lowercase form for legacy lookups
+                    key_ascii = name.strip().lower()
                     entry = out.setdefault(key, {})
                     # Prefer numberOfPitches, fallback to pitchesThrown
                     pitches = pitching.get('numberOfPitches')
@@ -2830,7 +2863,7 @@ def _project_pitcher_line(pitcher: str,
                           default_ppo: float,
                           ppo_overrides: Dict[str, float]) -> Dict[str, Any]:
     """Compute simple per-pitcher projections + pick best recommendation vs props."""
-    key = (pitcher or '').strip().lower()
+    key = normalize_name(pitcher)
     st = stats_by_name.get(key, {})
     innings_pitched = float(st.get('innings_pitched', 0) or 0)
     games_started = int(st.get('games_started', 0) or 0)
@@ -4839,7 +4872,7 @@ def api_today_games():
                 proj = _project_pitcher_line(
                     name, team, opp, stats_by_name, props_by_name, default_ppo, ppo_overrides
                 )
-                key = (name or '').strip().lower()
+                key = normalize_name(name)
                 live = box_pitch_stats.get(key, {})
                 # innings_pitched in cache can be string like "5.1"; keep as-is for display
                 rec = proj.get('recommendation') if proj else None
@@ -5256,8 +5289,8 @@ def api_live_status():
             # Merge with our game data
             # Try to infer probable/starter names from cache to map live pitches
             pitcher_info = game_data.get('pitcher_info', {}) if isinstance(game_data, dict) else {}
-            away_pitcher_name = (pitcher_info.get('away_pitcher_name') or game_data.get('away_pitcher') or '').strip().lower()
-            home_pitcher_name = (pitcher_info.get('home_pitcher_name') or game_data.get('home_pitcher') or '').strip().lower()
+            away_pitcher_name = normalize_name(pitcher_info.get('away_pitcher_name') or game_data.get('away_pitcher') or '')
+            home_pitcher_name = normalize_name(pitcher_info.get('home_pitcher_name') or game_data.get('home_pitcher') or '')
 
             # Fallback live boxscore lookup if cache miss for these pitchers
             def _get_live_stat(name_key: str, field: str):
