@@ -18,6 +18,7 @@ python -m pip install --upgrade pip
 echo "🔧 Installing core packages individually..."
 python -m pip install gunicorn==21.2.0
 python -m pip install Flask==2.3.3
+python -m pip install Flask-Compress==1.13
 python -m pip install requests==2.31.0
 python -m pip install numpy==1.24.3
 python -m pip install python-dateutil==2.8.2
