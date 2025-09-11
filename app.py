@@ -5345,6 +5345,16 @@ def api_live_status():
             from live_mlb_data import LiveMLBData
             mlb_api = LiveMLBData()
             live_games_data = mlb_api.get_enhanced_games_data(date_param)
+            # Build fast lookup map for live status by normalized matchup
+            live_status_map = {}
+            try:
+                for lg in live_games_data:
+                    a = normalize_team_name(lg.get('away_team', ''))
+                    h = normalize_team_name(lg.get('home_team', ''))
+                    if a and h:
+                        live_status_map[(a, h)] = lg
+            except Exception:
+                live_status_map = {}
             
             # Group live games by team matchup
             live_matchups = {}
@@ -5464,7 +5474,7 @@ def api_live_status():
             except Exception:
                 return {}
 
-        # Get live status for each game from MLB API
+    # Get live status for each game from MLB API (reusing schedule snapshot)
         live_games = []
 
         # Support both dict and list structures for games
@@ -5484,8 +5494,11 @@ def api_live_status():
                 away_team_assets = get_team_assets(away_team)
                 home_team_assets = get_team_assets(home_team)
                 
-                # Get real live status from MLB API with timeout
-                live_status = get_live_status_with_timeout(away_team, home_team, date_param)
+                # Get live status from pre-fetched schedule map to avoid per-game API calls
+                live_status = live_status_map.get((normalize_team_name(away_team), normalize_team_name(home_team)), {})
+                if not live_status:
+                    # Fallback to timeout-based lookup only if not found (should be rare)
+                    live_status = get_live_status_with_timeout(away_team, home_team, date_param)
                 
                 # Merge with our game data
                 # Try to infer probable/starter names from cache to map live pitches
