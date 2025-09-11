@@ -1,14 +1,7 @@
 {
   "api_predictions_2025-08-19": [
     {
-      "timestamp": "2025-09-10T17:04:17.248264",
-      "function": "api_predictions_2025-08-19",
-      "execution_time": 0.0,
-      "success": false,
-      "error": "'str' object has no attribute 'get'"
-    },
-    {
-      "timestamp": "2025-09-10T17:04:17.248264",
+      "timestamp": "2025-09-10T19:24:39.052880",
       "function": "api_predictions_2025-08-19",
       "execution_time": 0.0,
       "success": false,

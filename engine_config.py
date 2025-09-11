@@ -33,7 +33,9 @@ class EngineConfigManager:
                 "team_strength_multiplier": 0.20,
                 "pitcher_era_weight": 0.70,
                 "pitcher_whip_weight": 0.30,
-                "game_chaos_variance": 0.42
+                "game_chaos_variance": 0.42,
+                # For projected pitch count heuristic when explicit projections absent
+                "pitches_per_out_default": 5.1
             },
             "betting_parameters": {
                 "min_edge": 0.03,
