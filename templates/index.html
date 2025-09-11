@@ -14,30 +14,47 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        /* Modal removed */
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #eaf2ff; /* Improve default text contrast on dark bg */
-            line-height: 1.45;
+            color: white;
+            min-height: 100vh;
         }
 
-        /* Page container and header */
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px 16px 32px;
+            padding: 20px;
         }
 
         .header {
             text-align: center;
-            margin: 10px 0 18px;
+            margin-bottom: 30px;
         }
+
         .header h1 {
-            color: #ffffff;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-        .header p { color: #dbeafe; }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
         .clickable-stat {
             text-decoration: none;
@@ -71,19 +88,13 @@
 
         .games-section {
             margin-top: 30px;
-            background: rgba(0,0,0,0.12);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 12px;
-            padding: 12px;
         }
 
         .games-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.12);
-            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         .date-selector {
@@ -131,40 +142,21 @@
             background: #45b7b8;
         }
 
-        /* Summary cards at top */
-        .stats-grid {
-            display: grid;
-            gap: 12px;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            margin: 8px 0 10px;
-        }
-        .stat-card {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 12px;
-            padding: 12px 14px;
-            text-align: center;
-            color: #eaf2ff;
-        }
-
-        /* Game cards layout */
         .games-grid {
             display: grid;
-            gap: 12px;
-            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 15px;
         }
 
         .game-card {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 12px;
+            border-radius: 15px;
+            padding: 20px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             cursor: pointer;
             transition: transform 0.3s, box-shadow 0.3s;
             position: relative;
-            overflow: visible;
-            color: #eef4ff; /* ensure high contrast inside cards */
+            overflow: hidden;
         }
 
         .game-card:hover {
@@ -172,42 +164,18 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
-    /* Compact factor cards under SPs */
-    .factor-cards { margin-top: 8px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-    @media (min-width: 900px) { .factor-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-    .factor-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px; }
-    .factor-card h5 { margin-bottom: 6px; font-size: 0.86rem; color: #aeefff; }
-    .factor-kv { display:flex; justify-content:space-between; font-size: 0.85rem; margin: 2px 0; }
-    .factor-sub { font-size: 0.78rem; opacity: 0.85; }
-
-        /* Inline Details panel to reduce modal reliance */
-        .details-toggle {
-            margin-top: 10px;
-            display: inline-flex;
-            gap: 6px;
-            align-items: center;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: #5ce1e6;
-        }
-        .details-toggle .chev { transition: transform 0.2s ease; }
-    .details-panel { margin-top: 6px; display: none; position: relative; z-index: 1; }
-        .details-panel.open { display: block; }
-        .details-grid {
+        .game-header {
+            /* Compact full-width header: Away | status/score | Home */
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 8px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 8px;
-            padding: 6px;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
         }
-        .details-item h5 { font-size: 0.86rem; color: #aeefff; margin-bottom: 3px; }
-        .details-item .kv { font-size: 0.82rem; opacity: 0.95; }
-        .chip { display:inline-block; padding:2px 6px; border-radius:12px; background: rgba(255,255,255,0.12); margin-right:6px; }
-        @media (max-width: 720px) { .details-grid { grid-template-columns: 1fr; } }
 
-    .game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .header-left { justify-self: start; }
+        .header-center { justify-self: center; text-align: center; }
+        .header-right { justify-self: end; }
 
         .starting-pitchers {
             margin-bottom: 15px;
@@ -241,24 +209,48 @@
             color: #4fd1c7;
         }
 
+    /* Pitch count widget */
+    .pitch-metrics { margin-top: 4px; font-size: 0.75rem; opacity: 0.9; }
+    .pitch-metrics .proj { color: #9cd9d3; }
+    .pitch-metrics .live { color: #ffd166; }
+    .pitch-metrics .ppo { color: #aaa; font-size: 0.7rem; }
+
+    /* Compact props tracker */
+    .prop-tracker { margin-top: 4px; font-size: 0.76rem; display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); }
+    .prop-tracker .label { opacity: 0.8; font-size: 0.72rem; }
+    .prop-tracker .market { font-weight: 700; letter-spacing: 0.2px; }
+    .prop-tracker .line { opacity: 0.9; }
+    .prop-tracker .progress { font-weight: 700; }
+    .prop-tracker.over.pending { color: #ff6b6b; border-color: rgba(255, 107, 107, 0.35); }
+    .prop-tracker.over.crossed { color: #22c55e; border-color: rgba(34, 197, 94, 0.35); }
+    .prop-tracker.under.pending { color: #22c55e; border-color: rgba(34, 197, 94, 0.35); }
+    .prop-tracker.under.crossed { color: #ff6b6b; border-color: rgba(255, 107, 107, 0.35); }
+    .prop-tracker .hit-badge { background: #22c55e; color: #0b1c12; padding: 1px 6px; border-radius: 10px; font-size: 0.68rem; font-weight: 800; margin-left: 2px; }
+    .prop-tracker .miss-badge { background: #ef4444; color: #1a0b0b; padding: 1px 6px; border-radius: 10px; font-size: 0.68rem; font-weight: 800; margin-left: 2px; }
+    .prop-tracker .push-badge { background: #9ca3af; color: #0f172a; padding: 1px 6px; border-radius: 10px; font-size: 0.68rem; font-weight: 800; margin-left: 2px; }
+    .prop-trackers { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+
         .pitcher-matchup .vs-separator {
             font-size: 0.8rem;
             opacity: 0.5;
             margin: 0 5px;
         }
 
-    .game-teams { font-size:1.05rem; font-weight:700; display:flex; align-items:center; gap:10px; }
+        .game-teams {
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
         .team-info {
             display: flex;
             align-items: center;
             gap: 8px;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.06);
-            border-radius: 10px;
-            padding: 6px 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         
         .team-info:hover {
@@ -278,16 +270,37 @@
 
         .vs-separator {
             font-size: 0.9rem;
-            opacity: 0.85;
+            opacity: 0.7;
             margin: 0 5px;
-            color: #e2e8f0;
         }
 
-    .game-time { opacity: 0.75; font-size: 0.8rem; }
+        .game-time {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
 
-    .prediction-summary { display: grid; grid-template-columns: repeat(3, minmax(80px, 1fr)); gap: 6px; margin-top: 6px; }
+        .prediction-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
 
-    .betting-lines { margin-top: 8px; }
+        /* Two-column interior body for game card */
+        .card-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .card-section { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; }
+        .card-section.transparent { background: transparent; padding: 0; }
+
+        .betting-lines {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
         .betting-lines h4 {
             margin-bottom: 12px;
@@ -297,17 +310,20 @@
             font-weight: bold;
         }
 
-    .betting-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .betting-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
 
-    .betting-item { text-align: center; padding: 8px 6px; background: rgba(79, 209, 199, 0.08); border-radius: 6px; border: 1px solid rgba(79, 209, 199, 0.2); transition: all 0.2s ease; color:#f0f7ff; }
-        
-    /* Compact card grid */
-    .card-grid { display:grid; grid-template-columns: 1.1fr 1.2fr 1.7fr; gap: 8px; align-items:start; }
-    @media (max-width: 1400px) { .card-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 900px) { .card-grid { grid-template-columns: 1fr; } }
-    .live-inline { font-size: 0.76rem; opacity: 0.95; display:flex; align-items:center; gap:6px; margin-top:6px; position: relative; z-index: 1; }
-    .live-pill { background: rgba(220,53,69,0.18); border:1px solid rgba(220,53,69,0.35); color:#ff6b6b; padding:2px 6px; border-radius:10px; font-weight:700; }
-    .final-pill { background: rgba(40,167,69,0.18); border:1px solid rgba(40,167,69,0.35); color:#66bb6a; padding:2px 6px; border-radius:10px; font-weight:700; }
+        .betting-item {
+            text-align: center;
+            padding: 10px 8px;
+            background: rgba(79, 209, 199, 0.08);
+            border-radius: 8px;
+            border: 1px solid rgba(79, 209, 199, 0.2);
+            transition: all 0.2s ease;
+        }
 
         .betting-item:hover {
             background: rgba(79, 209, 199, 0.12);
@@ -326,7 +342,6 @@
             font-size: 0.8rem;
             font-weight: bold;
             line-height: 1.3;
-            color: #f8fbff;
         }
 
         .moneyline-away, .moneyline-home {
@@ -509,88 +524,6 @@
             font-size: 1.1rem;
         }
 
-        /* Compact pitcher props row */
-        .pitcher-props {
-            margin-top: 10px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 8px;
-        }
-        .prop-chip {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.15);
-            font-size: 0.85rem;
-        }
-        .prop-chip .left {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-        .prop-chip .odds {
-            font-weight: 600;
-        }
-        .prop-chip.high { border-left: 3px solid #ff6b6b; }
-        .prop-chip.medium { border-left: 3px solid #ffa726; }
-        .prop-chip.low { border-left: 3px solid #66bb6a; }
-        .prop-chip .ev { color: #4fd1c7; font-weight: 600; }
-
-        /* Live prop progress styling */
-        .live-prop-progress {
-            margin-top: 8px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 6px;
-        }
-        .live-prop-item {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 6px;
-            padding: 6px 8px;
-            font-size: 0.8rem;
-        }
-        .live-prop-item .hdr { display:flex; justify-content:space-between; margin-bottom:4px; }
-        .live-prop-bar {
-            height: 6px;
-            background: rgba(255,255,255,0.12);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .live-prop-fill { height: 100%; background: linear-gradient(90deg, #4fd1c7, #00d4aa); width: 0%; }
-        
-    /* Pitcher props panel (compact redesign) */
-    .pitcher-props-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
-    .pitcher-column { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px; }
-    .pitcher-col-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
-    .pitcher-col-header .name { font-weight: 700; color: #4fd1c7; }
-    .props-table { display: grid; gap: 6px; }
-    .pitcher-col-subhdr { font-size: 0.82rem; opacity: 0.9; margin: 2px 0 6px; }
-    .pitcher-col-subhdr .live-pc { color: #ffd166; margin-left: 4px; }
-    .prop-row { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius:6px; padding:6px; }
-    .prop-row .meta { display:flex; flex-wrap:wrap; gap:8px; font-size:0.78rem; opacity:0.95; margin-bottom:4px; }
-    .prop-row .bar { height:6px; background: rgba(255,255,255,0.12); border-radius:6px; overflow:hidden; }
-    .prop-row .fill { height:100%; width:0%; background: linear-gradient(90deg, #66bb6a, #4caf50); transition: width 0.3s ease; }
-    .prop-row .current { margin-top:2px; font-size:0.75rem; opacity:0.9; display:flex; justify-content:space-between; }
-    /* Hit state & badge */
-    .prop-row.hit .fill { animation: hitPulse 1.2s ease-in-out 2; }
-    .hit-badge { display:none; margin-left:8px; padding:2px 6px; border-radius:10px; font-size:0.7rem; border:1px solid transparent; }
-    .hit-badge.good { background: rgba(76,175,80,0.18); color:#c8e6c9; border-color:#4caf50; }
-    .hit-badge.bad { background: rgba(229,57,53,0.18); color:#ffcdd2; border-color:#e53935; }
-    .hit-badge.neutral { background: rgba(253,216,53,0.18); color:#fff59d; border-color:#fdd835; }
-    @keyframes hitPulse { 0% { box-shadow: 0 0 0px rgba(255,255,255,0.0); } 50% { box-shadow: 0 0 10px rgba(255,255,255,0.7); } 100% { box-shadow: 0 0 0px rgba(255,255,255,0.0); } }
-    /* Recommendation badge */
-    .rec-badge { padding: 2px 6px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2px; }
-    .rec-badge.over { background: rgba(76, 175, 80, 0.15); border: 1px solid #4caf50; color: #b9f6ca; }
-    .rec-badge.under { background: rgba(244, 67, 54, 0.15); border: 1px solid #e57373; color: #ff8a80; }
-    .rec-badge.low { opacity: 0.8; }
-    .rec-badge.medium { box-shadow: 0 0 8px rgba(255,255,255,0.06) inset; }
-    .rec-badge.high { box-shadow: 0 0 0 1px rgba(255,255,255,0.2) inset; }
-    @media (max-width: 800px) { .pitcher-props-panel { grid-template-columns: 1fr; } }
-
         .final-analysis {
             margin-top: 10px;
             padding: 10px;
@@ -646,18 +579,18 @@
         }
 
         .section-title {
-            color: #a7f3d0;
+            color: #4fd1c7;
             font-size: 1.2rem;
-            margin: 20px 0 12px 0;
-            padding: 10px 14px;
-            background: rgba(79, 209, 199, 0.08);
-            border-left: 4px solid #34d399;
-            border-radius: 8px;
+            margin: 20px 0 15px 0;
+            padding: 10px 15px;
+            background: rgba(79, 209, 199, 0.1);
+            border-left: 4px solid #4fd1c7;
+            border-radius: 5px;
         }
 
         .btn.secondary {
             background: rgba(255, 255, 255, 0.1);
-            color: #eaf2ff;
+            color: #ffffff;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
@@ -809,6 +742,26 @@
         </div>
 
         <div id="summary-stats" class="stats-grid">
+            <a href="/historical-analysis" class="stat-card clickable-stat">
+                <h3>{{ comprehensive_stats.total_games_analyzed or 0 }}</h3>
+                <p>Total Games Tracked</p>
+                <small>Since {{ comprehensive_stats.date_range.start or 'Aug 15' }} ({{ comprehensive_stats.date_range.days_of_data or 0 }} days)</small>
+            </a>
+            <a href="/historical-analysis" class="stat-card clickable-stat">
+                <h3>{{ comprehensive_stats.betting_performance.winner_accuracy_pct or 0 }}%</h3>
+                <p>Winner Prediction Accuracy</p>
+                <small>{{ comprehensive_stats.betting_performance.winner_predictions_correct or 0 }}/{{ comprehensive_stats.betting_performance.games_analyzed or 0 }} correct predictions</small>
+            </a>
+            <a href="/historical-analysis" class="stat-card clickable-stat">
+                <h3>${{ comprehensive_stats.betting_performance.total_profit or 0 }}</h3>
+                <p>Total Profit (Since 8/15)</p>
+                <small>{{ comprehensive_stats.betting_performance.roi_percentage or 0 }}% ROI on {{ comprehensive_stats.betting_performance.total_bets_placed or 0 }} bets</small>
+            </a>
+            <a href="/historical-analysis" class="stat-card clickable-stat">
+                <h3>{{ comprehensive_stats.betting_performance.total_accuracy_pct or 0 }}%</h3>
+                <p>Betting Recommendations</p>
+                <small>{{ comprehensive_stats.betting_performance.total_predictions_correct or 0 }} winning bets of {{ comprehensive_stats.betting_performance.total_bets_placed or 0 }} placed</small>
+            </a>
             <div class="stat-card" id="tbd-monitor-card">
                 <h3 id="tbd-status-indicator">🔍</h3>
                 <p>TBD Monitor</p>
@@ -816,10 +769,6 @@
                 <div style="margin-top: 8px;">
                     <button class="btn-small" onclick="checkTBD()" id="tbd-check-btn">Check Now</button>
                 </div>
-            </div>
-            <div class="stat-card">
-                <h3>🎯 Pitcher Proj</h3>
-                <p>Now shown on game cards</p>
             </div>
         </div>
 
@@ -859,26 +808,20 @@
         </div>
     </div>
 
-    <!-- Modal removed -->
+    <!-- Prediction Modal -->
+    <div id="prediction-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Game Prediction</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modal-body">
+                Loading prediction...
+            </div>
+        </div>
+    </div>
 
     <script>
-        function createLiveBadgeHtml(liveStatus) {
-            if (!liveStatus) return '';
-            if (liveStatus.is_final) {
-                const as = liveStatus.away_score ?? '-';
-                const hs = liveStatus.home_score ?? '-';
-                return `<span class="final-pill">Final ${as}-${hs}</span>`;
-            }
-            if (!liveStatus.is_live) return `<span class="badge-scheduled game-status-badge">${liveStatus.status || 'Scheduled'}</span>`;
-            let inningDisplay = 'LIVE';
-            if (liveStatus.inning && liveStatus.inning_state) inningDisplay = `${liveStatus.inning_state} ${liveStatus.inning}`;
-            const counts = (liveStatus.balls != null && liveStatus.strikes != null && liveStatus.outs != null)
-                ? ` • B:${liveStatus.balls} S:${liveStatus.strikes} O:${liveStatus.outs}` : '';
-            const bases = liveStatus.base_state ? ` • ${liveStatus.base_state}` : '';
-            const as = liveStatus.away_score ?? 0, hs = liveStatus.home_score ?? 0;
-            return `<span class="live-pill">${inningDisplay}</span> <span>${as}-${hs}${counts}${bases}</span>`;
-        }
-
         // Get user's local date, not UTC date
         let currentDate = new Date();
         let localDateString = currentDate.getFullYear() + '-' + 
@@ -1325,7 +1268,7 @@
             setInterval(updateLiveGames, 10000);
         }
 
-    async function updateLiveGames() {
+        async function updateLiveGames() {
             try {
                 const date = document.getElementById('game-date').value;
                 const response = await fetch(`/api/live-status?date=${date}`);
@@ -1346,7 +1289,51 @@
             }
         }
 
-    function updateGameCard(liveGame) {
+        // Helper: Build compact trackers for all common pitcher props
+        function buildAllPropTrackersHTML(pm, side, compositeId) {
+            try {
+                if (!pm) return '';
+                const markets = [
+                    { key: 'strikeouts', label: 'K', liveKey: 'strikeouts' },
+                    { key: 'outs', label: 'Outs', liveKey: 'outs' },
+                    { key: 'walks', label: 'BB', liveKey: 'walks' },
+                    { key: 'hits_allowed', label: 'H', liveKey: 'hits_allowed' },
+                    { key: 'earned_runs', label: 'ER', liveKey: 'earned_runs' }
+                ];
+                const lines = (pm.lines || {});
+                const proj = (pm.proj || {});
+                const html = [];
+                html.push('<div class="prop-trackers">');
+                for (const m of markets) {
+                    const line = lines[m.key];
+                    if (line == null) continue; // only render if we have a market line
+                    const liveVal = pm[m.liveKey] ?? '-';
+                    // Infer side from projection if available; otherwise default pending neutral style
+                    let sideStr = 'over';
+                    const projVal = proj[m.key];
+                    if (typeof projVal === 'number') {
+                        const edge = projVal - Number(line);
+                        if (edge > 0.5) sideStr = 'over'; else if (edge < -0.5) sideStr = 'under'; else sideStr = 'over';
+                    }
+                    const pendingClass = `${sideStr} pending`;
+                    const id = `prop-${m.key}-${side}-${compositeId}`;
+                    html.push(`
+                        <div class="prop-tracker ${pendingClass}" id="${id}" data-prop-market="${m.key}" data-prop-side="${sideStr}" data-prop-line="${line}">
+                            <span class="label">${m.label}</span>
+                            <span class="line">${line}</span>
+                            <span class="progress">${liveVal}</span>
+                        </div>
+                    `);
+                }
+                html.push('</div>');
+                return html.join('');
+            } catch (e) {
+                console.warn('buildAllPropTrackersHTML error', e);
+                return '';
+            }
+        }
+
+        function updateGameCard(liveGame) {
             // Find the corresponding game card by composite ID using the selected date
             const dateStr = document.getElementById('game-date').value;
             const compositeId = `${liveGame.away_team}_${liveGame.home_team}_${dateStr}`;
@@ -1382,142 +1369,104 @@
                     statusBadge.textContent = liveGame.status;
                     console.log(`   Updated badge to: ${liveGame.status}`);
                 }
-                
-                // Target the existing inline live container to avoid duplicates
-                const liveInline = card.querySelector('.live-inline');
-                if (liveInline) {
-                    // Clear any previous content we injected
-                    liveInline.innerHTML = '';
+
+                // Update pitch-metrics (live pitches/IP) for away and home if available
+                try {
+                    const pm = liveGame.pitching_metrics || {};
+                    const sides = ['away', 'home'];
+                    for (const side of sides) {
+                        const el = document.getElementById(`pitch-metrics-${side}-${compositeId}`);
+                        if (!el) continue;
+                        const metrics = (pm[side] || {});
+                        if (metrics.live_pitches != null) {
+                            // Find or create the live span
+                            let liveSpan = el.querySelector('.live');
+                            const liveText = ` • Live: ${metrics.live_pitches}${metrics.inning ? ` (IP ${metrics.inning})` : ''}`;
+                            if (liveSpan) {
+                                liveSpan.textContent = liveText;
+                            } else {
+                                liveSpan = document.createElement('span');
+                                liveSpan.className = 'live';
+                                liveSpan.textContent = liveText;
+                                el.appendChild(liveSpan);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Could not update pitch-metrics:', e);
                 }
 
+                // Update all prop trackers based on live metrics and settle if final
+                try {
+                    const pm = liveGame.pitching_metrics || {};
+                    const sides = ['away', 'home'];
+                    for (const side of sides) {
+                        const sidePm = pm[side] || {};
+                        const markets = [
+                            { key: 'strikeouts' },
+                            { key: 'outs' },
+                            { key: 'walks' },
+                            { key: 'hits_allowed' },
+                            { key: 'earned_runs' }
+                        ];
+                        for (const m of markets) {
+                            const id = `prop-${m.key}-${side}-${compositeId}`;
+                            const el = document.getElementById(id);
+                            if (!el) continue;
+                            const line = Number(el.getAttribute('data-prop-line'));
+                            const sideStr = (el.getAttribute('data-prop-side') || 'over').toLowerCase();
+                            const liveVal = sidePm[m.key];
+                            if (liveVal != null) {
+                                const progressEl = el.querySelector('.progress');
+                                if (progressEl) progressEl.textContent = liveVal;
+                                // Color state transitions
+                                const crossed = sideStr === 'over' ? (Number(liveVal) >= line) : (Number(liveVal) > line);
+                                el.classList.remove('pending', 'crossed');
+                                el.classList.add(crossed ? 'crossed' : 'pending');
+                            }
+                            // On final, show hit/miss/push once
+                            if (liveGame.is_final && !el.querySelector('.hit-badge') && !el.querySelector('.miss-badge') && !el.querySelector('.push-badge')) {
+                                const liveNum = Number(sidePm[m.key]);
+                                let badgeHtml = '';
+                                if (!Number.isFinite(liveNum)) continue;
+                                const isPush = liveNum === line;
+                                const isHit = sideStr === 'over' ? (liveNum > line) : (liveNum < line);
+                                if (isPush) badgeHtml = '<span class="push-badge">PUSH</span>';
+                                else if (isHit) badgeHtml = '<span class="hit-badge">HIT</span>';
+                                else badgeHtml = '<span class="miss-badge">MISS</span>';
+                                el.insertAdjacentHTML('beforeend', badgeHtml);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Could not update prop trackers:', e);
+                }
+                
+                // Remove existing live/final content to prevent duplicates
+                let existingScore = card.querySelector('.live-score');
+                if (existingScore) {
+                    existingScore.remove();
+                }
+                
+                let existingAnalysis = card.querySelector('.final-analysis');
+                if (existingAnalysis) {
+                    existingAnalysis.remove();
+                }
+                
+                const gameHeader = card.querySelector('.game-header');
                 if (liveGame.is_live && (liveGame.away_score != null || liveGame.home_score != null)) {
                     const liveScoreHtml = createLiveScoreHtml(liveGame);
-                    console.log(`   Rendering live score inline`);
-                    if (liveInline) {
-                        liveInline.innerHTML = liveScoreHtml;
-                    }
-
-                    // Kick off live prop poll/update for this game
-                    try {
-                        const away = encodeURIComponent(liveGame.away_team);
-                        const home = encodeURIComponent(liveGame.home_team);
-                        pollAndRenderLiveProps(card, away, home);
-                    } catch (e) { console.warn('live props poll init failed', e); }
+                    console.log(`   Adding live score HTML: ${liveScoreHtml}`);
+                    gameHeader.insertAdjacentHTML('afterend', liveScoreHtml);
                 } else if (liveGame.is_final && (liveGame.away_score != null || liveGame.home_score != null)) {
-                    // Render final analysis inline and stop any live polling timers
+                    // Need to get prediction data for final analysis
                     const gameId = card.querySelector('[id^="summary-"]').id.replace('summary-', '');
-                    const finalScoreHtml = createFinalScoreHtml(liveGame, { prediction: {} });
-                    if (liveInline) {
-                        liveInline.innerHTML = finalScoreHtml;
-                    }
-                    // Stop live props intervals on final
-                    const panel = card.querySelector('.pitcher-props-panel');
-                    if (panel && panel._livePropsInterval) {
-                        clearInterval(panel._livePropsInterval);
-                        panel._livePropsInterval = null;
-                    }
+                    const prediction = { /* We'd need to store this somehow */ };
+                    const finalScoreHtml = createFinalScoreHtml(liveGame, { prediction });
+                    gameHeader.insertAdjacentHTML('afterend', finalScoreHtml);
                 }
             } else {
                 console.log(`❌ Game card not found for ${liveGame.away_team} @ ${liveGame.home_team}`);
-            }
-        }
-
-        async function pollAndRenderLiveProps(cardEl, awayTeam, homeTeam) {
-            const date = document.getElementById('game-date').value;
-            const panel = cardEl.querySelector('.pitcher-props-panel');
-            if (!panel) return;
-            const awayName = (panel.getAttribute('data-away-pitcher')||'').trim();
-            const homeName = (panel.getAttribute('data-home-pitcher')||'').trim();
-            const doFetch = async () => {
-                try {
-                    const resp = await fetch(`/api/live-props/${awayTeam}/${homeTeam}?date=${encodeURIComponent(date)}`);
-                    const data = await resp.json();
-                    if (!data || !data.success) return;
-                    renderLivePropsIntoPanel(panel, awayName, homeName, data.props || []);
-                    // Render live pitch counts if available
-                    if (data.live_pitch_counts) {
-                        const fmtInnings = (arr) => {
-                            if (!arr || !Array.isArray(arr) || arr.length === 0) return '';
-                            // Show last up to 3 innings for compactness
-                            const last = arr.slice(-3).map(v => parseInt(v,10)).join('-');
-                            return ` | ${last}`;
-                        };
-                        const awayLive = data.live_pitch_counts[awayName] || {};
-                        const homeLive = data.live_pitch_counts[homeName] || {};
-                        const awayPc = (awayLive.pitch_count ?? awayLive.pitches);
-                        const homePc = (homeLive.pitch_count ?? homeLive.pitches);
-                        const awayPI = fmtInnings(awayLive.pitches_by_inning);
-                        const homePI = fmtInnings(homeLive.pitches_by_inning);
-                        const awayEl = panel.querySelector(`#${panel.id}-away-pc-live`);
-                        const homeEl = panel.querySelector(`#${panel.id}-home-pc-live`);
-                        if (awayEl) awayEl.textContent = (awayPc != null) ? ` (${awayPc} live${awayPI})` : '';
-                        if (homeEl) homeEl.textContent = (homePc != null) ? ` (${homePc} live${homePI})` : '';
-                    }
-                } catch (e) { /* ignore transient */ }
-            };
-            // Initial and periodic
-            doFetch();
-            // Store interval on element to avoid duplicates
-            if (!panel._livePropsInterval) {
-                panel._livePropsInterval = setInterval(doFetch, 15000);
-            }
-        }
-        
-        function renderLivePropsIntoPanel(panel, awayName, homeName, props) {
-            if (!Array.isArray(props)) return;
-            const nameToSide = (nm) => (nm===awayName) ? 'away' : (nm===homeName) ? 'home' : null;
-            const goodGrad = 'linear-gradient(90deg,#66bb6a,#4caf50)';
-            const badGrad  = 'linear-gradient(90deg,#ef5350,#e53935)';
-            const neutralGrad = 'linear-gradient(90deg,#fbc02d,#fdd835)';
-            const defaultColor = (pct) => pct >= 100 ? badGrad : goodGrad; // legacy fallback
-            for (const p of props) {
-                const side = nameToSide(p.pitcher_name||'');
-                if (!side) continue;
-                const stat = p.stat;
-                const base = `${panel.id}-${side}-${stat}`;
-                const curEl = panel.querySelector(`#${CSS.escape(base)}-cur`);
-                const barEl = panel.querySelector(`#${CSS.escape(base)}-bar`);
-                if (curEl) curEl.textContent = `${p.current ?? 0}`;
-                if (barEl) {
-                    const pct = Math.max(0, Math.min(100, Math.round((p.progress || 0) * 100)));
-                    barEl.style.width = pct + '%';
-                    // Determine recommendation side from the row's data-rec attribute
-                    const rowEl = panel.querySelector(`.prop-row[data-side="${side}"][data-stat="${stat}"]`);
-                    const rec = (rowEl && rowEl.getAttribute('data-rec') || '').toUpperCase();
-                    const cur = Number(p.current);
-                    const line = Number(p.line);
-                    let color;
-                    if (rec === 'OVER' && isFinite(cur) && isFinite(line)) {
-                        // OVER: red until we hit/past the number, then green
-                        color = cur >= line ? goodGrad : badGrad;
-                    } else if (rec === 'UNDER' && isFinite(cur) && isFinite(line)) {
-                        // UNDER: green until we hit the number (>=), then red
-                        color = cur >= line ? badGrad : goodGrad;
-                    } else if (!rec) {
-                        // No recommendation: neutral yellow
-                        color = neutralGrad;
-                    } else {
-                        // No rec available: use default behavior (green <100%, red at 100%)
-                        color = defaultColor(pct);
-                    }
-                    barEl.style.background = color;
-                    // Hit reaction
-                    const rowForHit = rowEl;
-                    const hitEl = panel.querySelector(`#${CSS.escape(base)}-hit`);
-                    const isHit = isFinite(cur) && isFinite(line) && cur >= line;
-                    if (rowForHit) rowForHit.classList.toggle('hit', !!isHit);
-                    if (hitEl) {
-                        if (isHit) {
-                            hitEl.classList.remove('good','bad','neutral');
-                            if (rec === 'OVER') { hitEl.classList.add('good'); hitEl.textContent = 'HIT ✓'; }
-                            else if (rec === 'UNDER') { hitEl.classList.add('bad'); hitEl.textContent = 'LINE REACHED'; }
-                            else { hitEl.classList.add('neutral'); hitEl.textContent = 'REACHED'; }
-                            hitEl.style.display = 'inline-block';
-                        } else {
-                            hitEl.style.display = 'none';
-                        }
-                    }
-                }
             }
         }
 
@@ -1528,14 +1477,12 @@
                 
                 if (data.success) {
                     const summary = data.summary;
-                    const totalEl = document.getElementById('total-games');
-                    const compEl = document.getElementById('completed-games');
-                    const accEl = document.getElementById('prediction-accuracy');
-                    const errEl = document.getElementById('avg-error');
-                    if (totalEl) totalEl.textContent = summary.total_games;
-                    if (compEl) compEl.textContent = summary.completed_games;
-                    if (accEl) accEl.textContent = (summary.prediction_accuracy * 100).toFixed(2) + '%';
-                    if (errEl) errEl.textContent = summary.avg_score_error.toFixed(2);
+                    document.getElementById('total-games').textContent = summary.total_games;
+                    document.getElementById('completed-games').textContent = summary.completed_games;
+                    document.getElementById('prediction-accuracy').textContent = 
+                        (summary.prediction_accuracy * 100).toFixed(2) + '%';
+                    document.getElementById('avg-error').textContent = 
+                        summary.avg_score_error.toFixed(2);
                 }
             } catch (error) {
                 console.error('Error loading summary:', error);
@@ -1707,8 +1654,7 @@
             card.setAttribute('data-game-id', compositeId);
             card.setAttribute('data-away-team', (game.away_team || '').toLowerCase());
             card.setAttribute('data-home-team', (game.home_team || '').toLowerCase());
-            // Modal disabled: keep interactions inline
-            // card.onclick = () => loadPrediction(game.away_team, game.home_team, game.date);
+            card.onclick = () => loadPrediction(game.away_team, game.home_team, game.date);
             
             // Debug: log the entire game object
             console.log(`🔍 CREATING CARD FOR: ${game.away_team} @ ${game.home_team}`);
@@ -1864,95 +1810,68 @@
             }
             
             card.innerHTML = `
-                <div class="card-grid">
-                    <div class="teams-col">
-                        <div class="game-header">
-                            <div class="game-teams">
-                                <div class="team-info" style="background: linear-gradient(135deg, ${awayColors.primary}, ${awayColors.secondary}); color: ${awayColors.text}; border-radius: 6px; padding: 6px;">
-                                    <img src="${awayAssets.logo_url || ''}" alt="${game.away_team}" class="team-logo" />
-                                    <span class="team-name">${game.away_team}</span>
-                                </div>
-                                <span class="vs-separator">@</span>
-                                <div class="team-info" style="background: linear-gradient(135deg, ${homeColors.primary}, ${homeColors.secondary}); color: ${homeColors.text}; border-radius: 6px; padding: 6px;">
-                                    <img src="${homeAssets.logo_url || ''}" alt="${game.home_team}" class="team-logo" />
-                                    <span class="team-name">${game.home_team}</span>
-                                </div>
-                            </div>
+                <div class="game-header">
+                    <div class="header-left game-teams">
+                        <div class="team-info" style="background: linear-gradient(135deg, ${awayColors.primary}, ${awayColors.secondary}); color: ${awayColors.text}; border-radius: 8px; padding: 6px 8px;">
+                            <img src="${awayAssets.logo_url || ''}" alt="${game.away_team}" class="team-logo" />
+                            <span class="team-name">${game.away_team}</span>
                         </div>
-                        <div class="live-inline">${liveStatus.is_live || liveStatus.is_final ? createLiveBadgeHtml(liveStatus) : `<span class=\"game-status-badge badge-${liveStatus.badge_class}\">${displayStatus}</span>`}</div>
-                        <div class="game-time">${displayTime || ''}</div>
-                        <div class="starting-pitchers" style="margin-top:8px;">
-                            <div class="pitcher-matchup">
-                                <div class="away-pitcher"><span class="pitcher-label">SP:</span> <span class="pitcher-name">${game.away_pitcher || 'TBD'}</span></div>
-                                <span class="vs-separator">vs</span>
-                                <div class="home-pitcher"><span class="pitcher-label">SP:</span> <span class="pitcher-name">${game.home_pitcher || 'TBD'}</span></div>
-                            </div>
-                        </div>
-                        ${createFactorCardsHtml(game)}
                     </div>
-                    <div class="middle-col">
+                    <div class="header-center">
+                        ${displayTime ? `<div class="game-time">${displayTime}</div>` : ''}
+                        <span class="game-status-badge badge-${liveStatus.badge_class}">${displayStatus}</span>
+                    </div>
+                    <div class="header-right game-teams" style="justify-content: end;">
+                        <div class="team-info" style="background: linear-gradient(135deg, ${homeColors.primary}, ${homeColors.secondary}); color: ${homeColors.text}; border-radius: 8px; padding: 6px 8px;">
+                            <img src="${homeAssets.logo_url || ''}" alt="${game.home_team}" class="team-logo" />
+                            <span class="team-name">${game.home_team}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="card-section transparent">
+                        <div class="starting-pitchers">
+                            <div class="pitcher-matchup">
+                                <div class="away-pitcher">
+                                    <span class="pitcher-label">Starting Pitcher:</span>
+                                    <span class="pitcher-name">${game.away_pitcher || 'TBD'}</span>
+                                    <div class="pitch-metrics" id="pitch-metrics-away-${compositeId}">
+                                        ${game.pitching_metrics && game.pitching_metrics.away ? `
+                                        <span class="proj">Proj: ${game.pitching_metrics.away.projected_pitch_count ?? '-'}<span class="ppo"> (PPO ${game.pitching_metrics.away.pp_out ?? '-'})</span></span>
+                                        ${game.pitching_metrics.away.live_pitches != null ? `<span class="live"> • Live: ${game.pitching_metrics.away.live_pitches}${game.pitching_metrics.away.inning ? ` (IP ${game.pitching_metrics.away.inning})` : ''}</span>` : ''}
+                                        ` : ''}
+                                    </div>
+                                    ${buildAllPropTrackersHTML(game.pitching_metrics && game.pitching_metrics.away, 'away', compositeId)}
+                                </div>
+                                <span class="vs-separator">vs</span>
+                                <div class="home-pitcher">
+                                    <span class="pitcher-label">Starting Pitcher:</span>
+                                    <span class="pitcher-name">${game.home_pitcher || 'TBD'}</span>
+                                    <div class="pitch-metrics" id="pitch-metrics-home-${compositeId}">
+                                        ${game.pitching_metrics && game.pitching_metrics.home ? `
+                                        <span class="proj">Proj: ${game.pitching_metrics.home.projected_pitch_count ?? '-'}<span class="ppo"> (PPO ${game.pitching_metrics.home.pp_out ?? '-'})</span></span>
+                                        ${game.pitching_metrics.home.live_pitches != null ? `<span class="live"> • Live: ${game.pitching_metrics.home.live_pitches}${game.pitching_metrics.home.inning ? ` (IP ${game.pitching_metrics.home.inning})` : ''}</span>` : ''}
+                                        ` : ''}
+                                    </div>
+                                    ${buildAllPropTrackersHTML(game.pitching_metrics && game.pitching_metrics.home, 'home', compositeId)}
+                                </div>
+                            </div>
+                        </div>
+                        ${liveStatus.is_live ? createLiveScoreHtml(liveStatus, awayColors, homeColors) : ''}
+                        ${liveStatus.is_final ? createFinalScoreHtml(liveStatus, game, awayColors, homeColors) : ''}
+                    </div>
+                    <div class="card-section">
                         <div class="prediction-summary" id="summary-${game.game_id}">
                             ${createPredictionSummaryHtml(game)}
                         </div>
-                        ${bettingLinesHtml}
                         ${game.betting_recommendations && (game.betting_recommendations.value_bets || game.betting_recommendations.recommendations) ? createBettingRecommendationsHtml(game.betting_recommendations, game.away_team, game.home_team) : ''}
-                    </div>
-                    <div class="props-col">
-                        ${createPitcherPropsPanelHtml(game)}
+                        ${bettingLinesHtml}
                     </div>
                 </div>
-                
             `;
             
             return card;
-        }
-
-        function createInlineDetailsHtml(game) {
-            try {
-                const cf = game.card_factors || {};
-                const ts = cf.team_strengths || {}; const bp = cf.bullpen || {}; const wx = cf.weather || {};
-                const fmt = (x, d='—') => (x==null || x==='') ? d : x;
-                const pct = (x) => (typeof x==='number' ? `${(x*100).toFixed(0)}%` : '—');
-                const qf = (x) => (typeof x==='number' ? x.toFixed(2) : '—');
-                const wxParts = [];
-                if (wx.temperature!=null) wxParts.push(`${wx.temperature}°`);
-                if (wx.wind_speed!=null) wxParts.push(`Wind ${wx.wind_speed} mph`);
-                if (wx.conditions) wxParts.push(`${wx.conditions}`);
-                const wxLine = wxParts.join(' • ');
-
-                const id = `details-${(game.away_team||'').replace(/\s+/g,'_')}-${(game.home_team||'').replace(/\s+/g,'_')}-${game.date}`;
-                return `
-                    <div class="details">
-                        <div class="details-toggle" onclick="(function(btn){ const p = document.getElementById('${id}'); const isOpen = p.classList.toggle('open'); const chev = btn.querySelector('.chev'); chev.style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)'; })(this)">
-                            <span class="chev">▶</span>
-                            <span>Details</span>
-                            <span class="chip">Total ${fmt(game.over_under_total, 'N/A')}</span>
-                        </div>
-                        <div id="${id}" class="details-panel">
-                            <div class="details-grid">
-                                <div class="details-item">
-                                    <h5>Team Strengths</h5>
-                                    <div class="kv">${game.away_team.split(' ').pop()}: <strong>${qf(ts.away)}</strong></div>
-                                    <div class="kv">${game.home_team.split(' ').pop()}: <strong>${qf(ts.home)}</strong></div>
-                                </div>
-                                <div class="details-item">
-                                    <h5>Bullpen</h5>
-                                    <div class="kv">${game.away_team.split(' ').pop()}: <strong>${fmt(bp.away?.rating)}</strong> <span style="opacity:.8">(${qf(bp.away?.quality_factor)})</span></div>
-                                    <div class="kv">${game.home_team.split(' ').pop()}: <strong>${fmt(bp.home?.rating)}</strong> <span style="opacity:.8">(${qf(bp.home?.quality_factor)})</span></div>
-                                </div>
-                                <div class="details-item">
-                                    <h5>Weather & Park</h5>
-                                    <div class="kv">${wxLine || '—'}</div>
-                                    <div class="kv">Park factor: <strong>${qf(wx.park_factor)}</strong> • Total factor: <strong>${qf(wx.total_factor)}</strong></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } catch (e) {
-                console.warn('createInlineDetailsHtml failed', e);
-                return '';
-            }
         }
 
         function createPredictionSummaryHtml(game) {
@@ -1994,67 +1913,6 @@
             `;
         }
 
-        function createFactorCardsHtml(game) {
-            try {
-                const cf = game.card_factors || {};
-                const ts = cf.team_strengths || {}; const bp = cf.bullpen || {}; const wx = cf.weather || {};
-                const fmt = (x, d='—') => (x==null || x==='') ? d : x;
-                const qf = (x) => (typeof x==='number' ? x.toFixed(2) : '—');
-                const wxParts = [];
-                if (wx.temperature!=null) wxParts.push(`${wx.temperature}°`);
-                if (wx.wind_speed!=null) wxParts.push(`Wind ${wx.wind_speed} mph`);
-                if (wx.conditions) wxParts.push(`${wx.conditions}`);
-                const wxLine = wxParts.join(' • ');
-
-                // Pitcher Score: simple compact derived hint from props edge if available
-                const pitchers = game.pitchers || {}; const away = pitchers.away || {}; const home = pitchers.home || {};
-                const projEdge = (p) => {
-                    try {
-                        const L = (p&&p.lines)||{};
-                        const stats = ['strikeouts','outs','earned_runs','hits_allowed','walks'];
-                        let sum = 0, n = 0;
-                        for (const st of stats) {
-                            const ln = L[st]?.line; const pj = p[`projected_${st}`];
-                            if (ln!=null && pj!=null && isFinite(Number(ln)) && isFinite(Number(pj))) { sum += (Number(pj)-Number(ln)); n++; }
-                        }
-                        return n? (sum/n) : null;
-                    } catch { return null; }
-                };
-                const awayPS = projEdge(away); const homePS = projEdge(home);
-
-                return `
-                    <div class="factor-cards">
-                        <div class="factor-card">
-                            <h5>Team Strengths</h5>
-                            <div class="factor-kv"><span>${game.away_team.split(' ').pop()}</span><span><strong>${qf(ts.away)}</strong></span></div>
-                            <div class="factor-kv"><span>${game.home_team.split(' ').pop()}</span><span><strong>${qf(ts.home)}</strong></span></div>
-                        </div>
-                        <div class="factor-card">
-                            <h5>Bullpen</h5>
-                            <div class="factor-kv"><span>${game.away_team.split(' ').pop()}</span><span><strong>${fmt(bp.away?.rating)}</strong></span></div>
-                            <div class="factor-sub">QF ${qf(bp.away?.quality_factor)}</div>
-                            <div class="factor-kv"><span>${game.home_team.split(' ').pop()}</span><span><strong>${fmt(bp.home?.rating)}</strong></span></div>
-                            <div class="factor-sub">QF ${qf(bp.home?.quality_factor)}</div>
-                        </div>
-                        <div class="factor-card">
-                            <h5>Weather & Park</h5>
-                            <div class="factor-kv"><span>Weather</span><span>${wxLine || '—'}</span></div>
-                            <div class="factor-kv"><span>Park</span><span>${qf(wx.park_factor)}</span></div>
-                            <div class="factor-kv"><span>Total</span><span>${qf(wx.total_factor)}</span></div>
-                        </div>
-                        <div class="factor-card">
-                            <h5>Pitcher Score</h5>
-                            <div class="factor-kv"><span>${game.away_pitcher || 'Away SP'}</span><span>${awayPS==null? '—' : (awayPS>0?'+':'') + awayPS.toFixed(2)}</span></div>
-                            <div class="factor-kv"><span>${game.home_pitcher || 'Home SP'}</span><span>${homePS==null? '—' : (homePS>0?'+':'') + homePS.toFixed(2)}</span></div>
-                        </div>
-                    </div>
-                `;
-            } catch (e) {
-                console.warn('createFactorCardsHtml failed', e);
-                return '';
-            }
-        }
-
         function createLiveScoreHtml(liveStatus, awayColors = null, homeColors = null) {
             // Only hide if scores are truly missing; show 0-0 as valid
             if (liveStatus.away_score == null && liveStatus.home_score == null) {
@@ -2070,146 +1928,21 @@
             if (liveStatus.inning && liveStatus.inning_state) {
                 inningDisplay = `${liveStatus.inning_state} ${liveStatus.inning}`;
             }
+            const count = (liveStatus.balls != null && liveStatus.strikes != null) ? ` | ${liveStatus.balls}-${liveStatus.strikes}` : '';
+            const bases = liveStatus.base_state ? ` | ${liveStatus.base_state}` : '';
+            const batter = liveStatus.current_batter ? ` | ${liveStatus.current_batter}` : '';
             
-            const counts = (liveStatus.balls != null && liveStatus.strikes != null && liveStatus.outs != null)
-                ? `<div style="font-size: 0.8em; opacity: 0.85;">B:${liveStatus.balls} S:${liveStatus.strikes} O:${liveStatus.outs}</div>`
-                : '';
-            const bases = liveStatus.base_state ? `<div style="font-size: 0.8em; opacity: 0.85;">${liveStatus.base_state}</div>` : '';
             return `
-                <div class="live-score" style="display:flex; gap:8px; align-items:center;">
+                <div class="live-score">
                     <div style="background: ${defaultAwayColors.primary}; color: ${defaultAwayColors.text}; padding: 4px 8px; border-radius: 4px; border: 1px solid ${defaultAwayColors.secondary};">
                         <span class="team-score">${liveStatus.away_score ?? 0}</span>
                     </div>
-                    <div style="color: #dc3545; font-weight: bold; font-size: 0.9em; min-width: 90px;">${inningDisplay}</div>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        ${counts}
-                        ${bases}
-                    </div>
-                    <div style="margin-left:auto; background: ${defaultHomeColors.primary}; color: ${defaultHomeColors.text}; padding: 4px 8px; border-radius: 4px; border: 1px solid ${defaultHomeColors.secondary};">
+                    <div style="color: #dc3545; font-weight: bold; font-size: 0.9em;">${inningDisplay}${count}${bases}${batter}</div>
+                    <div style="background: ${defaultHomeColors.primary}; color: ${defaultHomeColors.text}; padding: 4px 8px; border-radius: 4px; border: 1px solid ${defaultHomeColors.secondary};">
                         <span class="team-score">${liveStatus.home_score ?? 0}</span>
                     </div>
                 </div>
             `;
-        }
-
-        function createPitcherPropsPanelHtml(game) {
-            try {
-                const panelId = `ppanel-${(game.away_team||'').replace(/\s+/g,'_')}-${(game.home_team||'').replace(/\s+/g,'_')}-${game.date}`;
-                const pitchers = game.pitchers || {};
-                const away = pitchers.away || {};
-                const home = pitchers.home || {};
-                // Build a quick lookup of snapshot prop plays for recommendation/confidence when available
-                const plays = Array.isArray(game.pitcher_prop_plays) ? game.pitcher_prop_plays : [];
-                const key = (name, stat) => `${String(name||'').trim().toLowerCase()}|${stat}`;
-                const playsMap = new Map();
-                for (const e of plays) {
-                    const k = key(e.pitcher_name, e.stat);
-                    if (!playsMap.has(k)) playsMap.set(k, e);
-                }
-                const fmt = (n) => (n==null || isNaN(Number(n))) ? '-' : (Math.round(Number(n)*10)/10).toFixed(1).replace(/\.0$/, '');
-                const edge = (proj, line) => {
-                    const pn = Number(proj), ln = Number(line);
-                    if (isNaN(pn) || isNaN(ln)) return '';
-                    const d = Math.round((pn - ln)*10)/10;
-                    if (!isFinite(d)) return '';
-                    const s = d>0?`+${d}`:`${d}`;
-                    return `Edge ${s}`;
-                };
-                const oddsStr = (o) => {
-                    if (!o) return '—';
-                    const ov = o.over_odds, un = o.under_odds;
-                    const f = (x) => (x==null||x==='')? 'N/A' : (Number(x)>0?`+${x}`:`${x}`);
-                    if (ov==null && un==null) return '—';
-                    return `O ${f(ov)} / U ${f(un)}`;
-                };
-                const hasAnyLines = (p) => {
-                    try {
-                        const L = (p&&p.lines)||{};
-                        const stats = ['strikeouts','outs','earned_runs','hits_allowed','walks'];
-                        return stats.some(st => L[st] && (L[st].line!=null || L[st].over_odds!=null || L[st].under_odds!=null));
-                    } catch { return false; }
-                };
-                const row = (teamSide, p, stat, label, projKey) => {
-                    const lines = (p.lines||{});
-                    const lineObj = lines[stat] || {};
-                    const line = lineObj.line;
-                    const proj = p[projKey];
-                    const lineFmt = fmt(line); const projFmt = fmt(proj);
-                    const eid = `${panelId}-${teamSide}-${stat}`;
-                    // Determine recommendation & confidence from snapshot plays if present, else fall back to proj vs line
-                    let recSide = null; // 'OVER' | 'UNDER'
-                    let confLabel = null; // 'HIGH' | 'MEDIUM' | 'LOW'
-                    const playHit = playsMap.get(key(p.pitcher_name, stat));
-                    if (playHit && (playHit.side || playHit.recommendation)) {
-                        recSide = (playHit.side || playHit.recommendation || '').toUpperCase();
-                        confLabel = (playHit.confidence || playHit.confidence_label || '').toUpperCase();
-                    } else {
-                        const pn = Number(proj), ln = Number(line);
-                        if (!isNaN(pn) && !isNaN(ln)) {
-                            recSide = pn > ln ? 'OVER' : 'UNDER';
-                            // Heuristic confidence from diff magnitude vs stat-specific threshold
-                            try {
-                                const thr = { strikeouts:0.7, outs:2.0, earned_runs:0.6, hits_allowed:0.8, walks:0.6 }[stat] || 0.7;
-                                const norm = Math.abs(pn - ln) / Math.max(1e-6, thr);
-                                if (norm >= 1.5) confLabel = 'HIGH';
-                                else if (norm >= 0.9) confLabel = 'MEDIUM';
-                                else confLabel = 'LOW';
-                            } catch {}
-                        }
-                    }
-                    const badge = recSide ? `<span class="rec-badge ${recSide.toLowerCase()} ${String(confLabel||'').toLowerCase()}" title="${recSide} • ${confLabel||'Confidence N/A'}">${recSide} ${confLabel? '· '+confLabel : ''}</span>` : '';
-                    return `
-                        <div class="prop-row" data-side="${teamSide}" data-stat="${stat}" data-rec="${recSide||''}" data-conf="${confLabel||''}">
-                            <div class="meta">
-                                <span class="stat-label"><strong>${label}</strong></span>
-                                ${badge}
-                                <span class="line">Line: ${lineFmt}</span>
-                                <span class="proj">Proj: ${projFmt}</span>
-                                <span class="edge">${edge(proj, line)}</span>
-                                <span class="odds">${oddsStr(lineObj)}</span>
-                            </div>
-                            <div class="bar"><div class="fill" id="${eid}-bar"></div></div>
-                            <div class="current"><span id="${eid}-cur">—</span><span class="target">/ ${lineFmt}</span><span class="hit-badge" id="${eid}-hit">HIT</span></div>
-                        </div>
-                    `;
-                };
-                const awayName = (away && away.pitcher_name) || (game.away_pitcher && game.away_pitcher !== 'TBD' ? game.away_pitcher : null);
-                const homeName = (home && home.pitcher_name) || (game.home_pitcher && game.home_pitcher !== 'TBD' ? game.home_pitcher : null);
-        const fmtInt = (x) => (x==null||x==='') ? '—' : parseInt(x, 10);
-        const pitchHdr = (p, side) => {
-            const projPC = p.projected_pitch_count;
-            return `<div class="pitcher-col-subhdr" id="${panelId}-${side}-pc">PC: ${fmtInt(projPC)}<span class="live-pc" id="${panelId}-${side}-pc-live"></span></div>`;
-        };
-        const awayBlock = awayName ? `
-                    <div class="pitcher-column" data-side="away">
-            <div class="pitcher-col-header"><span class="name">${awayName}</span><span class="team">${game.away_team}</span></div>
-            ${pitchHdr(away, 'away')}
-                        ${hasAnyLines(away) ? `<div class="props-table">
-                            ${row('away', away, 'strikeouts', 'K', 'projected_strikeouts')}
-                            ${row('away', away, 'outs', 'Outs', 'projected_outs')}
-                            ${row('away', away, 'earned_runs', 'ER', 'projected_earned_runs')}
-                            ${row('away', away, 'hits_allowed', 'Hits', 'projected_hits_allowed')}
-                            ${row('away', away, 'walks', 'BB', 'projected_walks')}
-                        </div>` : `<div class="props-table"><div class="prop-row"><div class="meta"><span class="stat-label"><strong>No market</strong></span><span style="opacity:0.8;">Awaiting lines</span></div></div></div>`}
-                    </div>` : '';
-        const homeBlock = homeName ? `
-                    <div class="pitcher-column" data-side="home">
-            <div class="pitcher-col-header"><span class="name">${homeName}</span><span class="team">${game.home_team}</span></div>
-            ${pitchHdr(home, 'home')}
-                        ${hasAnyLines(home) ? `<div class="props-table">
-                            ${row('home', home, 'strikeouts', 'K', 'projected_strikeouts')}
-                            ${row('home', home, 'outs', 'Outs', 'projected_outs')}
-                            ${row('home', home, 'earned_runs', 'ER', 'projected_earned_runs')}
-                            ${row('home', home, 'hits_allowed', 'Hits', 'projected_hits_allowed')}
-                            ${row('home', home, 'walks', 'BB', 'projected_walks')}
-                        </div>` : `<div class="props-table"><div class="prop-row"><div class="meta"><span class="stat-label"><strong>No market</strong></span><span style=\"opacity:0.8;\">Awaiting lines</span></div></div></div>`}
-                    </div>` : '';
-                const dataAttrs = `data-away-pitcher="${(away.pitcher_name||'').replace(/"/g,'&quot;')}" data-home-pitcher="${(home.pitcher_name||'').replace(/"/g,'&quot;')}"`;
-                return `<div id="${panelId}" class="pitcher-props-panel" ${dataAttrs}>${awayBlock}${homeBlock}</div>`;
-            } catch (e) {
-                console.warn('createPitcherPropsPanelHtml failed', e);
-                return '';
-            }
         }
 
         function createFinalScoreHtml(liveStatus, game, awayColors = null, homeColors = null) {
@@ -2558,7 +2291,301 @@
             return html;
         }
 
-    // Modal code removed
+        async function loadPrediction(awayTeam, homeTeam, date) {
+            document.getElementById('modal-body').innerHTML = 'Loading detailed prediction...';
+            document.getElementById('prediction-modal').style.display = 'block';
+            
+            console.log(`🔍 Loading prediction for: ${awayTeam} @ ${homeTeam} on ${date}`);
+            
+            try {
+                const url = `/api/prediction/${awayTeam}/${homeTeam}?date=${date}`;
+                console.log('API URL:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                console.log('Prediction API response:', data);
+                
+                if (data.success) {
+                    const prediction = data.prediction;
+                    
+                    console.log('Betting recommendations in modal:', data.betting_recommendations);
+                    
+                    // Update modal title with team logos
+                    const awayAssets = prediction.away_team_assets || { logo_url: data.game.away_logo };
+                    const homeAssets = prediction.home_team_assets || { logo_url: data.game.home_logo };
+                    
+                    document.getElementById('modal-title').innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <img src="${awayAssets.logo_url || ''}" alt="${awayTeam}" style="width: 24px; height: 24px;" />
+                                <span>${awayTeam}</span>
+                            </div>
+                            <span>@</span>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <img src="${homeAssets.logo_url || ''}" alt="${homeTeam}" style="width: 24px; height: 24px;" />
+                                <span>${homeTeam}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    displayPredictionDetails(data);
+                } else {
+                    document.getElementById('modal-body').innerHTML = 
+                        '<div class="error">Error loading prediction: ' + data.error + '</div>';
+                }
+            } catch (error) {
+                document.getElementById('modal-body').innerHTML = 
+                    '<div class="error">Error loading prediction: ' + error.message + '</div>';
+            }
+        }
+
+        function displayPredictionDetails(data) {
+            console.log('🎯 displayPredictionDetails called with:', data);
+            console.log('Betting recommendations:', data.betting_recommendations);
+            
+            const prediction = data.prediction;  // Extract prediction from data object
+            const game = data.game;  // Extract game info from data object
+            const pred = prediction;  // Keep this for backward compatibility with existing code
+            const meta = prediction.meta || {
+                execution_time_ms: 0,
+                simulations_run: prediction.simulation_count || 5000,
+                data_source: prediction.model_version || 'simulation'
+            };
+            const recs = prediction.recommendations || [];
+            
+            // Extract pitcher information from game data with real factors
+            const awayPitcher = { 
+                name: game.away_pitcher || 'TBD', 
+                factor: game.away_pitcher_factor || 1.0
+            };
+            const homePitcher = { 
+                name: game.home_pitcher || 'TBD', 
+                factor: game.home_pitcher_factor || 1.0
+            };
+            
+            // Get team names from game data
+            const awayTeam = game.away_team;
+            const homeTeam = game.home_team;
+            
+            // Get team assets for colors
+            const awayAssets = prediction.away_team_assets || {};
+            const homeAssets = prediction.home_team_assets || {};
+            
+            let html = `
+                <div class="prediction-details">
+                    <div class="prediction-summary">
+                        <div class="prediction-item" style="background-color: ${awayAssets.primary_color || '#4fd1c7'}22; border-left: 3px solid ${awayAssets.primary_color || '#4fd1c7'};">
+                            <div class="value">${pred.predicted_away_score}</div>
+                            <div class="label">${awayTeam} Score</div>
+                        </div>
+                        <div class="prediction-item" style="background-color: ${homeAssets.primary_color || '#4fd1c7'}22; border-left: 3px solid ${homeAssets.primary_color || '#4fd1c7'};">
+                            <div class="value">${pred.predicted_home_score}</div>
+                            <div class="label">${homeTeam} Score</div>
+                        </div>
+                        <div class="prediction-item">
+                            <div class="value">${pred.predicted_total_runs}</div>
+                            <div class="label">Total Runs</div>
+                        </div>
+                        <div class="prediction-item">
+                            <div class="value">${pred.home_win_probability.toFixed(2)}%</div>
+                            <div class="label">Home Win Prob</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h3>Starting Pitchers</h3>
+                        <p><strong>Away:</strong> ${awayPitcher.name || 'TBD'} (Quality Factor: ${(awayPitcher.factor || 1.0).toFixed(2)})</p>
+                        <p><strong>Home:</strong> ${homePitcher.name || 'TBD'} (Quality Factor: ${(homePitcher.factor || 1.0).toFixed(2)})</p>
+                        <div style="font-size: 0.9em; color: #888; margin-top: 10px;">
+                            <em>Factor < 1.0 = Better pitcher (allows fewer runs), Factor > 1.0 = Weaker pitcher</em>
+                        </div>
+                    </div>
+                    
+                    <!-- Add comprehensive factors section -->
+                    <div style="margin-top: 20px;">
+                        <h3>📊 Model Factors</h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
+                            ${data.factors ? `
+                                <!-- Team Strengths -->
+                                <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #4fd1c7;">
+                                    <div style="font-weight: bold; color: #4fd1c7; margin-bottom: 8px;">Team Strengths</div>
+                                    <div style="font-size: 0.9em;">
+                                        <div style="color: #ff6b6b; margin-bottom: 4px;">${awayTeam}: ${data.factors.team_strengths ? (data.factors.team_strengths.away_strength > 0 ? '+' : '') + data.factors.team_strengths.away_strength.toFixed(3) : 'N/A'}</div>
+                                        <div style="color: #4ecdc4;">${homeTeam}: ${data.factors.team_strengths ? (data.factors.team_strengths.home_strength > 0 ? '+' : '') + data.factors.team_strengths.home_strength.toFixed(3) : 'N/A'}</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Bullpen Quality -->
+                                <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #ffa726;">
+                                    <div style="font-weight: bold; color: #ffa726; margin-bottom: 8px;">Bullpen Quality</div>
+                                    <div style="font-size: 0.9em;">
+                                        <div style="color: #ff6b6b; margin-bottom: 4px;">${awayTeam}: ${data.factors.bullpen_quality ? data.factors.bullpen_quality.away_bullpen.rating + ' (' + data.factors.bullpen_quality.away_bullpen.quality_factor.toFixed(2) + ')' : 'N/A'}</div>
+                                        <div style="color: #4ecdc4;">${homeTeam}: ${data.factors.bullpen_quality ? data.factors.bullpen_quality.home_bullpen.rating + ' (' + data.factors.bullpen_quality.home_bullpen.quality_factor.toFixed(2) + ')' : 'N/A'}</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Weather & Park -->
+                                ${data.factors.weather_park && Object.keys(data.factors.weather_park).length > 0 ? `
+                                <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #66bb6a; grid-column: 1 / -1;">
+                                    <div style="font-weight: bold; color: #66bb6a; margin-bottom: 8px;">🌤️ Weather & Park Factors</div>
+                                    <div style="font-size: 0.9em; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                                        <div>Temp: ${data.factors.weather_park.temperature}°F</div>
+                                        <div>Wind: ${data.factors.weather_park.wind_speed} mph</div>
+                                        <div>Conditions: ${data.factors.weather_park.weather_condition}</div>
+                                        <div>Park Factor: ${data.factors.weather_park.park_factor.toFixed(2)}</div>
+                                        <div>Runs Factor: ${data.factors.weather_park.total_runs_factor.toFixed(2)}</div>
+                                    </div>
+                                </div>
+                                ` : `
+                                <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #888; grid-column: 1 / -1;">
+                                    <div style="font-weight: bold; color: #888; margin-bottom: 8px;">🌤️ Weather & Park Factors</div>
+                                    <div style="font-size: 0.9em; color: #888; font-style: italic;">Weather data not available</div>
+                                </div>
+                                `}
+                            ` : `
+                                <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #888; grid-column: 1 / -1;">
+                                    <div style="font-weight: bold; color: #888; margin-bottom: 8px;">📊 Model Factors</div>
+                                    <div style="font-size: 0.9em; color: #888; font-style: italic;">Factor details not available</div>
+                                </div>
+                            `}
+                        </div>
+                        <div style="font-size: 0.8em; color: #888; margin-top: 10px; text-align: center;">
+                            <em>Higher team strength and bullpen factors = better performance expected</em>
+                        </div>
+                    </div>
+            `;
+            
+            // Add betting lines section if available
+            const bettingData = prediction.betting_data || prediction.closing_lines;
+            if (bettingData) {
+                const moneyline = bettingData.moneyline || {};
+                const total = bettingData.total || {};
+                const spread = bettingData.spread || {};
+                
+                html += `
+                    <div style="margin-top: 20px;">
+                        <h3>Betting Lines</h3>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px;">
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">Moneyline</div>
+                                <div style="font-size: 0.9rem;">
+                                    <div style="color: #ff6b6b;">${awayTeam}: ${moneyline.away || 'N/A'}</div>
+                                    <div style="color: #4ecdc4;">${homeTeam}: ${moneyline.home || 'N/A'}</div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">Total</div>
+                                <div style="font-size: 0.9rem;">
+                                    ${total.line ? `O/U ${total.line}` : 'N/A'}<br>
+                                    ${total.over && total.under ? `${total.over}/${total.under}` : ''}
+                                </div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">Spread</div>
+                                <div style="font-size: 0.9rem;">
+                                    ${spread.line ? `${spread.line > 0 ? '+' : ''}${spread.line}` : 'N/A'}<br>
+                                    ${spread.away && spread.home ? `${spread.away}/${spread.home}` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add enhanced betting recommendations section
+            const bettingRecs = data.betting_recommendations;  // Get from top level of data object
+            if (bettingRecs && (bettingRecs.value_bets || bettingRecs.summary)) {
+                html += '<div style="margin-top: 20px;"><h3>💰 Betting Recommendations</h3>';
+                
+                // Add summary if available
+                if (bettingRecs.summary) {
+                    html += `<div style="margin-bottom: 15px; padding: 10px; background: rgba(79, 209, 199, 0.1); border-radius: 6px; color: #4fd1c7; font-weight: bold;">${bettingRecs.summary}</div>`;
+                }
+                
+                // Show value bets in enhanced format
+                if (bettingRecs.value_bets && bettingRecs.value_bets.length > 0) {
+                    bettingRecs.value_bets.forEach(bet => {
+                        const confidenceColor = bet.confidence === 'HIGH' ? '#ff6b6b' : 
+                                               bet.confidence === 'MEDIUM' ? '#ffa726' : '#66bb6a';
+                        const icon = bet.edge_rating || (bet.confidence === 'HIGH' ? '🔥' : 
+                                   bet.confidence === 'MEDIUM' ? '⚡' : '💡');
+                        
+                        // Format Expected Value for modal - LIMITED TO 2 DECIMAL PLACES MAX
+                        let evModalDisplay = '';
+                        if (bet.expected_value !== undefined && bet.expected_value !== null) {
+                            const evPercent = (bet.expected_value * 100).toFixed(2);
+                            const evColor = bet.expected_value > 0 ? '#4fd1c7' : '#ff6b6b';
+                            const evSign = bet.expected_value > 0 ? '+' : '';
+                            evModalDisplay = `<div style="color: ${evColor}; font-weight: bold; font-size: 0.95em;">EV: ${evSign}${evPercent}%</div>`;
+                        }
+                        
+                        html += `
+                            <div style="margin: 12px 0; padding: 15px; background: rgba(255,255,255,0.08); border-left: 4px solid ${confidenceColor}; border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <strong style="color: ${confidenceColor}; font-size: 1.1em;">${icon} ${bet.recommendation || bet.bet}</strong>
+                                    <div style="text-align: right; font-size: 0.9em;">
+                                        <div style="color: #4fd1c7; font-weight: bold;">${typeof bet.edge === 'number' ? bet.edge.toFixed(2) + '% edge' : bet.edge ? bet.edge : bet.confidence ? bet.confidence + ' CONFIDENCE' : 'Value Bet'}</div>
+                                        ${evModalDisplay}
+                                        ${bet.estimated_odds && bet.estimated_odds !== 'N/A' ? `<div style="color: #888;">${bet.estimated_odds}</div>` : ''}
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.9em; color: #ccc; line-height: 1.3;">${bet.reasoning}</div>
+                                <div style="margin-top: 8px; font-size: 0.8em; color: #888;">
+                                    <span style="background: rgba(${bet.confidence === 'HIGH' ? '255, 107, 107' : bet.confidence === 'MEDIUM' ? '255, 167, 38' : '102, 187, 106'}, 0.3); padding: 2px 6px; border-radius: 4px;">${bet.confidence} CONFIDENCE</span>
+                                    <span style="margin-left: 10px;">${bet.type}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    // Highlight best bet if available
+                    if (bettingRecs.best_bet) {
+                        html += `
+                            <div style="margin-top: 15px; padding: 12px; background: rgba(79, 209, 199, 0.2); border: 2px solid #4fd1c7; border-radius: 8px;">
+                                <strong style="color: #4fd1c7;">🎯 Recommended Best Bet:</strong> ${bettingRecs.best_bet.recommendation || bettingRecs.best_bet.bet}
+                            </div>
+                        `;
+                    }
+                } else {
+                    html += '<div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-style: italic; opacity: 0.8; text-align: center;">💡 No strong value bets identified - consider live betting opportunities</div>';
+                }
+                
+                html += '</div>';
+            }
+            
+            if (recs.length > 0) {
+                // Legacy recommendations format - now using enhanced betting recommendations above
+                console.log('Legacy recommendations found but using enhanced format instead');
+            }
+            
+            html += `
+                <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
+                    ${meta.execution_time_ms > 0 ? `Execution Time: ${meta.execution_time_ms.toFixed(2)}ms | ` : ''}
+                    Simulations: ${(meta.simulations_run || 5000).toLocaleString()} |
+                    Data Source: ${meta.data_source || 'comprehensive_engine'}
+                </div>
+            `;
+            
+            document.getElementById('modal-body').innerHTML = html;
+        }
+
+        function loadToday() {
+            document.getElementById('game-date').value = new Date().toISOString().split('T')[0];
+            loadTodaysGames();
+        }
+
+        function closeModal() {
+            document.getElementById('prediction-modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('prediction-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
     </script>
     
     <!-- Monitoring Widget -->

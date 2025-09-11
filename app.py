@@ -9,7 +9,8 @@ Restored from archaeological recovery with enhanced features:
 - Real-time game data integration
 """
 
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for
+from typing import Any, Dict, Optional
 import json
 import os
 import glob
@@ -22,48 +23,101 @@ import time
 import subprocess
 import requests
 from collections import defaultdict, Counter
-import sys
-from pitcher_projections import compute_pitcher_projections
 
-# Initialize Flask app early so route decorators below have a target
-app = Flask(__name__)
+# -------------------------------------------------------------
+# Lightweight response caching (in-memory, per-process)
+# -------------------------------------------------------------
+from threading import RLock
 
-# Basic logger with env-driven level (default WARNING for production)
-LOG_LEVEL_NAME = os.getenv('APP_LOG_LEVEL', 'WARNING').upper()
-_LEVEL = getattr(logging, LOG_LEVEL_NAME, logging.WARNING)
-logger = logging.getLogger(__name__)
-if not logger.handlers:
-    logger.setLevel(_LEVEL)
-    _ch = logging.StreamHandler()
-    _ch.setLevel(_LEVEL)
-    _fmt = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    _ch.setFormatter(_fmt)
-    logger.addHandler(_ch)
+_RESPONSE_CACHE = {}
+_CACHE_LOCK = RLock()
 
-# Team assets utilities (with safe fallbacks)
-try:
-    from team_assets_utils import get_team_assets, get_team_primary_color, get_team_secondary_color
-except Exception:
-    def get_team_assets(team):
-        return {}
-    def get_team_primary_color(team):
-        return "#666666"
-    def get_team_secondary_color(team):
-        return "#333333"
+def _cache_make_key(name: str, params: dict | None = None) -> str:
+    if not params:
+        return name
+    items = sorted((k, str(v)) for k, v in params.items())
+    return name + '|' + '&'.join(f"{k}={v}" for k, v in items)
 
-# Optional live MLB data (with fallback)
-try:
-    from live_mlb_data import get_live_game_status
-except Exception:
-    def get_live_game_status(away_team, home_team, date_param=None):
-        return {'status': 'Scheduled', 'is_final': False, 'is_live': False}
-
-# Minimal no-op cache to satisfy references
-_APP_CACHE = {}
-def cache_get(namespace: str, tags: dict, ttl_seconds: int = 0):
+def cache_get(name: str, params: dict | None, ttl_seconds: int):
+    now = time.time()
+    key = _cache_make_key(name, params)
+    with _CACHE_LOCK:
+        entry = _RESPONSE_CACHE.get(key)
+        if entry:
+            ts, data = entry
+            if now - ts <= ttl_seconds:
+                return data
+            else:
+                _RESPONSE_CACHE.pop(key, None)
     return None
-def cache_set(namespace: str, tags: dict, value):
-    return None
+
+def cache_set(name: str, params: dict | None, data):
+    key = _cache_make_key(name, params)
+    with _CACHE_LOCK:
+        _RESPONSE_CACHE[key] = (time.time(), data)
+    return data
+
+# -------------------------------------------------------------
+# Optional compression (smaller payloads -> faster loads)
+# -------------------------------------------------------------
+try:
+    from flask_compress import Compress
+    _compress = Compress()
+except Exception:
+    _compress = None
+
+# --- FORCE LOGGING CONFIGURATION FOR DEBUG VISIBILITY (safe for Windows consoles) ---
+def setup_safe_logging():
+    import sys
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+
+    # Clear any pre-existing handlers to avoid duplicates
+    for h in list(root.handlers):
+        root.removeHandler(h)
+
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+
+    # If console encoding isn't UTF-8, strip non-ASCII to avoid charmap errors
+    try:
+        enc = (getattr(sys.stdout, 'encoding', None) or '').lower()
+    except Exception:
+        enc = ''
+
+    if 'utf' not in enc:
+        class _AsciiSanitizer(logging.Filter):
+            def filter(self, record):
+                try:
+                    msg = record.getMessage()
+                    safe = msg.encode('ascii', 'ignore').decode('ascii')
+                    record.msg = safe
+                    record.args = ()
+                except Exception:
+                    # If anything goes wrong, let the record pass through
+                    pass
+                return True
+        console_handler.addFilter(_AsciiSanitizer())
+
+    root.addHandler(console_handler)
+
+    # File handler with UTF-8
+    try:
+        file_handler = logging.FileHandler('monitoring_system.log', encoding='utf-8')
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(formatter)
+        root.addHandler(file_handler)
+    except Exception:
+        # If file handler fails, continue with console-only logging
+        pass
+
+    return logging.getLogger(__name__)
+
+logger = setup_safe_logging()
 
 # Try to import optional modules with fallbacks for Render deployment
 # Completely disable admin features for Render deployment to avoid engine dependency issues
@@ -117,6 +171,185 @@ except Exception as e:
     admin_bp = None
 
 import schedule
+
+# Import team assets for colors and logos
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+try:
+    from team_assets_utils import get_team_assets, get_team_primary_color, get_team_secondary_color
+    TEAM_ASSETS_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Team assets not available: {e}")
+    TEAM_ASSETS_AVAILABLE = False
+    # Fallback functions
+    def get_team_assets(team): return {}
+    def get_team_primary_color(team): return "#666666"
+    def get_team_secondary_color(team): return "#333333"
+
+# Optional live data
+try:
+    from live_mlb_data import get_live_game_status
+    LIVE_DATA_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Live MLB data not available: {e}")
+    LIVE_DATA_AVAILABLE = False
+    def get_live_game_status(away_team, home_team): return "Pre-Game"
+
+app = Flask(__name__)
+# Initialize response compression if available
+try:
+    _compress  # type: ignore[name-defined]
+    if _compress is not None:
+        _compress.init_app(app)  # type: ignore[call-arg]
+except NameError:
+    pass
+
+print("DEBUG: Flask app successfully created - all routes will now register properly")
+
+print("DEBUG: Successfully defined Flask app")
+
+# Add a simple test route to verify app is working
+@app.route('/api/test-route')
+def test_route():
+    """Simple test route to verify route registration"""
+    return jsonify({
+        'success': True,
+        'message': 'Test route is working',
+        'timestamp': datetime.now().isoformat()
+    })
+
+print("DEBUG: Test route added")
+
+# Add a debug route to check what routes are registered
+@app.route('/api/debug-routes')
+def debug_routes():
+    """Debug route to show all registered routes"""
+    routes = []
+    for rule in app.url_map.iter_rules():
+        routes.append({
+            'endpoint': rule.endpoint,
+            'methods': list(rule.methods),
+            'rule': str(rule)
+        })
+    return jsonify({
+        'success': True,
+        'total_routes': len(routes),
+        'routes': routes
+    })
+
+print("DEBUG: Debug routes route added")
+
+# ----------------------------------------------------------------------------
+# ROI Metrics & Optimization History Endpoint
+# ----------------------------------------------------------------------------
+@app.route('/api/optimization/roi-metrics')
+def api_roi_metrics():
+    """Return latest ROI metrics from comprehensive_optimized_config plus history.
+    Structure:
+      {
+        'success': bool,
+        'timestamp': ISO,
+        'roi_metrics': {...} | None,
+        'history_events': [...],
+        'latest_weekly_comparison': {...} | None
+      }
+    """
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    config_path = os.path.join(data_dir, 'comprehensive_optimized_config.json')
+    roi_metrics = None
+    latest_cmp = None
+    history_events = []
+    try:
+        if not os.path.exists(config_path):
+            # Fallback search: sometimes Render deploy root differs, try a few alternate locations
+            root_dir = os.path.abspath(os.path.dirname(__file__))
+            candidate_paths = [
+                os.path.join(root_dir, 'comprehensive_optimized_config.json'),
+                os.path.join(os.path.dirname(root_dir), 'data', 'comprehensive_optimized_config.json'),
+                os.path.join(os.path.dirname(root_dir), 'comprehensive_optimized_config.json')
+            ]
+            for p in candidate_paths:
+                if os.path.exists(p):
+                    logger.info(f"ROI metrics: using fallback config path {p}")
+                    config_path = p
+                    break
+        if os.path.exists(config_path):
+            with open(config_path, 'r', encoding='utf-8') as f:
+                cfg = json.load(f)
+            roi_metrics = cfg.get('optimization_metadata', {}).get('roi_metrics')
+        else:
+            logger.warning(f"ROI metrics config file not found at {config_path}")
+    except Exception as e:
+        logger.warning(f"ROI metrics load error: {e}")
+    # Load optimization history
+    try:
+        hist_path = os.path.join(data_dir, 'optimization_history.json')
+        if os.path.exists(hist_path):
+            with open(hist_path, 'r') as f:
+                history_events = json.load(f)
+    except Exception as e:
+        logger.warning(f"Optimization history load error: {e}")
+    # Find latest weekly comparison file
+    try:
+        cmp_files = sorted(glob.glob(os.path.join(data_dir, 'weekly_retune_comparison_*.json')))
+        if cmp_files:
+            with open(cmp_files[-1], 'r') as f:
+                latest_cmp = json.load(f)
+    except Exception as e:
+        logger.warning(f"Weekly comparison load error: {e}")
+    return jsonify({
+        'success': True,
+        'timestamp': datetime.now().isoformat(),
+        'roi_metrics': roi_metrics,
+        'history_events': history_events[-20:],  # Trim to last 20 for payload size
+        'latest_weekly_comparison': latest_cmp
+    })
+
+# Lightweight debug endpoint to inspect presence of data files (useful on Render)
+@app.route('/api/debug-data-files')
+def api_debug_data_files():
+    try:
+        root_dir = os.path.abspath(os.path.dirname(__file__))
+        data_dir = os.path.join(root_dir, 'data')
+        files = []
+        if os.path.isdir(data_dir):
+            for name in os.listdir(data_dir):
+                p = os.path.join(data_dir, name)
+                try:
+                    info = {
+                        'name': name,
+                        'size': os.path.getsize(p) if os.path.isfile(p) else None,
+                        'modified': datetime.fromtimestamp(os.path.getmtime(p)).isoformat() if os.path.exists(p) else None,
+                        'is_dir': os.path.isdir(p)
+                    }
+                    files.append(info)
+                except Exception:
+                    files.append({'name': name, 'error': 'stat_failed'})
+        config_present = any(f['name'] == 'comprehensive_optimized_config.json' for f in files)
+        return jsonify({
+            'success': True,
+            'data_dir': data_dir,
+            'config_present': config_present,
+            'file_count': len(files),
+            'files': sorted(files, key=lambda x: x['name'])[:100]
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Register admin blueprint if available
+if ADMIN_TUNING_AVAILABLE and admin_bp:
+    app.register_blueprint(admin_bp)
+
+# Register historical analysis blueprint
+try:
+    from historical_analysis_endpoint import historical_analysis_bp
+    app.register_blueprint(historical_analysis_bp)
+    logging.info("✅ Historical analysis endpoint registered successfully")
+except ImportError as e:
+    logging.warning(f"Historical analysis endpoint not available: {e}")
+
+# Initialize comprehensive historical analyzer independently so fallbacks work even if other imports fail
 try:
     from comprehensive_historical_analysis import ComprehensiveHistoricalAnalyzer
     direct_historical_analyzer = ComprehensiveHistoricalAnalyzer()
@@ -154,99 +387,21 @@ def get_or_create_historical_analyzer():
             return None
     return direct_historical_analyzer
 
-_BUSINESS_DATE_CACHE = {
-    'base_date': None,   # Base (calendar) Eastern date string
-    'effective': None,   # Effective business date string
-    'expires_at': None   # Datetime when cache expires
-}
-
-def _are_prev_day_games_pending(prev_date_str: str) -> bool:
-    """Return True if any games for prev_date_str appear not final yet.
-    Uses unified cache game list + quick live status checks.
-    Treat Postponed/Cancelled/Suspended as non-pending so we don't hold the date indefinitely.
-    """
-    try:
-        # Load unified cache and extract games for prev_date
-        unified_cache = load_unified_cache()
-        predictions_by_date = unified_cache.get('predictions_by_date', {}) if isinstance(unified_cache, dict) else {}
-        date_blob = predictions_by_date.get(prev_date_str, {})
-        if not date_blob and prev_date_str in unified_cache and isinstance(unified_cache[prev_date_str], dict):
-            date_blob = unified_cache[prev_date_str]
-        games_dict = (date_blob or {}).get('games', {})
-        if not games_dict:
-            # No games known for previous date → nothing pending
-            return False
-        finals_ok = {'final', 'game over', 'completed', 'completed early', 'postponed', 'cancelled', 'canceled', 'suspended'}
-        # Probe live status with short timeout; bail out on first pending
-        for key, g in list(games_dict.items()):
-            away = g.get('away_team') or g.get('away') or ''
-            home = g.get('home_team') or g.get('home') or ''
-            if not away or not home:
-                continue
-            try:
-                live = get_live_status_with_timeout(away, home, prev_date_str, timeout_seconds=2)
-                status = str((live or {}).get('status', '')).strip().lower()
-                # Consider statuses containing 'final' or 'game over' as done
-                if any(tok in status for tok in finals_ok):
-                    continue
-                # Unknown/empty status: conservatively assume pending within a short window after midnight
-                if not status:
-                    return True
-                # Otherwise, anything not final is pending
-                return True
-            except Exception:
-                # On errors, be conservative and mark as pending (will be rechecked shortly)
-                return True
-        return False
-    except Exception as e:
-        logger.warning(f"_are_prev_day_games_pending failed: {e}")
-        # If we cannot determine, be conservative shortly after midnight; otherwise allow flip
-        try:
-            from zoneinfo import ZoneInfo
-            now_et = datetime.now(ZoneInfo('America/New_York'))
-        except Exception:
-            now_et = datetime.now()
-        return now_et.hour < 6
-
 def get_business_date():
     """
-    Determine the effective MLB business date using US/Eastern time and game completion.
-    - Base date: current US/Eastern calendar date.
-    - Do not flip to the new base date if any games from the previous date are still in progress.
-      (Treat Postponed/Cancelled/Suspended as complete.)
-    Caches the decision per base date for a short TTL to avoid repeated live checks.
+    Get the business date for MLB betting purposes.
+    Uses previous day's date until 6:00 AM to keep showing previous day's games/data.
+    This prevents the system from switching to next day's games at midnight.
     """
-    try:
-        from zoneinfo import ZoneInfo
-        now = datetime.now(ZoneInfo('America/New_York'))
-    except Exception:
-        now = datetime.now()
-
-    base_date = now.strftime('%Y-%m-%d')
-    prev_date = (now - timedelta(days=1)).strftime('%Y-%m-%d')
-
-    # Serve from cache if valid and base date matches
-    try:
-        if _BUSINESS_DATE_CACHE['base_date'] == base_date and _BUSINESS_DATE_CACHE['effective'] and _BUSINESS_DATE_CACHE['expires_at']:
-            if now < _BUSINESS_DATE_CACHE['expires_at']:
-                return _BUSINESS_DATE_CACHE['effective']
-    except Exception:
-        pass
-
-    # If any previous-day games are still pending, hold business date at prev_date
-    effective = prev_date if _are_prev_day_games_pending(prev_date) else base_date
-
-    # Cache the decision for a few minutes
-    try:
-        _BUSINESS_DATE_CACHE['base_date'] = base_date
-        _BUSINESS_DATE_CACHE['effective'] = effective
-        # Short TTL early morning, longer later in the day
-        ttl_minutes = 3 if now.hour < 8 else 15
-        _BUSINESS_DATE_CACHE['expires_at'] = now + timedelta(minutes=ttl_minutes)
-    except Exception:
-        pass
-
-    return effective
+    now = datetime.now()
+    
+    # If it's before 6 AM, use yesterday's date
+    if now.hour < 6:
+        business_date = now - timedelta(days=1)
+    else:
+        business_date = now
+    
+    return business_date.strftime('%Y-%m-%d')
 
 def get_live_status_with_timeout(away_team, home_team, date_param, timeout_seconds=3):
     """Get live status with timeout - now using real MLB API"""
@@ -267,9 +422,9 @@ def get_live_status_with_timeout(away_team, home_team, date_param, timeout_secon
         logger.warning(f"⚠️ Live status error for {away_team} @ {home_team}: {e}")
         return {'status': 'Scheduled', 'is_final': False, 'is_live': False}
 
-# Respect previously configured level (from APP_LOG_LEVEL)
+# Logging already configured via setup_safe_logging()
 logger = logging.getLogger(__name__)
-logger.setLevel(_LEVEL)
+logger.setLevel(logging.INFO)
 
 # Import comprehensive betting performance tracker
 try:
@@ -631,8 +786,15 @@ def load_unified_cache():
         with open(cache_path, 'r') as f:
             data = json.load(f)
             logger.info(f"🔄 FRESH RELOAD: Loaded unified cache from {cache_path} with {len(data)} entries")
-            # Note: Avoid calling get_business_date() here to prevent recursion when
-            # business date resolution itself needs the unified cache. Keep it simple.
+            
+            # Log today's data availability
+            today = get_business_date()
+            predictions_by_date = data.get('predictions_by_date', {})
+            today_data = predictions_by_date.get(today, {})
+            games_count = len(today_data.get('games', {}))
+            logger.info(f"🎯 Today's games in cache: {games_count}")
+            
+            # Cache the result
             _unified_cache = data
             _unified_cache_time = current_time
             return data
@@ -648,12 +810,7 @@ def extract_real_total_line(real_lines, game_key="Unknown"):
     Extract real total line from betting data - NO HARDCODED FALLBACKS
     Returns None if no real line available
     """
-    # Avoid logging giant payloads here; just note presence/shape at debug level
-    try:
-        rl_keys = list(real_lines.keys()) if isinstance(real_lines, dict) else type(real_lines)
-        logger.debug(f"[extract_real_total_line] keys for {game_key}: {rl_keys}")
-    except Exception:
-        pass
+    logger.info(f"🔍 [extract_real_total_line] INPUT real_lines for {game_key}: {real_lines}")
     found_point = None  # Initialize found_point at the start
     
     # If real_lines is None, try alternate key formats
@@ -675,52 +832,57 @@ def extract_real_total_line(real_lines, game_key="Unknown"):
     
     # Method 0: Modern OddsAPI format (markets array)
     if 'markets' in real_lines and isinstance(real_lines['markets'], list):
-        logger.debug(f"[extract_real_total_line] markets count for {game_key}: {len(real_lines['markets'])}")
+        logger.info(f"🔍 [extract_real_total_line] markets for {game_key}: {real_lines['markets']}")
         # Find all totals markets
         totals_markets = [m for m in real_lines['markets'] if m.get('key') == 'totals']
         if not totals_markets:
-            logger.debug(f"[extract_real_total_line] No totals markets for {game_key}")
+            logger.info(f"❌ No totals markets found for {game_key}")
         else:
             # Use the first totals market found
             first_market = totals_markets[0]
             outcomes = first_market.get('outcomes', [])
-            logger.debug(f"[extract_real_total_line] outcomes count for {game_key}: {len(outcomes)}")
+            logger.info(f"🔍 [extract_real_total_line] first totals outcomes for {game_key}: {outcomes}")
             for outcome in outcomes:
+                logger.info(f"🔍 [extract_real_total_line] outcome: {outcome}")
                 total_point = outcome.get('point')
+                logger.info(f"🔍 [extract_real_total_line] outcome point: {total_point} (type: {type(total_point)})")
                 if total_point is not None:
                     try:
                         cast_point = float(total_point)
-                        logger.debug(f"[extract_real_total_line] found total {cast_point} for {game_key}")
+                        logger.info(f"✅ Found real total line {cast_point} for {game_key} (first market, cast to float)")
                         found_point = cast_point
                         break
                     except Exception as e:
-                        logger.debug(f"[extract_real_total_line] cast failed for {game_key}: {e}")
+                        logger.warning(f"⚠️ Could not cast total_point '{total_point}' to float for {game_key}: {e}")
                         found_point = total_point
                         break
             if found_point is None:
-                logger.debug(f"[extract_real_total_line] no valid total point in outcomes for {game_key}")
+                logger.warning(f"❌ No valid total point found in outcomes for {game_key}")
     
     # If we found something from markets, return it
     if found_point is not None:
-        logger.debug(f"[extract_real_total_line] return for {game_key}: {found_point}")
+        logger.info(f"🔍 [extract_real_total_line] FINAL RETURN for {game_key}: {found_point} (type: {type(found_point)})")
         return found_point
     # Method 1: Historical betting lines structure (array format)
     if 'total' in real_lines and isinstance(real_lines['total'], list) and real_lines['total']:
         total_point = real_lines['total'][0].get('point')
         if total_point is not None:
-            logger.debug(f"[extract_real_total_line] return historical for {game_key}: {total_point}")
+            logger.info(f"✅ Found real total line {total_point} for {game_key} (historical format)")
+            logger.info(f"🔍 [extract_real_total_line] FINAL RETURN for {game_key}: {total_point} (type: {type(total_point)})")
             return total_point
     # Method 2: Structured format (object format)
     if 'total_runs' in real_lines and isinstance(real_lines['total_runs'], dict):
         total_line = real_lines['total_runs'].get('line')
         if total_line is not None:
-            logger.debug(f"[extract_real_total_line] return structured for {game_key}: {total_line}")
+            logger.info(f"✅ Found real total line {total_line} for {game_key} (structured format)")
+            logger.info(f"🔍 [extract_real_total_line] FINAL RETURN for {game_key}: {total_line} (type: {type(total_line)})")
             return total_line
     # Method 3: Direct format
     if 'over' in real_lines:
         total_line = real_lines['over']
         if total_line is not None:
-            logger.debug(f"[extract_real_total_line] return direct for {game_key}: {total_line}")
+            logger.info(f"✅ Found real total line {total_line} for {game_key} (direct format)")
+            logger.info(f"🔍 [extract_real_total_line] FINAL RETURN for {game_key}: {total_line} (type: {type(total_line)})")
             return total_line
     # Method 4: Alternative total structure
     if 'total' in real_lines and isinstance(real_lines['total'], dict):
@@ -729,7 +891,7 @@ def extract_real_total_line(real_lines, game_key="Unknown"):
             logger.info(f"✅ Found real total line {total_line} for {game_key} (object format)")
             return total_line
     
-    logger.debug(f"[extract_real_total_line] no total found for {game_key}")
+    logger.warning(f"❌ No real total line found for {game_key} - data: {list(real_lines.keys()) if real_lines else 'None'}")
     return None
 
 # Removed create_sample_data() function - NO FAKE DATA ALLOWED
@@ -738,57 +900,6 @@ def extract_real_total_line(real_lines, game_key="Unknown"):
 _betting_lines_cache = None
 _betting_lines_cache_time = None
 BETTING_LINES_CACHE_DURATION = 300  # 5 minutes
-
-# Lightweight caches for auxiliary modal files (team strengths, bullpen, weather)
-_team_strengths_cache = None
-_team_strengths_mtime = 0.0
-_bullpen_cache = None
-_bullpen_mtime = 0.0
-_weather_cache = {}
-_weather_mtimes = {}
-
-def _load_json_cached(path: str, _cache_ref: str, _mtime_ref: str):
-    """Generic cached JSON loader using file mtime for invalidation."""
-    try:
-        mtime = os.path.getmtime(path)
-        cache = globals()[_cache_ref]
-        last_m = globals()[_mtime_ref]
-        if cache is not None and last_m == mtime:
-            return cache
-        with open(path, 'r') as f:
-            data = json.load(f)
-        globals()[_cache_ref] = data
-        globals()[_mtime_ref] = mtime
-        return data
-    except Exception:
-        return None
-
-def get_team_strengths_cached():
-    path = os.path.join('data', 'master_team_strength.json')
-    ts = _load_json_cached(path, '_team_strengths_cache', '_team_strengths_mtime')
-    return ts or {}
-
-def get_bullpen_cached():
-    path = os.path.join('data', 'bullpen_stats.json')
-    bp = _load_json_cached(path, '_bullpen_cache', '_bullpen_mtime')
-    return bp or {}
-
-def get_weather_cached(date_iso: str):
-    key = date_iso
-    try:
-        path = os.path.join('data', f"park_weather_factors_{date_iso.replace('-', '_')}.json")
-        mtime = os.path.getmtime(path)
-        prev = _weather_cache.get(key)
-        prev_m = _weather_mtimes.get(key)
-        if prev is not None and prev_m == mtime:
-            return prev
-        with open(path, 'r') as f:
-            data = json.load(f)
-        _weather_cache[key] = data
-        _weather_mtimes[key] = mtime
-        return data
-    except Exception:
-        return {}
 
 def load_real_betting_lines():
     """Load real betting lines from historical cache with caching"""
@@ -799,16 +910,7 @@ def load_real_betting_lines():
     if (_betting_lines_cache is not None and 
         _betting_lines_cache_time is not None and 
         current_time - _betting_lines_cache_time < BETTING_LINES_CACHE_DURATION):
-        # If we previously cached an empty fallback, but a fresh file for today now exists, refresh immediately
-        try:
-            today_check = get_business_date().replace('-', '_')
-            today_file = f'data/real_betting_lines_{today_check}.json'
-            if os.path.exists(today_file) and _betting_lines_cache.get('source') == 'empty_fallback':
-                logger.info("🔄 Detected new real betting lines file after empty fallback; refreshing cache now")
-            else:
-                return _betting_lines_cache
-        except Exception:
-            return _betting_lines_cache
+        return _betting_lines_cache
     
     today = get_business_date()
     
@@ -2543,18 +2645,340 @@ def kelly_guidance_page():
     """Dedicated Kelly Guidance page with sizing controls and opportunities"""
     return render_template('kelly_guidance.html')
 
+# ---------------------------
+# Pitcher Projections Endpoints
+# ---------------------------
+
+@app.route('/pitcher-projections')
+def pitcher_projections_page():
+    """Daily pitcher projections page (linked from main)."""
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        return render_template('pitcher_projections.html', date=date_str)
+    except Exception as e:
+        logger.error(f"Error rendering pitcher projections page: {e}")
+        # Render with today's date fallback
+        return render_template('pitcher_projections.html', date=get_business_date())
+
+def _load_bovada_pitcher_props(date_str: str) -> Dict[str, Any]:
+    """Load Bovada pitcher props for the given date (if available). Keys are lowercased pitcher names."""
+    try:
+        date_us = date_str.replace('-', '_')
+        path = os.path.join('data', 'daily_bovada', f'bovada_pitcher_props_{date_us}.json')
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            props = data.get('pitcher_props', {}) or {}
+            # Normalize keys to lowercase for matching
+            return {str(k).strip().lower(): v for k, v in props.items()}
+    except Exception as e:
+        logger.warning(f"Could not load Bovada pitcher props for {date_str}: {e}")
+    return {}
+
+def _load_master_pitcher_stats() -> Dict[str, Dict[str, Any]]:
+    """Load master pitcher stats (by name lowercase)."""
+    try:
+        path = os.path.join('data', 'master_pitcher_stats.json')
+        if not os.path.exists(path):
+            raise FileNotFoundError(path)
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        # Support both flat and nested structures
+        if isinstance(data, dict) and 'pitcher_data' in data:
+            data = data['pitcher_data']
+        elif isinstance(data, dict) and 'refresh_info' in data and 'pitcher_data' in data['refresh_info']:
+            data = data['refresh_info']['pitcher_data']
+        # Build lookup by lowercase name
+        by_name = {}
+        if isinstance(data, dict):
+            for pid, p in data.items():
+                name = str(p.get('name', '')).strip()
+                if name:
+                    by_name[name.lower()] = p
+        return by_name
+    except Exception as e:
+        logger.warning(f"Could not load master pitcher stats: {e}")
+        return {}
+
+def _load_pitches_per_out_overrides() -> Dict[str, float]:
+    """Optionally load per-pitcher pitches-per-out calibration if present."""
+    candidates = [
+        os.path.join('data', 'pitches_per_out.json'),
+        os.path.join('data', 'pitches_per_out_calibration.json')
+    ]
+    for path in candidates:
+        try:
+            if os.path.exists(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                # Normalize keys to lowercase names
+                return {str(k).strip().lower(): float(v) for k, v in data.items() if v is not None}
+        except Exception as e:
+            logger.warning(f"Failed loading pitches-per-out overrides from {path}: {e}")
+    return {}
+
+def _load_boxscore_pitcher_stats(date_str: Optional[str] = None) -> Dict[str, Dict[str, Any]]:
+    """Load live pitcher pitch metrics from a cached MLB boxscore JSON.
+    Returns a dict keyed by lowercase pitcher full name with fields like:
+    { 'pitches': int, 'outs': int, 'innings_pitched': str|float, 'strikeouts': int }
+
+    This walks the JSON generically to find pitcher entries, so it tolerates
+    structure variations. If no file or parse error, returns {}.
+    """
+    candidates = [
+        os.path.join('data', 'boxscore_cache.json')
+    ]
+    # Also try a dated variant if provided
+    if date_str:
+        safe_date = date_str.replace('-', '_')
+        candidates.append(os.path.join('data', f'boxscore_cache_{safe_date}.json'))
+
+    def _collect_from_obj(obj: Any, out: Dict[str, Dict[str, Any]]):
+        if isinstance(obj, dict):
+            # Check if this looks like a pitcher stats entry
+            person = obj.get('person') if isinstance(obj.get('person'), dict) else None
+            position = obj.get('position') if isinstance(obj.get('position'), dict) else None
+            stats = obj.get('stats') if isinstance(obj.get('stats'), dict) else None
+            if person and position and stats and position.get('abbreviation') == 'P':
+                name = str(person.get('fullName') or person.get('name') or '').strip()
+                pitching = stats.get('pitching') if isinstance(stats.get('pitching'), dict) else {}
+                if name:
+                    key = name.lower()
+                    # Also make an accent-insensitive key for robust matching
+                    try:
+                        import unicodedata
+                        key_ascii = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('ascii').lower()
+                    except Exception:
+                        key_ascii = key
+                    entry = out.setdefault(key, {})
+                    # Prefer numberOfPitches, fallback to pitchesThrown
+                    pitches = pitching.get('numberOfPitches')
+                    if pitches is None:
+                        pitches = pitching.get('pitchesThrown')
+                    try:
+                        entry['pitches'] = int(pitches) if pitches is not None else entry.get('pitches')
+                    except Exception:
+                        pass
+                    # Outs, strikeouts, innings pitched
+                    try:
+                        entry['outs'] = int(pitching.get('outs')) if pitching.get('outs') is not None else entry.get('outs')
+                    except Exception:
+                        pass
+                    try:
+                        entry['strikeouts'] = int(pitching.get('strikeOuts')) if pitching.get('strikeOuts') is not None else entry.get('strikeouts')
+                    except Exception:
+                        pass
+                    ip = pitching.get('inningsPitched')
+                    if ip is not None:
+                        entry['innings_pitched'] = ip
+
+                    # Additional live pitcher metrics for props
+                    try:
+                        if pitching.get('baseOnBalls') is not None:
+                            entry['walks'] = int(pitching.get('baseOnBalls'))
+                    except Exception:
+                        pass
+                    try:
+                        if pitching.get('hits') is not None:
+                            entry['hits'] = int(pitching.get('hits'))
+                    except Exception:
+                        pass
+                    try:
+                        if pitching.get('earnedRuns') is not None:
+                            entry['earned_runs'] = int(pitching.get('earnedRuns'))
+                    except Exception:
+                        pass
+                    try:
+                        if pitching.get('runs') is not None:
+                            entry['runs'] = int(pitching.get('runs'))
+                    except Exception:
+                        pass
+                    try:
+                        if pitching.get('battersFaced') is not None:
+                            entry['batters_faced'] = int(pitching.get('battersFaced'))
+                    except Exception:
+                        pass
+
+                    # Mirror the same entry under the accent-insensitive key for lookups
+                    if key_ascii and key_ascii != key:
+                        out[key_ascii] = out[key]
+            # Recurse
+            for v in obj.values():
+                _collect_from_obj(v, out)
+        elif isinstance(obj, list):
+            for v in obj:
+                _collect_from_obj(v, out)
+
+    for path in candidates:
+        try:
+            if os.path.exists(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                result: Dict[str, Dict[str, Any]] = {}
+                _collect_from_obj(data, result)
+                if result:
+                    return result
+        except Exception as e:
+            logger.warning(f"Failed loading boxscore cache from {path}: {e}")
+    return {}
+
+def _project_pitcher_line(pitcher: str,
+                          team: str,
+                          opponent: str,
+                          stats_by_name: Dict[str, Dict[str, Any]],
+                          props_by_name: Dict[str, Any],
+                          default_ppo: float,
+                          ppo_overrides: Dict[str, float]) -> Dict[str, Any]:
+    """Compute simple per-pitcher projections + pick best recommendation vs props."""
+    key = (pitcher or '').strip().lower()
+    st = stats_by_name.get(key, {})
+    innings_pitched = float(st.get('innings_pitched', 0) or 0)
+    games_started = int(st.get('games_started', 0) or 0)
+    strikeouts = float(st.get('strikeouts', 0) or 0)
+    walks = float(st.get('walks', 0) or 0)
+    era = float(st.get('era', 4.2) or 4.2)
+    whip = float(st.get('whip', 1.3) or 1.3)
+
+    # Average innings per start; guard rails
+    ip_per_start = 5.5
+    if games_started > 0 and innings_pitched > 0:
+        try:
+            ip_per_start = max(3.5, min(7.5, innings_pitched / games_started))
+        except Exception:
+            ip_per_start = 5.5
+
+    # Conversions
+    outs = round(ip_per_start * 3, 1)
+    k_per_inning = (strikeouts / innings_pitched) if innings_pitched > 0 else 0.95  # ~8.5 K/9 baseline
+    ks = round(k_per_inning * ip_per_start, 1)
+    er_per_inning = era / 9.0
+    er = round(er_per_inning * ip_per_start, 1)
+    bb_per_inning = (walks / innings_pitched) if innings_pitched > 0 else 0.35  # ~3.1 BB/9 baseline
+    hits_per_inning = max(0.1, whip - bb_per_inning)
+    ha = round(hits_per_inning * ip_per_start, 1)
+
+    # Pitches per out baseline with per-pitcher override
+    pp_out = float(ppo_overrides.get(key, os.environ.get('PITCHES_PER_OUT_DEFAULT', default_ppo)))
+    try:
+        pp_out = float(pp_out)
+    except Exception:
+        pp_out = default_ppo
+    pitch_count = round(outs * pp_out, 0)
+
+    # Lines from props (if any)
+    props = props_by_name.get(key, {}) or {}
+    def _line_of(stat_name):
+        s = props.get(stat_name) or {}
+        return None if s is None else s.get('line')
+    lines = {
+        'outs': _line_of('outs'),
+        'strikeouts': _line_of('strikeouts'),
+        'earned_runs': _line_of('earned_runs'),
+        'hits_allowed': _line_of('hits_allowed'),
+        'walks': _line_of('walks')
+    }
+
+    # Recommendation selection: pick market with biggest absolute edge
+    projections_map = {
+        'outs': outs,
+        'strikeouts': ks,
+        'earned_runs': er,
+        'hits_allowed': ha,
+        'walks': bb_per_inning * ip_per_start
+    }
+    best = None
+    for market, proj_val in projections_map.items():
+        line = lines.get(market)
+        if line is None:
+            continue
+        edge = float(proj_val) - float(line)
+        side = 'OVER' if edge > 0.5 else ('UNDER' if edge < -0.5 else None)
+        if side is None:
+            continue
+        rec = {'market': market, 'side': side, 'edge': round(edge, 2)}
+        if not best or abs(edge) > abs(best.get('edge', 0)):
+            best = rec
+
+    return {
+        'pitcher': pitcher,
+        'team': team,
+        'opponent': opponent,
+        'proj': {
+            'outs': outs,
+            'strikeouts': ks,
+            'earned_runs': er,
+            'hits_allowed': ha,
+            'walks': round(bb_per_inning * ip_per_start, 1),
+            'pitch_count': pitch_count
+        },
+        'lines': lines,
+        'recommendation': best,
+        'inputs': {
+            'pp_out': float(pp_out)
+        }
+    }
+
+@app.route('/api/pitcher-projections')
+def api_pitcher_projections():
+    """JSON API: Project pitcher stats for the day and surface a simple rec per pitcher."""
+    try:
+        date_str = request.args.get('date') or get_business_date()
+
+        # Data sources
+        from live_mlb_data import LiveMLBData
+        mlb = LiveMLBData()
+        games = mlb.get_enhanced_games_data(date_str) or []
+
+        props = _load_bovada_pitcher_props(date_str)
+        stats_by_name = _load_master_pitcher_stats()
+        ppo_overrides = _load_pitches_per_out_overrides()
+        default_ppo = 5.1  # Tuned baseline
+
+        # Build projections for both starters in each game
+        items = []
+        for g in games:
+            away = g.get('away_team') or ''
+            home = g.get('home_team') or ''
+            away_p = g.get('away_pitcher') or 'TBD'
+            home_p = g.get('home_pitcher') or 'TBD'
+
+            if away_p and away_p != 'TBD':
+                items.append(_project_pitcher_line(away_p, away, home, stats_by_name, props, default_ppo, ppo_overrides))
+            if home_p and home_p != 'TBD':
+                items.append(_project_pitcher_line(home_p, home, away, stats_by_name, props, default_ppo, ppo_overrides))
+
+        # De-duplicate in case of duplicate schedule entries
+        seen = set()
+        unique_items = []
+        for it in items:
+            k = (it['pitcher'].lower(), it['team'].lower(), it['opponent'].lower())
+            if k in seen:
+                continue
+            seen.add(k)
+            unique_items.append(it)
+
+        return jsonify({
+            'success': True,
+            'date': date_str,
+            'count': len(unique_items),
+            'projections': unique_items
+        })
+
+    except Exception as e:
+        logger.error(f"Error in api_pitcher_projections: {e}\n{traceback.format_exc()}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'date': request.args.get('date')
+        }), 500
+
 @app.route('/api/betting-guidance/performance')
 def api_betting_guidance_performance():
     """Historical performance by bet type for betting guidance page"""
     # Define analysis window: from 2025-08-15 through yesterday
     from datetime import datetime, timedelta
     START_DATE_STR = '2025-08-15'
-    try:
-        from zoneinfo import ZoneInfo
-        _now_local = datetime.now(ZoneInfo('America/New_York'))
-    except Exception:
-        _now_local = datetime.now()
-    END_DATE_STR = (_now_local - timedelta(days=1)).strftime('%Y-%m-%d')
+    END_DATE_STR = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
 
     # Prefer computing from local historical analyzer with per-bet aggregation
     def parse_american_odds(od):
@@ -2582,73 +3006,72 @@ def api_betting_guidance_performance():
             return 'total'
         return t or 'other'
 
-    perf = {}
-    totals = {}
-    corrects = {}
-    invested = {}
-    winnings = {}
+        perf = {}
+        totals = {}
+        corrects = {}
+        invested = {}
+        winnings = {}
 
-    analyzer = get_or_create_historical_analyzer()
-    if analyzer:
-        dates = analyzer.get_available_dates() or []
-        # Normalize and filter dates to [START_DATE_STR .. END_DATE_STR]
-        def norm_date(ds: str) -> str:
-            try:
-                d = ds.replace('_','-')
-                # Ensure it's YYYY-MM-DD
-                if len(d) == 10 and d[4] == '-' and d[7] == '-':
-                    return d
-                # Attempt parsing common variants
-                from datetime import datetime as _dt
-                return _dt.strptime(ds, '%Y_%m_%d').strftime('%Y-%m-%d')
-            except Exception:
-                return ds
+        if direct_historical_analyzer:
+            dates = direct_historical_analyzer.get_available_dates() or []
+            # Normalize and filter dates to [START_DATE_STR .. END_DATE_STR]
+            def norm_date(ds: str) -> str:
+                try:
+                    d = ds.replace('_','-')
+                    # Ensure it's YYYY-MM-DD
+                    if len(d) == 10 and d[4] == '-' and d[7] == '-':
+                        return d
+                    # Attempt parsing common variants
+                    from datetime import datetime as _dt
+                    return _dt.strptime(ds, '%Y_%m_%d').strftime('%Y-%m-%d')
+                except Exception:
+                    return ds
 
-        filtered_dates = [d for d in dates if START_DATE_STR <= norm_date(d) <= END_DATE_STR]
-        filtered_dates.sort()
+            filtered_dates = [d for d in dates if START_DATE_STR <= norm_date(d) <= END_DATE_STR]
+            filtered_dates.sort()
 
-        for d in filtered_dates:
-            try:
-                day = analyzer.get_date_analysis(d) or {}
-                bp = day.get('betting_performance') or {}
-                bets = bp.get('detailed_bets') or []
-                # Support dicts and serialized strings
-                for b in bets:
-                    try:
-                        if isinstance(b, str):
-                            # Parse '@{k=v; k2=v2}' into dict
-                            s = b.strip()
-                            if s.startswith('@{') and s.endswith('}'):
-                                s = s[2:-1]
-                            parts = [p.strip() for p in s.split(';') if p.strip()]
-                            bd = {}
-                            for p in parts:
-                                if '=' in p:
-                                    k, v = p.split('=', 1)
-                                    bd[k.strip()] = v.strip()
-                            bobj = bd
-                        else:
-                            bobj = b
-                        btype = norm_type(bobj.get('bet_type'))
-                        if not btype:
+            for d in filtered_dates:
+                try:
+                    day = direct_historical_analyzer.get_date_analysis(d) or {}
+                    bp = day.get('betting_performance') or {}
+                    bets = bp.get('detailed_bets') or []
+                    # Support dicts and serialized strings
+                    for b in bets:
+                        try:
+                            if isinstance(b, str):
+                                # Parse '@{k=v; k2=v2}' into dict
+                                s = b.strip()
+                                if s.startswith('@{') and s.endswith('}'):
+                                    s = s[2:-1]
+                                parts = [p.strip() for p in s.split(';') if p.strip()]
+                                bd = {}
+                                for p in parts:
+                                    if '=' in p:
+                                        k, v = p.split('=', 1)
+                                        bd[k.strip()] = v.strip()
+                                bobj = bd
+                            else:
+                                bobj = b
+                            btype = norm_type(bobj.get('bet_type'))
+                            if not btype:
+                                continue
+                            totals[btype] = totals.get(btype, 0) + 1
+                            won_val = bobj.get('bet_won')
+                            if isinstance(won_val, str):
+                                won = won_val.lower() == 'true'
+                            else:
+                                won = bool(won_val)
+                            if won:
+                                corrects[btype] = corrects.get(btype, 0) + 1
+                            stake = 100.0
+                            invested[btype] = invested.get(btype, 0.0) + stake
+                            odds = parse_american_odds(bobj.get('american_odds'))
+                            if won:
+                                winnings[btype] = winnings.get(btype, 0.0) + payout_for_win(odds, stake)
+                        except Exception:
                             continue
-                        totals[btype] = totals.get(btype, 0) + 1
-                        won_val = bobj.get('bet_won')
-                        if isinstance(won_val, str):
-                            won = won_val.lower() == 'true'
-                        else:
-                            won = bool(won_val)
-                        if won:
-                            corrects[btype] = corrects.get(btype, 0) + 1
-                        stake = 100.0
-                        invested[btype] = invested.get(btype, 0.0) + stake
-                        odds = parse_american_odds(bobj.get('american_odds'))
-                        if won:
-                            winnings[btype] = winnings.get(btype, 0.0) + payout_for_win(odds, stake)
-                    except Exception:
-                        continue
-            except Exception:
-                continue
+                except Exception:
+                    continue
 
         # Build summary
         for btype in sorted(set(list(totals.keys()) + list(corrects.keys()))):
@@ -2669,14 +3092,14 @@ def api_betting_guidance_performance():
                 'roi': round(roi, 1)
             }
 
-    return jsonify({
-        'success': True,
-        'performance_by_bet_type': perf,
-        'date_range': {
-            'start_date': START_DATE_STR,
-            'end_date': END_DATE_STR
-        }
-    })
+        return jsonify({
+            'success': True,
+            'performance_by_bet_type': perf,
+            'date_range': {
+                'start_date': START_DATE_STR,
+                'end_date': END_DATE_STR
+            }
+        })
 
 @app.route('/api/betting-recommendations/date/<date>')
 def api_betting_recommendations_by_date(date):
@@ -2687,300 +3110,204 @@ def api_betting_recommendations_by_date(date):
         date_clean = date.strip()
         date_underscore = date_clean.replace('-', '_')
         candidates = [
-            os.path.join('data', f'betting_recommendations_{date_underscore}.json'),
-            os.path.join('data', f'betting_recommendations_{date_clean}.json'),
             os.path.join('data', f'betting_recommendations_{date_underscore}_enhanced.json'),
-            os.path.join('data', f'betting_recommendations_{date_clean}_enhanced.json')
+            os.path.join('data', f'betting_recommendations_{date_clean}_enhanced.json'),
+            os.path.join('data', f'betting_recommendations_{date_underscore}.json'),
+            os.path.join('data', f'betting_recommendations_{date_clean}.json')
         ]
 
-        existing_files = [p for p in candidates if os.path.exists(p)]
-        if not existing_files:
+        file_path = next((p for p in candidates if os.path.exists(p)), None)
+        if not file_path:
             return jsonify({'success': False, 'error': f'No betting recommendations file found for {date}', 'recommendations': []}), 404
 
-        # Load and merge across all existing candidates; earlier files first, then enhanced
-        data_list = []
-        for p in existing_files:
-            try:
-                with open(p, 'r') as f:
-                    data_list.append(json.load(f))
-            except Exception:
-                continue
+        with open(file_path, 'r') as f:
+            data = json.load(f)
 
+        games = data.get('games', {})
         recs = []
         seen = set()  # to deduplicate (game_key, type, recommendation)
-        # Iterate each data blob and extract recs
-        for data in data_list:
-            games = data.get('games', {})
-            for game_key, game_data in games.items():
-                away = game_data.get('away_team')
-                home = game_data.get('home_team')
-                display_game = f"{away} @ {home}" if away and home else game_key.replace('_vs_', ' @ ')
+        for game_key, game_data in games.items():
+            away = game_data.get('away_team')
+            home = game_data.get('home_team')
+            display_game = f"{away} @ {home}" if away and home else game_key.replace('_vs_', ' @ ')
+            # Primary source: value_bets (preferred)
+            for vb in game_data.get('value_bets', []) or []:
+                # Extract odds as int if possible (keep original string too)
+                odds_raw = vb.get('american_odds', vb.get('odds', -110))
+                try:
+                    odds_int = int(str(odds_raw).replace('+', '')) if odds_raw != 'N/A' else -110
+                except Exception:
+                    odds_int = -110
+                key = (game_key, vb.get('type', 'unknown'), vb.get('recommendation'))
+                if key in seen:
+                    continue
+                seen.add(key)
+                recs.append({
+                    'game': display_game,
+                    'game_key': game_key,
+                    'away_team': away,
+                    'home_team': home,
+                    'type': vb.get('type', 'unknown'),
+                    'recommendation': vb.get('recommendation'),
+                    'expected_value': vb.get('expected_value', 0),
+                    'win_probability': vb.get('win_probability'),
+                    'american_odds': odds_raw,
+                    'odds': odds_int,
+                    'confidence': str(vb.get('confidence', 'UNKNOWN')).upper(),
+                    'kelly_bet_size': vb.get('kelly_bet_size'),
+                    'predicted_total': vb.get('predicted_total'),
+                    'betting_line': vb.get('betting_line'),
+                    'reasoning': vb.get('reasoning', '')
+                })
 
-                # Primary source: value_bets (preferred)
-                for vb in game_data.get('value_bets', []) or []:
-                    # Extract odds as int if possible (keep original string too)
-                    odds_raw = vb.get('american_odds', vb.get('odds', -110))
+            # Also support unified_value_bets if present
+            for vb in game_data.get('unified_value_bets', []) or []:
+                odds_raw = vb.get('american_odds', vb.get('odds', -110))
+                try:
+                    odds_int = int(str(odds_raw).replace('+', '')) if odds_raw != 'N/A' else -110
+                except Exception:
+                    odds_int = -110
+                key = (game_key, vb.get('type', 'unknown'), vb.get('recommendation'))
+                if key in seen:
+                    continue
+                seen.add(key)
+                recs.append({
+                    'game': display_game,
+                    'game_key': game_key,
+                    'away_team': away,
+                    'home_team': home,
+                    'type': vb.get('type', 'unknown'),
+                    'recommendation': vb.get('recommendation'),
+                    'expected_value': vb.get('expected_value', 0),
+                    'win_probability': vb.get('win_probability'),
+                    'american_odds': odds_raw,
+                    'odds': odds_int,
+                    'confidence': str(vb.get('confidence', 'UNKNOWN')).upper(),
+                    'kelly_bet_size': vb.get('kelly_bet_size'),
+                    'predicted_total': vb.get('predicted_total'),
+                    'betting_line': vb.get('betting_line'),
+                    'reasoning': vb.get('reasoning', '')
+                })
+
+            # Also support nested predictions.recommendations (older 8/22-8/23 format)
+            try:
+                preds = (game_data.get('predictions') or {}).get('recommendations') or []
+                for pr in preds:
+                    rec_type = pr.get('type', 'unknown')
+                    side = pr.get('side')
+                    line = pr.get('line')
+                    # Compose recommendation text
+                    rec_pick = pr.get('recommendation')
+                    if not rec_pick:
+                        if str(rec_type).lower().startswith('total') and side and line is not None:
+                            rec_pick = f"{str(side).title()} {line}"
+                        elif str(rec_type).lower().startswith('moneyline') and side:
+                            rec_pick = str(side)
+                    odds_raw = pr.get('american_odds', pr.get('odds', -110))
                     try:
                         odds_int = int(str(odds_raw).replace('+', '')) if odds_raw != 'N/A' else -110
                     except Exception:
                         odds_int = -110
-                    key = (game_key, vb.get('type', 'unknown'), vb.get('recommendation'))
-                    if key in seen:
-                        continue
-                    seen.add(key)
-                    recs.append({
-                        'game': display_game,
-                        'game_key': game_key,
-                        'away_team': away,
-                        'home_team': home,
-                        'type': vb.get('type', 'unknown'),
-                        'recommendation': vb.get('recommendation'),
-                        'expected_value': vb.get('expected_value', 0),
-                        'win_probability': vb.get('win_probability'),
-                        'american_odds': odds_raw,
-                        'odds': odds_int,
-                        'confidence': str(vb.get('confidence', 'UNKNOWN')).upper(),
-                        'kelly_bet_size': vb.get('kelly_bet_size'),
-                        'predicted_total': vb.get('predicted_total'),
-                        'betting_line': vb.get('betting_line'),
-                        'reasoning': vb.get('reasoning', '')
-                    })
-
-                # Also support unified_value_bets if present
-                for vb in game_data.get('unified_value_bets', []) or []:
-                    odds_raw = vb.get('american_odds', vb.get('odds', -110))
-                    try:
-                        odds_int = int(str(odds_raw).replace('+', '')) if odds_raw != 'N/A' else -110
-                    except Exception:
-                        odds_int = -110
-                    key = (game_key, vb.get('type', 'unknown'), vb.get('recommendation'))
-                    if key in seen:
-                        continue
-                    seen.add(key)
-                    recs.append({
-                        'game': display_game,
-                        'game_key': game_key,
-                        'away_team': away,
-                        'home_team': home,
-                        'type': vb.get('type', 'unknown'),
-                        'recommendation': vb.get('recommendation'),
-                        'expected_value': vb.get('expected_value', 0),
-                        'win_probability': vb.get('win_probability'),
-                        'american_odds': odds_raw,
-                        'odds': odds_int,
-                        'confidence': str(vb.get('confidence', 'UNKNOWN')).upper(),
-                        'kelly_bet_size': vb.get('kelly_bet_size'),
-                        'predicted_total': vb.get('predicted_total'),
-                        'betting_line': vb.get('betting_line'),
-                        'reasoning': vb.get('reasoning', '')
-                    })
-
-                # Support embedded betting_recommendations object (moneyline/total_runs/run_line or value_bets/unified_value_bets inside)
-                try:
-                    br = game_data.get('betting_recommendations')
-                    if isinstance(br, dict):
-                        # If it already has value_bets/unified_value_bets arrays, reuse those
-                        for key_name in ('value_bets', 'unified_value_bets'):
-                            vb_list = br.get(key_name)
-                            if isinstance(vb_list, list):
-                                for vb in vb_list:
-                                    odds_raw = vb.get('american_odds', vb.get('odds', -110))
-                                    try:
-                                        odds_int = int(str(odds_raw).replace('+', '')) if odds_raw != 'N/A' else -110
-                                    except Exception:
-                                        odds_int = -110
-                                    key = (game_key, vb.get('type', 'unknown'), vb.get('recommendation'))
-                                    if key in seen:
-                                        continue
-                                    seen.add(key)
-                                    recs.append({
-                                        'game': display_game,
-                                        'game_key': game_key,
-                                        'away_team': away,
-                                        'home_team': home,
-                                        'type': vb.get('type', 'unknown'),
-                                        'recommendation': vb.get('recommendation'),
-                                        'expected_value': vb.get('expected_value', 0),
-                                        'win_probability': vb.get('win_probability'),
-                                        'american_odds': odds_raw,
-                                        'odds': odds_int,
-                                        'confidence': str(vb.get('confidence', 'UNKNOWN')).upper(),
-                                        'kelly_bet_size': vb.get('kelly_bet_size'),
-                                        'predicted_total': vb.get('predicted_total'),
-                                        'betting_line': vb.get('betting_line'),
-                                        'reasoning': vb.get('reasoning', '')
-                                    })
-                        # Otherwise, interpret keyed objects like moneyline/total_runs/run_line
-                        type_map = {
-                            'moneyline': 'moneyline',
-                            'total_runs': 'total',
-                            'total': 'total',
-                            'run_line': 'run_line',
-                            'spread': 'run_line'
-                        }
-                        for k, v in br.items():
-                            if k in ('value_bets','unified_value_bets'):
-                                continue
-                            if not isinstance(v, dict):
-                                continue
-                            rec_type = type_map.get(str(k).lower())
-                            if not rec_type:
-                                continue
-                            rec_pick = v.get('recommendation') or v.get('pick')
-                            line = v.get('betting_line', v.get('line'))
-                            # Build recommendation text when missing (e.g., totals)
-                            if (not rec_pick) and rec_type == 'total' and line is not None:
-                                side = v.get('side') or v.get('over_under')  # 'OVER' or 'UNDER'
-                                if side:
-                                    rec_pick = f"{str(side).title()} {line}"
-                            odds_raw = v.get('american_odds') or v.get('odds')
-                            try:
-                                odds_int = int(str(odds_raw).replace('+', '')) if odds_raw not in (None, 'N/A') else -110
-                            except Exception:
-                                odds_int = -110
-                            key = (game_key, rec_type, rec_pick)
-                            if key in seen:
-                                continue
-                            seen.add(key)
-                            recs.append({
-                                'game': display_game,
-                                'game_key': game_key,
-                                'away_team': away,
-                                'home_team': home,
-                                'type': rec_type,
-                                'recommendation': rec_pick,
-                                'expected_value': v.get('expected_value', 0),
-                                'win_probability': v.get('win_probability'),
-                                'american_odds': odds_raw,
-                                'odds': odds_int,
-                                'confidence': str(v.get('confidence', 'UNKNOWN')).upper(),
-                                'kelly_bet_size': v.get('kelly_bet_size'),
-                                'predicted_total': v.get('predicted_total'),
-                                'betting_line': line,
-                                'reasoning': v.get('reasoning', '')
-                            })
-                except Exception:
-                    pass
-
-                # Also support nested predictions.recommendations (older 8/22-8/23 format)
-                try:
-                    preds = (game_data.get('predictions') or {}).get('recommendations') or []
-                    for pr in preds:
-                        rec_type = pr.get('type', 'unknown')
-                        side = pr.get('side')
-                        line = pr.get('line')
-                        # Compose recommendation text
-                        rec_pick = pr.get('recommendation')
-                        if not rec_pick:
-                            if str(rec_type).lower().startswith('total') and side and line is not None:
-                                rec_pick = f"{str(side).title()} {line}"
-                            elif str(rec_type).lower().startswith('moneyline') and side:
-                                rec_pick = str(side)
-                        odds_raw = pr.get('american_odds', pr.get('odds', -110))
-                        try:
-                            odds_int = int(str(odds_raw).replace('+', '')) if odds_raw != 'N/A' else -110
-                        except Exception:
-                            odds_int = -110
-                        key = (game_key, rec_type, rec_pick)
-                        if key in seen:
-                            continue
-                        seen.add(key)
-                        recs.append({
-                            'game': display_game,
-                            'game_key': game_key,
-                            'away_team': away,
-                            'home_team': home,
-                            'type': rec_type,
-                            'recommendation': rec_pick,
-                            'expected_value': pr.get('expected_value', 0),
-                            'win_probability': pr.get('win_probability'),
-                            'american_odds': odds_raw,
-                            'odds': odds_int,
-                            'confidence': str(pr.get('confidence', 'UNKNOWN')).upper(),
-                            'kelly_bet_size': pr.get('kelly_bet_size'),
-                            'predicted_total': pr.get('model_total'),
-                            'betting_line': line,
-                            'reasoning': pr.get('reasoning', '')
-                        })
-                except Exception:
-                    pass
-
-                # Fallback source: recommendations (if present and not 'none'/'market analysis')
-                for rb in game_data.get('recommendations', []) or []:
-                    rec_type = rb.get('type')
-                    rec_pick = rb.get('recommendation') or rb.get('pick')
-                    rtype = str(rec_type).lower() if rec_type is not None else ''
-                    rpick = str(rec_pick).lower() if rec_pick is not None else ''
-                    # Skip generic market notes
-                    if (not rec_type or rtype in ('none','market analysis','market_analysis','marketanalysis') or
-                        'no strong value' in rpick or 'no clear value' in rpick):
-                        continue
                     key = (game_key, rec_type, rec_pick)
                     if key in seen:
                         continue
                     seen.add(key)
-                    # Odds may not be provided; try to infer from betting_lines if available
-                    odds_raw = rb.get('american_odds') or rb.get('odds')
-                    if odds_raw is None:
-                        # Try basic mapping from game's betting_lines
-                        bl = game_data.get('betting_lines') or {}
-                        if str(rec_type).lower() == 'total':
-                            # choose over/under odds based on text prefix
-                            if rec_pick and str(rec_pick).strip().lower().startswith('over'):
-                                odds_raw = bl.get('over_odds')
-                            elif rec_pick and str(rec_pick).strip().lower().startswith('under'):
-                                odds_raw = bl.get('under_odds')
-                        # moneyline or run_line could be added later
-                    try:
-                        odds_int = int(str(odds_raw).replace('+', '')) if odds_raw not in (None, 'N/A') else -110
-                    except Exception:
-                        odds_int = -110
-                    # Derive betting_line from pick text when missing (e.g., "Over 8.5" or "Under 9.0")
-                    betting_line = rb.get('betting_line') or (game_data.get('betting_lines') or {}).get('total_line')
-                    if betting_line is None and rec_pick:
-                        import re
-                        m = re.search(r"(\d+\.?\d*)", str(rec_pick))
-                        if m:
-                            try:
-                                betting_line = float(m.group(1))
-                            except Exception:
-                                pass
-                    # Try to infer missing recommendation for totals using reasoning/model vs line
-                    inferred_pick = rec_pick
-                    if (not inferred_pick) and str(rec_type).lower() == 'total':
-                        try:
-                            import re
-                            # extract numbers from reasoning like "Model: 6.0 vs Line: 8.5"
-                            model_val = None
-                            line_val = betting_line
-                            reason = rb.get('reasoning') or ''
-                            m = re.findall(r"(\d+\.?\d*)", reason)
-                            if m and len(m) >= 2:
-                                model_val = float(m[0])
-                                if line_val is None:
-                                    line_val = float(m[1])
-                            if (model_val is not None) and (line_val is not None):
-                                inferred_pick = ('Under ' if model_val < line_val else 'Over ') + str(line_val)
-                        except Exception:
-                            pass
-
                     recs.append({
                         'game': display_game,
                         'game_key': game_key,
                         'away_team': away,
                         'home_team': home,
                         'type': rec_type,
-                        'recommendation': inferred_pick,
-                        'expected_value': rb.get('expected_value', 0),
-                        'win_probability': rb.get('win_probability'),
+                        'recommendation': rec_pick,
+                        'expected_value': pr.get('expected_value', 0),
+                        'win_probability': pr.get('win_probability'),
                         'american_odds': odds_raw,
                         'odds': odds_int,
-                        'confidence': str(rb.get('confidence', 'UNKNOWN')).upper(),
-                        'kelly_bet_size': rb.get('kelly_bet_size'),
-                        'predicted_total': rb.get('predicted_total'),
-                        'betting_line': betting_line,
-                        'reasoning': rb.get('reasoning', '')
+                        'confidence': str(pr.get('confidence', 'UNKNOWN')).upper(),
+                        'kelly_bet_size': pr.get('kelly_bet_size'),
+                        'predicted_total': pr.get('model_total'),
+                        'betting_line': line,
+                        'reasoning': pr.get('reasoning', '')
                     })
+            except Exception:
+                pass
+
+            # Fallback source: recommendations (if present and not 'none'/'market analysis')
+            for rb in game_data.get('recommendations', []) or []:
+                rec_type = rb.get('type')
+                rec_pick = rb.get('recommendation') or rb.get('pick')
+                rtype = str(rec_type).lower() if rec_type is not None else ''
+                rpick = str(rec_pick).lower() if rec_pick is not None else ''
+                # Skip generic market notes
+                if (not rec_type or rtype in ('none','market analysis','market_analysis','marketanalysis') or
+                    'no strong value' in rpick or 'no clear value' in rpick):
+                    continue
+                key = (game_key, rec_type, rec_pick)
+                if key in seen:
+                    continue
+                seen.add(key)
+                # Odds may not be provided; try to infer from betting_lines if available
+                odds_raw = rb.get('american_odds') or rb.get('odds')
+                if odds_raw is None:
+                    # Try basic mapping from game's betting_lines
+                    bl = game_data.get('betting_lines') or {}
+                    if str(rec_type).lower() == 'total':
+                        # choose over/under odds based on text prefix
+                        if rec_pick and str(rec_pick).strip().lower().startswith('over'):
+                            odds_raw = bl.get('over_odds')
+                        elif rec_pick and str(rec_pick).strip().lower().startswith('under'):
+                            odds_raw = bl.get('under_odds')
+                    # moneyline or run_line could be added later
+                try:
+                    odds_int = int(str(odds_raw).replace('+', '')) if odds_raw not in (None, 'N/A') else -110
+                except Exception:
+                    odds_int = -110
+                # Derive betting_line from pick text when missing (e.g., "Over 8.5" or "Under 9.0")
+                betting_line = rb.get('betting_line') or (game_data.get('betting_lines') or {}).get('total_line')
+                if betting_line is None and rec_pick:
+                    import re
+                    m = re.search(r"(\d+\.?\d*)", str(rec_pick))
+                    if m:
+                        try:
+                            betting_line = float(m.group(1))
+                        except Exception:
+                            pass
+                # Try to infer missing recommendation for totals using reasoning/model vs line
+                inferred_pick = rec_pick
+                if (not inferred_pick) and str(rec_type).lower() == 'total':
+                    try:
+                        import re
+                        # extract numbers from reasoning like "Model: 6.0 vs Line: 8.5"
+                        model_val = None
+                        line_val = betting_line
+                        reason = rb.get('reasoning') or ''
+                        m = re.findall(r"(\d+\.?\d*)", reason)
+                        if m and len(m) >= 2:
+                            model_val = float(m[0])
+                            if line_val is None:
+                                line_val = float(m[1])
+                        if (model_val is not None) and (line_val is not None):
+                            inferred_pick = ('Under ' if model_val < line_val else 'Over ') + str(line_val)
+                    except Exception:
+                        pass
+
+                recs.append({
+                    'game': display_game,
+                    'game_key': game_key,
+                    'away_team': away,
+                    'home_team': home,
+                    'type': rec_type,
+                    'recommendation': inferred_pick,
+                    'expected_value': rb.get('expected_value', 0),
+                    'win_probability': rb.get('win_probability'),
+                    'american_odds': odds_raw,
+                    'odds': odds_int,
+                    'confidence': str(rb.get('confidence', 'UNKNOWN')).upper(),
+                    'kelly_bet_size': rb.get('kelly_bet_size'),
+                    'predicted_total': rb.get('predicted_total'),
+                    'betting_line': betting_line,
+                    'reasoning': rb.get('reasoning', '')
+                })
 
         # Sort recs by confidence then EV
         conf_rank = {'HIGH': 3, 'MEDIUM': 2, 'LOW': 1}
@@ -2991,12 +3318,12 @@ def api_betting_recommendations_by_date(date):
 
         # Build summary
         summary = {
-            'date': date_clean,
+            'date': data.get('date', date_clean),
             'total_recommendations': len(recs),
             'high_confidence': sum(1 for r in recs if r.get('confidence') == 'HIGH'),
             'medium_confidence': sum(1 for r in recs if r.get('confidence') == 'MEDIUM'),
             'low_confidence': sum(1 for r in recs if r.get('confidence') == 'LOW'),
-            'source': 'merged'
+            'source': data.get('source', 'unknown')
         }
 
         return jsonify({'success': True, 'date': summary['date'], 'summary': summary, 'recommendations': recs})
@@ -3004,18 +3331,6 @@ def api_betting_recommendations_by_date(date):
         logger.error(f"Error loading betting recommendations for {date}: {e}")
         logger.error(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e), 'recommendations': []}), 500
-
-@app.route('/api/betting-recommendations/today')
-def api_betting_recommendations_today():
-    """Resolve 'today' using US/Eastern and return that day’s recommendations."""
-    try:
-        # Use business date to avoid flipping until prior day's games are complete
-        today_iso = get_business_date()
-        # Reuse existing handler
-        return api_betting_recommendations_by_date(today_iso)
-    except Exception as e:
-        logger.exception('today betting recommendations failure')
-        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/historical-filtered/<filter_type>')
 def api_historical_filtered(filter_type):
@@ -3475,50 +3790,40 @@ def get_confidence_range(unified_cache):
 
 @app.route('/api/predictions/<date>')
 def api_predictions(date):
-    """API endpoint for predictions by date (supports 'today' alias).
-    Returns a flat list of game prediction dicts for the specified date.
-    """
+    """API endpoint for predictions by date"""
     try:
-        # Support 'today' alias using business date
-        req_date = get_business_date() if (date or '').lower() == 'today' else date
-
-        def _collect_predictions_for_date(_cache: dict, _date: str):
-            # Preferred modern structure: predictions_by_date[date]['games']
-            try:
-                by_date = (_cache or {}).get('predictions_by_date', {})
-                day = by_date.get(_date) or {}
-                games = (day.get('games') or {}) if isinstance(day, dict) else {}
-                if isinstance(games, dict) and games:
-                    return [v for v in games.values() if isinstance(v, dict)]
-            except Exception:
-                pass
-
-            # Legacy fallback: top-level items with 'date' fields
-            preds = []
-            try:
-                for _, game_data in (_cache or {}).items():
-                    if isinstance(game_data, dict) and game_data.get('date') == _date:
-                        preds.append(game_data)
-            except Exception:
-                # If unified cache isn't a mapping of dicts, ignore
-                pass
-            return preds
-
         if PERFORMANCE_TRACKING_AVAILABLE:
-            with time_operation(f"api_predictions_{req_date}"):
+            with time_operation(f"api_predictions_{date}"):
                 unified_cache = load_unified_cache()
-                predictions = _collect_predictions_for_date(unified_cache, req_date)
+                
+                # Filter predictions by date
+                predictions = []
+                for game_id, game_data in unified_cache.items():
+                    if game_data.get('date') == date:
+                        predictions.append(game_data)
+                
+                return jsonify({
+                    'date': date,
+                    'predictions': predictions,
+                    'count': len(predictions),
+                    'status': 'success'
+                })
         else:
             unified_cache = load_unified_cache()
-            predictions = _collect_predictions_for_date(unified_cache, req_date)
-
-        return jsonify({
-            'date': req_date,
-            'predictions': predictions,
-            'count': len(predictions),
-            'status': 'success'
-        })
-
+            
+            # Filter predictions by date
+            predictions = []
+            for game_id, game_data in unified_cache.items():
+                if game_data.get('date') == date:
+                    predictions.append(game_data)
+            
+            return jsonify({
+                'date': date,
+                'predictions': predictions,
+                'count': len(predictions),
+                'status': 'success'
+            })
+    
     except Exception as e:
         logger.error(f"Error in API predictions: {e}")
         return jsonify({
@@ -3555,1380 +3860,6 @@ def api_stats():
 @app.route('/api/simple-test')
 def simple_test():
     return "Hello World"
-
-@app.route('/api/pitcher-projections')
-def api_pitcher_projections():
-    try:
-        # Serve persisted snapshot by default to keep sportsbook lines stable.
-        refresh = request.args.get('refresh') is not None or request.args.get('force') is not None
-        # Determine business date to avoid flipping until prior day's games are complete
-        today_iso = get_business_date()
-        date_us = today_iso.replace('-', '_')
-        # Prefer the updated snapshot (usually includes lines/odds); fall back to base
-        data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
-        snap_update = os.path.join(data_dir, f'pitcher_projections_update_{date_us}.json')
-        snap_base = os.path.join(data_dir, f'pitcher_projections_{date_us}.json')
-        snap_path = snap_update if os.path.exists(snap_update) else snap_base
-
-        # Build same-day props map by merging all variants and handling legacy formats with robust decoding
-        def _norm(s: str) -> str:
-            try:
-                import unicodedata
-                s2 = unicodedata.normalize('NFD', s or '')
-                s2 = ''.join(c for c in s2 if not unicodedata.combining(c))
-                return ''.join(ch for ch in s2.lower() if ch.isalnum())
-            except Exception:
-                return (s or '').lower()
-
-        def _norm_team(s: str) -> str:
-            return ''.join(ch for ch in (s or '').lower() if ch.isalnum())
-
-        def _load_same_day_props_map(date_us_str: str):
-            folder = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
-            candidates = []
-            try:
-                for fn in os.listdir(folder):
-                    if fn.startswith(f'bovada_pitcher_props_{date_us_str}') and fn.endswith('.json'):
-                        candidates.append(os.path.join(folder, fn))
-            except Exception:
-                candidates = [
-                    os.path.join(folder, f'bovada_pitcher_props_{date_us_str}.json'),
-                    os.path.join(folder, f'bovada_pitcher_props_{date_us_str}_enhanced.json'),
-                    os.path.join(folder, f'bovada_pitcher_props_update_{date_us_str}.json')
-                ]
-            stat_key_map = {
-                'K': 'strikeouts', 'STRIKEOUTS': 'strikeouts', 'SO': 'strikeouts',
-                'OUTS': 'outs', 'ER': 'earned_runs', 'EARNED_RUNS': 'earned_runs',
-                'HITS': 'hits_allowed', 'H': 'hits_allowed',
-                'WALKS': 'walks', 'BB': 'walks'
-            }
-            pm: dict = {}
-            pm_team: dict = {}
-            alts: dict = {}
-            for path in candidates:
-                if not os.path.exists(path):
-                    continue
-                try:
-                    with open(path, 'rb') as f:
-                        raw = f.read()
-                    js = None
-                    for enc in ('utf-8-sig', 'utf-8', 'utf-16', 'utf-16-le', 'utf-16-be'):
-                        try:
-                            js = json.loads(raw.decode(enc))
-                            break
-                        except Exception:
-                            js = None
-                    if js is None:
-                        continue
-                    # Dict format
-                    if isinstance(js.get('pitcher_props'), dict):
-                        for name, stats_blob in js['pitcher_props'].items():
-                            key = _norm(name)
-                            if not isinstance(stats_blob, dict):
-                                continue
-                            tgt = pm.setdefault(key, {})
-                            for sk in ['strikeouts', 'outs', 'earned_runs', 'hits_allowed', 'walks']:
-                                val = stats_blob.get(sk)
-                                if isinstance(val, dict) and (val.get('line') is not None):
-                                    tgt[sk] = val
-                            # If a team is present in dict format, also index team map
-                            team_val = stats_blob.get('team') if isinstance(stats_blob, dict) else None
-                            if team_val:
-                                key_team = f"{key}|{_norm_team(team_val)}"
-                                tmap = pm_team.setdefault(key_team, {})
-                                for sk in ['strikeouts', 'outs', 'earned_runs', 'hits_allowed', 'walks']:
-                                    val = stats_blob.get(sk)
-                                    if isinstance(val, dict) and (val.get('line') is not None):
-                                        tmap[sk] = val
-                            if isinstance(stats_blob.get('strikeouts_alts'), list):
-                                alts.setdefault(key, stats_blob['strikeouts_alts'])
-                    # Legacy array format
-                    if isinstance(js.get('props'), list):
-                        for entry in (js.get('props') or []):
-                            name = entry.get('pitcher')
-                            if not name:
-                                continue
-                            key = _norm(name)
-                            sk = stat_key_map.get(str(entry.get('stat') or '').upper())
-                            if not sk:
-                                continue
-                            pm.setdefault(key, {})[sk] = {
-                                'line': entry.get('line'),
-                                'over_odds': entry.get('over_odds'),
-                                'under_odds': entry.get('under_odds')
-                            }
-                            team = entry.get('team')
-                            if team:
-                                key_team = f"{key}|{_norm_team(team)}"
-                                pm_team.setdefault(key_team, {})[sk] = {
-                                    'line': entry.get('line'),
-                                    'over_odds': entry.get('over_odds'),
-                                    'under_odds': entry.get('under_odds')
-                                }
-                except Exception:
-                    continue
-            return pm, pm_team, alts
-
-        props_map, props_map_team, props_alts = _load_same_day_props_map(date_us)
-
-        if not refresh and os.path.exists(snap_path):
-            try:
-                with open(snap_path, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                # Backfill any missing lines from same-day props snapshots without mutating the saved file
-                if props_map and isinstance(data.get('pitchers'), list):
-                    for p in data['pitchers']:
-                        nm = p.get('pitcher_name') or ''
-                        key = _norm(nm)
-                        pm_local = None
-                        # Prefer team-specific when available
-                        team = p.get('team') or ''
-                        if team:
-                            pm_local = props_map_team.get(f"{key}|{_norm_team(team)}")
-                        if pm_local is None:
-                            pm_local = props_map.get(key)
-                        if not pm_local:
-                            continue
-                        p.setdefault('lines', {})
-                        # Backfill per stat if missing
-                        for stat in ['outs', 'strikeouts', 'earned_runs', 'hits_allowed', 'walks']:
-                            cur = (p['lines'].get(stat) or {}) if isinstance(p['lines'], dict) else {}
-                            has_line = isinstance(cur, dict) and (cur.get('line') is not None)
-                            if not has_line:
-                                val = pm_local.get(stat)
-                                if isinstance(val, dict) and val.get('line') is not None:
-                                    p['lines'][stat] = val
-                        # Strikeout alternates
-                        if not (p['lines'].get('strikeouts_alts')) and isinstance(props_alts.get(key), list):
-                            p['lines']['strikeouts_alts'] = props_alts.get(key)
-                return jsonify({'success': True, 'data': data, 'source': 'snapshot', 'backfilled': bool(props_map)})
-            except Exception:
-                pass
-
-        # If refresh requested or snapshot missing/corrupt, compute (no fresh lines fetch override here)
-        data = compute_pitcher_projections(include_lines=True, force_refresh=bool(refresh))
-
-        # And backfill from same-day props snapshots if some lines are missing (e.g., late compute after markets closed)
-        try:
-            if props_map and isinstance(data.get('pitchers'), list):
-                for p in data['pitchers']:
-                    nm = p.get('pitcher_name') or ''
-                    key = _norm(nm)
-                    pm_local = None
-                    team = p.get('team') or ''
-                    if team:
-                        pm_local = props_map_team.get(f"{key}|{_norm_team(team)}")
-                    if pm_local is None:
-                        pm_local = props_map.get(key)
-                    if not pm_local:
-                        continue
-                    p.setdefault('lines', {})
-                    for stat in ['outs', 'strikeouts', 'earned_runs', 'hits_allowed', 'walks']:
-                        cur = (p['lines'].get(stat) or {}) if isinstance(p['lines'], dict) else {}
-                        has_line = isinstance(cur, dict) and (cur.get('line') is not None)
-                        if not has_line:
-                            val = pm_local.get(stat)
-                            if isinstance(val, dict) and val.get('line') is not None:
-                                p['lines'][stat] = val
-                    if not (p['lines'].get('strikeouts_alts')) and isinstance(props_alts.get(key), list):
-                        p['lines']['strikeouts_alts'] = props_alts.get(key)
-        except Exception:
-            pass
-
-        return jsonify({'success': True, 'data': data, 'source': 'computed', 'refreshed': bool(refresh), 'backfilled': bool(props_map)})
-    except Exception as e:
-        logger.exception("pitcher projections failure")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/api/pitcher-validation')
-def api_pitcher_validation():
-    """Return daily pitcher validation summary (team/opponent mapping health)."""
-    try:
-        # Use business date to align with daily snapshots and avoid premature rollover
-        today_iso = get_business_date()
-        today_us = today_iso.replace('-', '_')
-        data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
-        val_path = os.path.join(data_dir, f'pitcher_validation_{today_us}.json')
-        if os.path.exists(val_path):
-            with open(val_path, 'r') as f:
-                val = json.load(f)
-            return jsonify({'success': True, 'validation': val})
-        # If file missing, compute projections (this will also generate the validation file)
-        proj = compute_pitcher_projections()
-        # Build minimal validation snippet from projection result
-        val = {
-            'date': proj.get('date'),
-            'pitcher_count': proj.get('count'),
-            'team_mismatches': proj.get('adjustment_meta', {}).get('team_mismatches'),
-            'opponent_validation_mismatches': proj.get('adjustment_meta', {}).get('opponent_validation_mismatches'),
-            'opponent_corrections': proj.get('adjustment_meta', {}).get('opponent_corrections_count'),
-            'generated_at': proj.get('generated_at')
-        }
-        return jsonify({'success': True, 'validation': val, 'generated_now': True})
-    except Exception as e:
-        logger.exception("pitcher validation endpoint failure")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/api/business-date')
-def api_business_date():
-    """Return the current business date (US/Eastern) that defers rollover until all games are final."""
-    try:
-        return jsonify({'success': True, 'business_date': get_business_date()})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/api/pitcher-prop-plays')
-def api_pitcher_prop_plays():
-    """Return pitcher prop plays.
-
-        Query params:
-      - date=YYYY-MM-DD : single day (default today)
-      - start=YYYY-MM-DD&end=YYYY-MM-DD : inclusive range
-      - month=YYYY-MM (ignored if start/end provided) aggregates entire calendar month
-            - aggregate=1 : if present, returns flat list instead of nested by stat
-            - allow_synth_lines=1 : if present, allows synthesizing a line from projections when no real line is available (default off)
-            - allow_synth_odds=1 : if present, assume -110 odds when book odds are missing (default off)
-            - include_negatives=1 : if present, include negative EV/Kelly plays (default off)
-    """
-    try:
-        from datetime import datetime, timedelta
-        stats = ['strikeouts','outs','earned_runs','hits_allowed','walks']
-        date_param = request.args.get('date')
-        start_param = request.args.get('start')
-        end_param = request.args.get('end')
-        month_param = request.args.get('month')
-        aggregate = request.args.get('aggregate') is not None
-        allow_synth_lines = str(request.args.get('allow_synth_lines') or '').strip().lower() in ('1','true','yes','y')
-        allow_synth_odds = str(request.args.get('allow_synth_odds') or '').strip().lower() in ('1','true','yes','y')
-        include_negatives = str(request.args.get('include_negatives') or '').strip().lower() in ('1','true','yes','y')
-        # Important: do NOT compute on the fly for "today" — always serve the persisted snapshot
-        # Any request params like refresh/live are ignored here to preserve daily line consistency
-        data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
-
-        def _load_day(diso: str, refresh: bool = False):
-            """Load the canonical daily pitcher projections snapshot.
-            Falls back to projection_features or update snapshot if the main file is missing.
-            """
-            date_us = diso.replace('-', '_')
-            primary = os.path.join(data_dir, f"pitcher_projections_{date_us}.json")
-            update = os.path.join(data_dir, f"pitcher_projections_update_{date_us}.json")
-            features = os.path.join(data_dir, f"projection_features_{date_us}.json")
-            # Prefer the most up-to-date snapshot (update) first to ensure lines/odds are included
-            for path in (update, primary, features):
-                if os.path.exists(path):
-                    try:
-                        with open(path,'r') as f:
-                            return json.load(f)
-                    except Exception:
-                        continue
-            # No fallback compute — if all persisted daily files are missing, return None
-            return None
-
-        def _load_props_maps_for_date(diso: str):
-            """Build props_by_name and props_by_name_team maps for a given date by merging all same-day snapshot variants.
-            Any file matching bovada_pitcher_props_{YYYY_MM_DD}*.json will be included.
-            """
-            props_by_name_local = {}
-            props_by_name_team_local = {}
-            try:
-                date_us = diso.replace('-', '_')
-                folder = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
-                candidates = []
-                try:
-                    for fn in os.listdir(folder):
-                        if fn.startswith(f'bovada_pitcher_props_{date_us}') and fn.endswith('.json'):
-                            candidates.append(os.path.join(folder, fn))
-                except Exception:
-                    # Fallback to known names when listing fails
-                    candidates = [
-                        os.path.join(folder, f'bovada_pitcher_props_{date_us}.json'),
-                        os.path.join(folder, f'bovada_pitcher_props_{date_us}_enhanced.json'),
-                        os.path.join(folder, f'bovada_pitcher_props_update_{date_us}.json')
-                    ]
-                def norm(s):
-                    try:
-                        return str(s or '').strip().lower()
-                    except Exception:
-                        return str(s or '')
-                stat_key_map = {
-                    'K': 'strikeouts', 'STRIKEOUTS': 'strikeouts', 'SO':'strikeouts',
-                    'OUTS': 'outs', 'ER': 'earned_runs', 'EARNED_RUNS': 'earned_runs',
-                    'HITS': 'hits_allowed', 'H': 'hits_allowed',
-                    'WALKS': 'walks', 'BB': 'walks'
-                }
-                for props_path in candidates:
-                    if not os.path.exists(props_path):
-                        continue
-                    # Robustly read JSON with unknown encoding (utf-8/utf-8-sig/utf-16)
-                    props_js = None
-                    try:
-                        with open(props_path, 'rb') as f:
-                            raw = f.read()
-                        for enc in ('utf-8-sig','utf-8','utf-16','utf-16-le','utf-16-be'):
-                            try:
-                                text = raw.decode(enc)
-                                props_js = json.loads(text)
-                                break
-                            except Exception:
-                                props_js = None
-                        if props_js is None:
-                            continue
-                    except Exception:
-                        continue
-                    # Legacy array format
-                    if isinstance(props_js.get('props'), list):
-                        for entry in (props_js.get('props') or []):
-                            pname = norm(entry.get('pitcher'))
-                            team = norm(entry.get('team'))
-                            key = f"{pname}|{team}" if team else pname
-                            sk = stat_key_map.get(str(entry.get('stat') or '').upper())
-                            if not sk:
-                                continue
-                            if team:
-                                props_by_name_team_local.setdefault(key, {})[sk] = {
-                                    'line': entry.get('line'),
-                                    'over_odds': entry.get('over_odds'),
-                                    'under_odds': entry.get('under_odds')
-                                }
-                            props_by_name_local.setdefault(pname, {})[sk] = {
-                                'line': entry.get('line'),
-                                'over_odds': entry.get('over_odds'),
-                                'under_odds': entry.get('under_odds')
-                            }
-                    # Current dict format keyed by pitcher name
-                    if isinstance(props_js.get('pitcher_props'), dict):
-                        for pname_raw, stats_blob in (props_js.get('pitcher_props') or {}).items():
-                            pname = norm(pname_raw)
-                            if not isinstance(stats_blob, dict):
-                                continue
-                            for sk in ['strikeouts','outs','earned_runs','hits_allowed','walks']:
-                                val = stats_blob.get(sk)
-                                if isinstance(val, dict) and (val.get('line') is not None):
-                                    props_by_name_local.setdefault(pname, {})[sk] = {
-                                        'line': val.get('line'),
-                                        'over_odds': val.get('over_odds'),
-                                        'under_odds': val.get('under_odds')
-                                    }
-            except Exception:
-                props_by_name_local = {}
-                props_by_name_team_local = {}
-            return props_by_name_local, props_by_name_team_local
-
-        days = []
-        try:
-            from zoneinfo import ZoneInfo
-            today_iso = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
-        except Exception:
-            today_iso = datetime.now().strftime('%Y-%m-%d')
-        if start_param and end_param:
-            try:
-                start_dt = datetime.strptime(start_param, '%Y-%m-%d').date()
-                end_dt = datetime.strptime(end_param, '%Y-%m-%d').date()
-                if end_dt < start_dt:
-                    start_dt, end_dt = end_dt, start_dt
-                cur = start_dt
-                while cur <= end_dt:
-                    days.append(cur.strftime('%Y-%m-%d'))
-                    cur += timedelta(days=1)
-            except Exception:
-                pass
-        elif month_param:
-            try:
-                mdt = datetime.strptime(month_param+'-01','%Y-%m-%d').date()
-                # iterate until next month
-                cur = mdt
-                while cur.month == mdt.month:
-                    try:
-                        from zoneinfo import ZoneInfo
-                        now_local = datetime.now(ZoneInfo('America/New_York')).date()
-                    except Exception:
-                        now_local = datetime.now().date()
-                    if cur <= now_local:
-                        days.append(cur.strftime('%Y-%m-%d'))
-                    cur += timedelta(days=1)
-            except Exception:
-                pass
-        else:
-            diso = date_param if date_param else today_iso
-            days.append(diso)
-
-        all_entries = []
-        per_day_meta = {}
-        for diso in days:
-            day_data = _load_day(diso, refresh=False)
-            if not day_data:
-                continue
-            # Attempt to backfill lines/odds per stat from Bovada props snapshot for this day
-            # Support both legacy array format { props: [...] } and current dict format { pitcher_props: { name: {stat:{...}} } }
-            props_by_name, props_by_name_team = _load_props_maps_for_date(diso)
-            # Capture metadata to help the UI indicate snapshot provenance
-            per_day_meta[diso] = {
-                'source': 'snapshot',
-                'generated_at': day_data.get('generated_at'),
-                'pitcher_count': day_data.get('count')
-            }
-            for p in day_data.get('pitchers', []):
-                conf = (p.get('confidence') or 'LOW').upper()
-                if conf not in ('HIGH','MEDIUM','LOW'):
-                    conf = 'LOW'
-                recs = p.get('recommendations') or {}
-                diffs_adj = p.get('diffs_adjusted') or {}
-                diffs_raw = p.get('diffs') or {}
-                lines = p.get('lines') or {}
-                adj_proj = p.get('adjusted_projections') or {}
-                for stat in stats:
-                    rec = recs.get(stat)
-                    # Fetch projections early so we can use them for line synthesis and diffs
-                    proj = p.get(f'projected_{stat}') if stat != 'outs' else p.get('projected_outs')
-                    adj = adj_proj.get(stat)
-                    line_obj = lines.get(stat) or {}
-                    line = line_obj.get('line')
-                    line_source = 'snapshot' if (line is not None) else None
-                    # If line missing, try to backfill from same-day props snapshot for this pitcher/team
-                    if line is None:
-                        try:
-                            pname = p.get('pitcher_name')
-                            team = p.get('team')
-                            key_team = f"{str(pname or '').strip().lower()}|{str(team or '').strip().lower()}"
-                            back = None
-                            # Prefer name+team when available
-                            if team:
-                                back = (props_by_name_team.get(key_team) or {}).get(stat)
-                            # Fallback to name-only map
-                            if back is None:
-                                back = (props_by_name.get(str(pname or '').strip().lower()) or {}).get(stat)
-                            if back and (back.get('line') is not None):
-                                line = back.get('line')
-                                line_source = 'backfill'
-                                # patch odds if not present
-                                if 'over_odds' not in line_obj and back.get('over_odds') is not None:
-                                    line_obj['over_odds'] = back.get('over_odds')
-                                if 'under_odds' not in line_obj and back.get('under_odds') is not None:
-                                    line_obj['under_odds'] = back.get('under_odds')
-                        except Exception:
-                            pass
-                    if line is None and allow_synth_lines:
-                        # Synthesize a reasonable market-like line from projections when snapshot lines are unavailable
-                        base_val = adj if (adj is not None) else proj
-                        try:
-                            if base_val is not None:
-                                v = float(base_val)
-                                # Round to nearest 0.5; if whole number, bias to .5 to avoid pushes
-                                line = round(v * 2.0) / 2.0
-                                if abs(line - int(line)) < 1e-9:
-                                    line = line - 0.5 if line >= 0.5 else line + 0.5
-                                line_source = 'synthesized'
-                        except Exception:
-                            line = None
-                    if line is None:
-                        continue
-                    # Prefer explicit diffs when present
-                    diff = diffs_adj.get(stat)
-                    if diff is None:
-                        diff = diffs_raw.get(stat)
-                    # If no diff in snapshot, derive from projection vs line (using adjusted when available)
-                    if diff is None:
-                        base_val = adj if (adj is not None) else proj
-                        try:
-                            if (base_val is not None) and (line is not None):
-                                diff = float(base_val) - float(line)
-                        except Exception:
-                            diff = None
-                    # If recommendation missing, derive from diff
-                    if rec not in ('OVER','UNDER'):
-                        if diff is None:
-                            continue
-                        rec = 'OVER' if diff > 0 else 'UNDER'
-                    # Tighter confidence & EV/Kelly grading
-                    conf_label = conf  # default to pitcher reliability if nothing else
-                    conf_score = None
-                    kelly_fraction = None
-                    expected_value = None
-                    # Look for per-stat meta if present in snapshot
-                    meta_all = p.get('recommendations_meta') or {}
-                    meta = meta_all.get(stat) if isinstance(meta_all, dict) else None
-                    if isinstance(meta, dict):
-                        conf_label = (meta.get('confidence_label') or conf_label)
-                        conf_score = meta.get('confidence_score')
-                        kelly_fraction = meta.get('kelly_fraction')
-                        expected_value = meta.get('expected_value')
-                    else:
-                        # Fallback simple grading from diff magnitude vs heuristic thresholds
-                        try:
-                            thr = {'strikeouts':0.7,'outs':2.0,'earned_runs':0.6,'hits_allowed':0.8,'walks':0.6}.get(stat,0.7)
-                            norm = abs(float(diff))/max(1e-6, thr) if diff is not None else 0.0
-                            # map to LOW/MEDIUM/HIGH
-                            if norm >= 1.5:
-                                conf_label = 'HIGH'
-                            elif norm >= 0.9:
-                                conf_label = 'MEDIUM'
-                            else:
-                                conf_label = 'LOW'
-                            conf_score = min(1.0, norm/2.0)
-                        except Exception:
-                            pass
-                    entry = {
-                        'date': diso,
-                        'pitcher_name': p.get('pitcher_name'),
-                        'team': p.get('team'),
-                        'opponent': p.get('opponent'),
-                        'stat': stat,
-                        'recommendation': rec,
-                        'line': line,
-                        'line_source': line_source,
-                        'projection': proj,
-                        'adjusted_projection': adj,
-                        'diff': diff,
-                        'confidence': conf_label,
-                        'confidence_score': conf_score,
-                        'expected_value': expected_value,
-                        'kelly_fraction': kelly_fraction,
-                        'over_odds': line_obj.get('over_odds'),
-                        'under_odds': line_obj.get('under_odds')
-                    }
-                    # Fallback EV/Kelly computation if snapshot lacks it
-                    try:
-                        if entry.get('expected_value') is None:
-                            # Local helpers (keep lightweight to avoid cross-module imports)
-                            def _thr(s: str) -> float:
-                                return {'strikeouts': 0.7, 'outs': 2.0, 'earned_runs': 0.6, 'hits_allowed': 0.8, 'walks': 0.6}.get(s, 0.7)
-                            def _logistic_local(x: float, k: float = 2.6, x0: float = 1.0) -> float:
-                                try:
-                                    import math
-                                    return 1.0 / (1.0 + math.exp(-k * (x - x0)))
-                                except Exception:
-                                    return max(0.0, min(1.0, (x - (x0 - 1.0)) / 2.0))
-                            def _american_to_decimal_local(odds_val):
-                                if odds_val is None:
-                                    return None
-                                try:
-                                    o = int(odds_val)
-                                except Exception:
-                                    s = str(odds_val)
-                                    if s.lstrip('+-').isdigit():
-                                        o = int(s)
-                                    else:
-                                        return None
-                                # Convert via implied probability
-                                if o < 0:
-                                    p_imp = (-o) / ((-o) + 100.0)
-                                else:
-                                    p_imp = 100.0 / (o + 100.0)
-                                return (1.0 / p_imp) if p_imp and p_imp > 0 else None
-                            # Prob estimate from edge magnitude
-                            if diff is not None and rec in ('OVER','UNDER'):
-                                norm = abs(float(diff)) / max(1e-6, _thr(stat))
-                                p_win = _logistic_local(norm, k=2.6, x0=1.0)
-                                side_odds = entry['over_odds'] if rec == 'OVER' else entry['under_odds']
-                                dec = _american_to_decimal_local(side_odds)
-                                if p_win is not None and dec and dec > 1.0:
-                                    ev = p_win * dec - (1 - p_win)
-                                    b = dec - 1.0
-                                    k = (b * p_win - (1 - p_win)) / b if b > 0 else None
-                                    if k is not None:
-                                        k = max(0.0, min(0.25, k))
-                                    entry['expected_value'] = round(ev, 3)
-                                    if entry.get('kelly_fraction') is None and k is not None:
-                                        entry['kelly_fraction'] = round(k, 3)
-                        # Use EV/Kelly to drive confidence label for props
-                        ev_val = entry.get('expected_value')
-                        kf_val = entry.get('kelly_fraction')
-                        new_label = None
-                        # Prefer Kelly thresholds if available, else EV thresholds
-                        if isinstance(kf_val, (int, float)):
-                            if kf_val >= 0.05:
-                                new_label = 'HIGH'
-                            elif kf_val >= 0.02:
-                                new_label = 'MEDIUM'
-                            elif kf_val > 0:
-                                new_label = 'LOW'
-                        if not new_label and isinstance(ev_val, (int, float)):
-                            if ev_val >= 0.05:
-                                new_label = 'HIGH'
-                            elif ev_val >= 0.02:
-                                new_label = 'MEDIUM'
-                            elif ev_val > 0:
-                                new_label = 'LOW'
-                        if new_label:
-                            entry['confidence'] = new_label
-                            # Map to a simple 0..1 score from EV/Kelly
-                            try:
-                                base = kf_val if isinstance(kf_val, (int, float)) else (ev_val if isinstance(ev_val, (int, float)) else None)
-                                if base is not None:
-                                    # Normalize: 0 -> 0.0, 5% -> ~0.75, 10%+ -> ~1.0
-                                    import math
-                                    score = 1.0 - math.exp(-max(0.0, float(base)) / 0.05)
-                                    entry['confidence_score'] = round(min(1.0, score), 3)
-                            except Exception:
-                                pass
-                    except Exception:
-                        pass
-                    # Add UI-friendly aliases, side-specific odds, EV percent, stake mapping, and formatted numbers
-                    try:
-                        # Friendly aliases for UI parity
-                        entry['player'] = entry.get('pitcher_name')
-                        stat_label = {'strikeouts': 'K', 'outs': 'Outs', 'earned_runs': 'ER', 'hits_allowed': 'Hits', 'walks': 'BB'}.get(entry['stat'], entry['stat'])
-                        entry['prop_type'] = stat_label
-                        entry['side'] = rec
-                        entry['confidence_label'] = entry.get('confidence')
-
-                        # Side-specific odds
-                        side_odds = entry['over_odds'] if rec == 'OVER' else entry['under_odds']
-                        entry['odds'] = side_odds
-                        if isinstance(entry.get('expected_value'), (int, float)):
-                            entry['expected_value_pct'] = round(entry['expected_value'] * 100.0, 1)
-                            entry['ev_percent'] = entry['expected_value_pct']
-                        # Stake mapping based on confidence label
-                        conf_map = {
-                            'HIGH': 100,
-                            'MEDIUM': 50,
-                            'LOW': 25
-                        }
-                        stake_amt = conf_map.get(entry.get('confidence') or 'LOW', 25)
-                        entry['stake_amount'] = stake_amt
-                        entry['stake_label'] = f"${stake_amt}"
-                        # Formatted numeric strings (max 2 decimals) for table rendering
-                        def _fmt2(x):
-                            try:
-                                return f"{float(x):.2f}"
-                            except Exception:
-                                return None
-                        entry['line_fmt'] = _fmt2(entry.get('line'))
-                        entry['projection_fmt'] = _fmt2(entry.get('projection'))
-                        entry['adjusted_projection_fmt'] = _fmt2(entry.get('adjusted_projection'))
-                        entry['diff_fmt'] = _fmt2(entry.get('diff'))
-                    except Exception:
-                        pass
-                    # Mark plays worth highlighting (filters can use this): conf HIGH or Kelly >= 0.02
-                    try:
-                        entry['is_play'] = (entry['confidence'] == 'HIGH') or ((entry.get('kelly_fraction') or 0) >= 0.02)
-                    except Exception:
-                        entry['is_play'] = entry['confidence'] == 'HIGH'
-                    all_entries.append(entry)
-
-        # Optional filter: by default, drop negative EV/Kelly plays unless include_negatives is set
-        if not include_negatives:
-            def _has_positive(e):
-                try:
-                    ev = e.get('expected_value')
-                    if isinstance(ev, (int, float)) and ev > 0:
-                        return True
-                    kf = e.get('kelly_fraction')
-                    if isinstance(kf, (int, float)) and kf > 0:
-                        return True
-                    return False
-                except Exception:
-                    return False
-            all_entries = [e for e in all_entries if _has_positive(e)]
-
-        # Group or aggregate
-        if aggregate:
-            return jsonify({'success': True, 'mode': 'aggregate', 'count': len(all_entries), 'plays': all_entries, 'meta': per_day_meta})
-        plays_by_stat = {}
-        for e in all_entries:
-            stat = e['stat']
-            conf = e['confidence']
-            plays_by_stat.setdefault(stat, {'HIGH': [], 'MEDIUM': [], 'LOW': []})[conf].append(e)
-        counts = {'high':0,'medium':0,'low':0}
-        for stat_groups in plays_by_stat.values():
-            counts['high'] += len(stat_groups['HIGH'])
-            counts['medium'] += len(stat_groups['MEDIUM'])
-            counts['low'] += len(stat_groups['LOW'])
-        return jsonify({'success': True, 'dates': days, 'counts': counts, 'plays': plays_by_stat, 'meta': per_day_meta})
-    except Exception as e:
-        logger.exception('pitcher prop plays failure')
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-# -------------------------------------------------------------
-# Daily snapshot: pitcher prop recommendations (file output)
-# -------------------------------------------------------------
-def _date_today_iso() -> str:
-    try:
-        from zoneinfo import ZoneInfo
-        return datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
-    except Exception:
-        return datetime.now().strftime('%Y-%m-%d')
-
-def _load_pitcher_snapshot_for_date(diso: str):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
-    date_us = diso.replace('-', '_')
-    # Prefer the most up-to-date projections snapshot when multiple exist.
-    # Order: updated projections -> base projections -> features fallback
-    for name in [f'pitcher_projections_update_{date_us}.json', f'pitcher_projections_{date_us}.json', f'projection_features_{date_us}.json']:
-        p = os.path.join(data_dir, name)
-        if os.path.exists(p):
-            try:
-                with open(p,'r') as f:
-                    return json.load(f)
-            except Exception:
-                continue
-    return None
-
-def _load_same_day_props_maps(diso: str):
-    """Return (props_by_name, props_by_name_team) merged from all same-day snapshots."""
-    props_by_name = {}
-    props_by_name_team = {}
-    try:
-        date_us = diso.replace('-', '_')
-        folder = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
-        candidates = []
-        for fn in os.listdir(folder):
-            if fn.startswith(f'bovada_pitcher_props_{date_us}') and fn.endswith('.json'):
-                candidates.append(os.path.join(folder, fn))
-        def norm(s):
-            try:
-                import unicodedata
-                s2 = unicodedata.normalize('NFKD', str(s or ''))
-                s2 = ''.join(ch for ch in s2 if not unicodedata.combining(ch))
-                return s2.strip().lower()
-            except Exception:
-                try:
-                    return str(s or '').strip().lower()
-                except Exception:
-                    return str(s or '')
-        stat_key_map = {
-            'K': 'strikeouts', 'STRIKEOUTS': 'strikeouts', 'SO':'strikeouts',
-            'OUTS': 'outs', 'ER': 'earned_runs', 'EARNED_RUNS': 'earned_runs',
-            'HITS': 'hits_allowed', 'H': 'hits_allowed',
-            'WALKS': 'walks', 'BB': 'walks'
-        }
-        for props_path in candidates:
-            if not os.path.exists(props_path):
-                continue
-            # robust decode
-            props_js = None
-            try:
-                with open(props_path,'rb') as f:
-                    raw = f.read()
-                for enc in ('utf-8-sig','utf-8','utf-16','utf-16-le','utf-16-be'):
-                    try:
-                        text = raw.decode(enc)
-                        props_js = json.loads(text)
-                        break
-                    except Exception:
-                        props_js = None
-                if props_js is None:
-                    continue
-            except Exception:
-                continue
-            # legacy
-            if isinstance(props_js.get('props'), list):
-                for entry in (props_js.get('props') or []):
-                    pname = norm(entry.get('pitcher'))
-                    team = norm(entry.get('team'))
-                    key = f"{pname}|{team}" if team else pname
-                    sk = stat_key_map.get(str(entry.get('stat') or '').upper())
-                    if not sk:
-                        continue
-                    if team:
-                        props_by_name_team.setdefault(key, {})[sk] = {
-                            'line': entry.get('line'),
-                            'over_odds': entry.get('over_odds'),
-                            'under_odds': entry.get('under_odds')
-                        }
-                    props_by_name.setdefault(pname, {})[sk] = {
-                        'line': entry.get('line'),
-                        'over_odds': entry.get('over_odds'),
-                        'under_odds': entry.get('under_odds')
-                    }
-            # current dict
-            if isinstance(props_js.get('pitcher_props'), dict):
-                for pname_raw, stats_blob in (props_js.get('pitcher_props') or {}).items():
-                    pname = norm(pname_raw)
-                    if not isinstance(stats_blob, dict):
-                        continue
-                    for sk in ['strikeouts','outs','earned_runs','hits_allowed','walks']:
-                        val = stats_blob.get(sk)
-                        if isinstance(val, dict) and (val.get('line') is not None):
-                            props_by_name.setdefault(pname, {})[sk] = {
-                                'line': val.get('line'),
-                                'over_odds': val.get('over_odds'),
-                                'under_odds': val.get('under_odds')
-                            }
-    except Exception:
-        props_by_name = {}
-        props_by_name_team = {}
-    return props_by_name, props_by_name_team
-
-def build_pitcher_prop_recommendations_snapshot(diso: str) -> dict:
-    """Builds daily pitcher prop recommendations snapshot (no network calls).
-    Uses persisted projections snapshot and same-day props backfill.
-    """
-    snap = _load_pitcher_snapshot_for_date(diso)
-    if not snap:
-        return {'success': False, 'error': 'snapshot_missing'}
-    props_by_name, props_by_name_team = _load_same_day_props_maps(diso)
-    stats = ['strikeouts','outs','earned_runs','hits_allowed','walks']
-    plays = []
-    def _norm(s):
-        try:
-            import unicodedata
-            s2 = unicodedata.normalize('NFKD', str(s or ''))
-            s2 = ''.join(ch for ch in s2 if not unicodedata.combining(ch))
-            return s2.strip().lower()
-        except Exception:
-            return (str(s or '').strip().lower())
-    for p in snap.get('pitchers', []):
-        recs = p.get('recommendations') or {}
-        diffs_adj = p.get('diffs_adjusted') or {}
-        diffs_raw = p.get('diffs') or {}
-        adj_proj = p.get('adjusted_projections') or {}
-        lines = p.get('lines') or {}
-        meta_all = p.get('recommendations_meta') or {}
-        conf_pitcher = (p.get('confidence') or 'LOW').upper()
-        for stat in stats:
-            rec = recs.get(stat)
-            proj = p.get(f'projected_{stat}') if stat != 'outs' else p.get('projected_outs')
-            adj = adj_proj.get(stat)
-            line_obj = lines.get(stat) or {}
-            line = line_obj.get('line')
-            # Backfill missing line from same-day props
-            if line is None:
-                pname = p.get('pitcher_name') or ''
-                team = p.get('team') or ''
-                key_team = f"{_norm(pname)}|{_norm(team)}" if team else None
-                back = None
-                if key_team:
-                    back = (props_by_name_team.get(key_team) or {}).get(stat)
-                if back is None:
-                    back = (props_by_name.get(_norm(pname)) or {}).get(stat)
-                if back and (back.get('line') is not None):
-                    line = back.get('line')
-                    if 'over_odds' not in line_obj and back.get('over_odds') is not None:
-                        line_obj['over_odds'] = back.get('over_odds')
-                    if 'under_odds' not in line_obj and back.get('under_odds') is not None:
-                        line_obj['under_odds'] = back.get('under_odds')
-            if line is None:
-                continue
-            diff = diffs_adj.get(stat)
-            if diff is None:
-                diff = diffs_raw.get(stat)
-            if diff is None:
-                base_val = adj if (adj is not None) else proj
-                try:
-                    if base_val is not None:
-                        diff = float(base_val) - float(line)
-                except Exception:
-                    diff = None
-            if rec not in ('OVER','UNDER') and diff is not None:
-                rec = 'OVER' if diff > 0 else 'UNDER'
-            if rec not in ('OVER','UNDER'):
-                continue
-            meta = meta_all.get(stat) if isinstance(meta_all, dict) else None
-            conf_label = conf_pitcher
-            conf_score = None
-            kelly_fraction = None
-            expected_value = None
-            if isinstance(meta, dict):
-                conf_label = (meta.get('confidence_label') or conf_label)
-                conf_score = meta.get('confidence_score')
-                kelly_fraction = meta.get('kelly_fraction')
-                expected_value = meta.get('expected_value')
-            else:
-                try:
-                    thr = {'strikeouts':0.7,'outs':2.0,'earned_runs':0.6,'hits_allowed':0.8,'walks':0.6}.get(stat,0.7)
-                    norm = abs(float(diff))/max(1e-6, thr)
-                    if norm >= 1.5:
-                        conf_label = 'HIGH'
-                    elif norm >= 0.9:
-                        conf_label = 'MEDIUM'
-                    else:
-                        conf_label = 'LOW'
-                    conf_score = min(1.0, norm/2.0)
-                except Exception:
-                    pass
-            entry = {
-                'pitcher_name': p.get('pitcher_name'),
-                'team': p.get('team'),
-                'opponent': p.get('opponent'),
-                'stat': stat,
-                'recommendation': rec,
-                'line': line,
-                'projection': proj,
-                'adjusted_projection': adj,
-                'diff': diff,
-                'confidence': conf_label,
-                'confidence_score': conf_score,
-                'expected_value': expected_value,
-                'kelly_fraction': kelly_fraction,
-                'over_odds': line_obj.get('over_odds'),
-                'under_odds': line_obj.get('under_odds')
-            }
-            # Fallback EV/Kelly computation if snapshot lacks it (use odds + derived win prob)
-            try:
-                if entry.get('expected_value') is None:
-                    # Local helpers to avoid cross-module dependencies
-                    def _thr(s: str) -> float:
-                        return {'strikeouts': 0.7, 'outs': 2.0, 'earned_runs': 0.6, 'hits_allowed': 0.8, 'walks': 0.6}.get(s, 0.7)
-                    def _logistic_local(x: float, k: float = 2.6, x0: float = 1.0) -> float:
-                        try:
-                            import math
-                            return 1.0 / (1.0 + math.exp(-k * (x - x0)))
-                        except Exception:
-                            # Linear fallback if math fails
-                            return max(0.0, min(1.0, (x - (x0 - 1.0)) / 2.0))
-                    def _american_to_decimal_local(odds_val):
-                        if odds_val is None:
-                            return None
-                        try:
-                            o = int(odds_val)
-                        except Exception:
-                            s = str(odds_val)
-                            if s.lstrip('+-').isdigit():
-                                o = int(s)
-                            else:
-                                return None
-                        # Convert via implied probability
-                        if o < 0:
-                            p_imp = (-o) / ((-o) + 100.0)
-                        else:
-                            p_imp = 100.0 / (o + 100.0)
-                        return (1.0 / p_imp) if p_imp and p_imp > 0 else None
-                    # Only compute if we have a diff and recommendation
-                    if diff is not None and rec in ('OVER','UNDER'):
-                        norm = abs(float(diff)) / max(1e-6, _thr(stat))
-                        p_win = _logistic_local(norm, k=2.6, x0=1.0)
-                        side_odds = entry['over_odds'] if rec == 'OVER' else entry['under_odds']
-                        dec = _american_to_decimal_local(side_odds)
-                        if p_win is not None and dec and dec > 1.0:
-                            ev = p_win * dec - (1 - p_win)
-                            b = dec - 1.0
-                            k = (b * p_win - (1 - p_win)) / b if b > 0 else None
-                            if k is not None:
-                                k = max(0.0, min(0.25, k))
-                            entry['expected_value'] = round(ev, 3)
-                            if entry.get('kelly_fraction') is None and k is not None:
-                                entry['kelly_fraction'] = round(k, 3)
-                # Re-grade confidence from EV/Kelly if available
-                ev_val = entry.get('expected_value')
-                kf_val = entry.get('kelly_fraction')
-                new_label = None
-                if isinstance(kf_val, (int, float)):
-                    if kf_val >= 0.05:
-                        new_label = 'HIGH'
-                    elif kf_val >= 0.02:
-                        new_label = 'MEDIUM'
-                    elif kf_val > 0:
-                        new_label = 'LOW'
-                if not new_label and isinstance(ev_val, (int, float)):
-                    if ev_val >= 0.05:
-                        new_label = 'HIGH'
-                    elif ev_val >= 0.02:
-                        new_label = 'MEDIUM'
-                    elif ev_val > 0:
-                        new_label = 'LOW'
-                if new_label:
-                    entry['confidence'] = new_label
-                    # Map to a simple 0..1 score from EV/Kelly
-                    try:
-                        base = kf_val if isinstance(kf_val, (int, float)) else (ev_val if isinstance(ev_val, (int, float)) else None)
-                        if base is not None:
-                            import math
-                            score = 1.0 - math.exp(-max(0.0, float(base)) / 0.05)
-                            entry['confidence_score'] = round(min(1.0, score), 3)
-                    except Exception:
-                        pass
-                # Populate percentage field for UI convenience
-                if isinstance(entry.get('expected_value'), (int, float)):
-                    entry['expected_value_pct'] = round(entry['expected_value'] * 100.0, 1)
-                    entry['ev_percent'] = entry['expected_value_pct']
-            except Exception:
-                pass
-            try:
-                entry['is_play'] = (entry['confidence'] == 'HIGH') or ((entry.get('kelly_fraction') or 0) >= 0.02)
-            except Exception:
-                entry['is_play'] = entry['confidence'] == 'HIGH'
-            plays.append(entry)
-    # Sort plays: confidence, EV, Kelly, abs(diff)
-    def _conf_rank(lbl: str) -> int:
-        return 0 if lbl == 'HIGH' else 1 if lbl == 'MEDIUM' else 2
-    plays.sort(key=lambda e: (
-        _conf_rank(e.get('confidence') or 'LOW'),
-        -float(e.get('expected_value') or 0),
-        -float(e.get('kelly_fraction') or 0),
-        -abs(float(e.get('diff') or 0))
-    ))
-    counts = {
-        'total': len(plays),
-        'high': sum(1 for e in plays if e.get('confidence')=='HIGH'),
-        'medium': sum(1 for e in plays if e.get('confidence')=='MEDIUM'),
-        'low': sum(1 for e in plays if e.get('confidence')=='LOW')
-    }
-    by_stat = {}
-    for e in plays:
-        st = e['stat']
-        by_stat.setdefault(st, {'total':0,'high':0,'medium':0,'low':0})
-        by_stat[st]['total'] += 1
-        by_stat[st][e['confidence'].lower()] += 1
-    snap_out = {
-        'success': True,
-        'date': diso,
-        'generated_at': datetime.utcnow().isoformat(),
-        'counts': counts,
-        'by_stat': by_stat,
-        'plays': plays
-    }
-    return snap_out
-
-def save_pitcher_prop_recommendations_file(diso: str) -> tuple[bool,str]:
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    os.makedirs(data_dir, exist_ok=True)
-    out_path = os.path.join(data_dir, f"pitcher_prop_recommendations_{diso.replace('-', '_')}.json")
-    snap = build_pitcher_prop_recommendations_snapshot(diso)
-    if not snap.get('success'):
-        return False, snap.get('error') or 'build_failed'
-    try:
-        with open(out_path,'w') as f:
-            json.dump(snap, f, indent=2)
-        return True, out_path
-    except Exception as e:
-        return False, str(e)
-
-@app.route('/api/pitcher-prop-recommendations/save')
-def api_save_pitcher_prop_recommendations():
-    try:
-        diso = request.args.get('date') or _date_today_iso()
-        ok, msg = save_pitcher_prop_recommendations_file(diso)
-        return jsonify({'success': ok, 'date': diso, 'path_or_error': msg})
-    except Exception as e:
-        logger.exception('save prop recs failure')
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/api/pitcher-prop-recommendations/date/<date_str>')
-def api_get_pitcher_prop_recommendations(date_str: str):
-    try:
-        data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        path = os.path.join(data_dir, f"pitcher_prop_recommendations_{date_str.replace('-', '_')}.json")
-        if os.path.exists(path):
-            with open(path,'r') as f:
-                js = json.load(f)
-            return jsonify(js)
-        # If missing, attempt to build now (snapshot-first)
-        snap = build_pitcher_prop_recommendations_snapshot(date_str)
-        if not snap.get('success'):
-            return jsonify({'success': False, 'error': 'snapshot_missing'}), 404
-        return jsonify(snap)
-    except Exception as e:
-        logger.exception('get prop recs failure')
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/pitcher-projections')
-def pitcher_projections_page():
-    # Deprecated page: redirect to home where projections are embedded on cards
-    from flask import redirect
-    return redirect('/')
-
-@app.route('/betting-recommendations')
-def betting_recommendations_page():
-    """Daily betting recommendations page (confidence grouped)."""
-    return render_template('betting_recommendations.html')
-
-@app.route('/betting')
-def unified_betting_page():
-    """Unified page: game recommendations + pitcher props in one view."""
-    return render_template('unified_betting_recommendations.html')
-
-@app.route('/api/pitcher-reconciliation')
-def api_pitcher_reconciliation():
-    try:
-        from datetime import datetime
-        # Align default to business date
-        default_date = get_business_date()
-        date_param = request.args.get('date') or default_date
-        live = request.args.get('live') is not None
-        from pitcher_reconciliation import reconcile_projections
-        data = reconcile_projections(date_param, live=live)
-        return jsonify(data)
-    except Exception as e:
-        logger.exception('reconciliation failure')
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/api/pitcher-reconciliation/mtd')
-def api_pitcher_reconciliation_mtd():
-    """Month-to-date reconciliation summary. Query: month=YYYY-MM, live=1 to include today's partial."""
-    try:
-        from datetime import datetime, timedelta
-        try:
-            from zoneinfo import ZoneInfo
-            now_local = datetime.now(ZoneInfo('America/New_York'))
-        except Exception:
-            now_local = datetime.now()
-        month_param = request.args.get('month')
-        live = request.args.get('live') is not None
-        if month_param:
-            try:
-                base = datetime.strptime(month_param+'-01','%Y-%m-%d')
-            except Exception:
-                return jsonify({'success': False, 'error': 'invalid month param'}), 400
-            start = base
-        else:
-            start = now_local.replace(day=1)
-        # end bound: if month provided, go to end of that month or to today if current month
-        if month_param:
-            if start.year == now_local.year and start.month == now_local.month:
-                end = now_local
-            else:
-                # find first of next month then step back one day
-                if start.month == 12:
-                    end = start.replace(year=start.year+1, month=1, day=1) - timedelta(days=1)
-                else:
-                    end = start.replace(month=start.month+1, day=1) - timedelta(days=1)
-        else:
-            end = now_local
-        # Aggregate
-        agg_totals = {'wins':0,'losses':0,'pushes':0,'graded':0}
-        stats_keys = ['outs','strikeouts','earned_runs','hits_allowed','walks']
-        agg_by_stat = {k:{'wins':0,'losses':0,'pushes':0,'graded':0} for k in stats_keys}
-        days = []
-        data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_results')
-        cur = start.date()
-        end_date = end.date()
-        from pitcher_reconciliation import reconcile_projections
-        while cur <= end_date:
-            diso = cur.strftime('%Y-%m-%d')
-            fname = f"pitcher_reconciliation_{diso.replace('-','_')}.json"
-            fpath = os.path.join(data_dir, fname)
-            js = None
-            if os.path.exists(fpath):
-                try:
-                    with open(fpath,'r') as f:
-                        js = json.load(f)
-                except Exception:
-                    js = None
-            # For today, optionally compute live if file missing and live requested
-            if (js is None) and live and (diso == end_date.strftime('%Y-%m-%d')):
-                try:
-                    js = reconcile_projections(diso, live=True)
-                except Exception:
-                    js = None
-            if js and js.get('summary'):
-                days.append(diso)
-                t = js['summary'].get('totals') or {}
-                agg_totals['wins'] += int(t.get('wins') or 0)
-                agg_totals['losses'] += int(t.get('losses') or 0)
-                agg_totals['pushes'] += int(t.get('pushes') or 0)
-                agg_totals['graded'] += int(t.get('graded') or 0)
-                bs = js['summary'].get('by_stat') or {}
-                for k in stats_keys:
-                    sk = bs.get(k) or {}
-                    agg_by_stat[k]['wins'] += int(sk.get('wins') or 0)
-                    agg_by_stat[k]['losses'] += int(sk.get('losses') or 0)
-                    agg_by_stat[k]['pushes'] += int(sk.get('pushes') or 0)
-                    agg_by_stat[k]['graded'] += int(sk.get('graded') or 0)
-            cur += timedelta(days=1)
-        return jsonify({'success': True, 'month': (month_param or start.strftime('%Y-%m')), 'days': days, 'summary': {'totals': agg_totals, 'by_stat': agg_by_stat}})
-    except Exception as e:
-        logger.exception('mtd reconciliation failure')
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/reconciliation')
-def reconciliation_page():
-    return render_template('pitcher_reconciliation.html')
-
-# List available reconciliation dates based on saved daily files
-@app.route('/api/pitcher-reconciliation/available-dates')
-def api_pitcher_reconciliation_available_dates():
-    try:
-        import re
-        dates = []
-        data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_results')
-        if os.path.exists(data_dir):
-            for fname in os.listdir(data_dir):
-                m = re.match(r'^pitcher_reconciliation_(\d{4})_(\d{2})_(\d{2})\.json$', fname)
-                if m:
-                    dates.append(f"{m.group(1)}-{m.group(2)}-{m.group(3)}")
-        dates.sort()
-        return jsonify({'success': True, 'dates': dates})
-    except Exception as e:
-        logger.exception('reconciliation available dates failure')
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-# Return per-day reconciliation summaries across a month or explicit date range
-@app.route('/api/pitcher-reconciliation/daily-summaries')
-def api_pitcher_reconciliation_daily_summaries():
-    try:
-        from datetime import datetime, timedelta
-        month = request.args.get('month')
-        start_date = request.args.get('start_date')
-        end_date = request.args.get('end_date')
-        live = request.args.get('live') is not None
-        if month:
-            try:
-                start = datetime.strptime(month+'-01', '%Y-%m-%d')
-            except Exception:
-                return jsonify({'success': False, 'error': 'invalid month'}), 400
-            if start.month == 12:
-                end = start.replace(year=start.year+1, month=1, day=1) - timedelta(days=1)
-            else:
-                end = start.replace(month=start.month+1, day=1) - timedelta(days=1)
-        else:
-            if not start_date or not end_date:
-                return jsonify({'success': False, 'error': 'provide month or start_date/end_date'}), 400
-            try:
-                start = datetime.strptime(start_date, '%Y-%m-%d')
-                end = datetime.strptime(end_date, '%Y-%m-%d')
-            except Exception:
-                return jsonify({'success': False, 'error': 'invalid start_date or end_date'}), 400
-        if end < start:
-            start, end = end, start
-        out = []
-        data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_results')
-        from pitcher_reconciliation import reconcile_projections
-        cur = start.date(); last = end.date()
-        while cur <= last:
-            diso = cur.strftime('%Y-%m-%d')
-            fpath = os.path.join(data_dir, f"pitcher_reconciliation_{diso.replace('-','_')}.json")
-            js = None
-            if os.path.exists(fpath):
-                try:
-                    with open(fpath,'r') as f:
-                        js = json.load(f)
-                except Exception:
-                    js = None
-            if (js is None) and live and (diso == last.strftime('%Y-%m-%d')):
-                try:
-                    js = reconcile_projections(diso, live=True)
-                except Exception:
-                    js = None
-            if js and js.get('summary'):
-                out.append({'date': diso, 'summary': js['summary']})
-            cur += timedelta(days=1)
-        return jsonify({'success': True, 'days': out, 'range': {'start': start.strftime('%Y-%m-%d'), 'end': end.strftime('%Y-%m-%d')}})
-    except Exception as e:
-        logger.exception('reconciliation daily summaries failure')
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/reconciliation-history')
-def reconciliation_history_page():
-    return render_template('reconciliation_history.html')
-
-@app.route('/api/betting-recommendations/available-dates')
-def api_betting_recommendations_available_dates():
-    """List dates for which betting recommendations files exist."""
-    try:
-        dates = []
-        data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        for fname in os.listdir(data_dir):
-            if fname.startswith('betting_recommendations_') and fname.endswith('.json'):
-                core = fname[len('betting_recommendations_'):-len('.json')]
-                core = core.replace('_enhanced','')
-                # normalize underscores
-                core = core.rstrip('_enhanced')
-                if '_' in core:
-                    parts = core.split('_')
-                    if len(parts)==3 and all(p.isdigit() for p in parts):
-                        dates.append(f"{parts[0]}-{parts[1]}-{parts[2]}")
-                elif '-' in core:
-                    dates.append(core)
-        dates = sorted(set(dates))
-        return jsonify({'success': True, 'dates': dates})
-    except Exception as e:
-        logger.exception('available dates failure')
-        return jsonify({'success': False, 'error': str(e), 'dates': []}), 500
-
-@app.route('/api/betting-recommendations/confidence-history')
-def api_betting_recommendations_confidence_history():
-    """Return expected profit history (EV * stake) by confidence over last N days (default 30)."""
-    try:
-        from datetime import datetime, timedelta
-        days = int(request.args.get('days', 30))
-        try:
-            from zoneinfo import ZoneInfo
-            now = datetime.now(ZoneInfo('America/New_York')).date()
-        except Exception:
-            now = datetime.now().date()
-        start = now - timedelta(days=days-1)
-        stk = {'HIGH':100,'MEDIUM':50,'LOW':25}
-        data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        history = []
-        for fname in os.listdir(data_dir):
-            if not fname.startswith('betting_recommendations_') or not fname.endswith('.json'):
-                continue
-            core = fname[len('betting_recommendations_'):-len('.json')]
-            core = core.replace('_enhanced','')
-            dt = None
-            if '_' in core:
-                parts = core.split('_')
-                if len(parts)==3 and all(p.isdigit() for p in parts):
-                    try:
-                        dt = datetime(int(parts[0]), int(parts[1]), int(parts[2])).date()
-                    except Exception:
-                        continue
-            elif '-' in core:
-                try:
-                    dt = datetime.strptime(core, '%Y-%m-%d').date()
-                except Exception:
-                    continue
-            if not dt or dt < start or dt > now:
-                continue
-            fpath = os.path.join(data_dir, fname)
-            try:
-                with open(fpath,'r') as f:
-                    js = json.load(f)
-            except Exception:
-                continue
-            games = js.get('games', {})
-            recs = []
-            for gdat in games.values():
-                for vb in gdat.get('value_bets', []) or []:
-                    recs.append(vb)
-            totals = {'HIGH':0.0,'MEDIUM':0.0,'LOW':0.0}
-            counts = {'HIGH':0,'MEDIUM':0,'LOW':0}
-            for r in recs:
-                conf = str(r.get('confidence','')).upper()
-                if conf not in totals:
-                    continue
-                ev = r.get('expected_value') or 0.0
-                try:
-                    evf = float(ev)
-                except Exception:
-                    evf = 0.0
-                totals[conf] += evf * stk[conf]
-                counts[conf] += 1
-            history.append({
-                'date': dt.isoformat(),
-                'expected_profit': totals,
-                'counts': counts
-            })
-        history.sort(key=lambda x: x['date'])
-        return jsonify({'success': True, 'history': history})
-    except Exception as e:
-        logger.exception('confidence history failure')
-        return jsonify({'success': False, 'error': str(e), 'history': []}), 500
-
-@app.route('/api/betting-recommendations/game-audit/<date>/<path:game_display>')
-def api_betting_recommendations_game_audit(date, game_display):
-    """Return run blend audit for a game (date format YYYY-MM-DD, game_display like 'Away @ Home')."""
-    try:
-        game_key = game_display.replace(' @ ', '_vs_')
-        # Load predictions cache
-        cache_path = os.path.join(os.path.dirname(__file__), 'data', 'unified_predictions_cache.json')
-        if not os.path.exists(cache_path):
-            return jsonify({'success': False, 'error': 'predictions cache missing'})
-        with open(cache_path,'r') as f:
-            cache = json.load(f)
-        games_blob = None
-        if date in cache:
-            games_blob = cache[date]
-        elif 'predictions_by_date' in cache and date in cache['predictions_by_date']:
-            games_blob = cache['predictions_by_date'][date]
-        if games_blob and 'games' in games_blob:
-            games_blob = games_blob['games']
-        if not isinstance(games_blob, dict):
-            return jsonify({'success': False, 'error': 'no games for date'})
-        gdat = games_blob.get(game_key)
-        if not gdat:
-            return jsonify({'success': False, 'error': 'game not found'})
-        audit = (gdat.get('pitching_integration') or {}).get('run_blend_audit') or gdat.get('run_blend_audit')
-        core = {
-            'predictions': gdat.get('predictions'),
-            'pitching_integration': gdat.get('pitching_integration'),
-            'run_blend_audit': audit
-        }
-        return jsonify({'success': True, 'game_key': game_key, 'audit': core})
-    except Exception as e:
-        logger.exception('game audit failure')
-        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/betting-analysis-test')
 def betting_analysis_test():
@@ -5596,17 +4527,17 @@ def api_today_games():
                 raw_unified_recs, _ = get_app_betting_recommendations()
                 logger.info(f"DEBUG: get_app_betting_recommendations returned type: {type(raw_unified_recs)}")
                 logger.info(f"DEBUG: get_app_betting_recommendations keys: {list(raw_unified_recs.keys())}")
-                logger.debug("get_app_betting_recommendations output: %s", raw_unified_recs)
+                print("DEBUG: get_app_betting_recommendations output:", raw_unified_recs)
             except Exception as inner_e:
                 logger.error(f"❌ Error inside get_app_betting_recommendations: {inner_e}")
                 logger.error(f"❌ Traceback: {traceback.format_exc()}")
-                logger.debug("get_app_betting_recommendations error: %s", inner_e)
+                print("DEBUG: get_app_betting_recommendations error:", inner_e)
                 raw_unified_recs = {}
             unified_betting_recommendations = raw_unified_recs
             logger.info(f"🔍 UNIFIED BETTING RECOMMENDATIONS LOADED: type={type(unified_betting_recommendations)}, length={len(unified_betting_recommendations) if hasattr(unified_betting_recommendations, 'keys') else 'N/A'}")
             logger.info(f"🔍 UNIFIED BETTING RECOMMENDATIONS CONTENTS: {unified_betting_recommendations}")
             logger.info(f"✅ Loaded {len(unified_betting_recommendations)} games with unified betting recommendations")
-            logger.debug("Unified betting recommendations loaded: %s", unified_betting_recommendations)
+            print("DEBUG: Unified betting recommendations loaded:", unified_betting_recommendations)
         except Exception as e:
             logger.error(f"❌ Failed to load unified betting recommendations: {e}")
             logger.error(f"❌ Traceback: {traceback.format_exc()}")
@@ -5720,20 +4651,18 @@ def api_today_games():
             logger.warning(f"⚠️ Could not check for doubleheaders: {e}")
         
         logger.info(f"Final game count after doubleheader check: {len(games_dict)}")
-
-        # Lightweight cached factor files for inline Details panel on cards
+        
+        # Load pitcher projections helpers for PPO/pitch count surfacing
         try:
-            team_strengths_cache = get_team_strengths_cached()
+            stats_by_name = _load_master_pitcher_stats()
+            ppo_overrides = _load_pitches_per_out_overrides()
+            default_ppo = 5.1
+            # Live boxscore metrics keyed by lowercase full name
+            box_pitch_stats = _load_boxscore_pitcher_stats(date_param)
+            # Daily pitcher props (Bovada) keyed by pitcher name
+            props_by_name = _load_bovada_pitcher_props(date_param)
         except Exception:
-            team_strengths_cache = {}
-        try:
-            bullpen_cache = get_bullpen_cached()
-        except Exception:
-            bullpen_cache = {}
-        try:
-            weather_cache = get_weather_cached(date_param)
-        except Exception:
-            weather_cache = {}
+            stats_by_name, ppo_overrides, default_ppo, box_pitch_stats, props_by_name = {}, {}, 5.1, {}, {}
 
         # Convert to the format expected by the frontend
         enhanced_games = []
@@ -5878,142 +4807,6 @@ def api_today_games():
                     away_pitcher = "Wandy Peralta"
                     logger.info(f"🎯 FIXED: Overrode TBD to Wandy Peralta for Padres game")
             
-            # Attach pitcher projections/props for game card enrichment
-            try:
-                # Load daily pitcher projections snapshot (prefer update)
-                date_us = date_param.replace('-', '_')
-                data_dir = os.path.join(os.path.dirname(__file__), 'data', 'daily_bovada')
-                snap_paths = [
-                    os.path.join(data_dir, f'pitcher_projections_update_{date_us}.json'),
-                    os.path.join(data_dir, f'pitcher_projections_{date_us}.json'),
-                    os.path.join(data_dir, f'projection_features_{date_us}.json')
-                ]
-                pitcher_snap = None
-                for sp in snap_paths:
-                    if os.path.exists(sp):
-                        try:
-                            with open(sp, 'r', encoding='utf-8') as f:
-                                pitcher_snap = json.load(f)
-                            break
-                        except Exception:
-                            continue
-                # Build quick lookup by normalized name
-                def _normn(s: str) -> str:
-                    try:
-                        import unicodedata
-                        s2 = unicodedata.normalize('NFD', s or '')
-                        s2 = ''.join(c for c in s2 if not unicodedata.combining(c))
-                        return ''.join(ch for ch in s2.lower() if ch.isalnum())
-                    except Exception:
-                        return (s or '').strip().lower()
-                proj_by_name = {}
-                if pitcher_snap and isinstance(pitcher_snap.get('pitchers'), list):
-                    for p in pitcher_snap['pitchers']:
-                        nm = p.get('pitcher_name') or ''
-                        proj_by_name[_normn(nm)] = p
-                # Resolve starters
-                sp_away = _normn(game_data.get('pitcher_info', {}).get('away_pitcher_name') or game_data.get('away_pitcher') or '')
-                sp_home = _normn(game_data.get('pitcher_info', {}).get('home_pitcher_name') or game_data.get('home_pitcher') or '')
-                away_proj = proj_by_name.get(sp_away)
-                home_proj = proj_by_name.get(sp_home)
-                # Keep just a compact subset + lines for UI
-                def _compact(p):
-                    if not p:
-                        return None
-                    lines = p.get('lines') or {}
-                    # Derive a simple projected pitch count: 3.8 pitches per batter ~ 1.27 per out -> 4.2 per out heuristic
-                    proj_outs = p.get('projected_outs')
-                    proj_pitch_count = None
-                    try:
-                        if isinstance(proj_outs, (int, float)) and proj_outs:
-                            proj_pitch_count = int(round(float(proj_outs) * 4.2))
-                    except Exception:
-                        proj_pitch_count = None
-                    return {
-                        'pitcher_name': p.get('pitcher_name'),
-                        'team': p.get('team'),
-                        'opponent': p.get('opponent'),
-                        'projected_outs': p.get('projected_outs'),
-                        'projected_pitch_count': p.get('projected_pitch_count', proj_pitch_count),
-                        'projected_strikeouts': p.get('projected_strikeouts'),
-                        'projected_earned_runs': p.get('projected_earned_runs'),
-                        'projected_hits_allowed': p.get('projected_hits_allowed'),
-                        'projected_walks': p.get('projected_walks'),
-                        'lines': {
-                            'outs': (lines.get('outs') or {}),
-                            'strikeouts': (lines.get('strikeouts') or {}),
-                            'earned_runs': (lines.get('earned_runs') or {}),
-                            'hits_allowed': (lines.get('hits_allowed') or {}),
-                            'walks': (lines.get('walks') or {}),
-                            'strikeouts_alts': lines.get('strikeouts_alts') or []
-                        },
-                        'recommendations': p.get('recommendations') or {},
-                        'recommendations_meta': p.get('recommendations_meta') or {}
-                    }
-                pitcher_section = {
-                    'away': _compact(away_proj),
-                    'home': _compact(home_proj)
-                }
-            except Exception as e:
-                logger.debug(f"Pitcher enrichment failed for {game_key}: {e}")
-                pitcher_section = None
-
-            # Attach top prop plays for the two starters (from daily prop rec snapshot if available)
-            try:
-                plays_path = os.path.join(os.path.dirname(__file__), 'data', f"pitcher_prop_recommendations_{date_param.replace('-', '_')}.json")
-                plays_js = None
-                if os.path.exists(plays_path):
-                    with open(plays_path, 'r', encoding='utf-8') as f:
-                        plays_js = json.load(f)
-                top_prop_plays = []
-                if plays_js and isinstance(plays_js.get('plays'), list):
-                    targets = set()
-                    if pitcher_section and pitcher_section.get('away') and pitcher_section['away'].get('pitcher_name'):
-                        targets.add(_normn(pitcher_section['away']['pitcher_name']))
-                    if pitcher_section and pitcher_section.get('home') and pitcher_section['home'].get('pitcher_name'):
-                        targets.add(_normn(pitcher_section['home']['pitcher_name']))
-                    # filter and rank by confidence/EV
-                    def _rank(e):
-                        conf = e.get('confidence')
-                        conf_rank = 0 if conf=='HIGH' else 1 if conf=='MEDIUM' else 2
-                        return (conf_rank, -float(e.get('expected_value') or 0), -abs(float(e.get('diff') or 0)))
-                    def _positive_ev(e):
-                        try:
-                            ev = e.get('expected_value')
-                            if isinstance(ev, (int, float)):
-                                return ev > 0
-                            kf = e.get('kelly_fraction')
-                            if isinstance(kf, (int, float)):
-                                return kf > 0
-                            # As a last resort, allow explicitly flagged plays
-                            if e.get('is_play') is True:
-                                return True
-                            return (str(e.get('confidence') or '').upper() == 'HIGH')
-                        except Exception:
-                            return False
-                    # Limit to target pitchers and positive EV/Kelly plays
-                    sel = [e for e in plays_js['plays'] if _normn(e.get('pitcher_name') or '') in targets and _positive_ev(e)]
-                    sel.sort(key=_rank)
-                    top_prop_plays = sel[:4]
-                pitcher_props_compact = []
-                for e in top_prop_plays:
-                    side_odds = e.get('over_odds') if e.get('recommendation')=='OVER' else e.get('under_odds')
-                    pitcher_props_compact.append({
-                        'pitcher_name': e.get('pitcher_name'),
-                        'team': e.get('team'),
-                        'stat': e.get('stat'),
-                        'prop_type': {'strikeouts':'K','outs':'Outs','earned_runs':'ER','hits_allowed':'Hits','walks':'BB'}.get(e.get('stat'), e.get('stat')),
-                        'side': e.get('recommendation'),
-                        'line': e.get('line'),
-                        'odds': side_odds,
-                        'expected_value': e.get('expected_value'),
-                        'kelly_fraction': e.get('kelly_fraction'),
-                        'confidence': e.get('confidence')
-                    })
-            except Exception as e:
-                logger.debug(f"Prop play enrichment failed for {game_key}: {e}")
-                pitcher_props_compact = []
-
             # Get live status for proper game categorization
             # This is essential for showing completed games in the completed section
             # Use timeout wrapper to prevent API hanging
@@ -6039,6 +4832,44 @@ def api_today_games():
                     home_pitcher = live_home_pitcher
                     logger.info(f"🔄 UPDATED home pitcher from live status: {home_pitcher}")
             
+            # Compute projected pitch counts and attach live metrics
+            def _proj_pitch_metrics(name: str, team: str, opp: str):
+                if not name or name == 'TBD':
+                    return None
+                proj = _project_pitcher_line(
+                    name, team, opp, stats_by_name, props_by_name, default_ppo, ppo_overrides
+                )
+                key = (name or '').strip().lower()
+                live = box_pitch_stats.get(key, {})
+                # innings_pitched in cache can be string like "5.1"; keep as-is for display
+                rec = proj.get('recommendation') if proj else None
+                rec_payload = None
+                if rec:
+                    rec_payload = {
+                        'market': rec['market'],
+                        'side': rec['side'],
+                        'line': (proj.get('lines', {}) or {}).get(rec['market'])
+                    }
+                return {
+                    'projected_pitch_count': int(proj['proj']['pitch_count']) if proj and proj.get('proj') else None,
+                    'pp_out': round(float(proj.get('inputs', {}).get('pp_out', default_ppo)), 2) if proj else None,
+                    'live_pitches': live.get('pitches'),
+                    'inning': live.get('innings_pitched'),
+                    'strikeouts': live.get('strikeouts'),
+                    'outs': live.get('outs'),
+                    'walks': live.get('walks'),
+                    'hits_allowed': live.get('hits'),
+                    'earned_runs': live.get('earned_runs'),
+                    'batters_faced': live.get('batters_faced'),
+                    'lines': proj.get('lines') if proj else {},
+                    'proj': proj.get('proj') if proj else {},
+                    'recommendation': rec,
+                    'recommended_prop': rec_payload
+                }
+
+            away_pitch_metrics = _proj_pitch_metrics(away_pitcher, away_team, home_team)
+            home_pitch_metrics = _proj_pitch_metrics(home_pitcher, home_team, away_team)
+
             # Extract prediction data with fallback handling for nested structure
             predictions = game_data.get('predictions', {})
             
@@ -6102,31 +4933,6 @@ def api_today_games():
                 home_win_prob_final *= 100
             
             # Create enhanced game object with proper structure for template
-            # Build compact factor details for inline card details panel
-            def _bp_rating(q: float) -> str:
-                try:
-                    if q >= 1.2:
-                        return "Elite"
-                    if q >= 1.05:
-                        return "Good"
-                    if q >= 0.95:
-                        return "Average"
-                    return "Below Average"
-                except Exception:
-                    return "Unknown"
-
-            away_bp_stats = (bullpen_cache or {}).get(away_team, {}) if isinstance(bullpen_cache, dict) else {}
-            home_bp_stats = (bullpen_cache or {}).get(home_team, {}) if isinstance(bullpen_cache, dict) else {}
-            away_q = float(away_bp_stats.get('quality_factor', 1.0) or 1.0)
-            home_q = float(home_bp_stats.get('quality_factor', 1.0) or 1.0)
-
-            weather_team_data = {}
-            try:
-                if isinstance(weather_cache, dict) and 'teams' in weather_cache and home_team in weather_cache['teams']:
-                    weather_team_data = weather_cache['teams'][home_team] or {}
-            except Exception:
-                weather_team_data = {}
-
             enhanced_game = {
                 'game_id': game_key,
                 'away_team': away_team,
@@ -6184,6 +4990,12 @@ def api_today_games():
                     'away_prob': round(away_win_prob_final / 100, 3) if away_win_prob_final > 1 else round(away_win_prob_final, 3),
                     'home_prob': round(home_win_prob_final / 100, 3) if home_win_prob_final > 1 else round(home_win_prob_final, 3)
                 },
+
+                # Pitching metrics bundle for UI
+                'pitching_metrics': {
+                    'away': away_pitch_metrics,
+                    'home': home_pitch_metrics
+                },
                 
                 # Scores and live status at top level for template compatibility
                 'away_score': live_status_data.get('away_score', 0),
@@ -6192,10 +5004,6 @@ def api_today_games():
                 'is_final': live_status_data.get('is_final', False),
                 'inning': live_status_data.get('inning', ''),
                 'inning_state': live_status_data.get('inning_state', ''),
-                'balls': live_status_data.get('balls'),
-                'strikes': live_status_data.get('strikes'),
-                'outs_live': live_status_data.get('outs'),
-                'base_state': live_status_data.get('base_state'),
                 
                 # Betting recommendations
                 'confidence': round(max_confidence, 1),
@@ -6215,31 +5023,6 @@ def api_today_games():
                     game_recommendations, 
                     real_lines, away_team, home_team, away_win_prob_final, home_win_prob_final, predicted_total_final, real_over_under_total
                 ),
-
-                # Compact factor section for inline Details panel (to reduce modal reliance)
-                'card_factors': {
-                    'team_strengths': {
-                        'away': float((team_strengths_cache or {}).get(away_team, 0.0) or 0.0),
-                        'home': float((team_strengths_cache or {}).get(home_team, 0.0) or 0.0)
-                    },
-                    'bullpen': {
-                        'away': {
-                            'rating': _bp_rating(away_q),
-                            'quality_factor': away_q
-                        },
-                        'home': {
-                            'rating': _bp_rating(home_q),
-                            'quality_factor': home_q
-                        }
-                    },
-                    'weather': {
-                        'temperature': ((weather_team_data.get('weather') or {}).get('temperature') if isinstance(weather_team_data, dict) else None),
-                        'wind_speed': ((weather_team_data.get('weather') or {}).get('wind_speed') if isinstance(weather_team_data, dict) else None),
-                        'conditions': ((weather_team_data.get('weather') or {}).get('conditions') if isinstance(weather_team_data, dict) else None),
-                        'park_factor': weather_team_data.get('park_factor', 1.0) if isinstance(weather_team_data, dict) else 1.0,
-                        'total_factor': weather_team_data.get('total_factor', 1.0) if isinstance(weather_team_data, dict) else 1.0
-                    }
-                },
                 
                 # Live status object for template compatibility
                 'live_status': {
@@ -6249,18 +5032,21 @@ def api_today_games():
                     'home_score': live_status_data.get('home_score', 0),
                     'inning': live_status_data.get('inning', ''),
                     'inning_state': live_status_data.get('inning_state', ''),
-                    'balls': live_status_data.get('balls'),
-                    'strikes': live_status_data.get('strikes'),
-                    'outs': live_status_data.get('outs'),
-                    'base_state': live_status_data.get('base_state'),
                     'status': live_status_data.get('status', 'Scheduled'),
                     'badge_class': live_status_data.get('badge_class', 'scheduled'),
-                    'game_time': live_status_data.get('game_time', game_data.get('game_time', 'TBD'))
+                    'game_time': live_status_data.get('game_time', game_data.get('game_time', 'TBD')),
+                    # Echo live pitcher metrics if available for smoother polling updates
+                    'pitching_metrics': {
+                        'away': {
+                            'live_pitches': (box_pitch_stats.get((away_pitcher or '').lower(), {}) or {}).get('pitches'),
+                            'inning': (box_pitch_stats.get((away_pitcher or '').lower(), {}) or {}).get('innings_pitched')
+                        },
+                        'home': {
+                            'live_pitches': (box_pitch_stats.get((home_pitcher or '').lower(), {}) or {}).get('pitches'),
+                            'inning': (box_pitch_stats.get((home_pitcher or '').lower(), {}) or {}).get('innings_pitched')
+                        }
+                    }
                 },
-
-                # Pitcher projections/props compact section for cards
-                'pitchers': pitcher_section,
-                'pitcher_prop_plays': pitcher_props_compact,
                 
                 # Comprehensive details for modal
                 'prediction_details': {
@@ -6321,7 +5107,7 @@ def api_live_status():
             logger.info("📦 live-status cache MISS")
         
         # Import the live MLB data fetcher
-        from live_mlb_data import live_mlb_data, get_live_game_status, LiveMLBData
+        from live_mlb_data import live_mlb_data, get_live_game_status
         
         # Load unified cache to get our prediction games
         unified_cache = load_unified_cache()
@@ -6372,6 +5158,87 @@ def api_live_status():
         except Exception as e:
             logger.warning(f"⚠️ LIVE STATUS: Could not check for doubleheaders: {e}")
         
+        # Live pitcher metrics from cached boxscores if available
+        box_pitch_stats = {}
+        try:
+            box_pitch_stats = _load_boxscore_pitcher_stats(date_param)
+        except Exception:
+            box_pitch_stats = {}
+
+        # Helper to fetch live boxscore and map pitcher stats by name for a specific game
+        def _fetch_boxscore_pitcher_stats_live(game_pk: Any) -> Dict[str, Dict[str, Any]]:
+            try:
+                if not game_pk:
+                    return {}
+                # Tiny cache to avoid hammering
+                try:
+                    cached_bs = cache_get('boxscore_live', {'game_pk': str(game_pk)}, ttl_seconds=6)
+                except Exception:
+                    cached_bs = None
+                if cached_bs is not None:
+                    return cached_bs
+
+                import requests  # local import to avoid module-wide requirement
+                url = f"https://statsapi.mlb.com/api/v1/game/{game_pk}/boxscore"
+                resp = requests.get(url, timeout=3)
+                resp.raise_for_status()
+                data = resp.json()
+                result: Dict[str, Dict[str, Any]] = {}
+
+                def _add_player_stats(p):
+                    try:
+                        person = p.get('person') or {}
+                        fullName = str(person.get('fullName') or '').strip()
+                        if not fullName:
+                            return
+                        pos = (p.get('position') or {}).get('abbreviation')
+                        if pos != 'P':
+                            return
+                        stats = (p.get('stats') or {}).get('pitching') or {}
+                        key = fullName.lower()
+                        try:
+                            import unicodedata
+                            key_ascii = unicodedata.normalize('NFKD', fullName).encode('ascii', 'ignore').decode('ascii').lower()
+                        except Exception:
+                            key_ascii = key
+                        entry = result.setdefault(key, {})
+                        # Pitches
+                        pitches = stats.get('numberOfPitches')
+                        if pitches is None:
+                            pitches = stats.get('pitchesThrown')
+                        if pitches is not None:
+                            try: entry['pitches'] = int(pitches)
+                            except Exception: pass
+                        # Others
+                        for src_key, dst_key in [
+                            ('outs','outs'), ('strikeOuts','strikeouts'), ('inningsPitched','innings_pitched'),
+                            ('baseOnBalls','walks'), ('hits','hits'), ('earnedRuns','earned_runs'), ('battersFaced','batters_faced')
+                        ]:
+                            val = stats.get(src_key)
+                            if val is not None:
+                                try:
+                                    entry[dst_key] = int(val) if isinstance(val, (int, float, str)) and dst_key != 'innings_pitched' else val
+                                except Exception:
+                                    entry[dst_key] = val
+                        if key_ascii and key_ascii != key:
+                            result[key_ascii] = entry
+                    except Exception:
+                        pass
+
+                teams = (data or {}).get('teams') or {}
+                for side in ('away','home'):
+                    players = (teams.get(side) or {}).get('players') or {}
+                    for _, pdata in players.items():
+                        _add_player_stats(pdata)
+
+                try:
+                    cache_set('boxscore_live', {'game_pk': str(game_pk)}, result)
+                except Exception:
+                    pass
+                return result
+            except Exception:
+                return {}
+
         # Get live status for each game from MLB API
         live_games = []
         
@@ -6385,60 +5252,23 @@ def api_live_status():
             
             # Get real live status from MLB API with timeout
             live_status = get_live_status_with_timeout(away_team, home_team, date_param)
-
-            # Fallback/enrichment: query MLB schedule once to fill missing details (game_pk, scores, inning/state)
-            try:
-                if not live_status or not live_status.get('game_pk'):
-                    try:
-                        from live_mlb_data import LiveMLBData as _L
-                        _api = _L()
-                        sched = _api.get_todays_schedule(date_param)
-                        # Traverse schedule to find matching game
-                        for d in (sched or {}).get('dates', []):
-                            for g in d.get('games', []):
-                                ta = (g.get('teams', {}).get('away', {}).get('team', {}) or {}).get('name') or ''
-                                th = (g.get('teams', {}).get('home', {}).get('team', {}) or {}).get('name') or ''
-                                if normalize_team_name(ta) == normalize_team_name(away_team) and normalize_team_name(th) == normalize_team_name(home_team):
-                                    # Basic status
-                                    gs = g.get('status', {}) or {}
-                                    ds = gs.get('detailedState') or gs.get('abstractGameState') or 'Scheduled'
-                                    code = gs.get('statusCode') or ''
-                                    is_final = code in ['F','FT','FR'] or ds.lower().startswith('final')
-                                    is_live = code in ['I','IR','IT','IH'] or ds.lower() in ['in progress','live']
-                                    # Scores
-                                    away_score = (g.get('teams', {}).get('away', {}) or {}).get('score')
-                                    home_score = (g.get('teams', {}).get('home', {}) or {}).get('score')
-                                    # Inning details
-                                    ls = g.get('linescore', {}) or {}
-                                    inning = ls.get('currentInning') or None
-                                    inning_state = ls.get('inningState') or None
-                                    balls = (ls.get('balls') if isinstance(ls.get('balls'), int) else None)
-                                    strikes = (ls.get('strikes') if isinstance(ls.get('strikes'), int) else None)
-                                    outs = (ls.get('outs') if isinstance(ls.get('outs'), int) else None)
-                                    # Attach
-                                    live_status = live_status or {}
-                                    live_status.setdefault('status', ds)
-                                    live_status.setdefault('badge_class', 'live' if is_live else ('final' if is_final else 'scheduled'))
-                                    live_status.setdefault('is_live', is_live)
-                                    live_status.setdefault('is_final', is_final)
-                                    if away_score is not None: live_status['away_score'] = away_score
-                                    if home_score is not None: live_status['home_score'] = home_score
-                                    if inning is not None: live_status['inning'] = inning
-                                    if inning_state is not None: live_status['inning_state'] = inning_state
-                                    if balls is not None: live_status['balls'] = balls
-                                    if strikes is not None: live_status['strikes'] = strikes
-                                    if outs is not None: live_status['outs'] = outs
-                                    live_status['game_pk'] = g.get('gamePk') or live_status.get('game_pk')
-                                    raise StopIteration
-                    except StopIteration:
-                        pass
-                    except Exception:
-                        # best-effort only
-                        pass
-            except Exception:
-                pass
             
             # Merge with our game data
+            # Try to infer probable/starter names from cache to map live pitches
+            pitcher_info = game_data.get('pitcher_info', {}) if isinstance(game_data, dict) else {}
+            away_pitcher_name = (pitcher_info.get('away_pitcher_name') or game_data.get('away_pitcher') or '').strip().lower()
+            home_pitcher_name = (pitcher_info.get('home_pitcher_name') or game_data.get('home_pitcher') or '').strip().lower()
+
+            # Fallback live boxscore lookup if cache miss for these pitchers
+            def _get_live_stat(name_key: str, field: str):
+                # try from preloaded cache
+                val = (box_pitch_stats.get(name_key, {}) or {}).get(field)
+                if val is not None:
+                    return val
+                # fallback: fetch boxscore per game
+                bs_live = _fetch_boxscore_pitcher_stats_live(live_status.get('game_pk'))
+                return (bs_live.get(name_key, {}) or {}).get(field)
+
             live_game = {
                 'away_team': away_team,
                 'home_team': home_team,
@@ -6451,11 +5281,34 @@ def api_live_status():
                 'game_time': live_status.get('game_time', game_data.get('game_time', 'TBD')),
                 'inning': live_status.get('inning', ''),
                 'inning_state': live_status.get('inning_state', ''),
-                'game_pk': live_status.get('game_pk'),
+                'base_state': live_status.get('base_state'),
+                'current_batter': live_status.get('current_batter'),
                 'balls': live_status.get('balls'),
                 'strikes': live_status.get('strikes'),
-                'outs': live_status.get('outs'),
-                'base_state': live_status.get('base_state'),
+                'game_pk': live_status.get('game_pk'),
+                # Live pitcher metrics if present in cache
+                'pitching_metrics': {
+                    'away': {
+                        'live_pitches': _get_live_stat(away_pitcher_name, 'pitches'),
+                        'inning': _get_live_stat(away_pitcher_name, 'innings_pitched'),
+                        'strikeouts': _get_live_stat(away_pitcher_name, 'strikeouts'),
+                        'outs': _get_live_stat(away_pitcher_name, 'outs'),
+                        'walks': _get_live_stat(away_pitcher_name, 'walks'),
+                        'hits_allowed': _get_live_stat(away_pitcher_name, 'hits'),
+                        'earned_runs': _get_live_stat(away_pitcher_name, 'earned_runs'),
+                        'batters_faced': _get_live_stat(away_pitcher_name, 'batters_faced')
+                    },
+                    'home': {
+                        'live_pitches': _get_live_stat(home_pitcher_name, 'pitches'),
+                        'inning': _get_live_stat(home_pitcher_name, 'innings_pitched'),
+                        'strikeouts': _get_live_stat(home_pitcher_name, 'strikeouts'),
+                        'outs': _get_live_stat(home_pitcher_name, 'outs'),
+                        'walks': _get_live_stat(home_pitcher_name, 'walks'),
+                        'hits_allowed': _get_live_stat(home_pitcher_name, 'hits'),
+                        'earned_runs': _get_live_stat(home_pitcher_name, 'earned_runs'),
+                        'batters_faced': _get_live_stat(home_pitcher_name, 'batters_faced')
+                    }
+                },
                 
                 # Team colors for dynamic styling
                 'away_team_colors': {
@@ -6469,15 +5322,6 @@ def api_live_status():
                     'text': home_team_assets.get('text_color', '#FFFFFF')
                 }
             }
-            # Attach live pitcher stats if we have game_pk
-            try:
-                game_pk = live_status.get('game_pk')
-                if game_pk:
-                    mlb_api = LiveMLBData()
-                    pstats = mlb_api.get_live_pitcher_stats(game_pk)
-                    live_game['live_pitcher_stats'] = pstats
-            except Exception:
-                pass
             live_games.append(live_game)
         
         logger.info(f"📊 Live status updated for {len(live_games)} games on {date_param}")
@@ -6502,184 +5346,83 @@ def api_live_status():
             'error': str(e)
         })
 
-@app.route('/api/live-props/<away_team>/<home_team>')
-def api_live_props(away_team, home_team):
-    """Return live tracking for pitcher props for the two starters in a game.
-    Includes current live stats and compares to snapshot lines where available.
-    """
-    try:
-        date_param = request.args.get('date', get_business_date())
-        # Use today-games payload to find matching game and pitcher lines quickly
-        # Always call the endpoint via a test client to avoid re-entering the route function directly
-        with app.test_client() as c:
-            resp = c.get(f"/api/today-games?date={date_param}")
-            tg = resp.get_json()
-        if not (tg and tg.get('games')):
-            return jsonify({'success': False, 'error': 'no games found'}), 404
-        match = None
-        for g in tg['games']:
-            if (normalize_team_name(g['away_team']) == normalize_team_name(away_team) and
-                normalize_team_name(g['home_team']) == normalize_team_name(home_team)):
-                match = g
-                break
-        if not match:
-            return jsonify({'success': False, 'error': 'game not found'}), 404
-        # Get latest live status for game_pk and pitcher stats
-        from live_mlb_data import LiveMLBData
-        mlb = LiveMLBData()
-        # We may not have game_pk here; re-fetch via live-status to get it
-        with app.test_client() as c:
-            ls = c.get(f"/api/live-status?date={date_param}").get_json()
-        game_pk = None
-        live_pitcher_stats = {}
-        if ls and ls.get('games'):
-            for lg in ls['games']:
-                if (normalize_team_name(lg['away_team']) == normalize_team_name(away_team) and
-                    normalize_team_name(lg['home_team']) == normalize_team_name(home_team)):
-                    game_pk = lg.get('game_pk')
-                    live_pitcher_stats = lg.get('live_pitcher_stats') or {}
-                    break
-        # If we still don't have a game_pk, try to find it from MLB schedule for this matchup
-        if not game_pk:
-            try:
-                sched = mlb.get_todays_schedule(date_param)
-                for d in (sched or {}).get('dates', []):
-                    for g in d.get('games', []):
-                        ta = (g.get('teams', {}).get('away', {}).get('team', {}) or {}).get('name') or ''
-                        th = (g.get('teams', {}).get('home', {}).get('team', {}) or {}).get('name') or ''
-                        if normalize_team_name(ta) == normalize_team_name(away_team) and normalize_team_name(th) == normalize_team_name(home_team):
-                            game_pk = g.get('gamePk')
-                            raise StopIteration
-            except StopIteration:
-                pass
-            except Exception:
-                pass
-        if not live_pitcher_stats and game_pk:
-            live_pitcher_stats = mlb.get_live_pitcher_stats(game_pk)
-
-        # Build response comparing live stats vs lines
-        props = []
-        live_pitch_counts = {}
-        try:
-            starters = []
-            if match.get('pitchers'):
-                for side in ['away','home']:
-                    p = (match['pitchers'].get(side) or {})
-                    if p and p.get('pitcher_name'):
-                        starters.append(p)
-            names = [p.get('pitcher_name') for p in starters if p]
-            # Build accent-insensitive map from normalized name -> original live stat entry
-            def _strip_accents(s: str) -> str:
-                import unicodedata
-                return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
-            def _norm(n: str) -> str:
-                return _strip_accents((n or '').lower().strip())
-            live_by_norm = { _norm(k): v for k, v in (live_pitcher_stats or {}).items() }
-            def side_odds(lines, stat, side):
-                lo = (lines or {}).get(stat) or {}
-                return lo.get('over_odds') if side=='OVER' else lo.get('under_odds')
-            for p in starters:
-                nm = p.get('pitcher_name')
-                live = live_pitcher_stats.get(nm) or live_by_norm.get(_norm(nm)) or {}
-                for stat_key, label in [('strikeouts','K'),('outs','Outs'),('earned_runs','ER'),('hits_allowed','Hits'),('walks','BB')]:
-                    line_obj = (p.get('lines') or {}).get(stat_key) or {}
-                    line_val = line_obj.get('line')
-                    if line_val is None:
-                        continue
-                    cur = int(live.get(stat_key) or 0)
-                    props.append({
-                        'pitcher_name': nm,
-                        'stat': stat_key,
-                        'label': label,
-                        'line': line_val,
-                        'current': cur,
-                        'over_odds': line_obj.get('over_odds'),
-                        'under_odds': line_obj.get('under_odds'),
-                        'progress': min(1.0, cur/float(line_val)) if isinstance(line_val,(int,float)) and float(line_val)>0 else None
-                    })
-            # Include live pitch count snapshot for each starter
-            for p in starters:
-                nm = p.get('pitcher_name')
-                live = live_pitcher_stats.get(nm) or live_by_norm.get(_norm(nm)) or {}
-                if live:
-                    live_pitch_counts[nm] = {
-                        'pitch_count': live.get('pitches') or live.get('pitch_count'),
-                        'pitches_by_inning': live.get('pitches_by_inning')
-                    }
-        except Exception:
-            pass
-        return jsonify({'success': True, 'date': date_param, 'away_team': away_team, 'home_team': home_team, 'game_pk': game_pk, 'live_pitcher_stats': live_pitcher_stats, 'live_pitch_counts': live_pitch_counts, 'props': props})
-    except Exception as e:
-        logger.exception('live props failure')
-        return jsonify({'success': False, 'error': str(e)}), 500
-
 @app.route('/api/prediction/<away_team>/<home_team>')
 def api_single_prediction(away_team, home_team):
     """API endpoint for single game prediction - powers the modal popups"""
     try:
         date_param = request.args.get('date', get_business_date())
-        logger.debug(f"Modal prediction for {away_team} @ {home_team} on {date_param}")
-
-        # Load unified cache
+        logger.info(f"Getting prediction for {away_team} @ {home_team} on {date_param}")
+        
+        # Load unified cache (hardcoded daily predictions)
         unified_cache = load_unified_cache()
         real_betting_lines = load_real_betting_lines()
         betting_recommendations = load_betting_recommendations()
         predictions_by_date = unified_cache.get('predictions_by_date', {})
         today_data = predictions_by_date.get(date_param, {})
         games_dict = today_data.get('games', {})
-
+        
         # Find the matching game in cache
         matching_game = None
-        for _game_key, game_data in games_dict.items():
+        for game_key, game_data in games_dict.items():
             game_away = normalize_team_name(game_data.get('away_team', ''))
             game_home = normalize_team_name(game_data.get('home_team', ''))
-            if (game_away.lower() == away_team.lower() and game_home.lower() == home_team.lower()):
+            
+            if (game_away.lower() == away_team.lower() and 
+                game_home.lower() == home_team.lower()):
                 matching_game = game_data
                 break
-
+        
         if not matching_game:
             return jsonify({
                 'success': False,
                 'error': f'No prediction found for {away_team} @ {home_team}',
                 'available_games': list(games_dict.keys())[:5]
             }), 404
-
-        # Extract prediction data
+        
+        # Extract prediction data from nested structure
         predictions = matching_game.get('predictions', {})
         predicted_away_score = predictions.get('predicted_away_score', 0) or matching_game.get('predicted_away_score', 0)
         predicted_home_score = predictions.get('predicted_home_score', 0) or matching_game.get('predicted_home_score', 0)
+        # Fix: ensure we get predicted_total_runs from the correct source
         predicted_total_runs = (
-            matching_game.get('predicted_total_runs', 0) or
-            predictions.get('predicted_total_runs', 0) or
-            (predicted_away_score + predicted_home_score)
+            matching_game.get('predicted_total_runs', 0) or  # Primary source
+            predictions.get('predicted_total_runs', 0) or  # Secondary fallback
+            (predicted_away_score + predicted_home_score)  # Final fallback
         )
         away_win_prob = predictions.get('away_win_prob', 0) or matching_game.get('away_win_probability', 0.5)
         home_win_prob = predictions.get('home_win_prob', 0) or matching_game.get('home_win_probability', 0.5)
-
-        # Pitcher info
+        
+        # Extract pitcher data from pitcher_info structure
         pitcher_info = matching_game.get('pitcher_info', {})
         away_pitcher = pitcher_info.get('away_pitcher_name', matching_game.get('away_pitcher', 'TBD'))
         home_pitcher = pitcher_info.get('home_pitcher_name', matching_game.get('home_pitcher', 'TBD'))
-
-        # Additional details
+        
+        # Extract comprehensive prediction details
         comprehensive_details = matching_game.get('comprehensive_details', {})
         winner_prediction = comprehensive_details.get('winner_prediction', {})
         total_runs_prediction = comprehensive_details.get('total_runs_prediction', {})
-
-        # Betting lines lookup
+        
+        # Build game key for betting lines lookup
         game_key = f"{away_team} @ {home_team}"
-        logger.debug(f"Modal: lookup betting recs key: '{game_key}'")
+        logger.info(f"Looking for betting recommendations with game_key: '{game_key}'")
+        
+        # Get real betting lines for this game using same logic as main API
         real_lines = None
-        real_over_under_total = None
-
-        # Historical data first
+        real_over_under_total = None  # NO HARDCODED FALLBACKS
+        
+        # Load real betting lines data
+        real_betting_lines = load_real_betting_lines()
+        
+        # Try historical data first (from historical_betting_lines_cache.json)
         if real_betting_lines and 'historical_data' in real_betting_lines:
             historical_data = real_betting_lines['historical_data']
+            # Try to find by game_id first
             game_id = str(matching_game.get('game_id', ''))
             if game_id and game_id in historical_data:
                 real_lines = historical_data[game_id]
                 real_over_under_total = extract_real_total_line(real_lines, f"{game_key} (ID: {game_id})")
             else:
+                # If no game_id, try to find by team names
                 for bet_game_id, bet_data in historical_data.items():
                     bet_away = bet_data.get('away_team', '')
                     bet_home = bet_data.get('home_team', '')
@@ -6689,84 +5432,124 @@ def api_single_prediction(away_team, home_team):
                         if real_over_under_total:
                             logger.info(f"✅ MODAL BETTING LINES: Found match by teams! Using {real_over_under_total} for {away_team} @ {home_team} (game_id: {bet_game_id})")
                             break
-
-        # Fallback to structured lines
+        
+        # Fallback to structured lines format (from data files)
         if not real_over_under_total and real_betting_lines and 'lines' in real_betting_lines:
             real_lines = real_betting_lines['lines'].get(game_key, None)
             if real_lines:
-                logger.debug(f"Modal: found lines for {game_key}")
+                logger.info(f"🔍 MODAL BETTING LINES: Found lines for {game_key}: {real_lines}")
                 real_over_under_total = extract_real_total_line(real_lines, game_key)
             else:
                 logger.warning(f"🔍 MODAL BETTING LINES: No lines found for {game_key}")
-
+        
+        # Log final result for modal
         if real_over_under_total is None:
             logger.warning(f"❌ MODAL: No real total line available for {game_key} - using predicted total for display only")
-
-        # Final fallback: try today's direct file
+        
+        # Final fallback - if historical cache was loaded but no lines found, try direct file load
         if not real_lines:
-            logger.debug(f"Modal: no lines in cache; try direct file for {game_key}")
+            logger.info(f"🔍 MODAL BETTING LINES: No lines found in cache, attempting direct file load for {game_key}")
             today = datetime.now().strftime('%Y_%m_%d')
             lines_path = f'data/real_betting_lines_{today}.json'
             logger.info(f"🔍 MODAL BETTING LINES: Trying to load {lines_path}")
             try:
                 with open(lines_path, 'r') as f:
                     direct_data = json.load(f)
-                if 'lines' in direct_data:
-                    direct_lines = direct_data['lines'].get(game_key, None)
-                    if direct_lines and 'total_runs' in direct_lines:
-                        extracted_total = direct_lines['total_runs'].get('line')
-                        if extracted_total is not None:
-                            real_over_under_total = extracted_total
-                            real_lines = direct_lines
+                    logger.info(f"🔍 MODAL BETTING LINES: File loaded successfully, checking for lines")
+                    if 'lines' in direct_data:
+                        logger.info(f"🔍 MODAL BETTING LINES: Lines found, looking for {game_key}")
+                        direct_lines = direct_data['lines'].get(game_key, None)
+                        if direct_lines:
+                            logger.info(f"🔍 MODAL BETTING LINES: Game found! Checking for total_runs")
+                            if 'total_runs' in direct_lines:
+                                extracted_total = direct_lines['total_runs'].get('line')
+                                if extracted_total is not None:
+                                    real_over_under_total = extracted_total
+                                    real_lines = direct_lines
+                                    logger.info(f"✅ MODAL BETTING LINES: Found in direct file load! Using {real_over_under_total} for {game_key}")
+                                else:
+                                    logger.warning(f"🔍 MODAL BETTING LINES: total_runs line is None for {game_key}")
+                            else:
+                                logger.warning(f"🔍 MODAL BETTING LINES: No total_runs in {game_key}")
+                        else:
+                            logger.warning(f"🔍 MODAL BETTING LINES: Game {game_key} not found in lines")
+                    else:
+                        logger.warning(f"🔍 MODAL BETTING LINES: No 'lines' key in file")
             except (FileNotFoundError, json.JSONDecodeError) as e:
                 logger.warning(f"🔍 MODAL BETTING LINES: Direct file load failed: {e}")
-
-        # Betting recommendations for this game
+        
+        # Get betting recommendations using the same logic as main API
+        betting_recommendations = load_betting_recommendations()
+        
+        # Build game key for betting lines lookup (same as main API)
+        game_key = f"{away_team} @ {home_team}"
+        logger.info(f"Looking for betting recommendations with game_key: '{game_key}'")
+        
+        # Get betting recommendations for this game
         game_recommendations = None
         if betting_recommendations and 'games' in betting_recommendations:
+            available_keys = list(betting_recommendations['games'].keys())
+            logger.info(f"Available betting recommendation keys: {available_keys}")
             game_recommendations = betting_recommendations['games'].get(game_key, None)
-
-        # Factor data
+            logger.info(f"Found betting recommendation: {game_recommendations is not None}")
+        else:
+            logger.warning("No betting recommendations loaded or 'games' key missing")
+        
+        # Load additional factor data for comprehensive modal display
         try:
-            team_strengths = get_team_strengths_cached()
+            # Load team strengths
+            team_strengths = {}
+            try:
+                with open('data/master_team_strength.json', 'r') as f:
+                    team_strengths = json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+                logger.warning("Could not load team strengths for modal")
+            
+            # Load bullpen data
             bullpen_factors = {}
             try:
-                bullpen_data = get_bullpen_cached()
-                for team, stats in bullpen_data.items():
-                    quality = stats.get('quality_factor', 1.0)
-                    if quality >= 1.2:
-                        rating = "Elite"
-                    elif quality >= 1.05:
-                        rating = "Good"
-                    elif quality >= 0.95:
-                        rating = "Average"
-                    else:
-                        rating = "Below Average"
-                    bullpen_factors[team] = {
-                        'rating': rating,
-                        'quality_factor': quality,
-                        'era': stats.get('era', 4.0),
-                        'save_rate': stats.get('save_rate', 0.75)
-                    }
-            except Exception:
-                logger.debug("Modal: bullpen cache unavailable")
-
+                with open('data/bullpen_stats.json', 'r') as f:
+                    bullpen_data = json.load(f)
+                    for team, stats in bullpen_data.items():
+                        quality = stats.get('quality_factor', 1.0)
+                        if quality >= 1.2:
+                            rating = "Elite"
+                        elif quality >= 1.05:
+                            rating = "Good"
+                        elif quality >= 0.95:
+                            rating = "Average"
+                        else:
+                            rating = "Below Average"
+                        bullpen_factors[team] = {
+                            'rating': rating,
+                            'quality_factor': quality,
+                            'era': stats.get('era', 4.0),
+                            'save_rate': stats.get('save_rate', 0.75)
+                        }
+            except (FileNotFoundError, json.JSONDecodeError):
+                logger.warning("Could not load bullpen data for modal")
+            
+            # Load weather/park factors for today
             weather_factors = {}
             try:
-                weather_data = get_weather_cached(date_param)
-                if 'teams' in weather_data and home_team in weather_data['teams']:
-                    team_data = weather_data['teams'][home_team]
-                    weather_factors = {
-                        'temperature': team_data.get('weather', {}).get('temperature', 'N/A'),
-                        'wind_speed': team_data.get('weather', {}).get('wind_speed', 'N/A'),
-                        'weather_condition': team_data.get('weather', {}).get('conditions', 'N/A'),
-                        'park_factor': team_data.get('park_factor', 1.0),
-                        'total_runs_factor': team_data.get('total_factor', 1.0),
-                        'stadium_name': team_data.get('stadium_name', 'Unknown'),
-                        'humidity': team_data.get('weather', {}).get('humidity', 'N/A')
-                    }
-            except Exception:
-                logger.debug("Modal: weather cache unavailable")
+                today = datetime.now().strftime('%Y-%m-%d')
+                weather_file = f'data/park_weather_factors_{today.replace("-", "_")}.json'
+                with open(weather_file, 'r') as f:
+                    weather_data = json.load(f)
+                    # Find weather for this game's teams (use home team's park)
+                    if 'teams' in weather_data and home_team in weather_data['teams']:
+                        team_data = weather_data['teams'][home_team]
+                        weather_factors = {
+                            'temperature': team_data.get('weather', {}).get('temperature', 'N/A'),
+                            'wind_speed': team_data.get('weather', {}).get('wind_speed', 'N/A'),
+                            'weather_condition': team_data.get('weather', {}).get('conditions', 'N/A'),
+                            'park_factor': team_data.get('park_factor', 1.0),
+                            'total_runs_factor': team_data.get('total_factor', 1.0),
+                            'stadium_name': team_data.get('stadium_name', 'Unknown'),
+                            'humidity': team_data.get('weather', {}).get('humidity', 'N/A')
+                        }
+            except (FileNotFoundError, json.JSONDecodeError):
+                logger.warning("Could not load weather/park factors for modal")
         except Exception as e:
             logger.warning(f"Error loading additional factor data: {e}")
             team_strengths = {}
@@ -6783,6 +5566,8 @@ def api_single_prediction(away_team, home_team):
                 'date': date_param,
                 'away_pitcher': away_pitcher,
                 'home_pitcher': home_pitcher,
+                
+                # Add pitcher quality factors from prediction engine
                 'away_pitcher_factor': pitcher_info.get('away_pitcher_factor', 1.0),
                 'home_pitcher_factor': pitcher_info.get('home_pitcher_factor', 1.0)
             },
@@ -6802,10 +5587,13 @@ def api_single_prediction(away_team, home_team):
                 'over_under_analysis': total_runs_prediction.get('over_under_analysis', {})
             },
             'betting_recommendations': convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines, predicted_total_runs) if game_recommendations else create_basic_betting_recommendations(
-                away_team, home_team, away_win_prob, home_win_prob, predicted_total_runs, real_over_under_total
+                away_team, home_team, away_win_prob, home_win_prob, predicted_total_runs, 
+                real_over_under_total
             ),
             'real_betting_lines': real_lines,
-            'debug_real_over_under_total': real_over_under_total,
+            'debug_real_over_under_total': real_over_under_total,  # Debug field
+            
+            # Add comprehensive factor data for modal display
             'factors': {
                 'team_strengths': {
                     'away_strength': team_strengths.get(away_team, 0.0),
@@ -6824,14 +5612,17 @@ def api_single_prediction(away_team, home_team):
                 }
             }
         }
-
-        logger.debug(f"Modal: response ready for {away_team} @ {home_team}")
+        
+        logger.info(f"Successfully found prediction for {away_team} @ {home_team}")
         return jsonify(prediction_response)
-
+    
     except Exception as e:
         logger.error(f"Error in single prediction API: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 @app.route('/api/initialize-system', methods=['POST'])
 def initialize_system():
@@ -6847,30 +5638,6 @@ def initialize_system():
             'success': False,
             'error': str(e)
         })
-
-@app.route('/api/summary')
-def api_summary():
-    """Compact summary for the dashboard header (non-blocking)."""
-    try:
-        date_param = request.args.get('date', get_business_date())
-        # Reuse today-games logic via internal call to avoid duplication
-        with app.test_client() as c:
-            resp = c.get(f"/api/today-games?date={date_param}")
-            data = resp.get_json() or {}
-        games = data.get('games') or []
-        total = len(games)
-        completed = sum(1 for g in games if (g.get('live_status') or {}).get('is_final'))
-        # Placeholder metrics; can be wired to real tracker later
-        summary = {
-            'total_games': total,
-            'completed_games': completed,
-            'prediction_accuracy': 0.0,
-            'avg_score_error': 0.0
-        }
-        return jsonify({'success': True, 'summary': summary, 'date': date_param})
-    except Exception as e:
-        logger.debug(f"summary endpoint fallback: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 200
 
 # ================================================================================
 # HISTORICAL ANALYSIS MOVED TO DEDICATED APP (historical_analysis_app.py)
@@ -8854,7 +7621,7 @@ def show_routes():
         'all_routes': sorted(routes, key=lambda x: x['rule'])
     })
 
-# logger.debug("Reached end of show_routes function")
+print("DEBUG: Reached end of show_routes function")
 
 # Comprehensive Betting Performance API Endpoints
 @app.route('/api/comprehensive-betting-performance')
@@ -9285,20 +8052,9 @@ if __name__ == '__main__':
     else:
         logger.warning("⚠️ No cache data found - check unified_predictions_cache.json")
     
-    # Use Render's PORT environment variable or default to 5000 for local development
-    port = int(os.environ.get('PORT', 5000))
-    debug_mode = os.environ.get('FLASK_ENV') != 'production'
-
-    # Start monitoring system on startup if available, using the actual port
+    # Start monitoring system on startup if available
     if MONITORING_AVAILABLE:
         try:
-            try:
-                # Point monitor to the correct local base URL
-                monitor.config['api_base_url'] = f"http://127.0.0.1:{port}"
-                monitor.save_config()
-                logger.info(f"📈 Monitoring base URL set to http://127.0.0.1:{port}")
-            except Exception as cfg_err:
-                logger.warning(f"⚠️ Could not apply monitoring base URL: {cfg_err}")
             start_monitoring()
             logger.info("✅ Enhanced monitoring system started")
         except Exception as e:
@@ -9310,6 +8066,10 @@ if __name__ == '__main__':
     @app.route('/api-test')
     def api_test_route():
         return render_template('api_test.html')
+    
+    # Use Render's PORT environment variable or default to 5000 for local development
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info(f"🚀 Starting MLB Betting App on port {port} (debug: {debug_mode})")
     app.run(debug=debug_mode, host='0.0.0.0', port=port)
