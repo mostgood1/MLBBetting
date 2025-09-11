@@ -1899,8 +1899,21 @@ def get_comprehensive_betting_recommendations(game_recommendations, real_lines, 
             
             return result
     
-    # Fallback to basic recommendations
-    return create_basic_betting_recommendations(away_team, home_team, away_win_prob, home_win_prob, predicted_total, real_over_under_total)
+    # Fallback to basic recommendations (always return a structured object)
+    try:
+        basic = create_basic_betting_recommendations(away_team, home_team, away_win_prob, home_win_prob, predicted_total, real_over_under_total)
+        if isinstance(basic, dict):
+            return basic
+    except Exception as _:
+        pass
+
+    # Ultimate safety: minimal structured response so UI isn't blank
+    return {
+        'value_bets': [],
+        'total_opportunities': 0,
+        'best_bet': None,
+        'summary': 'No strong opportunities identified'
+    }
 
 def generate_run_line_recommendation(away_team, home_team, away_win_prob, home_win_prob, predicted_total):
     """Generate a run line recommendation based on win probabilities"""
@@ -3005,6 +3018,136 @@ def api_pitcher_projections():
             'date': request.args.get('date')
         }), 500
 
+@app.route('/api/pitcher-props/recap')
+def api_pitcher_props_recap():
+    """Recap pitcher prop recommendations for a given date and evaluate results.
+    Uses Bovada lines + model projections to generate a per-pitcher recommendation (OVER/UNDER),
+    then reconciles with final box score stats to mark HIT/MISS/PUSH.
+    """
+    try:
+        date_str = request.args.get('date') or get_business_date()
+
+        # Data sources
+        from live_mlb_data import LiveMLBData
+        mlb = LiveMLBData()
+        games = mlb.get_enhanced_games_data(date_str) or []
+
+        props = _load_bovada_pitcher_props(date_str)
+        stats_by_name = _load_master_pitcher_stats()
+        ppo_overrides = _load_pitches_per_out_overrides()
+        default_ppo = 5.1
+        box_stats = _load_boxscore_pitcher_stats(date_str)
+
+        # Helper to compute outs from innings string like "5.1"
+        def _outs_from_ip(ip_val):
+            try:
+                if ip_val is None:
+                    return None
+                if isinstance(ip_val, (int, float)):
+                    # If already numeric, treat decimal .1/.2 as 1/2 outs
+                    whole = int(ip_val)
+                    frac = round((ip_val - whole) + 1e-8, 1)
+                    extra_outs = 1 if abs(frac - 0.1) < 1e-6 else (2 if abs(frac - 0.2) < 1e-6 else 0)
+                    return whole * 3 + extra_outs
+                s = str(ip_val)
+                if '.' in s:
+                    parts = s.split('.')
+                    whole = int(parts[0])
+                    frac = int(parts[1] or '0')
+                    extra_outs = 1 if frac == 1 else (2 if frac == 2 else 0)
+                    return whole * 3 + extra_outs
+                # No decimal -> whole innings
+                return int(float(s)) * 3
+            except Exception:
+                return None
+
+        # Build a mapping from pitcher name -> (team, opponent)
+        game_map = {}
+        for g in games:
+            away = g.get('away_team') or ''
+            home = g.get('home_team') or ''
+            ap = g.get('away_pitcher') or g.get('pitcher_info', {}).get('away_pitcher_name') or 'TBD'
+            hp = g.get('home_pitcher') or g.get('pitcher_info', {}).get('home_pitcher_name') or 'TBD'
+            if ap and ap != 'TBD':
+                game_map[normalize_name(ap)] = (ap, away, home)
+            if hp and hp != 'TBD':
+                game_map[normalize_name(hp)] = (hp, home, away)
+
+        results = []
+        # Iterate over starters found in schedule; only include those with props
+        for key, (name, team, opp) in game_map.items():
+            prop_lines = props.get(key)
+            if not prop_lines:
+                continue
+            # Generate projection + recommendation for this pitcher
+            proj = _project_pitcher_line(name, team, opp, stats_by_name, props, default_ppo, ppo_overrides)
+            rec = proj.get('recommendation')
+            if not rec:
+                continue
+            market = rec.get('market')
+            side = rec.get('side')
+            line = (proj.get('lines') or {}).get(market)
+            # Actuals from box score
+            bs = box_stats.get(normalize_name(name)) or {}
+            if not bs:
+                # try ascii key fallback since loader mirrors keys
+                bs = box_stats.get(name.lower()) or {}
+            actual = None
+            if market == 'strikeouts':
+                actual = bs.get('strikeouts')
+            elif market == 'outs':
+                actual = bs.get('outs')
+                if actual is None:
+                    actual = _outs_from_ip(bs.get('innings_pitched'))
+            elif market == 'walks':
+                actual = bs.get('walks')
+            elif market == 'hits_allowed':
+                # box uses 'hits'
+                actual = bs.get('hits')
+            elif market == 'earned_runs':
+                actual = bs.get('earned_runs')
+
+            result = None
+            if actual is not None and line is not None:
+                try:
+                    a = float(actual)
+                    ln = float(line)
+                    if abs(a - ln) < 1e-9:
+                        result = 'PUSH'
+                    else:
+                        result = 'HIT' if (side == 'OVER' and a > ln) or (side == 'UNDER' and a < ln) else 'MISS'
+                except Exception:
+                    result = None
+
+            results.append({
+                'date': date_str,
+                'pitcher': name,
+                'team': team,
+                'opponent': opp,
+                'market': market,
+                'side': side,
+                'line': line,
+                'actual': actual,
+                'result': result,
+                'proj': (proj.get('proj') or {}).get(market),
+                'edge': (proj.get('recommendation') or {}).get('edge')
+            })
+
+        return jsonify({
+            'success': True,
+            'date': date_str,
+            'count': len(results),
+            'results': results
+        })
+
+    except Exception as e:
+        logger.error(f"Error in api_pitcher_props_recap: {e}\n{traceback.format_exc()}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'date': request.args.get('date')
+        }), 500
+
 @app.route('/api/betting-guidance/performance')
 def api_betting_guidance_performance():
     """Historical performance by bet type for betting guidance page"""
@@ -3039,100 +3182,102 @@ def api_betting_guidance_performance():
             return 'total'
         return t or 'other'
 
-        perf = {}
-        totals = {}
-        corrects = {}
-        invested = {}
-        winnings = {}
+    # Initialize aggregation containers at the route scope
+    perf = {}
+    totals = {}
+    corrects = {}
+    invested = {}
+    winnings = {}
 
-        if direct_historical_analyzer:
-            dates = direct_historical_analyzer.get_available_dates() or []
-            # Normalize and filter dates to [START_DATE_STR .. END_DATE_STR]
-            def norm_date(ds: str) -> str:
-                try:
-                    d = ds.replace('_','-')
-                    # Ensure it's YYYY-MM-DD
-                    if len(d) == 10 and d[4] == '-' and d[7] == '-':
-                        return d
-                    # Attempt parsing common variants
-                    from datetime import datetime as _dt
-                    return _dt.strptime(ds, '%Y_%m_%d').strftime('%Y-%m-%d')
-                except Exception:
-                    return ds
+    # Aggregate from local historical analyzer if available
+    if direct_historical_analyzer:
+        dates = direct_historical_analyzer.get_available_dates() or []
+        # Normalize and filter dates to [START_DATE_STR .. END_DATE_STR]
+        def norm_date(ds: str) -> str:
+            try:
+                d = ds.replace('_','-')
+                # Ensure it's YYYY-MM-DD
+                if len(d) == 10 and d[4] == '-' and d[7] == '-':
+                    return d
+                # Attempt parsing common variants
+                from datetime import datetime as _dt
+                return _dt.strptime(ds, '%Y_%m_%d').strftime('%Y-%m-%d')
+            except Exception:
+                return ds
 
-            filtered_dates = [d for d in dates if START_DATE_STR <= norm_date(d) <= END_DATE_STR]
-            filtered_dates.sort()
+        filtered_dates = [d for d in dates if START_DATE_STR <= norm_date(d) <= END_DATE_STR]
+        filtered_dates.sort()
 
-            for d in filtered_dates:
-                try:
-                    day = direct_historical_analyzer.get_date_analysis(d) or {}
-                    bp = day.get('betting_performance') or {}
-                    bets = bp.get('detailed_bets') or []
-                    # Support dicts and serialized strings
-                    for b in bets:
-                        try:
-                            if isinstance(b, str):
-                                # Parse '@{k=v; k2=v2}' into dict
-                                s = b.strip()
-                                if s.startswith('@{') and s.endswith('}'):
-                                    s = s[2:-1]
-                                parts = [p.strip() for p in s.split(';') if p.strip()]
-                                bd = {}
-                                for p in parts:
-                                    if '=' in p:
-                                        k, v = p.split('=', 1)
-                                        bd[k.strip()] = v.strip()
-                                bobj = bd
-                            else:
-                                bobj = b
-                            btype = norm_type(bobj.get('bet_type'))
-                            if not btype:
-                                continue
-                            totals[btype] = totals.get(btype, 0) + 1
-                            won_val = bobj.get('bet_won')
-                            if isinstance(won_val, str):
-                                won = won_val.lower() == 'true'
-                            else:
-                                won = bool(won_val)
-                            if won:
-                                corrects[btype] = corrects.get(btype, 0) + 1
-                            stake = 100.0
-                            invested[btype] = invested.get(btype, 0.0) + stake
-                            odds = parse_american_odds(bobj.get('american_odds'))
-                            if won:
-                                winnings[btype] = winnings.get(btype, 0.0) + payout_for_win(odds, stake)
-                        except Exception:
+        for d in filtered_dates:
+            try:
+                day = direct_historical_analyzer.get_date_analysis(d) or {}
+                bp = day.get('betting_performance') or {}
+                bets = bp.get('detailed_bets') or []
+                # Support dicts and serialized strings
+                for b in bets:
+                    try:
+                        if isinstance(b, str):
+                            # Parse '@{k=v; k2=v2}' into dict
+                            s = b.strip()
+                            if s.startswith('@{') and s.endswith('}'):
+                                s = s[2:-1]
+                            parts = [p.strip() for p in s.split(';') if p.strip()]
+                            bd = {}
+                            for p in parts:
+                                if '=' in p:
+                                    k, v = p.split('=', 1)
+                                    bd[k.strip()] = v.strip()
+                            bobj = bd
+                        else:
+                            bobj = b
+                        btype = norm_type(bobj.get('bet_type'))
+                        if not btype:
                             continue
-                except Exception:
-                    continue
+                        totals[btype] = totals.get(btype, 0) + 1
+                        won_val = bobj.get('bet_won')
+                        if isinstance(won_val, str):
+                            won = won_val.lower() == 'true'
+                        else:
+                            won = bool(won_val)
+                        if won:
+                            corrects[btype] = corrects.get(btype, 0) + 1
+                        stake = 100.0
+                        invested[btype] = invested.get(btype, 0.0) + stake
+                        odds = parse_american_odds(bobj.get('american_odds'))
+                        if won:
+                            winnings[btype] = winnings.get(btype, 0.0) + payout_for_win(odds, stake)
+                    except Exception:
+                        continue
+            except Exception:
+                continue
 
-        # Build summary
-        for btype in sorted(set(list(totals.keys()) + list(corrects.keys()))):
-            total = totals.get(btype, 0)
-            correct = corrects.get(btype, 0)
-            inv = invested.get(btype, 0.0)
-            win_amt = winnings.get(btype, 0.0)
-            net = win_amt - inv
-            acc = (correct/total*100.0) if total else 0.0
-            roi = (net/inv*100.0) if inv else 0.0
-            perf[btype] = {
-                'total_bets': total,
-                'correct_bets': correct,
-                'accuracy': round(acc, 1),
-                'total_invested': round(inv, 2),
-                'total_winnings': round(win_amt, 2),
-                'net_profit': round(net, 2),
-                'roi': round(roi, 1)
-            }
+    # Build summary
+    for btype in sorted(set(list(totals.keys()) + list(corrects.keys()))):
+        total = totals.get(btype, 0)
+        correct = corrects.get(btype, 0)
+        inv = invested.get(btype, 0.0)
+        win_amt = winnings.get(btype, 0.0)
+        net = win_amt - inv
+        acc = (correct/total*100.0) if total else 0.0
+        roi = (net/inv*100.0) if inv else 0.0
+        perf[btype] = {
+            'total_bets': total,
+            'correct_bets': correct,
+            'accuracy': round(acc, 1),
+            'total_invested': round(inv, 2),
+            'total_winnings': round(win_amt, 2),
+            'net_profit': round(net, 2),
+            'roi': round(roi, 1)
+        }
 
-        return jsonify({
-            'success': True,
-            'performance_by_bet_type': perf,
-            'date_range': {
-                'start_date': START_DATE_STR,
-                'end_date': END_DATE_STR
-            }
-        })
+    return jsonify({
+        'success': True,
+        'performance_by_bet_type': perf,
+        'date_range': {
+            'start_date': START_DATE_STR,
+            'end_date': END_DATE_STR
+        }
+    })
 
 @app.route('/api/betting-recommendations/date/<date>')
 def api_betting_recommendations_by_date(date):
@@ -5079,10 +5224,15 @@ def api_today_games():
                 # Real betting lines and recommendations - ALWAYS include unified recommendations
                 'real_betting_lines': real_lines,
                 'has_real_betting_lines': bool(real_lines and isinstance(real_lines, dict) and len(real_lines) > 0),
-                'betting_recommendations': get_comprehensive_betting_recommendations(
+                'betting_recommendations': (get_comprehensive_betting_recommendations(
                     game_recommendations, 
                     real_lines, away_team, home_team, away_win_prob_final, home_win_prob_final, predicted_total_final, real_over_under_total
-                ),
+                ) or {
+                    'value_bets': [],
+                    'total_opportunities': 0,
+                    'best_bet': None,
+                    'summary': 'No strong opportunities identified'
+                }),
                 
                 # Live status object for template compatibility
                 'live_status': {
@@ -5092,9 +5242,20 @@ def api_today_games():
                     'home_score': live_status_data.get('home_score', 0),
                     'inning': live_status_data.get('inning', ''),
                     'inning_state': live_status_data.get('inning_state', ''),
+                    'is_top_inning': live_status_data.get('is_top_inning'),
                     'status': live_status_data.get('status', 'Scheduled'),
                     'badge_class': live_status_data.get('badge_class', 'scheduled'),
                     'game_time': live_status_data.get('game_time', game_data.get('game_time', 'TBD')),
+                    # Runner/outs/batter state for initial render
+                    'base_state': live_status_data.get('base_state'),
+                    'outs': live_status_data.get('outs'),
+                    'on_first': live_status_data.get('on_first'),
+                    'on_second': live_status_data.get('on_second'),
+                    'on_third': live_status_data.get('on_third'),
+                    'current_batter': live_status_data.get('current_batter'),
+                    'balls': live_status_data.get('balls'),
+                    'strikes': live_status_data.get('strikes'),
+                    'last_play': live_status_data.get('last_play'),
                     # Echo live pitcher metrics if available for smoother polling updates
                     'pitching_metrics': {
                         'away': {
@@ -5136,7 +5297,6 @@ def api_today_games():
         except Exception:
             pass
         return jsonify(response_payload)
-    
     except Exception as e:
         logger.error(f"Error in API today-games: {e}")
         logger.error(f"Error type: {type(e)}")
@@ -5301,96 +5461,110 @@ def api_live_status():
 
         # Get live status for each game from MLB API
         live_games = []
-        
-        for game_key, game_data in games_dict.items():
-            away_team = game_data.get('away_team', '')
-            home_team = game_data.get('home_team', '')
-            
-            # Get team colors and assets
-            away_team_assets = get_team_assets(away_team)
-            home_team_assets = get_team_assets(home_team)
-            
-            # Get real live status from MLB API with timeout
-            live_status = get_live_status_with_timeout(away_team, home_team, date_param)
-            
-            # Merge with our game data
-            # Try to infer probable/starter names from cache to map live pitches
-            pitcher_info = game_data.get('pitcher_info', {}) if isinstance(game_data, dict) else {}
-            away_pitcher_name = normalize_name(pitcher_info.get('away_pitcher_name') or game_data.get('away_pitcher') or '')
-            home_pitcher_name = normalize_name(pitcher_info.get('home_pitcher_name') or game_data.get('home_pitcher') or '')
 
-            # Fallback live boxscore lookup if cache miss for these pitchers
-            def _get_live_stat(name_key: str, field: str):
-                # try from preloaded cache
-                val = (box_pitch_stats.get(name_key, {}) or {}).get(field)
-                if val is not None:
-                    return val
-                # fallback: fetch boxscore per game
-                bs_live = _fetch_boxscore_pitcher_stats_live(live_status.get('game_pk'))
-                return (bs_live.get(name_key, {}) or {}).get(field)
+        # Support both dict and list structures for games
+        if isinstance(games_dict, dict):
+            games_iter = games_dict.items()
+        elif isinstance(games_dict, list):
+            games_iter = [(f"game_{i}", g) for i, g in enumerate(games_dict) if isinstance(g, dict)]
+        else:
+            games_iter = []
 
-            live_game = {
-                'away_team': away_team,
-                'home_team': home_team,
-                'away_score': live_status.get('away_score', 0) if live_status.get('away_score') is not None else 0,
-                'home_score': live_status.get('home_score', 0) if live_status.get('home_score') is not None else 0,
-                'status': live_status.get('status', 'Scheduled'),
-                'badge_class': live_status.get('badge_class', 'scheduled'),
-                'is_live': live_status.get('is_live', False),
-                'is_final': live_status.get('is_final', False),
-                'game_time': live_status.get('game_time', game_data.get('game_time', 'TBD')),
-                'inning': live_status.get('inning', ''),
-                'inning_state': live_status.get('inning_state', ''),
-                'is_top_inning': live_status.get('is_top_inning'),
-                'base_state': live_status.get('base_state'),
-                'outs': live_status.get('outs'),
-                'on_first': live_status.get('on_first'),
-                'on_second': live_status.get('on_second'),
-                'on_third': live_status.get('on_third'),
-                'current_batter': live_status.get('current_batter'),
-                'balls': live_status.get('balls'),
-                'strikes': live_status.get('strikes'),
-                'last_play': live_status.get('last_play'),
-                'away_pitcher': live_status.get('away_pitcher') or game_data.get('away_pitcher'),
-                'home_pitcher': live_status.get('home_pitcher') or game_data.get('home_pitcher'),
-                'game_pk': live_status.get('game_pk'),
-                # Live pitcher metrics if present in cache
-                'pitching_metrics': {
-                    'away': {
-                        'live_pitches': _get_live_stat(away_pitcher_name, 'pitches'),
-                        'inning': _get_live_stat(away_pitcher_name, 'innings_pitched'),
-                        'strikeouts': _get_live_stat(away_pitcher_name, 'strikeouts'),
-                        'outs': _get_live_stat(away_pitcher_name, 'outs'),
-                        'walks': _get_live_stat(away_pitcher_name, 'walks'),
-                        'hits_allowed': _get_live_stat(away_pitcher_name, 'hits'),
-                        'earned_runs': _get_live_stat(away_pitcher_name, 'earned_runs'),
-                        'batters_faced': _get_live_stat(away_pitcher_name, 'batters_faced')
-                    },
-                    'home': {
-                        'live_pitches': _get_live_stat(home_pitcher_name, 'pitches'),
-                        'inning': _get_live_stat(home_pitcher_name, 'innings_pitched'),
-                        'strikeouts': _get_live_stat(home_pitcher_name, 'strikeouts'),
-                        'outs': _get_live_stat(home_pitcher_name, 'outs'),
-                        'walks': _get_live_stat(home_pitcher_name, 'walks'),
-                        'hits_allowed': _get_live_stat(home_pitcher_name, 'hits'),
-                        'earned_runs': _get_live_stat(home_pitcher_name, 'earned_runs'),
-                        'batters_faced': _get_live_stat(home_pitcher_name, 'batters_faced')
-                    }
-                },
+        for game_key, game_data in games_iter:
+            try:
+                away_team = game_data.get('away_team', '')
+                home_team = game_data.get('home_team', '')
                 
-                # Team colors for dynamic styling
-                'away_team_colors': {
-                    'primary': away_team_assets.get('primary_color', '#333333'),
-                    'secondary': away_team_assets.get('secondary_color', '#666666'),
-                    'text': away_team_assets.get('text_color', '#FFFFFF')
-                },
-                'home_team_colors': {
-                    'primary': home_team_assets.get('primary_color', '#333333'),
-                    'secondary': home_team_assets.get('secondary_color', '#666666'),
-                    'text': home_team_assets.get('text_color', '#FFFFFF')
+                # Get team colors and assets
+                away_team_assets = get_team_assets(away_team)
+                home_team_assets = get_team_assets(home_team)
+                
+                # Get real live status from MLB API with timeout
+                live_status = get_live_status_with_timeout(away_team, home_team, date_param)
+                
+                # Merge with our game data
+                # Try to infer probable/starter names from cache to map live pitches
+                pitcher_info = game_data.get('pitcher_info', {}) if isinstance(game_data, dict) else {}
+                away_pitcher_name = normalize_name(pitcher_info.get('away_pitcher_name') or game_data.get('away_pitcher') or '')
+                home_pitcher_name = normalize_name(pitcher_info.get('home_pitcher_name') or game_data.get('home_pitcher') or '')
+
+                # Fallback live boxscore lookup if cache miss for these pitchers
+                def _get_live_stat(name_key: str, field: str):
+                    # try from preloaded cache
+                    val = (box_pitch_stats.get(name_key, {}) or {}).get(field)
+                    if val is not None:
+                        return val
+                    # fallback: fetch boxscore per game
+                    bs_live = _fetch_boxscore_pitcher_stats_live(live_status.get('game_pk'))
+                    return (bs_live.get(name_key, {}) or {}).get(field)
+
+                live_game = {
+                    'away_team': away_team,
+                    'home_team': home_team,
+                    'away_score': live_status.get('away_score', 0) if live_status.get('away_score') is not None else 0,
+                    'home_score': live_status.get('home_score', 0) if live_status.get('home_score') is not None else 0,
+                    'status': live_status.get('status', 'Scheduled'),
+                    'badge_class': live_status.get('badge_class', 'scheduled'),
+                    'is_live': live_status.get('is_live', False),
+                    'is_final': live_status.get('is_final', False),
+                    'game_time': live_status.get('game_time', game_data.get('game_time', 'TBD')),
+                    'inning': live_status.get('inning', ''),
+                    'inning_state': live_status.get('inning_state', ''),
+                    'is_top_inning': live_status.get('is_top_inning'),
+                    'base_state': live_status.get('base_state'),
+                    'outs': live_status.get('outs'),
+                    'on_first': live_status.get('on_first'),
+                    'on_second': live_status.get('on_second'),
+                    'on_third': live_status.get('on_third'),
+                    'current_batter': live_status.get('current_batter'),
+                    'balls': live_status.get('balls'),
+                    'strikes': live_status.get('strikes'),
+                    'last_play': live_status.get('last_play'),
+                    'away_pitcher': live_status.get('away_pitcher') or game_data.get('away_pitcher'),
+                    'home_pitcher': live_status.get('home_pitcher') or game_data.get('home_pitcher'),
+                    'game_pk': live_status.get('game_pk'),
+                    # Live pitcher metrics if present in cache
+                    'pitching_metrics': {
+                        'away': {
+                            'live_pitches': _get_live_stat(away_pitcher_name, 'pitches'),
+                            'inning': _get_live_stat(away_pitcher_name, 'innings_pitched'),
+                            'strikeouts': _get_live_stat(away_pitcher_name, 'strikeouts'),
+                            'outs': _get_live_stat(away_pitcher_name, 'outs'),
+                            'walks': _get_live_stat(away_pitcher_name, 'walks'),
+                            'hits_allowed': _get_live_stat(away_pitcher_name, 'hits'),
+                            'earned_runs': _get_live_stat(away_pitcher_name, 'earned_runs'),
+                            'batters_faced': _get_live_stat(away_pitcher_name, 'batters_faced')
+                        },
+                        'home': {
+                            'live_pitches': _get_live_stat(home_pitcher_name, 'pitches'),
+                            'inning': _get_live_stat(home_pitcher_name, 'innings_pitched'),
+                            'strikeouts': _get_live_stat(home_pitcher_name, 'strikeouts'),
+                            'outs': _get_live_stat(home_pitcher_name, 'outs'),
+                            'walks': _get_live_stat(home_pitcher_name, 'walks'),
+                            'hits_allowed': _get_live_stat(home_pitcher_name, 'hits'),
+                            'earned_runs': _get_live_stat(home_pitcher_name, 'earned_runs'),
+                            'batters_faced': _get_live_stat(home_pitcher_name, 'batters_faced')
+                        }
+                    },
+                    
+                    # Team colors for dynamic styling
+                    'away_team_colors': {
+                        'primary': away_team_assets.get('primary_color', '#333333'),
+                        'secondary': away_team_assets.get('secondary_color', '#666666'),
+                        'text': away_team_assets.get('text_color', '#FFFFFF')
+                    },
+                    'home_team_colors': {
+                        'primary': home_team_assets.get('primary_color', '#333333'),
+                        'secondary': home_team_assets.get('secondary_color', '#666666'),
+                        'text': home_team_assets.get('text_color', '#FFFFFF')
+                    }
                 }
-            }
-            live_games.append(live_game)
+                live_games.append(live_game)
+            except Exception as ge:
+                try:
+                    logger.warning(f"⚠️ Skipping game in live-status due to error: key={game_key} err={ge}")
+                except Exception:
+                    pass
         
         logger.info(f"📊 Live status updated for {len(live_games)} games on {date_param}")
         
