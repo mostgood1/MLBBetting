@@ -36,7 +36,7 @@ python -c "import numpy; print(f'Numpy installed')"
 
 # Ensure directories exist (do not overwrite data files; Render should use same data volume/artifacts as local)
 echo "📁 Ensuring data directories exist (no clobber)..."
-mkdir -p data logs monitoring_data static templates
+mkdir -p data data/daily_bovada logs monitoring_data static templates
 for f in unified_predictions_cache.json betting_accuracy_analysis.json daily_dashboard_stats.json historical_betting_lines_cache.json system_status.json; do
 	if [ ! -f "data/$f" ]; then
 		echo '{}' > "data/$f"
