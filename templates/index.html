@@ -1,41 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+        // TBD Monitoring Functions (compact badge)
+        async function updateTBDStatus() {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MLB-Betting Prediction System</title>
     <style>
         * {
             margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            background: #0b1324;
-            background-image: radial-gradient(1000px 600px at 10% -10%, rgba(63,94,251,0.10), transparent),
-                              radial-gradient(800px 500px at 90% 0%, rgba(252,70,107,0.08), transparent),
-                              linear-gradient(180deg, #0b1324 0%, #0a0f1f 100%);
-            color: #ffffff;
-        }
-
-        .container {
-            max-width: 1200px;
+                    const badge = document.getElementById('tbd-badge');
+                    if (badge) {
+                        const count = parseInt(status.tbd_games_count || 0, 10);
+                        badge.textContent = isNaN(count) ? '0' : String(count);
+                        // color cue
+                        badge.style.background = count > 0 ? 'rgba(239,68,68,0.85)' : 'rgba(31,41,55,0.6)';
+                    }
             margin: 0 auto;
             padding: 20px;
         }
-
-        .header {
+                const badge = document.getElementById('tbd-badge');
+                if (badge) { badge.textContent = '!'; badge.style.background = 'rgba(239,68,68,0.85)'; }
             text-align: center;
             margin-bottom: 30px;
         }
 
-        .header h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
+            const btn = document.getElementById('tbd-monitor-btn');
+            const originalText = btn ? btn.textContent : '';
+            if (btn){ btn.textContent = 'Checking...'; btn.disabled = true; }
 
         .header p {
             font-size: 1.2rem;
@@ -52,19 +42,18 @@
         .stat-card {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
-            padding: 20px;
+                        showNotification('Pitcher updates found! Recommendations refreshed.', 4000);
             text-align: center;
-            backdrop-filter: blur(10px);
+                        showNotification('No pitcher updates found.', 3000);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-
+                    showNotification('Error checking TBD status.', 4000);
         .clickable-stat {
             text-decoration: none;
             color: inherit;
-            display: block;
+                showNotification('Error checking TBD status.', 4000);
             transition: all 0.3s ease;
-            cursor: pointer;
-        }
+                if (btn){ btn.textContent = originalText; btn.disabled = false; }
 
         .clickable-stat:hover {
             transform: translateY(-5px);
@@ -785,39 +774,14 @@
                         onmouseout="this.style.background='rgba(34, 197, 94, 0.2)'; this.style.transform='translateY(0)'">
                     ⚡ Load Real MLB Data
                 </button>
+                <!-- Compact TBD Monitor button -->
+                <button id="tbd-monitor-btn" onclick="checkTBD()" title="Check TBD pitchers" style="padding: 8px 12px; background: rgba(156,163,175,0.15); color: #e5e7eb; border: 1px solid rgba(156,163,175,0.35); border-radius: 8px; font-size: 0.86rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px;">
+                    🕵️ TBD Monitor <span id="tbd-badge" style="display:inline-block; min-width:18px; padding:0 6px; height:18px; line-height:18px; border-radius: 9px; background: rgba(31,41,55,0.6); color:#fff; font-size: 0.72rem; text-align:center;">0</span>
+                </button>
             </div>
         </div>
 
-        <div id="summary-stats" class="stats-grid">
-            <a href="/historical-analysis" class="stat-card clickable-stat">
-                <h3>{{ comprehensive_stats.total_games_analyzed or 0 }}</h3>
-                <p>Total Games Tracked</p>
-                <small>Since {{ comprehensive_stats.date_range.start or 'Aug 15' }} ({{ comprehensive_stats.date_range.days_of_data or 0 }} days)</small>
-            </a>
-            <a href="/historical-analysis" class="stat-card clickable-stat">
-                <h3>{{ comprehensive_stats.betting_performance.winner_accuracy_pct or 0 }}%</h3>
-                <p>Winner Prediction Accuracy</p>
-                <small>{{ comprehensive_stats.betting_performance.winner_predictions_correct or 0 }}/{{ comprehensive_stats.betting_performance.games_analyzed or 0 }} correct predictions</small>
-            </a>
-            <a href="/historical-analysis" class="stat-card clickable-stat">
-                <h3>${{ comprehensive_stats.betting_performance.total_profit or 0 }}</h3>
-                <p>Total Profit (Since 8/15)</p>
-                <small>{{ comprehensive_stats.betting_performance.roi_percentage or 0 }}% ROI on {{ comprehensive_stats.betting_performance.total_bets_placed or 0 }} bets</small>
-            </a>
-            <a href="/historical-analysis" class="stat-card clickable-stat">
-                <h3>{{ comprehensive_stats.betting_performance.total_accuracy_pct or 0 }}%</h3>
-                <p>Betting Recommendations</p>
-                <small>{{ comprehensive_stats.betting_performance.total_predictions_correct or 0 }} winning bets of {{ comprehensive_stats.betting_performance.total_bets_placed or 0 }} placed</small>
-            </a>
-            <div class="stat-card" id="tbd-monitor-card">
-                <h3 id="tbd-status-indicator">🔍</h3>
-                <p>TBD Monitor</p>
-                <small id="tbd-status-text">Loading...</small>
-                <div style="margin-top: 8px;">
-                    <button class="btn-small" onclick="checkTBD()" id="tbd-check-btn">Check Now</button>
-                </div>
-            </div>
-        </div>
+        <!-- Summary stat cards removed per request -->
 
         <div class="games-section">
             <div class="games-header">
@@ -1140,72 +1104,50 @@
             }
         }
 
-        // TBD Monitoring Functions
+        // TBD Monitoring Functions (compact badge)
         async function updateTBDStatus() {
             try {
                 const response = await fetch('/api/tbd-status');
                 const data = await response.json();
-                
-                if (data.success) {
-                    const status = data.status;
-                    const indicator = document.getElementById('tbd-status-indicator');
-                    const statusText = document.getElementById('tbd-status-text');
-                    
-                    if (status.tbd_games_count > 0) {
-                        indicator.textContent = '⚠️';
-                        statusText.textContent = `${status.tbd_games_count} games with TBD pitchers`;
-                    } else {
-                        indicator.textContent = '✅';
-                        statusText.textContent = 'All pitchers confirmed';
+                if (data && data.success) {
+                    const status = data.status || {};
+                    const badge = document.getElementById('tbd-badge');
+                    if (badge) {
+                        const count = Number(status.tbd_games_count || 0);
+                        badge.textContent = isNaN(count) ? '0' : String(count);
+                        badge.style.background = count > 0 ? 'rgba(239,68,68,0.85)' : 'rgba(31,41,55,0.6)';
                     }
-                    
-                    // Update last check time
-                    const lastCheck = new Date(status.last_check);
-                    const timeStr = lastCheck.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    statusText.innerHTML += `<br>Last checked: ${timeStr}`;
                 }
             } catch (error) {
                 console.error('Error updating TBD status:', error);
-                document.getElementById('tbd-status-indicator').textContent = '❌';
-                document.getElementById('tbd-status-text').textContent = 'Monitor error';
+                const badge = document.getElementById('tbd-badge');
+                if (badge) { badge.textContent = '!'; badge.style.background = 'rgba(239,68,68,0.85)'; }
             }
         }
 
         async function checkTBD() {
-            const btn = document.getElementById('tbd-check-btn');
-            const originalText = btn.textContent;
-            
-            btn.textContent = 'Checking...';
-            btn.disabled = true;
-            
+            const btn = document.getElementById('tbd-monitor-btn');
+            const originalText = btn ? btn.textContent : '';
+            if (btn) { btn.textContent = 'Checking...'; btn.disabled = true; }
             try {
-                const response = await fetch('/api/tbd-check', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
+                const response = await fetch('/api/tbd-check', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
                 const data = await response.json();
-                
-                if (data.success) {
+                if (data && data.success) {
                     if (data.updated) {
-                        // Refresh the page to show updated recommendations
                         loadToday();
                         updateTBDStatus();
-                        alert('Pitcher updates found! Recommendations refreshed.');
+                        showNotification('Pitcher updates found! Recommendations refreshed.', 'success', 4000);
                     } else {
-                        alert('No pitcher updates found.');
+                        showNotification('No pitcher updates found.', 'info', 3000);
                     }
                 } else {
-                    alert('Error checking for updates: ' + data.error);
+                    showNotification('Error checking for updates.', 'error', 4000);
                 }
             } catch (error) {
                 console.error('Error checking TBD:', error);
-                alert('Error checking for pitcher updates.');
+                showNotification('Network error checking for pitcher updates.', 'error', 4000);
             } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
+                if (btn) { btn.textContent = originalText; btn.disabled = false; }
             }
         }
 
