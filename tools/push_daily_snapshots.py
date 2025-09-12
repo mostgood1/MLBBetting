@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+"""Push today's (or a given date) props and recommendations snapshots to the web app via the existing ingest bridge.
+
+Usage:
+  # env must be set
+  #   WEB_BASE_URL=https://<your-app>
+  #   PITCHER_SSE_INGEST_TOKEN=<token>
+  python tools/push_daily_snapshots.py --date 2025-09-12 --verbose
+
+If --date is omitted, uses today in UTC.
+
+This uses tools.pitcher_sse_worker_bridge.send_events to post a batch with:
+  - { type: 'props_snapshot', date, doc }
+  - { type: 'recommendations_snapshot', date, doc }
+
+It skips any missing files.
+"""
+import os
+import json
+import argparse
+from datetime import datetime
+
+try:
+    from tools.pitcher_sse_worker_bridge import send_events as bridge_send  # type: ignore
+except Exception:
+    def bridge_send(_events):
+        print("[push_daily_snapshots] Bridge unavailable. Set WEB_BASE_URL and PITCHER_SSE_INGEST_TOKEN.")
+        return False
+
+DATA_DIR = os.path.join('data', 'daily_bovada')
+
+
+def load_json(path: str):
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return None
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--date', help='Date (YYYY-MM-DD). Defaults to today (UTC).')
+    ap.add_argument('--verbose', action='store_true')
+    args = ap.parse_args()
+
+    date_str = args.date or datetime.utcnow().strftime('%Y-%m-%d')
+    tag = date_str.replace('-', '_')
+
+    props_path = os.path.join(DATA_DIR, f'bovada_pitcher_props_{tag}.json')
+    recs_path = os.path.join(DATA_DIR, f'pitcher_prop_recommendations_{tag}.json')
+
+    props_doc = load_json(props_path)
+    recs_doc = load_json(recs_path)
+
+    if args.verbose:
+        print(f"[push_daily_snapshots] date={date_str}")
+        print(f"  props: {props_path} exists={bool(props_doc)} size={os.path.getsize(props_path) if os.path.exists(props_path) else 0}")
+        print(f"  recs:  {recs_path} exists={bool(recs_doc)} size={os.path.getsize(recs_path) if os.path.exists(recs_path) else 0}")
+
+    events = []
+    if props_doc and isinstance(props_doc, dict):
+        events.append({'type': 'props_snapshot', 'date': date_str, 'doc': props_doc})
+    if recs_doc and isinstance(recs_doc, dict):
+        events.append({'type': 'recommendations_snapshot', 'date': date_str, 'doc': recs_doc})
+
+    if not events:
+        print('[push_daily_snapshots] Nothing to send (missing docs).')
+        return 2
+
+    ok = bridge_send(events)
+    if ok:
+        print('[push_daily_snapshots] Sent snapshots successfully.')
+        return 0
+    else:
+        print('[push_daily_snapshots] Failed to send snapshots. Ensure WEB_BASE_URL and PITCHER_SSE_INGEST_TOKEN are set and valid.')
+        return 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
