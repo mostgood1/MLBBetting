@@ -259,6 +259,12 @@ except ImportError as e:
     def get_live_game_status(away_team, home_team): return "Pre-Game"
 
 app = Flask(__name__)
+
+# Quick liveness ping (fast, no disk work)
+@app.route('/api/ping')
+def api_ping():
+    return jsonify({'ok': True, 'ts': int(time.time())}), 200
+
 # Avoid caching delays on critical JSON APIs (Render/CDN/browser)
 @app.after_request
 def _add_no_cache_headers(response):
