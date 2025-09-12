@@ -779,6 +779,9 @@
     </div>
 
     <script>
+    // Cache of last-known live stats keyed by game compositeId and side (away/home)
+    window.__LAST_LIVE_STATS = window.__LAST_LIVE_STATS || {};
+
         // Shared name normalizer: lowercases, strips diacritics, removes non-alphanumerics
         function normName(s) {
             return String(s || '')
@@ -1373,11 +1376,15 @@
                         // Remove existing trackers
                         card.querySelectorAll('.away-pitcher .prop-trackers').forEach(el=> el.remove());
                         if(metricsDiv){ metricsDiv.insertAdjacentHTML('afterend', buildUnifiedPropTrackersHTML(awayName,'away', compositeId)); }
+                        // Re-apply cached live values immediately after rebuild to avoid blanking
+                        applyCachedLiveToTrackers(card, compositeId, 'away');
                     }
                     if(homeName){
                         const metricsDivH = card.querySelector('.home-pitcher .pitch-metrics');
                         card.querySelectorAll('.home-pitcher .prop-trackers').forEach(el=> el.remove());
                         if(metricsDivH){ metricsDivH.insertAdjacentHTML('afterend', buildUnifiedPropTrackersHTML(homeName,'home', compositeId)); }
+                        // Re-apply cached live values immediately after rebuild to avoid blanking
+                        applyCachedLiveToTrackers(card, compositeId, 'home');
                     }
                 });
             } catch(e){ console.warn('rebuildAllGameCardPitcherProps failed', e); }
@@ -1511,6 +1518,14 @@
                         const el = card.querySelector(`.${side}-pitcher .pitch-metrics`);
                         if (!el) continue;
                         const metrics = (pm[side] || {});
+                        // Persist last-known live pitches/inning in cache
+                        try {
+                            const compId = compositeId;
+                            const g = window.__LAST_LIVE_STATS[compId] = window.__LAST_LIVE_STATS[compId] || {};
+                            const sc = g[side] = g[side] || {};
+                            if (metrics.live_pitches != null) sc.live_pitches = metrics.live_pitches;
+                            if (metrics.inning != null) sc.inning = metrics.inning;
+                        } catch(_){ }
                         if (metrics.live_pitches != null) {
                             // Find or create the live span
                             let liveSpan = el.querySelector('.live');
@@ -1534,7 +1549,11 @@
                     const pm = liveGame.pitching_metrics || {};
                     const sides = ['away', 'home'];
                     for (const side of sides) {
-                        const sidePm = pm[side] || {};
+            const sidePm = pm[side] || {};
+            // Prepare cache handles per side
+            const compId = compositeId;
+            const g = window.__LAST_LIVE_STATS[compId] = window.__LAST_LIVE_STATS[compId] || {};
+            const sc = g[side] = g[side] || {};
                         const markets = [
                             { key: 'strikeouts' },
                             { key: 'outs' },
@@ -1550,6 +1569,8 @@
                             const sideStr = (el.getAttribute('data-prop-side') || 'over').toLowerCase();
                             const liveVal = sidePm[m.key];
                             if (liveVal != null) {
+                // Persist last-known market value
+                sc[m.key] = liveVal;
                                 // Update live number and bar
                                 const liveSpan = el.querySelector('.live');
                                 if (liveSpan) {
@@ -1622,6 +1643,42 @@
             } else {
                 console.log(`❌ Game card not found for ${liveGame.away_team} @ ${liveGame.home_team}`);
             }
+        }
+
+        // Apply cached live market values to trackers within a card to avoid blanking during rebuilds
+        function applyCachedLiveToTrackers(card, compositeId, side){
+            try {
+                const cacheSide = (window.__LAST_LIVE_STATS || {})[compositeId]?.[side] || null;
+                if(!cacheSide) return;
+                const markets = ['strikeouts','outs','walks','hits_allowed','earned_runs'];
+                markets.forEach(mk => {
+                    const el = card.querySelector(`#prop-${mk}-${side}-${compositeId}`);
+                    if(!el) return;
+                    const lineAttr = el.getAttribute('data-prop-line');
+                    const line = lineAttr!=null && lineAttr!=='' ? Number(lineAttr) : null;
+                    const liveVal = cacheSide[mk];
+                    if(liveVal != null){
+                        const liveSpan = el.querySelector('.live');
+                        if(liveSpan){
+                            if(line != null && !Number.isNaN(line)){
+                                const delta = (Number(liveVal) - Number(line));
+                                const sign = delta > 0 ? '+' : (delta < 0 ? '−' : '');
+                                liveSpan.textContent = `Live: ${Number(liveVal).toFixed(1)} (${sign}${Math.abs(delta).toFixed(1)} vs ${Number(line).toFixed(1)})`;
+                            } else {
+                                liveSpan.textContent = `Live: ${Number(liveVal).toFixed(1)}`;
+                            }
+                        }
+                    }
+                });
+                // Also apply cached live pitches/inning to the pitch-metrics header
+                const metricsEl = card.querySelector(`.${side}-pitcher .pitch-metrics`);
+                if(metricsEl && (cacheSide.live_pitches != null)){
+                    let liveSpan = metricsEl.querySelector('.live');
+                    const liveText = ` • Live: ${cacheSide.live_pitches}${cacheSide.inning ? ` (IP ${cacheSide.inning})` : ''}`;
+                    if(liveSpan){ liveSpan.textContent = liveText; }
+                    else { const s=document.createElement('span'); s.className='live'; s.textContent=liveText; metricsEl.appendChild(s); }
+                }
+            } catch(e){ /* no-op */ }
         }
 
     async function loadSummary() {
@@ -2889,6 +2946,8 @@
                                                 ` <span class=\"live\" data-live=\"${mkt}\">Live: —</span>`;
                                 container.appendChild(div);
                             });
+                            // Re-apply cached live values for this side to avoid blanking
+                            applyCachedLiveToTrackers(card, compositeId, side);
                         });
                     });
                 } catch(e){ console.warn('forceRepaintPitcherOnCards failed', e); }
@@ -2953,9 +3012,13 @@
                          // Ensure trackers exist for this pitcher if any lines
                          if(Object.keys(store).length>0){ forceRepaintPitcherOnCards(pk); }
                      });
-            // After we have unified data, rebuild game card prop sections with richer metrics
-            console.debug('[UNIFIED] rebuilding game card prop sections');
-            rebuildAllGameCardPitcherProps();
+            // After initial unified data load, rebuild once to enrich; avoid repeated rebuilds to prevent UI blanking
+            window.__UNIFIED_INITIAL_REBUILD_DONE = window.__UNIFIED_INITIAL_REBUILD_DONE || false;
+            if(!window.__UNIFIED_INITIAL_REBUILD_DONE){
+                console.debug('[UNIFIED] initial rebuild of game card prop sections');
+                rebuildAllGameCardPitcherProps();
+                window.__UNIFIED_INITIAL_REBUILD_DONE = true;
+            }
                  } catch(e){ console.warn('primeFromUnified failed', e); }
              }
           async function snapshotPatch(){
