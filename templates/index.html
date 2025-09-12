@@ -1904,23 +1904,19 @@
             
             console.log('Loading todays games for date:', date);
             container.innerHTML = '<div class="loading">Loading today\'s games...</div>';
+            // Coordinated UI timeouts so we don't prematurely swap the spinner on slow networks
+            let fetchTimeoutMs = 25000; // mobile-friendly first load
             const slowTimer = setTimeout(() => {
                 const loading = container.querySelector('.loading');
                 if (loading) loading.innerHTML = 'Loading today\'s games... (taking longer than usual)';
-            }, 5000);
-            // Watchdog: if still loading after 12s, show retry panel
+            }, 4000);
             const watchdog = setTimeout(() => {
-                const stillLoading = container.querySelector('.loading');
-                if (stillLoading) {
-                    console.warn('Watchdog: replacing stuck loading spinner');
-                    container.style.display = '';
-                    container.innerHTML = `
-                        <div class="error">
-                            Request is taking too long. Please retry.<br/>
-                            <button class="btn" style="margin-top:10px" onclick="loadTodaysGames()">Retry</button>
-                        </div>`;
+                const loading = container.querySelector('.loading');
+                if (loading) {
+                    console.warn('Watchdog: load still in progress (slow network/server)');
+                    loading.innerHTML = 'Loading today\'s games... (still working; slow network)';
                 }
-            }, 12000);
+            }, Math.max(8000, fetchTimeoutMs - 2000));
             
             try {
                 try { window.__PERF.mark('todayGames_fetch_start'); } catch(_){}
@@ -1928,18 +1924,33 @@
                 let data;
                 let attempt = 0;
                 let lastErr = null;
-        while (attempt < 3) {
+                while (attempt < 3) {
                     try {
                         const endpoint = attempt === 2 ? '/api/today-games' : url; // final attempt without date
-            // Extend timeout to 20s to accommodate first-load computations on the server
-            const response = await fetchWithTimeout(endpoint, {}, 20000);
+                        // Extend timeout for first loads and slow connections
+                        try {
+                            const et = navigator.connection?.effectiveType || '';
+                            if (et && (et.includes('2g') || et === 'slow-2g')) {
+                                fetchTimeoutMs = Math.max(fetchTimeoutMs, 35000);
+                            }
+                        } catch(_){ }
+                        const response = await fetchWithTimeout(endpoint, {}, fetchTimeoutMs);
                         if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        try {
+                            const st = response.headers.get('Server-Timing');
+                            if (st) console.info('[PERF] Server-Timing (today-games):', st);
+                            const xr = response.headers.get('X-Response-Time');
+                            if (xr) console.info('[PERF] X-Response-Time (today-games):', xr);
+                        } catch(_){ }
                         data = await response.json();
                         break;
                     } catch (e) {
                         lastErr = e;
                         attempt += 1;
                         console.warn('today-games fetch attempt failed', attempt, e);
+                        if ((e && (e.name === 'AbortError' || String(e).includes('aborted'))) && attempt < 3) {
+                            fetchTimeoutMs = Math.min(fetchTimeoutMs + 10000, 45000);
+                        }
                     }
                 }
                 try { window.__PERF.mark('todayGames_fetch_end'); } catch(_){}
