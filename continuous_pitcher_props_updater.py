@@ -414,9 +414,11 @@ def main():
         # Relay full props snapshot to web so the site can serve latest lines (even without git)
         try:
             if props_payload:
-                _ = bridge_send([{'type': 'props_snapshot', 'date': date_str, 'doc': props_payload}])
-        except Exception:
-            pass
+                ok = bridge_send([{'type': 'props_snapshot', 'date': date_str, 'doc': props_payload}])
+                if not ok:
+                    print("[PitcherPropsUpdater] Bridge relay failed for props_snapshot (check WEB_BASE_URL and PITCHER_SSE_INGEST_TOKEN)")
+        except Exception as _e:
+            print(f"[PitcherPropsUpdater] Bridge error (props_snapshot): {_e}")
 
         # Line movement detection (compare each market line & odds)
         line_events = []
@@ -493,9 +495,11 @@ def main():
                 pass
             # Optional relay to web app for persistence if running cross-process
             try:
-                _ = bridge_send([{'type':'line_initial', **ev} for ev in initial_events])
-            except Exception:
-                pass
+                ok = bridge_send([{'type':'line_initial', **ev} for ev in initial_events])
+                if not ok:
+                    print("[PitcherPropsUpdater] Bridge relay failed for line_initial events")
+            except Exception as _e:
+                print(f"[PitcherPropsUpdater] Bridge error (line_initial): {_e}")
         if line_events:
             append_line_history_events(date_str, line_events)
             # Attempt live broadcast for recent events (non-fatal if unavailable)
@@ -508,9 +512,11 @@ def main():
                 pass
             # Optional relay to web app for persistence
             try:
-                _ = bridge_send([{'type':'line_move', **ev} for ev in line_events[-sse_burst_limit:]])
-            except Exception:
-                pass
+                ok = bridge_send([{'type':'line_move', **ev} for ev in line_events[-sse_burst_limit:]])
+                if not ok:
+                    print("[PitcherPropsUpdater] Bridge relay failed for line_move events")
+            except Exception as _e:
+                print(f"[PitcherPropsUpdater] Bridge error (line_move): {_e}")
             # Incremental distribution updates for affected pitchers (Phase 2)
             try:
                 from pitcher_distributions import update_distributions_for_pitchers  # type: ignore
@@ -523,9 +529,11 @@ def main():
                             payload = {'type':'distribution_update','pitcher': pk, 'deltas': deltas, 'date': date_str, 'ts': datetime.utcnow().isoformat()}
                             broadcast_pitcher_update(payload)
                         try:
-                            _ = bridge_send([{'type':'distribution_update','pitcher': pk, 'deltas': deltas, 'date': date_str, 'ts': datetime.utcnow().isoformat()} for pk, deltas in dist_changes.items()])
-                        except Exception:
-                            pass
+                            ok = bridge_send([{'type':'distribution_update','pitcher': pk, 'deltas': deltas, 'date': date_str, 'ts': datetime.utcnow().isoformat()} for pk, deltas in dist_changes.items()])
+                            if not ok:
+                                print("[PitcherPropsUpdater] Bridge relay failed for distribution_update events")
+                        except Exception as _e:
+                            print(f"[PitcherPropsUpdater] Bridge error (distribution_update): {_e}")
                     except Exception:
                         pass
             except Exception as _e:
@@ -570,7 +578,9 @@ def main():
                     if os.path.exists(rec_path):
                         with open(rec_path,'r',encoding='utf-8') as rf:
                             rec_doc = json.load(rf)
-                        _ = bridge_send([{'type': 'recommendations_snapshot', 'date': date_str, 'doc': rec_doc}])
+                        ok = bridge_send([{'type': 'recommendations_snapshot', 'date': date_str, 'doc': rec_doc}])
+                        if not ok:
+                            print("[PitcherPropsUpdater] Bridge relay failed for recommendations_snapshot")
                 except Exception:
                     pass
                 # Always rebuild full distributions & game synergy after successful generation
@@ -649,9 +659,11 @@ def main():
             if after > before:
                 new_items = [r for r in realized_doc.get('pitcher_market_outcomes', []) if r.get('date') == date_str][-max(0, after-before):]
                 try:
-                    _ = bridge_send([{'type':'final_outcomes_batch','date': date_str, 'outcomes': new_items}])
-                except Exception:
-                    pass
+                    ok = bridge_send([{'type':'final_outcomes_batch','date': date_str, 'outcomes': new_items}])
+                    if not ok:
+                        print("[PitcherPropsUpdater] Bridge relay failed for final_outcomes_batch")
+                except Exception as _e:
+                    print(f"[PitcherPropsUpdater] Bridge error (final_outcomes_batch): {_e}")
         if calibration_interval > 0 and iteration % calibration_interval == 0:
             calibration_pass()
         if snapshot_interval > 0 and iteration % snapshot_interval == 0:

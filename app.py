@@ -1026,10 +1026,12 @@ def extract_real_total_line(real_lines, game_key="Unknown"):
 _betting_lines_cache = None
 _betting_lines_cache_time = None
 BETTING_LINES_CACHE_DURATION = 300  # 5 minutes
+_betting_lines_norm_index = None  # maps (norm_away, norm_home) -> lines doc
+_betting_lines_norm_index_time = None
 
 def load_real_betting_lines():
     """Load real betting lines from historical cache with caching"""
-    global _betting_lines_cache, _betting_lines_cache_time
+    global _betting_lines_cache, _betting_lines_cache_time, _betting_lines_norm_index, _betting_lines_norm_index_time
     
     # Check if we have a valid cache
     current_time = time.time()
@@ -1054,9 +1056,15 @@ def load_real_betting_lines():
             with open(lines_path, 'r') as f:
                 data = json.load(f)
                 logger.info(f"Loaded real betting lines from {lines_path}")
-                # Cache the result
+                # Cache the result and build normalized index for robust lookups
                 _betting_lines_cache = data
                 _betting_lines_cache_time = current_time
+                try:
+                    _betting_lines_norm_index = _build_betting_lines_norm_index(data)
+                    _betting_lines_norm_index_time = current_time
+                except Exception:
+                    _betting_lines_norm_index = None
+                    _betting_lines_norm_index_time = None
                 return data
         except (FileNotFoundError, json.JSONDecodeError) as e:
             logger.warning(f"Could not load from {lines_path}: {e}")
@@ -1082,9 +1090,15 @@ def load_real_betting_lines():
                     "date": today,
                     "last_updated": datetime.now().isoformat()
                 }
-                # Cache the result
+                # Cache the result and build normalized index
                 _betting_lines_cache = result
                 _betting_lines_cache_time = current_time
+                try:
+                    _betting_lines_norm_index = _build_betting_lines_norm_index(result)
+                    _betting_lines_norm_index_time = current_time
+                except Exception:
+                    _betting_lines_norm_index = None
+                    _betting_lines_norm_index_time = None
                 return result
         except (FileNotFoundError, json.JSONDecodeError) as e:
             logger.warning(f"Could not load from {historical_path}: {e}")
@@ -1106,7 +1120,65 @@ def load_real_betting_lines():
     # Cache the fallback result
     _betting_lines_cache = fallback_result
     _betting_lines_cache_time = current_time
+    _betting_lines_norm_index = None
+    _betting_lines_norm_index_time = current_time
     return fallback_result
+
+def _build_betting_lines_norm_index(real_betting_lines_doc: dict):
+    """Build a normalized index for betting lines keyed by (norm_away, norm_home).
+    This avoids mismatches from punctuation and naming variants (e.g., 'St. Louis' vs 'St Louis').
+    """
+    try:
+        lines = real_betting_lines_doc.get('lines', {}) if isinstance(real_betting_lines_doc, dict) else {}
+    except Exception:
+        lines = {}
+    index = {}
+    if isinstance(lines, dict):
+        for k, v in lines.items():
+            if not isinstance(k, str) or ' @ ' not in k:
+                continue
+            try:
+                away_raw, home_raw = k.split(' @ ', 1)
+                norm_a = normalize_team_name(away_raw)
+                norm_h = normalize_team_name(home_raw)
+                index[(norm_a, norm_h)] = v
+            except Exception:
+                continue
+    return index
+
+def get_lines_for_matchup(away_team: str, home_team: str, real_betting_lines_doc: dict):
+    """Return the lines doc for a matchup using robust matching.
+    Tries direct key, then normalized index keyed by canonical team names.
+    """
+    # Direct key first
+    lines = real_betting_lines_doc.get('lines', {}) if isinstance(real_betting_lines_doc, dict) else {}
+    if isinstance(lines, dict):
+        direct_key = f"{away_team} @ {home_team}"
+        if direct_key in lines:
+            return lines[direct_key]
+    # Fallback to normalized index
+    global _betting_lines_norm_index, _betting_lines_norm_index_time
+    try:
+        now_ts = time.time()
+        if _betting_lines_norm_index is None or (_betting_lines_norm_index_time is None or now_ts - _betting_lines_norm_index_time > BETTING_LINES_CACHE_DURATION):
+            _betting_lines_norm_index = _build_betting_lines_norm_index(real_betting_lines_doc)
+            _betting_lines_norm_index_time = now_ts
+        norm_key = (normalize_team_name(away_team), normalize_team_name(home_team))
+        match = _betting_lines_norm_index.get(norm_key)
+        if match:
+            return match
+    except Exception:
+        pass
+    # Last-resort: try mild punctuation variants for the direct key (e.g., remove dots)
+    try:
+        alt_away = away_team.replace('.', '')
+        alt_home = home_team.replace('.', '')
+        alt_key = f"{alt_away} @ {alt_home}"
+        if isinstance(lines, dict) and alt_key in lines:
+            return lines[alt_key]
+    except Exception:
+        pass
+    return None
 
 # Removed create_sample_betting_lines() function - NO FAKE DATA ALLOWED
 
@@ -5804,7 +5876,7 @@ def api_today_games():
             
             # Fallback to structured lines format
             if not real_over_under_total and real_betting_lines and 'lines' in real_betting_lines:
-                real_lines = real_betting_lines['lines'].get(betting_game_key, None)
+                real_lines = get_lines_for_matchup(away_team, home_team, real_betting_lines)
                 if real_lines:
                     logger.info(f"✅ MAIN API BETTING LINES: Found lines for {betting_game_key}")
                     real_over_under_total = extract_real_total_line(real_lines, betting_game_key)
@@ -6629,7 +6701,7 @@ def api_single_prediction(away_team, home_team):
         
         # Fallback to structured lines format (from data files)
         if not real_over_under_total and real_betting_lines and 'lines' in real_betting_lines:
-            real_lines = real_betting_lines['lines'].get(game_key, None)
+            real_lines = get_lines_for_matchup(away_team, home_team, real_betting_lines)
             if real_lines:
                 logger.info(f"🔍 MODAL BETTING LINES: Found lines for {game_key}: {real_lines}")
                 real_over_under_total = extract_real_total_line(real_lines, game_key)

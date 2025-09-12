@@ -1,0 +1,54 @@
+[
+  {
+    "date": "2025-09-12",
+    "game": "Arizona Diamondbacks vs Minnesota Twins",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.5",
+    "confidence": 0.07,
+    "kelly_percentage": 7.0,
+    "recommended_bet": 30,
+    "odds": -105,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-12",
+    "game": "Los Angeles Dodgers vs San Francisco Giants",
+    "bet_type": "Over/Under",
+    "bet_details": "Under 8.0",
+    "confidence": 0.065,
+    "kelly_percentage": 6.5,
+    "recommended_bet": 30,
+    "odds": -116,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-12",
+    "game": "New York Yankees vs Boston Red Sox",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 9.0",
+    "confidence": 0.046,
+    "kelly_percentage": 4.6,
+    "recommended_bet": 20,
+    "odds": -104,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-12",
+    "game": "Colorado Rockies vs San Diego Padres",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.5",
+    "confidence": 0.032,
+    "kelly_percentage": 3.2,
+    "recommended_bet": 10,
+    "odds": -107,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  }
+]

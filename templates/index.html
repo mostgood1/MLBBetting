@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>MLB-Betting Prediction System</title>
+    <meta name="theme-color" content="#0b1e2a">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; }
@@ -62,6 +66,13 @@
         }
 
     .games-grid { display: grid; gap: 15px; }
+    @media (max-width: 640px) {
+        .container { padding: 12px; }
+        .games-grid { grid-template-columns: 1fr; }
+        .card-body { grid-template-columns: 1fr; }
+        .game-teams { font-size: 1rem; }
+        .team-logo { width: 28px; height: 28px; }
+    }
 
         .game-card {
             background: rgba(255, 255, 255, 0.1);

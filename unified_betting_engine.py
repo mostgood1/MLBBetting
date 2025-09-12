@@ -29,17 +29,18 @@ class UnifiedBettingEngine:
     def __init__(self):
         self.current_date = datetime.now().strftime('%Y-%m-%d')
         self.root_dir = os.path.dirname(os.path.abspath(__file__))
-        
-        # File paths
+        # File paths (precompute date tag to avoid complex expressions in f-strings)
+        date_tag = self.current_date.replace('-', '_')
         self.predictions_cache_path = os.path.join(self.root_dir, 'data', 'unified_predictions_cache.json')
-        self.betting_lines_path = os.path.join(self.root_dir, 'data', f'real_betting_lines_{self.current_date.replace("-", "_")}.json')
-        self.output_path = os.path.join(self.root_dir, 'data', f'betting_recommendations_{self.current_date.replace("-", "_")}.json')
-        
+        self.betting_lines_path = os.path.join(self.root_dir, 'data', f'real_betting_lines_{date_tag}.json')
+        self.output_path = os.path.join(self.root_dir, 'data', f'betting_recommendations_{date_tag}.json')
+
         logger.info(f"🎯 Unified Betting Engine initialized for {self.current_date}")
         logger.info(f"📊 Using predictions: {self.predictions_cache_path}")
         logger.info(f"💰 Using betting lines: {self.betting_lines_path}")
+
         # Pitcher distribution snapshot (phase 3 synergy)
-        self.pitcher_distributions_path = os.path.join(self.root_dir, 'data', 'daily_bovada', f'pitcher_prop_distributions_{self.current_date.replace('-', '_')}.json')
+        self.pitcher_distributions_path = os.path.join(self.root_dir, 'data', 'daily_bovada', f'pitcher_prop_distributions_{date_tag}.json')
         self.pitcher_distributions = self._load_pitcher_distributions()
         if self.pitcher_distributions:
             logger.info(f"🧪 Loaded pitcher distributions: {len(self.pitcher_distributions.get('pitchers',{}))} pitchers")

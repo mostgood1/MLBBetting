@@ -1,0 +1,1012 @@
+{
+  "date": "2025-09-12",
+  "generated_at": "2025-09-12T08:31:11.524459",
+  "betting_lines": {
+    "date": "2025-09-12",
+    "fetched_at": "2025-09-12T08:30:54.450898",
+    "source": "OddsAPI_live",
+    "lines": {
+      "Tampa Bay Rays @ Chicago Cubs": {
+        "moneyline": {
+          "away": 138,
+          "home": -169
+        },
+        "total_runs": {
+          "line": 7.5,
+          "over": 100,
+          "under": -121
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -158,
+          "home": 129
+        }
+      },
+      "Pittsburgh Pirates @ Washington Nationals": {
+        "moneyline": {
+          "away": -108,
+          "home": -112
+        },
+        "total_runs": {
+          "line": 8.0,
+          "over": -107,
+          "under": -113
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 152,
+          "home": -187
+        }
+      },
+      "Kansas City Royals @ Philadelphia Phillies": {
+        "moneyline": {
+          "away": 113,
+          "home": -137
+        },
+        "total_runs": {
+          "line": 9.0,
+          "over": -115,
+          "under": -106
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -176,
+          "home": 144
+        }
+      },
+      "Baltimore Orioles @ Toronto Blue Jays": {
+        "moneyline": {
+          "away": 113,
+          "home": -137
+        },
+        "total_runs": {
+          "line": 7.5,
+          "over": -119,
+          "under": -102
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -185,
+          "home": 150
+        }
+      },
+      "New York Yankees @ Boston Red Sox": {
+        "moneyline": {
+          "away": -127,
+          "home": 104
+        },
+        "total_runs": {
+          "line": 9.0,
+          "over": -104,
+          "under": -117
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 128,
+          "home": -156
+        }
+      },
+      "Chicago White Sox @ Cleveland Guardians": {
+        "moneyline": {
+          "away": 140,
+          "home": -171
+        },
+        "total_runs": {
+          "line": 7.5,
+          "over": -116,
+          "under": -104
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -157,
+          "home": 129
+        }
+      },
+      "Detroit Tigers @ Miami Marlins": {
+        "moneyline": {
+          "away": -204,
+          "home": 165
+        },
+        "total_runs": {
+          "line": 7.0,
+          "over": -101,
+          "under": -120
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -115,
+          "home": -106
+        }
+      },
+      "Texas Rangers @ New York Mets": {
+        "moneyline": {
+          "away": -105,
+          "home": -115
+        },
+        "total_runs": {
+          "line": 7.5,
+          "over": -110,
+          "under": -110
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 156,
+          "home": -192
+        }
+      },
+      "Houston Astros @ Atlanta Braves": {
+        "moneyline": {
+          "away": -137,
+          "home": 112
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -105,
+          "under": -115
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 128,
+          "home": -157
+        }
+      },
+      "Arizona Diamondbacks @ Minnesota Twins": {
+        "moneyline": {
+          "away": 116,
+          "home": -141
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -105,
+          "under": -115
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -185,
+          "home": 150
+        }
+      },
+      "St. Louis Cardinals @ Milwaukee Brewers": {
+        "moneyline": {
+          "away": 152,
+          "home": -187
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -102,
+          "under": -119
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -137,
+          "home": 113
+        }
+      },
+      "Colorado Rockies @ San Diego Padres": {
+        "moneyline": {
+          "away": 218,
+          "home": -275
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -107,
+          "under": -113
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 108,
+          "home": -132
+        }
+      },
+      "Cincinnati Reds @ Oakland Athletics": {
+        "moneyline": {
+          "away": -101,
+          "home": -121
+        },
+        "total_runs": {
+          "line": 10.0,
+          "over": -116,
+          "under": -105
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 149,
+          "home": -182
+        }
+      },
+      "Los Angeles Angels @ Seattle Mariners": {
+        "moneyline": {
+          "away": 154,
+          "home": -189
+        },
+        "total_runs": {
+          "line": 7.5,
+          "over": -118,
+          "under": -103
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -137,
+          "home": 113
+        }
+      },
+      "Los Angeles Dodgers @ San Francisco Giants": {
+        "moneyline": {
+          "away": -164,
+          "home": 133
+        },
+        "total_runs": {
+          "line": 8.0,
+          "over": -105,
+          "under": -116
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 108,
+          "home": -131
+        }
+      }
+    }
+  },
+  "games": {
+    "Tampa Bay Rays_vs_Chicago Cubs": {
+      "away_team": "Tampa Bay Rays",
+      "home_team": "Chicago Cubs",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Shane Baz",
+      "home_pitcher": "Matthew Boyd",
+      "predictions": {
+        "home_win_prob": 0.546,
+        "away_win_prob": 0.454,
+        "predicted_home_score": 4.7,
+        "predicted_away_score": 4.3,
+        "predicted_total_runs": 8.8,
+        "home_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "total_runs_range": [
+          5.0,
+          13.0
+        ],
+        "confidence": 59.3
+      },
+      "betting_lines": {
+        "home_ml": -169,
+        "away_ml": 138,
+        "total_line": 7.5,
+        "over_odds": 100,
+        "under_odds": -121,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "none",
+          "recommendation": "No recommendations"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Shane Baz",
+        "home_pitcher_name": "Matthew Boyd",
+        "away_pitcher_factor": 1.129,
+        "home_pitcher_factor": 0.76
+      }
+    },
+    "Pittsburgh Pirates_vs_Washington Nationals": {
+      "away_team": "Pittsburgh Pirates",
+      "home_team": "Washington Nationals",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Mitch Keller",
+      "home_pitcher": "Brad Lord",
+      "predictions": {
+        "home_win_prob": 0.509,
+        "away_win_prob": 0.491,
+        "predicted_home_score": 4.7,
+        "predicted_away_score": 4.6,
+        "predicted_total_runs": 9.1,
+        "home_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "total_runs_range": [
+          5.0,
+          13.0
+        ],
+        "confidence": 58.5
+      },
+      "betting_lines": {
+        "home_ml": -112,
+        "away_ml": -108,
+        "total_line": 8.0,
+        "over_odds": -107,
+        "under_odds": -113,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "none",
+          "recommendation": "No recommendations"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Mitch Keller",
+        "home_pitcher_name": "Brad Lord",
+        "away_pitcher_factor": 1.129,
+        "home_pitcher_factor": 0.9087999999999999
+      }
+    },
+    "Kansas City Royals_vs_Philadelphia Phillies": {
+      "away_team": "Kansas City Royals",
+      "home_team": "Philadelphia Phillies",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Michael Lorenzen",
+      "home_pitcher": "Walker Buehler",
+      "predictions": {
+        "home_win_prob": 0.544,
+        "away_win_prob": 0.456,
+        "predicted_home_score": 4.8,
+        "predicted_away_score": 4.4,
+        "predicted_total_runs": 9.0,
+        "home_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "total_runs_range": [
+          5.0,
+          13.0
+        ],
+        "confidence": 58.3
+      },
+      "betting_lines": {
+        "home_ml": -137,
+        "away_ml": 113,
+        "total_line": 9.0,
+        "over_odds": -115,
+        "under_odds": -106,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "none",
+          "recommendation": "No recommendations"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Michael Lorenzen",
+        "home_pitcher_name": "Walker Buehler",
+        "away_pitcher_factor": 1.129,
+        "home_pitcher_factor": 1.2349999999999999
+      }
+    },
+    "Baltimore Orioles_vs_Toronto Blue Jays": {
+      "away_team": "Baltimore Orioles",
+      "home_team": "Toronto Blue Jays",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Trevor Rogers",
+      "home_pitcher": "Chris Bassitt",
+      "predictions": {
+        "home_win_prob": 0.557,
+        "away_win_prob": 0.443,
+        "predicted_home_score": 4.2,
+        "predicted_away_score": 3.8,
+        "predicted_total_runs": 8.2,
+        "home_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_score_range": [
+          1.0,
+          7.0
+        ],
+        "total_runs_range": [
+          5.0,
+          12.0
+        ],
+        "confidence": 60.1
+      },
+      "betting_lines": {
+        "home_ml": -137,
+        "away_ml": 113,
+        "total_line": 7.5,
+        "over_odds": -119,
+        "under_odds": -102,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "none",
+          "recommendation": "No recommendations"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Trevor Rogers",
+        "home_pitcher_name": "Chris Bassitt",
+        "away_pitcher_factor": 0.728,
+        "home_pitcher_factor": 0.9889999999999999
+      }
+    },
+    "Texas Rangers_vs_New York Mets": {
+      "away_team": "Texas Rangers",
+      "home_team": "New York Mets",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Jacob deGrom",
+      "home_pitcher": "Jonah Tong",
+      "predictions": {
+        "home_win_prob": 0.523,
+        "away_win_prob": 0.477,
+        "predicted_home_score": 4.4,
+        "predicted_away_score": 4.2,
+        "predicted_total_runs": 8.5,
+        "home_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "total_runs_range": [
+          5.0,
+          13.0
+        ],
+        "confidence": 59.9
+      },
+      "betting_lines": {
+        "home_ml": -115,
+        "away_ml": -105,
+        "total_line": 7.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "none",
+          "recommendation": "No recommendations"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Jacob deGrom",
+        "home_pitcher_name": "Jonah Tong",
+        "away_pitcher_factor": 0.835,
+        "home_pitcher_factor": 1.0
+      }
+    },
+    "Chicago White Sox_vs_Cleveland Guardians": {
+      "away_team": "Chicago White Sox",
+      "home_team": "Cleveland Guardians",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Mart\u00edn P\u00e9rez",
+      "home_pitcher": "Tanner Bibee",
+      "predictions": {
+        "home_win_prob": 0.543,
+        "away_win_prob": 0.457,
+        "predicted_home_score": 4.8,
+        "predicted_away_score": 4.5,
+        "predicted_total_runs": 9.1,
+        "home_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "total_runs_range": [
+          5.0,
+          13.0
+        ],
+        "confidence": 58.4
+      },
+      "betting_lines": {
+        "home_ml": -171,
+        "away_ml": 140,
+        "total_line": 7.5,
+        "over_odds": -116,
+        "under_odds": -104,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "none",
+          "recommendation": "No recommendations"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Mart\u00edn P\u00e9rez",
+        "home_pitcher_name": "Tanner Bibee",
+        "away_pitcher_factor": 0.8905,
+        "home_pitcher_factor": 1.0959999999999999
+      }
+    },
+    "Detroit Tigers_vs_Miami Marlins": {
+      "away_team": "Detroit Tigers",
+      "home_team": "Miami Marlins",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Tarik Skubal",
+      "home_pitcher": "Sandy Alcantara",
+      "predictions": {
+        "home_win_prob": 0.503,
+        "away_win_prob": 0.497,
+        "predicted_home_score": 3.8,
+        "predicted_away_score": 3.8,
+        "predicted_total_runs": 7.9,
+        "home_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_score_range": [
+          1.0,
+          6.0
+        ],
+        "total_runs_range": [
+          4.0,
+          11.0
+        ],
+        "confidence": 61.6
+      },
+      "betting_lines": {
+        "home_ml": 165,
+        "away_ml": -204,
+        "total_line": 7.0,
+        "over_odds": -101,
+        "under_odds": -120,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "none",
+          "recommendation": "No recommendations"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Tarik Skubal",
+        "home_pitcher_name": "Sandy Alcantara",
+        "away_pitcher_factor": 0.73,
+        "home_pitcher_factor": 1.199
+      }
+    },
+    "New York Yankees_vs_Boston Red Sox": {
+      "away_team": "New York Yankees",
+      "home_team": "Boston Red Sox",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Luis Gil",
+      "home_pitcher": "Lucas Giolito",
+      "predictions": {
+        "home_win_prob": 0.536,
+        "away_win_prob": 0.464,
+        "predicted_home_score": 5.3,
+        "predicted_away_score": 5.0,
+        "predicted_total_runs": 9.8,
+        "home_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "total_runs_range": [
+          6.0,
+          15.0
+        ],
+        "confidence": 57.2
+      },
+      "betting_lines": {
+        "home_ml": 104,
+        "away_ml": -127,
+        "total_line": 9.0,
+        "over_odds": -104,
+        "under_odds": -117,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "total",
+          "side": "over",
+          "line": 8.5,
+          "odds": -110,
+          "model_total": 9.8,
+          "edge": 1.3,
+          "expected_value": 0.08,
+          "kelly_bet_size": 4.6,
+          "confidence": "HIGH",
+          "reasoning": "Model: 9.8 vs Line: 8.5"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Luis Gil",
+        "home_pitcher_name": "Lucas Giolito",
+        "away_pitcher_factor": 1.0,
+        "home_pitcher_factor": 0.956
+      }
+    },
+    "Houston Astros_vs_Atlanta Braves": {
+      "away_team": "Houston Astros",
+      "home_team": "Atlanta Braves",
+      "game_date": "2025-09-12",
+      "away_pitcher": "TBD",
+      "home_pitcher": "Hurston Waldrep",
+      "predictions": {
+        "home_win_prob": 0.518,
+        "away_win_prob": 0.482,
+        "predicted_home_score": 4.0,
+        "predicted_away_score": 3.9,
+        "predicted_total_runs": 8.0,
+        "home_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_score_range": [
+          1.0,
+          7.0
+        ],
+        "total_runs_range": [
+          4.0,
+          12.0
+        ],
+        "confidence": 60.9
+      },
+      "betting_lines": {
+        "home_ml": 112,
+        "away_ml": -137,
+        "total_line": 8.5,
+        "over_odds": -105,
+        "under_odds": -115,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "none",
+          "recommendation": "No recommendations"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": null,
+        "home_pitcher_name": null,
+        "away_pitcher_factor": 1.0,
+        "home_pitcher_factor": 1.0
+      }
+    },
+    "Arizona Diamondbacks_vs_Minnesota Twins": {
+      "away_team": "Arizona Diamondbacks",
+      "home_team": "Minnesota Twins",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Brandon Pfaadt",
+      "home_pitcher": "Pablo L\u00f3pez",
+      "predictions": {
+        "home_win_prob": 0.504,
+        "away_win_prob": 0.496,
+        "predicted_home_score": 5.5,
+        "predicted_away_score": 5.5,
+        "predicted_total_runs": 10.2,
+        "home_score_range": [
+          3.0,
+          9.0
+        ],
+        "away_score_range": [
+          3.0,
+          9.0
+        ],
+        "total_runs_range": [
+          7.0,
+          15.0
+        ],
+        "confidence": 56.9
+      },
+      "betting_lines": {
+        "home_ml": -141,
+        "away_ml": 116,
+        "total_line": 8.5,
+        "over_odds": -105,
+        "under_odds": -115,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "total",
+          "side": "over",
+          "line": 8.5,
+          "odds": -110,
+          "model_total": 10.2,
+          "edge": 1.7,
+          "expected_value": 0.119,
+          "kelly_bet_size": 7.0,
+          "confidence": "HIGH",
+          "reasoning": "Model: 10.2 vs Line: 8.5"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Brandon Pfaadt",
+        "home_pitcher_name": "Pablo L\u00f3pez",
+        "away_pitcher_factor": 1.129,
+        "home_pitcher_factor": 0.892
+      }
+    },
+    "St. Louis Cardinals_vs_Milwaukee Brewers": {
+      "away_team": "St. Louis Cardinals",
+      "home_team": "Milwaukee Brewers",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Andre Pallante",
+      "home_pitcher": "Quinn Priester",
+      "predictions": {
+        "home_win_prob": 0.568,
+        "away_win_prob": 0.432,
+        "predicted_home_score": 4.2,
+        "predicted_away_score": 3.8,
+        "predicted_total_runs": 8.2,
+        "home_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_score_range": [
+          1.0,
+          6.0
+        ],
+        "total_runs_range": [
+          5.0,
+          12.0
+        ],
+        "confidence": 59.7
+      },
+      "betting_lines": {
+        "home_ml": -187,
+        "away_ml": 152,
+        "total_line": 8.5,
+        "over_odds": -102,
+        "under_odds": -119,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "none",
+          "recommendation": "No recommendations"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Andre Pallante",
+        "home_pitcher_name": "Quinn Priester",
+        "away_pitcher_factor": 1.129,
+        "home_pitcher_factor": 0.8859999999999999
+      }
+    },
+    "Colorado Rockies_vs_San Diego Padres": {
+      "away_team": "Colorado Rockies",
+      "home_team": "San Diego Padres",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Tanner Gordon",
+      "home_pitcher": "TBD",
+      "predictions": {
+        "home_win_prob": 0.629,
+        "away_win_prob": 0.371,
+        "predicted_home_score": 5.5,
+        "predicted_away_score": 4.5,
+        "predicted_total_runs": 9.6,
+        "home_score_range": [
+          3.0,
+          9.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "total_runs_range": [
+          6.0,
+          14.0
+        ],
+        "confidence": 57.6
+      },
+      "betting_lines": {
+        "home_ml": -275,
+        "away_ml": 218,
+        "total_line": 8.5,
+        "over_odds": -107,
+        "under_odds": -113,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "total",
+          "side": "over",
+          "line": 8.5,
+          "odds": -110,
+          "model_total": 9.6,
+          "edge": 1.1,
+          "expected_value": 0.058,
+          "kelly_bet_size": 3.2,
+          "confidence": "HIGH",
+          "reasoning": "Model: 9.6 vs Line: 8.5"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": null,
+        "home_pitcher_name": null,
+        "away_pitcher_factor": 1.0,
+        "home_pitcher_factor": 1.0
+      }
+    },
+    "Cincinnati Reds_vs_Athletics": {
+      "away_team": "Cincinnati Reds",
+      "home_team": "Athletics",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Brady Singer",
+      "home_pitcher": "TBD",
+      "predictions": {
+        "home_win_prob": 0.498,
+        "away_win_prob": 0.502,
+        "predicted_home_score": 3.5,
+        "predicted_away_score": 3.5,
+        "predicted_total_runs": 7.5,
+        "home_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_score_range": [
+          1.0,
+          6.0
+        ],
+        "total_runs_range": [
+          4.0,
+          11.0
+        ],
+        "confidence": 62.0
+      },
+      "betting_lines": {
+        "home_ml": null,
+        "away_ml": null,
+        "total_line": null,
+        "over_odds": null,
+        "under_odds": null,
+        "run_line": null,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "none",
+          "recommendation": "No recommendations"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": null,
+        "home_pitcher_name": null,
+        "away_pitcher_factor": 1.0,
+        "home_pitcher_factor": 1.0
+      }
+    },
+    "Los Angeles Angels_vs_Seattle Mariners": {
+      "away_team": "Los Angeles Angels",
+      "home_team": "Seattle Mariners",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Yusei Kikuchi",
+      "home_pitcher": "Luis Castillo",
+      "predictions": {
+        "home_win_prob": 0.56,
+        "away_win_prob": 0.44,
+        "predicted_home_score": 4.1,
+        "predicted_away_score": 3.7,
+        "predicted_total_runs": 8.0,
+        "home_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_score_range": [
+          1.0,
+          6.0
+        ],
+        "total_runs_range": [
+          4.0,
+          11.0
+        ],
+        "confidence": 61.3
+      },
+      "betting_lines": {
+        "home_ml": -189,
+        "away_ml": 154,
+        "total_line": 7.5,
+        "over_odds": -118,
+        "under_odds": -103,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "none",
+          "recommendation": "No recommendations"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Yusei Kikuchi",
+        "home_pitcher_name": "Luis Castillo",
+        "away_pitcher_factor": 0.919,
+        "home_pitcher_factor": 0.956
+      }
+    },
+    "Los Angeles Dodgers_vs_San Francisco Giants": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "San Francisco Giants",
+      "game_date": "2025-09-12",
+      "away_pitcher": "Yoshinobu Yamamoto",
+      "home_pitcher": "Justin Verlander",
+      "predictions": {
+        "home_win_prob": 0.518,
+        "away_win_prob": 0.482,
+        "predicted_home_score": 3.1,
+        "predicted_away_score": 3.0,
+        "predicted_total_runs": 6.9,
+        "home_score_range": [
+          1.0,
+          5.0
+        ],
+        "away_score_range": [
+          1.0,
+          5.0
+        ],
+        "total_runs_range": [
+          3.0,
+          9.0
+        ],
+        "confidence": 63.6
+      },
+      "betting_lines": {
+        "home_ml": 133,
+        "away_ml": -164,
+        "total_line": 8.0,
+        "over_odds": -105,
+        "under_odds": -116,
+        "run_line": 1.5,
+        "run_line_odds": null
+      },
+      "recommendations": [
+        {
+          "type": "total",
+          "side": "under",
+          "line": 8.5,
+          "odds": -110,
+          "model_total": 6.9,
+          "edge": 1.6,
+          "expected_value": 0.112,
+          "kelly_bet_size": 6.5,
+          "confidence": "HIGH",
+          "reasoning": "Model: 6.9 vs Line: 8.5"
+        }
+      ],
+      "pitcher_info": {
+        "away_pitcher_name": "Yoshinobu Yamamoto",
+        "home_pitcher_name": "Justin Verlander",
+        "away_pitcher_factor": 0.865,
+        "home_pitcher_factor": 1.129
+      }
+    }
+  },
+  "summary": {
+    "total_games": 15,
+    "moneyline_picks": 0,
+    "over_picks": 0,
+    "under_picks": 0,
+    "high_confidence_picks": 0
+  }
+}
