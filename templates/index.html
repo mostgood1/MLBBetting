@@ -779,6 +779,18 @@
     </div>
 
     <script>
+        // Small fetch helper with timeout and cache-busting
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const bust = url.includes('?') ? `&_=${Date.now()}` : `?_=${Date.now()}`;
+                const res = await fetch(url + bust, { ...options, signal: controller.signal });
+                return res;
+            } finally {
+                clearTimeout(id);
+            }
+        }
     // Cache of last-known live stats keyed by game compositeId and side (away/home)
     window.__LAST_LIVE_STATS = window.__LAST_LIVE_STATS || {};
 
@@ -1748,10 +1760,29 @@
             
             console.log('Loading todays games for date:', date);
             container.innerHTML = '<div class="loading">Loading today\'s games...</div>';
+            const slowTimer = setTimeout(() => {
+                const loading = container.querySelector('.loading');
+                if (loading) loading.innerHTML = 'Loading today\'s games... (taking longer than usual)';
+            }, 5000);
             
             try {
-                const response = await fetch(`/api/today-games?date=${date}`);
-                const data = await response.json();
+                const url = `/api/today-games?date=${encodeURIComponent(date || '')}`;
+                let data;
+                let attempt = 0;
+                let lastErr = null;
+                while (attempt < 2) {
+                    try {
+                        const response = await fetchWithTimeout(url, {}, 10000);
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        data = await response.json();
+                        break;
+                    } catch (e) {
+                        lastErr = e;
+                        attempt += 1;
+                        console.warn('today-games fetch attempt failed', attempt, e);
+                    }
+                }
+                if (!data) throw lastErr || new Error('Failed to load today-games');
                 
                 console.log('API Response:', data);
                 console.log('Games count:', data.games?.length);
@@ -1832,11 +1863,19 @@
                     // Trigger an initial live update now that cards are rendered
                     updateLiveGames();
                 } else {
+                    container.style.display = '';
                     container.innerHTML = '<div class="error">No games found for today.</div>';
                 }
             } catch (error) {
-                container.innerHTML = '<div class="error">Error loading games: ' + error.message + '</div>';
+                console.error('Error loading games:', error);
+                container.style.display = '';
+                container.innerHTML = `
+                    <div class="error">
+                        Error loading games: ${error.message || 'Network error'}<br/>
+                        <button class="btn" style="margin-top:10px" onclick="loadTodaysGames()">Retry</button>
+                    </div>`;
             }
+            finally { clearTimeout(slowTimer); }
         }
 
         function displayGameSection(sectionPrefix, games) {
