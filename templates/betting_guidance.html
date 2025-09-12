@@ -159,6 +159,16 @@
   </div>
 
   <script>
+    // --- Lightweight fetch with timeout to prevent hangs ---
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const bust = url.includes('?') ? `&_=${Date.now()}` : `?_=${Date.now()}`;
+        const res = await fetch(url + bust, { ...options, signal: controller.signal });
+        return res;
+      } finally { clearTimeout(id); }
+    }
     // --- Existing utility functions above ---
     // Inject real-time pitcher props state + SSE handling
     const pitcherState = { markets: {}, lastSnapshotTs: null };
@@ -255,7 +265,7 @@
     document.addEventListener('DOMContentLoaded', ()=>{
       // existing startup calls...
       startPitcherSSE();
-      snapshotFallback();
+      setTimeout(snapshotFallback, 1000); // defer snapshot a bit to prioritize first paint
       const selMk = document.getElementById('prop-market');
       const hideLow = document.getElementById('prop-hide-low');
       if(selMk) selMk.addEventListener('change', renderPitcherMarkets);
@@ -378,8 +388,12 @@
     }
     function gameKey(away, home){ return `${away} @ ${home}`; }
     async function loadPerformance(){
-      const res=await fetch('/api/betting-guidance/performance');
-      const data=await res.json();
+      let data = {};
+      try{
+        const res=await fetchWithTimeout('/api/betting-guidance/performance', {}, 12000);
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        data=await res.json();
+      }catch(e){ console.warn('performance load error', e); data={}; }
       const perf=data.performance_by_bet_type||{};
       const grid=document.getElementById('perf');
       grid.innerHTML='';
@@ -393,7 +407,7 @@
 
     async function loadROIMetricsPanel(){
       try{
-        const res = await fetch('/api/optimization/roi-metrics');
+        const res = await fetchWithTimeout('/api/optimization/roi-metrics', {}, 12000);
         const data = await res.json();
         const cont = document.getElementById('roi-metrics-content');
         cont.innerHTML='';
@@ -432,8 +446,11 @@
     async function loadToday(){
       // Use the new endpoint to fetch ALL recommendations from today's betting_recommendations file
       const today = todayISO();
-      const res = await fetch(`/api/betting-recommendations/date/${today}`);
-      const data = await res.json();
+      let data={};
+      try{
+        const res = await fetchWithTimeout(`/api/betting-recommendations/date/${today}` , {}, 15000);
+        if(res.ok){ data = await res.json(); } else { data = {}; }
+      }catch(_){ data={}; }
       const div = document.getElementById('today');
       const recs = data.recommendations || [];
       if(!recs.length){ div.innerHTML='<div class="muted">No recommendations available.</div>'; return; }
@@ -455,7 +472,7 @@
     }
     async function loadAvailableDates(){
       try{
-    const res=await fetch('/api/historical-analysis/available-dates');
+        const res=await fetchWithTimeout('/api/historical-analysis/available-dates', {}, 12000);
         const data=await res.json();
   const sel=document.getElementById('hist-day'); sel.innerHTML='';
   // Historical proxy returns { dates: [...] }
@@ -464,7 +481,8 @@
   dates.sort();
   dates.forEach(dt=>{ const o=document.createElement('option'); o.value=dt; o.textContent=dt; sel.appendChild(o); });
   // Auto-select most recent date and preload KPIs
-  if(dates.length){ sel.value = dates[dates.length-1]; await loadDayPerformance(); }
+  // Do not auto-load heavy day performance on initial paint; user can click Load
+  if(dates.length){ sel.value = dates[dates.length-1]; }
 
   // Populate range selectors
   const rs = document.getElementById('range-start');
@@ -488,7 +506,7 @@
       rs.value = dates[0];
       re.value = dates[dates.length-1];
     }
-    await loadRangePerformance();
+  // Defer range load until user clicks the button to avoid heavy initial loads
   }
       }catch(e){ console.warn('Failed to load available dates', e); }
     }
@@ -609,7 +627,7 @@
     }
     async function loadDayPerformance(){
       const day=document.getElementById('hist-day').value; if(!day) return;
-      const res=await fetch(`/api/historical-analysis/date/${day}`);
+      const res=await fetchWithTimeout(`/api/historical-analysis/date/${day}`, {}, 15000);
       let data = {};
       if(res.ok){
         const raw=await res.json();
@@ -709,7 +727,7 @@
           });
         });
 
-        const recRes = await fetch(`/api/betting-recommendations/date/${day}`);
+  const recRes = await fetchWithTimeout(`/api/betting-recommendations/date/${day}`, {}, 10000);
   if (recRes.ok) {
           const recData = await recRes.json();
           const recs = recData.recommendations || [];
@@ -717,7 +735,7 @@
           const finalScores = new Map();
           try{
             // Fetch same-day final scores
-            const fsRes = await fetch(`/api/historical-analysis/final-scores/${day}`);
+            const fsRes = await fetchWithTimeout(`/api/historical-analysis/final-scores/${day}`, {}, 8000);
             if(fsRes.ok){
               const fsData = await fsRes.json();
               const fs = fsData.final_scores || {};
@@ -738,7 +756,7 @@
             const z = n=> String(n).padStart(2,'0');
             const next = new Date(d0.getTime() + 24*60*60*1000);
             const nextStr = `${next.getUTCFullYear()}-${z(next.getUTCMonth()+1)}-${z(next.getUTCDate())}`;
-            const fsResNext = await fetch(`/api/historical-analysis/final-scores/${nextStr}`);
+            const fsResNext = await fetchWithTimeout(`/api/historical-analysis/final-scores/${nextStr}`, {}, 8000);
             if(fsResNext.ok){
               const fsDataN = await fsResNext.json();
               const fsN = fsDataN.final_scores || {};
