@@ -1360,12 +1360,17 @@
         }
 
         function startLiveUpdates() {
+            // Avoid starting multiple intervals
+            if (window.__LIVE_UPDATES_STARTED__) return;
+            window.__LIVE_UPDATES_STARTED__ = true;
             // Check for live games more frequently (every 10 seconds)
             setInterval(updateLiveGames, 10000);
         }
 
-        async function updateLiveGames() {
+    async function updateLiveGames() {
             try {
+        // Don't hit API until cards are rendered to avoid noisy logs
+        if (!document.querySelector('.game-card')) return;
                 const date = document.getElementById('game-date').value;
                 const response = await fetch(`/api/live-status?date=${date}`);
                 const data = await response.json();
@@ -1905,7 +1910,7 @@
             console.log('Loading todays games for date:', date);
             container.innerHTML = '<div class="loading">Loading today\'s games...</div>';
             // Coordinated UI timeouts so we don't prematurely swap the spinner on slow networks
-            let fetchTimeoutMs = 25000; // mobile-friendly first load
+            let fetchTimeoutMs = 45000; // more tolerant for slow connections
             const slowTimer = setTimeout(() => {
                 const loading = container.querySelector('.loading');
                 if (loading) loading.innerHTML = 'Loading today\'s games... (taking longer than usual)';
@@ -1916,7 +1921,7 @@
                     console.warn('Watchdog: load still in progress (slow network/server)');
                     loading.innerHTML = 'Loading today\'s games... (still working; slow network)';
                 }
-            }, Math.max(8000, fetchTimeoutMs - 2000));
+            }, Math.max(12000, fetchTimeoutMs - 5000));
             
             try {
                 try { window.__PERF.mark('todayGames_fetch_start'); } catch(_){}
@@ -1926,7 +1931,7 @@
                 let lastErr = null;
                 while (attempt < 3) {
                     try {
-                        const endpoint = attempt === 2 ? '/api/today-games' : url; // final attempt without date
+                        const endpoint = attempt >= 1 ? '/api/today-games' : url; // let server decide on retry
                         // Extend timeout for first loads and slow connections
                         try {
                             const et = navigator.connection?.effectiveType || '';
@@ -2033,6 +2038,24 @@
 
                     // Trigger an initial live update now that cards are rendered
                     updateLiveGames();
+                    // Start periodic live updates only after cards exist
+                    startLiveUpdates();
+                    // Defer unified props fetch until after cards render (hydration happens inside primeFromUnified)
+                    setTimeout(()=>{
+                        try { window.__PERF.mark('unified_fetch_start'); } catch(_){ }
+                        primeFromUnified().finally(()=>{
+                            try {
+                                window.__PERF.mark('unified_fetch_end');
+                                const m = window.__PERF.marks || {};
+                                const dur = (m.unified_fetch_end ?? 0) - (m.unified_fetch_start ?? 0);
+                                const s = window.__PERF.data.summary || {};
+                                s.props = Math.max(0, dur);
+                                window.__PERF.data.summary = s;
+                                window.__PERF.updateBadge(s);
+                                console.info('[PERF] unified props fetch duration:', dur.toFixed(1), 'ms');
+                            } catch(_){ }
+                        });
+                    }, 300);
                     try {
                         window.__PERF.mark('render_end');
                         const m = window.__PERF.marks || {};
@@ -3366,22 +3389,6 @@
           document.addEventListener('DOMContentLoaded', ()=>{
               startSSE();
               snapshotPatch();
-              // Defer unified props fetch slightly to avoid blocking first render
-              setTimeout(()=>{
-                  try { window.__PERF.mark('unified_fetch_start'); } catch(_){ }
-                  primeFromUnified().finally(()=>{
-                      try {
-                          window.__PERF.mark('unified_fetch_end');
-                          const m = window.__PERF.marks || {};
-                          const dur = (m.unified_fetch_end ?? 0) - (m.unified_fetch_start ?? 0);
-                          const s = window.__PERF.data.summary || {};
-                          s.props = Math.max(0, dur);
-                          window.__PERF.data.summary = s;
-                          window.__PERF.updateBadge(s);
-                          console.info('[PERF] unified props fetch duration:', dur.toFixed(1), 'ms');
-                      } catch(_){ }
-                  });
-              }, 300);
           });
           // Periodic refresh every 60s to keep EV / Kelly / lines current
           setInterval(()=> { primeFromUnified(); }, 30000);
