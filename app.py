@@ -3244,6 +3244,12 @@ def api_pitcher_props_recap():
 # -------------------------------------------------------------
 
 _PITCHER_SSE_SUBSCRIBERS = []  # simple in-memory list of queues (per connection)
+# Lightweight stats for SSE/ingest health checks
+_PITCHER_SSE_STATS = {
+    'last_event_ts': None,
+    'last_event_type': None,
+    'counts_by_type': {},
+}
 
 def broadcast_pitcher_update(event: dict):
     """Broadcast a pitcher prop related event to all SSE subscribers.
@@ -3370,6 +3376,15 @@ def _save_realized_results_and_daily(date_str: str, outcomes: list[dict]):
 def _process_ingested_event(ev: dict):
     try:
         et = ev.get('type')
+        # Update ingest stats
+        try:
+            _PITCHER_SSE_STATS['last_event_ts'] = datetime.utcnow().isoformat()
+            _PITCHER_SSE_STATS['last_event_type'] = et
+            cbt = _PITCHER_SSE_STATS.get('counts_by_type') or {}
+            cbt[et] = int(cbt.get(et, 0)) + 1
+            _PITCHER_SSE_STATS['counts_by_type'] = cbt
+        except Exception:
+            pass
         # Broadcast to connected SSE clients (best-effort)
         try:
             broadcast_pitcher_update(ev)
@@ -3442,6 +3457,117 @@ def api_pitcher_props_broadcast_ingest():
         else:
             _process_ingested_event(data)
         return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+@app.route('/api/health/props-stream-stats')
+def api_health_props_stream_stats():
+    """Health check for pitcher props ingestion and SSE stream.
+    Reports: subscriber count, last ingested event, counts by type, and presence/size of today's props files.
+    """
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        safe_date = (date_str or '').replace('-', '_')
+        base_dir = os.path.join('data', 'daily_bovada')
+        props_path = os.path.join(base_dir, f'bovada_pitcher_props_{safe_date}.json')
+        recs_path = os.path.join(base_dir, f'pitcher_prop_recommendations_{safe_date}.json')
+        line_hist_path = os.path.join(base_dir, f'pitcher_prop_line_history_{safe_date}.json')
+        stats = {
+            'subscribers': len(_PITCHER_SSE_SUBSCRIBERS),
+            'last_event_ts': _PITCHER_SSE_STATS.get('last_event_ts'),
+            'last_event_type': _PITCHER_SSE_STATS.get('last_event_type'),
+            'counts_by_type': _PITCHER_SSE_STATS.get('counts_by_type', {}),
+            'files': {
+                'props': {
+                    'path': props_path,
+                    'exists': os.path.exists(props_path),
+                    'size': (os.path.getsize(props_path) if os.path.exists(props_path) else 0)
+                },
+                'recommendations': {
+                    'path': recs_path,
+                    'exists': os.path.exists(recs_path),
+                    'size': (os.path.getsize(recs_path) if os.path.exists(recs_path) else 0)
+                },
+                'line_history': {
+                    'path': line_hist_path,
+                    'exists': os.path.exists(line_hist_path),
+                    'size': (os.path.getsize(line_hist_path) if os.path.exists(line_hist_path) else 0)
+                }
+            }
+        }
+        # Find latest props files and counts to spot staleness
+        try:
+            import re
+            props_files = [f for f in os.listdir(base_dir) if f.startswith('bovada_pitcher_props_') and f.endswith('.json')]
+            props_files.sort(key=lambda fn: os.path.getmtime(os.path.join(base_dir, fn)))
+            latest = props_files[-1] if props_files else None
+            latest_info = None
+            latest_nonempty = None
+            latest_nonempty_info = None
+            for fn in reversed(props_files):
+                p = os.path.join(base_dir, fn)
+                try:
+                    with open(p, 'r', encoding='utf-8') as f:
+                        doc = json.load(f)
+                    cnt = len((doc or {}).get('pitcher_props', {}) or {})
+                    info = {'file': p, 'size': os.path.getsize(p), 'pitchers': cnt}
+                    if not latest_info and latest == fn:
+                        latest_info = info
+                    if cnt > 0 and not latest_nonempty_info:
+                        latest_nonempty = fn
+                        latest_nonempty_info = info
+                except Exception:
+                    continue
+            # Extract date from filename
+            def _date_from_name(fn):
+                if not fn:
+                    return None
+                m = re.search(r"bovada_pitcher_props_(\d{4})_(\d{2})_(\d{2})\.json$", fn)
+                return (f"{m.group(1)}-{m.group(2)}-{m.group(3)}" if m else None)
+            stats['latest_props'] = {
+                'file': (os.path.join(base_dir, latest) if latest else None),
+                'date': _date_from_name(latest),
+                'meta': latest_info
+            }
+            stats['latest_nonempty_props'] = {
+                'file': (os.path.join(base_dir, latest_nonempty) if latest_nonempty else None),
+                'date': _date_from_name(latest_nonempty),
+                'meta': latest_nonempty_info
+            }
+        except Exception:
+            pass
+        # Count events in line history (cheap peek)
+        try:
+            if stats['files']['line_history']['exists']:
+                with open(line_hist_path, 'r', encoding='utf-8') as f:
+                    doc = json.load(f)
+                if isinstance(doc, dict) and isinstance(doc.get('events'), list):
+                    stats['files']['line_history']['event_count'] = len(doc['events'])
+        except Exception:
+            stats['files']['line_history']['event_count'] = None
+        return jsonify({'ok': True, 'date': date_str, 'stats': stats})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+@app.route('/api/health/live-meta')
+def api_health_live_meta():
+    """Tiny health endpoint for live-status data sources (boxscore cache presence)."""
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        safe = (date_str or '').replace('-', '_')
+        base = os.path.join('data')
+        candidates = [
+            os.path.join(base, 'boxscore_cache.json'),
+            os.path.join(base, f'boxscore_cache_{safe}.json')
+        ]
+        files = []
+        for p in candidates:
+            files.append({
+                'path': p,
+                'exists': os.path.exists(p),
+                'size': (os.path.getsize(p) if os.path.exists(p) else 0)
+            })
+        return jsonify({'ok': True, 'date': date_str, 'boxscore_cache_files': files})
     except Exception as e:
         return jsonify({'ok': False, 'error': str(e)}), 500
 
@@ -6337,7 +6463,7 @@ def api_live_status():
         today_data = predictions_by_date.get(date_param, {})
         games_dict = today_data.get('games', {})
         
-        # Check for doubleheaders and add missing games from live data (same logic as today-games API)
+    # Check for doubleheaders and add missing games from live data (same logic as today-games API)
         try:
             # Use global mlb_api instance for schedule/feed caches
             live_games_data = mlb_api.get_enhanced_games_data(date_param)
@@ -6385,7 +6511,25 @@ def api_live_status():
                             'meta': {'source': 'live_data_doubleheader'}
                         }
                         games_dict[game_key] = additional_game
-                        
+            # If unified cache is empty or missing games, seed from live schedule so frontend still gets updates
+            if (not games_dict) and live_games_data:
+                logger.info("🎯 LIVE STATUS: Seeding games from live schedule (unified cache empty)")
+                for lg in live_games_data:
+                    a = lg.get('away_team')
+                    h = lg.get('home_team')
+                    if not a or not h:
+                        continue
+                    game_key = f"{a}_vs_{h}"
+                    if game_key in games_dict:
+                        continue
+                    games_dict[game_key] = {
+                        'away_team': a,
+                        'home_team': h,
+                        'game_date': date_param,
+                        'game_id': lg.get('game_pk'),
+                        'meta': {'source': 'live_data_seed'}
+                    }
+                logger.info(f"🎯 LIVE STATUS: Seeded {len(games_dict)} games from live schedule")
         except Exception as e:
             logger.warning(f"⚠️ LIVE STATUS: Could not check for doubleheaders: {e}")
         
