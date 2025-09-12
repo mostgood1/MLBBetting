@@ -1764,15 +1764,29 @@
                 const loading = container.querySelector('.loading');
                 if (loading) loading.innerHTML = 'Loading today\'s games... (taking longer than usual)';
             }, 5000);
+            // Watchdog: if still loading after 12s, show retry panel
+            const watchdog = setTimeout(() => {
+                const stillLoading = container.querySelector('.loading');
+                if (stillLoading) {
+                    console.warn('Watchdog: replacing stuck loading spinner');
+                    container.style.display = '';
+                    container.innerHTML = `
+                        <div class="error">
+                            Request is taking too long. Please retry.<br/>
+                            <button class="btn" style="margin-top:10px" onclick="loadTodaysGames()">Retry</button>
+                        </div>`;
+                }
+            }, 12000);
             
             try {
                 const url = `/api/today-games?date=${encodeURIComponent(date || '')}`;
                 let data;
                 let attempt = 0;
                 let lastErr = null;
-                while (attempt < 2) {
+                while (attempt < 3) {
                     try {
-                        const response = await fetchWithTimeout(url, {}, 10000);
+                        const endpoint = attempt === 2 ? '/api/today-games' : url; // final attempt without date
+                        const response = await fetchWithTimeout(endpoint, {}, 10000);
                         if (!response.ok) throw new Error(`HTTP ${response.status}`);
                         data = await response.json();
                         break;
@@ -1875,8 +1889,25 @@
                         <button class="btn" style="margin-top:10px" onclick="loadTodaysGames()">Retry</button>
                     </div>`;
             }
-            finally { clearTimeout(slowTimer); }
+            finally { clearTimeout(slowTimer); clearTimeout(watchdog); }
         }
+
+        // Global JS error surface (so silent errors don’t leave spinner forever)
+        window.addEventListener('error', (ev) => {
+            try {
+                const container = document.getElementById('games-container');
+                if (!container) return;
+                const hasLoading = !!container.querySelector('.loading');
+                if (!hasLoading) return;
+                container.style.display = '';
+                container.innerHTML = `
+                    <div class="error">
+                        A script error occurred: ${ev.message || 'Unknown error'}<br/>
+                        <small>${(ev.filename||'')}:${(ev.lineno||'')}</small><br/>
+                        <button class="btn" style="margin-top:10px" onclick="loadTodaysGames()">Retry</button>
+                    </div>`;
+            } catch(_){}
+        });
 
         function displayGameSection(sectionPrefix, games) {
             const section = document.getElementById(`${sectionPrefix}-section`);
