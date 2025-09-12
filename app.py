@@ -43,13 +43,13 @@ from threading import RLock
 _RESPONSE_CACHE = {}
 _CACHE_LOCK = RLock()
 
-def _cache_make_key(name: str, params: dict | None = None) -> str:
+def _cache_make_key(name: str, params: Optional[dict] = None) -> str:
     if not params:
         return name
     items = sorted((k, str(v)) for k, v in params.items())
     return name + '|' + '&'.join(f"{k}={v}" for k, v in items)
 
-def cache_get(name: str, params: dict | None, ttl_seconds: int):
+def cache_get(name: str, params: Optional[dict], ttl_seconds: int):
     now = time.time()
     key = _cache_make_key(name, params)
     with _CACHE_LOCK:
@@ -62,7 +62,7 @@ def cache_get(name: str, params: dict | None, ttl_seconds: int):
                 _RESPONSE_CACHE.pop(key, None)
     return None
 
-def cache_set(name: str, params: dict | None, data):
+def cache_set(name: str, params: Optional[dict], data):
     key = _cache_make_key(name, params)
     with _CACHE_LOCK:
         _RESPONSE_CACHE[key] = (time.time(), data)
@@ -233,7 +233,12 @@ except Exception as e:
     AUTO_TUNING_AVAILABLE = False
     admin_bp = None
 
-import schedule
+try:
+    import schedule
+    _SCHEDULE_AVAILABLE = True
+except Exception as _e:
+    logging.warning(f"Schedule module not available: {_e}")
+    _SCHEDULE_AVAILABLE = False
 
 # Import team assets for colors and logos
 import sys
@@ -507,9 +512,12 @@ def start_auto_tuning_background():
         auto_tuner = ContinuousAutoTuner()
         
         # Setup the schedule without running the blocking loop
-        schedule.every().day.at("06:00").do(auto_tuner.daily_full_optimization)
-        schedule.every(4).hours.do(auto_tuner.quick_optimization_check)
-        schedule.every().day.at("23:30").do(auto_tuner.quick_optimization_check)
+        if _SCHEDULE_AVAILABLE:
+            schedule.every().day.at("06:00").do(auto_tuner.daily_full_optimization)
+            schedule.every(4).hours.do(auto_tuner.quick_optimization_check)
+            schedule.every().day.at("23:30").do(auto_tuner.quick_optimization_check)
+        else:
+            logger.warning("⏰ 'schedule' package not available; skipping cron setup for auto-tuning")
         
         logger.info("🔄 Auto-tuning schedule configured:")
         logger.info("   - 06:00: Daily full optimization")
@@ -524,7 +532,8 @@ def start_auto_tuning_background():
             logger.info("🔄 Auto-tuning background worker started")
             while True:
                 try:
-                    schedule.run_pending()
+                    if _SCHEDULE_AVAILABLE:
+                        schedule.run_pending()
                     time.sleep(60)  # Check every minute
                 except Exception as e:
                     logger.error(f"🔄 Auto-tuning error: {e}")
@@ -713,8 +722,11 @@ tbd_monitor = TBDMonitor()
 def get_team_logo_url(team_name):
     """Get team logo URL from team name using ESPN's reliable CDN"""
     # First normalize using our team name normalizer
-    from team_name_normalizer import normalize_team_name
-    normalized_team = normalize_team_name(team_name)
+    try:
+        from team_name_normalizer import normalize_team_name as _norm
+        normalized_team = _norm(team_name)
+    except Exception:
+        normalized_team = (team_name or '').strip().lower()
     
     # Map normalized names to ESPN logo URLs
     team_logos = {
