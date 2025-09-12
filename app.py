@@ -362,9 +362,7 @@ def healthz():
     except Exception as e:
         return jsonify({'ok': False, 'error': str(e)}), 500
 
-@app.route('/api/ping')
-def api_ping():
-    return jsonify({'ok': True, 'ts': datetime.utcnow().isoformat()}), 200
+# (api_ping is defined once above; avoid duplicate registration)
 
 # ----------------------------------------------------------------------------
 # ROI Metrics & Optimization History Endpoint
