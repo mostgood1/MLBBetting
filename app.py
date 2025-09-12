@@ -5473,7 +5473,7 @@ def api_today_games():
         if not today_data:
             logger.warning(f"No data found for {date_param} in predictions_by_date structure")
             logger.info(f"Trying direct cache access for {date_param}...")
-            
+
             # Try direct access to cache entries - ACTUALLY USE THE DATA
             if date_param in unified_cache and isinstance(unified_cache[date_param], dict):
                 direct_date_data = unified_cache[date_param]
@@ -5482,10 +5482,92 @@ def api_today_games():
                     today_data = direct_date_data
                 else:
                     logger.warning(f"Direct cache data found for {date_param} but no 'games' key")
-            
+
+            # If still no data, FALL BACK to daily games file (games_YYYY-MM-DD.json)
+            if not today_data:
+                try:
+                    logger.info(f"🛟 Fallback: loading daily games file for {date_param}")
+                    date_variants = [
+                        date_param,
+                        date_param.replace('-', '_'),
+                        date_param.replace('-', ''),
+                    ]
+                    data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+                    candidates = [
+                        os.path.join(data_dir, f"games_{v}.json") for v in date_variants
+                    ]
+                    games_list = None
+                    found_path = None
+                    for p in candidates:
+                        if os.path.exists(p):
+                            try:
+                                with open(p, 'r', encoding='utf-8') as f:
+                                    loaded = json.load(f)
+                                # Accept either list of games or {'games': {...}} formats
+                                if isinstance(loaded, list):
+                                    games_list = loaded
+                                elif isinstance(loaded, dict) and 'games' in loaded and isinstance(loaded['games'], (list, dict)):
+                                    games_list = loaded['games'] if isinstance(loaded['games'], list) else list(loaded['games'].values())
+                                else:
+                                    games_list = None
+                                found_path = p
+                                break
+                            except Exception as fe:
+                                logger.warning(f"Could not parse {p} as JSON: {fe}")
+                                continue
+
+                    if games_list is not None:
+                        logger.info(f"✅ Fallback succeeded: {len(games_list)} games from {os.path.basename(found_path)}")
+                        fallback_games = {}
+                        for g in games_list:
+                            try:
+                                away_team = g.get('away_team') or g.get('away') or ''
+                                home_team = g.get('home_team') or g.get('home') or ''
+                                if not away_team or not home_team:
+                                    continue
+                                game_key = f"{away_team.replace(' ', '_')}_vs_{home_team.replace(' ', '_')}"
+                                game_time = g.get('game_time') or g.get('start_time') or g.get('gameDate') or 'TBD'
+                                # ISO to clock if possible
+                                try:
+                                    if isinstance(game_time, str) and 'T' in game_time:
+                                        dt = datetime.fromisoformat(game_time.replace('Z', '+00:00'))
+                                        game_time = dt.strftime('%I:%M %p ET')
+                                except Exception:
+                                    pass
+                                # Probable pitchers if present
+                                away_pp = g.get('away_probable_pitcher') or (g.get('probable_pitchers', {}) or {}).get('away') or g.get('away_pitcher') or 'TBD'
+                                home_pp = g.get('home_probable_pitcher') or (g.get('probable_pitchers', {}) or {}).get('home') or g.get('home_pitcher') or 'TBD'
+                                fallback_games[game_key] = {
+                                    'away_team': away_team,
+                                    'home_team': home_team,
+                                    'game_date': date_param,
+                                    'game_time': game_time,
+                                    'game_id': g.get('game_pk') or g.get('game_id') or '',
+                                    'away_win_probability': 0.5,
+                                    'home_win_probability': 0.5,
+                                    'predicted_total_runs': 9.0,
+                                    'pitcher_info': {
+                                        'away_pitcher_name': away_pp or 'TBD',
+                                        'home_pitcher_name': home_pp or 'TBD',
+                                    },
+                                    'comprehensive_details': {},
+                                    'meta': {'source': 'daily_games_fallback'}
+                                }
+                            except Exception:
+                                continue
+                        if fallback_games:
+                            today_data = {'games': fallback_games}
+                            logger.info(f"🛟 Fallback yielded {len(fallback_games)} games; continuing to enrich with live status and lines")
+                        else:
+                            logger.warning("Fallback daily games parsed but produced no valid entries")
+                    else:
+                        logger.warning("No suitable daily games file found for fallback")
+                except Exception as fe:
+                    logger.error(f"Fallback to daily games failed: {fe}")
+
             # If still no data, return error
             if not today_data:
-                logger.error(f"❌ No data found for {date_param} in any cache structure")
+                logger.error(f"❌ No data found for {date_param} in any cache structure or daily files")
                 return jsonify({
                     'success': False,
                     'date': date_param,
