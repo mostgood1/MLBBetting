@@ -797,6 +797,45 @@
     </div>
 
     <script>
+        // --- Lightweight Performance Instrumentation (dev-friendly) ---
+        (function initPerf(){
+            try {
+                if (window.__PERF) return; // idempotent
+                window.__PERF = {
+                    t0: performance.now(),
+                    marks: {},
+                    data: {}
+                };
+                window.__PERF.mark = function(name){ this.marks[name] = performance.now(); };
+                document.addEventListener('DOMContentLoaded', ()=>{ try { window.__PERF.mark('domContentLoaded'); } catch(_){} });
+
+                // Optional tiny badge for quick visual check; hidden by default
+                const badge = document.createElement('div');
+                badge.id = 'perfBadge';
+                badge.style.cssText = 'display:none;position:fixed;top:10px;right:10px;background:rgba(0,0,0,0.7);color:#fff;padding:6px 8px;border-radius:6px;font:12px system-ui;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+                badge.title = 'Performance summary (press Ctrl+Alt+P to toggle)';
+                badge.textContent = 'Loading…';
+                document.addEventListener('keydown', (e)=>{
+                    try {
+                        if ((e.ctrlKey || e.metaKey) && e.altKey && (e.key.toLowerCase() === 'p')){
+                            const vis = badge.style.display !== 'none';
+                            badge.style.display = vis ? 'none' : 'block';
+                        }
+                    } catch(_){ }
+                });
+                document.body.appendChild(badge);
+
+                window.__PERF.updateBadge = function(summary){
+                    try {
+                        const el = document.getElementById('perfBadge');
+                        if (!el) return;
+                        const s = summary || this.data.summary;
+                        if (!s) return;
+                        el.textContent = `Load ${s.total.toFixed(1)}ms • fetch ${s.fetch.toFixed(1)} • render ${s.render.toFixed(1)}${s.props ? ` • props ${s.props.toFixed(1)}`:''}`;
+                    } catch(_){ }
+                };
+            } catch(_){ }
+        })();
         // Small fetch helper with timeout and cache-busting
         async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
             const controller = new AbortController();
@@ -1859,7 +1898,7 @@
             }
         }
 
-        async function loadTodaysGames() {
+    async function loadTodaysGames() {
             const date = document.getElementById('game-date').value;
             const container = document.getElementById('games-container');
             
@@ -1884,6 +1923,7 @@
             }, 12000);
             
             try {
+                try { window.__PERF.mark('todayGames_fetch_start'); } catch(_){}
                 const url = `/api/today-games?date=${encodeURIComponent(date || '')}`;
                 let data;
                 let attempt = 0;
@@ -1902,12 +1942,14 @@
                         console.warn('today-games fetch attempt failed', attempt, e);
                     }
                 }
+                try { window.__PERF.mark('todayGames_fetch_end'); } catch(_){}
                 if (!data) throw lastErr || new Error('Failed to load today-games');
                 
                 console.log('API Response:', data);
                 console.log('Games count:', data.games?.length);
                 
                 if (data.success && data.games.length > 0) {
+                    try { window.__PERF.mark('render_start'); } catch(_){}
                     console.log('Processing games...');
                     
                     // Build a quick lookup of full games by game_id for later (finals UI)
@@ -1980,6 +2022,18 @@
 
                     // Trigger an initial live update now that cards are rendered
                     updateLiveGames();
+                    try {
+                        window.__PERF.mark('render_end');
+                        const m = window.__PERF.marks || {};
+                        const t0 = window.__PERF.t0 || 0;
+                        const fetchMs = (m.todayGames_fetch_end ?? 0) - (m.todayGames_fetch_start ?? 0);
+                        const renderMs = (m.render_end ?? 0) - (m.render_start ?? 0);
+                        const totalMs = (m.render_end ?? performance.now()) - t0;
+                        const summary = { fetch: Math.max(0, fetchMs), render: Math.max(0, renderMs), total: Math.max(0, totalMs) };
+                        window.__PERF.data.summary = summary;
+                        console.info('[PERF] load summary:', summary);
+                        window.__PERF.updateBadge(summary);
+                    } catch(_){ }
                 } else {
                     container.style.display = '';
                     container.innerHTML = '<div class="error">No games found for today.</div>';
@@ -3298,7 +3352,26 @@
             } catch(e){ console.warn('snapshot patch error', e); }
             finally { setTimeout(snapshotPatch, 300000); } // 5 min
           }
-          document.addEventListener('DOMContentLoaded', ()=>{ startSSE(); snapshotPatch(); primeFromUnified(); });
+          document.addEventListener('DOMContentLoaded', ()=>{
+              startSSE();
+              snapshotPatch();
+              // Defer unified props fetch slightly to avoid blocking first render
+              setTimeout(()=>{
+                  try { window.__PERF.mark('unified_fetch_start'); } catch(_){ }
+                  primeFromUnified().finally(()=>{
+                      try {
+                          window.__PERF.mark('unified_fetch_end');
+                          const m = window.__PERF.marks || {};
+                          const dur = (m.unified_fetch_end ?? 0) - (m.unified_fetch_start ?? 0);
+                          const s = window.__PERF.data.summary || {};
+                          s.props = Math.max(0, dur);
+                          window.__PERF.data.summary = s;
+                          window.__PERF.updateBadge(s);
+                          console.info('[PERF] unified props fetch duration:', dur.toFixed(1), 'ms');
+                      } catch(_){ }
+                  });
+              }, 300);
+          });
           // Periodic refresh every 60s to keep EV / Kelly / lines current
           setInterval(()=> { primeFromUnified(); }, 30000);
           
@@ -3310,24 +3383,53 @@
                             const q = selDate?`date=${encodeURIComponent(selDate)}&${bust}`:bust;
                             const r = await fetch(`/api/health/props-stream-stats?${q}`);
                             if(!r.ok) return;
-                            const h = await r.json();
+                            const resp = await r.json();
+                            const h = resp?.stats || {};
                             const banner = document.getElementById('propsHealthBanner');
                             const msg = document.getElementById('propsHealthMsg');
+                            const selectedDate = (selDate || resp?.date || '').slice(0,10);
+
                             const latest = h.latest_props || {};
+                            const latestMeta = latest.meta || {};
+                            const latestDate = (latest.date || '').slice(0,10);
+                            const latestPitchers = (typeof latestMeta.pitchers === 'number') ? latestMeta.pitchers : null;
+
                             const nonempty = h.latest_nonempty_props || {};
-                            const pitchers = (latest.meta && typeof latest.meta.pitchers==='number') ? latest.meta.pitchers : null;
-                            const latestDate = latest.date || latest.source_date || '';
-                            const nonEmptyDate = nonempty.date || '';
-                            const usingFallback = window.__UNIFIED_PITCHER_META && window.__UNIFIED_PITCHER_META.source_date && window.__UNIFIED_PITCHER_META.source_date !== (latestDate || '').slice(0,10);
-                            const stale = (pitchers === 0) || usingFallback;
-                            if(stale){
-                                if(msg){
-                                    const note = usingFallback && nonEmptyDate ? ` Using ${nonEmptyDate} file.` : '';
-                                    msg.textContent = `Showing last-known lines; live updates may be delayed.${note}`;
-                                }
-                                if(banner) banner.style.display = 'block';
+                            const nonEmptyMeta = nonempty.meta || {};
+                            const nonEmptyDate = (nonempty.date || '').slice(0,10);
+                            const nonEmptyPitchers = (typeof nonEmptyMeta.pitchers === 'number') ? nonEmptyMeta.pitchers : null;
+
+                            // Determine if UI is using a fallback date (from unified meta)
+                            const uiSourceDate = (window.__UNIFIED_PITCHER_META && window.__UNIFIED_PITCHER_META.source_date) ? String(window.__UNIFIED_PITCHER_META.source_date).slice(0,10) : null;
+
+                            // Healthy conditions:
+                            // - We have a non-empty props file for the selected date; OR
+                            // - UI source date matches selected date.
+                            const hasNonEmptyToday = (nonEmptyDate && nonEmptyDate === selectedDate && (nonEmptyPitchers ?? 0) > 0);
+                            const uiAlignedWithSelected = (uiSourceDate && uiSourceDate === selectedDate);
+
+                            let showBanner = false;
+                            let note = '';
+
+                            if (hasNonEmptyToday || uiAlignedWithSelected) {
+                                showBanner = false; // clearly healthy
                             } else {
-                                if(banner) banner.style.display = 'none';
+                                // Stale conditions:
+                                // - Latest file for selected date exists but is empty AND we only have a prior non-empty file.
+                                // - Or there's no latest/non-empty file matching selected date at all.
+                                const latestIsTodayButEmpty = (latestDate === selectedDate && latestPitchers === 0);
+                                const noTodayDataAtAll = (latestDate !== selectedDate && nonEmptyDate !== selectedDate);
+                                if (latestIsTodayButEmpty || noTodayDataAtAll) {
+                                    showBanner = true;
+                                    if (nonEmptyDate && nonEmptyDate !== selectedDate) {
+                                        note = ` Using ${nonEmptyDate} file.`;
+                                    }
+                                }
+                            }
+
+                            if (banner) banner.style.display = showBanner ? 'block' : 'none';
+                            if (msg && showBanner) {
+                                msg.textContent = `Showing last-known lines; live updates may be delayed.${note}`;
                             }
                         } catch(_e) { /* ignore */ }
                     }

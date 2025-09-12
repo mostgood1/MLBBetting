@@ -9,7 +9,7 @@ Restored from archaeological recovery with enhanced features:
 - Real-time game data integration
 """
 
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for, g
 from typing import Any, Dict, Optional
 import json
 import os
@@ -260,6 +260,14 @@ except ImportError as e:
 
 app = Flask(__name__)
 
+# Basic per-request timing to surface backend duration to clients and logs
+@app.before_request
+def _start_timer():
+    try:
+        g._request_start_ts = time.time()
+    except Exception:
+        pass
+
 # Quick liveness ping (fast, no disk work)
 @app.route('/api/ping')
 def api_ping():
@@ -274,6 +282,19 @@ def _add_no_cache_headers(response):
             response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
             response.headers['Pragma'] = 'no-cache'
             response.headers['Expires'] = '0'
+        # Attach timing headers for observability
+        try:
+            start = getattr(g, '_request_start_ts', None)
+            if start:
+                dur_ms = max(0.0, (time.time() - start) * 1000.0)
+                # Standard Server-Timing header
+                prev = response.headers.get('Server-Timing')
+                metric = f"app;dur={dur_ms:.1f}"
+                response.headers['Server-Timing'] = (f"{prev}, {metric}" if prev else metric)
+                # X-Response-Time for easy inspection
+                response.headers['X-Response-Time'] = f"{dur_ms:.1f}ms"
+        except Exception:
+            pass
     except Exception:
         pass
     return response
@@ -307,6 +328,12 @@ def _warm_caches_async():
                 with app.test_request_context(f"/api/live-status?date={get_business_date()}"):
                     try:
                         api_live_status()
+                    except Exception:
+                        pass
+                # Warm today-games to reduce first-hit latency
+                with app.test_request_context(f"/api/today-games?date={get_business_date()}"):
+                    try:
+                        api_today_games()
                     except Exception:
                         pass
             except Exception:
