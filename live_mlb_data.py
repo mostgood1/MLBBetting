@@ -318,13 +318,16 @@ class LiveMLBData:
             # Game time
             game_datetime = game.get('gameDate', '')
             if game_datetime:
-                # Parse UTC time and convert to Central Time
+                # Parse UTC time and convert to Central Time accurately (handles DST)
                 dt = datetime.fromisoformat(game_datetime.replace('Z', '+00:00'))
-                
-                # Convert UTC to Central Time (UTC-5 for Central Daylight Time in August)
-                from datetime import timedelta
-                dt_central = dt - timedelta(hours=5)  # CDT is UTC-5
-                
+                try:
+                    from zoneinfo import ZoneInfo  # Python 3.9+
+                    dt_central = dt.astimezone(ZoneInfo('America/Chicago'))
+                except Exception:
+                    # Fallback heuristic: Central is UTC-6 standard, UTC-5 daylight (approx Apr–Oct)
+                    from datetime import timedelta as _td
+                    _offset = 5 if dt.month in (4,5,6,7,8,9,10) else 6
+                    dt_central = dt - _td(hours=_offset)
                 game_time = dt_central.strftime('%I:%M %p') + ' CT'
                 game_date = dt.strftime('%Y-%m-%d')
             else:

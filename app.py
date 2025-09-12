@@ -5872,9 +5872,19 @@ def api_today_games():
                                 game_time = g.get('game_time') or g.get('start_time') or g.get('gameDate') or 'TBD'
                                 # ISO to clock if possible
                                 try:
+                                    # If ISO-like timestamp (UTC), convert to Eastern Time for display
                                     if isinstance(game_time, str) and 'T' in game_time:
                                         dt = datetime.fromisoformat(game_time.replace('Z', '+00:00'))
-                                        game_time = dt.strftime('%I:%M %p ET')
+                                        try:
+                                            # Prefer stdlib zoneinfo for accurate DST handling
+                                            from zoneinfo import ZoneInfo  # Python 3.9+
+                                            dt_et = dt.astimezone(ZoneInfo('America/New_York'))
+                                        except Exception:
+                                            # Fallback: rough DST heuristic (Apr–Oct as DST)
+                                            from datetime import timedelta as _td
+                                            _offset = 4 if dt.month in (4,5,6,7,8,9,10) else 5
+                                            dt_et = dt - _td(hours=_offset)
+                                        game_time = dt_et.strftime('%I:%M %p ET')
                                 except Exception:
                                     pass
                                 # Probable pitchers if present
@@ -9061,10 +9071,17 @@ def initialize_system():
                         try:
                             if 'T' in game_time:
                                 dt = datetime.fromisoformat(game_time.replace('Z', '+00:00'))
-                                formatted_time = dt.strftime('%I:%M %p ET')
+                                try:
+                                    from zoneinfo import ZoneInfo
+                                    dt_et = dt.astimezone(ZoneInfo('America/New_York'))
+                                except Exception:
+                                    from datetime import timedelta as _td
+                                    _offset = 4 if dt.month in (4,5,6,7,8,9,10) else 5
+                                    dt_et = dt - _td(hours=_offset)
+                                formatted_time = dt_et.strftime('%I:%M %p ET')
                             else:
                                 formatted_time = game_time
-                        except:
+                        except Exception:
                             formatted_time = game_time or 'TBD'
                         
                         real_games[game_key] = {
