@@ -19,6 +19,16 @@ import os
 import json
 import argparse
 from datetime import datetime
+import sys
+from pathlib import Path
+
+# Ensure repository root is on sys.path so we can import tools.pitcher_sse_worker_bridge
+try:
+    REPO_ROOT = Path(__file__).resolve().parents[1]
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
+except Exception:
+    pass
 
 try:
     from tools.pitcher_sse_worker_bridge import send_events as bridge_send  # type: ignore
@@ -42,6 +52,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--date', help='Date (YYYY-MM-DD). Defaults to today (UTC).')
     ap.add_argument('--verbose', action='store_true')
+    ap.add_argument('--props-only', action='store_true', help='Only send props snapshot')
+    ap.add_argument('--recs-only', action='store_true', help='Only send recommendations snapshot')
+    ap.add_argument('--split', action='store_true', help='Send snapshots in separate POSTs')
     args = ap.parse_args()
 
     date_str = args.date or datetime.utcnow().strftime('%Y-%m-%d')
@@ -59,16 +72,36 @@ def main():
         print(f"  recs:  {recs_path} exists={bool(recs_doc)} size={os.path.getsize(recs_path) if os.path.exists(recs_path) else 0}")
 
     events = []
-    if props_doc and isinstance(props_doc, dict):
+    if not args.recs_only and props_doc and isinstance(props_doc, dict):
         events.append({'type': 'props_snapshot', 'date': date_str, 'doc': props_doc})
-    if recs_doc and isinstance(recs_doc, dict):
+    if not args.props_only and recs_doc and isinstance(recs_doc, dict):
         events.append({'type': 'recommendations_snapshot', 'date': date_str, 'doc': recs_doc})
 
     if not events:
         print('[push_daily_snapshots] Nothing to send (missing docs).')
         return 2
 
-    ok = bridge_send(events)
+    # Optional warmup to reduce cold-start latency
+    web_base = os.environ.get('WEB_BASE_URL', '').rstrip('/')
+    if web_base:
+        import urllib.request
+        try:
+            urllib.request.urlopen(web_base + '/api/health/props-stream-stats', timeout=8).read(1)
+        except Exception:
+            pass
+
+    ok = False
+    if args.split and len(events) > 1:
+        parts = []
+        for ev in events:
+            if bridge_send([ev]):
+                parts.append(True)
+            else:
+                parts.append(False)
+        ok = all(parts)
+    else:
+        ok = bridge_send(events)
+
     if ok:
         print('[push_daily_snapshots] Sent snapshots successfully.')
         return 0
