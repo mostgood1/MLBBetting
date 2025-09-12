@@ -1373,16 +1373,59 @@
                     const homeName = card.querySelector('.home-pitcher .pitcher-name')?.textContent;
                     if(awayName){
                         const metricsDiv = card.querySelector('.away-pitcher .pitch-metrics');
-                        // Remove existing trackers
-                        card.querySelectorAll('.away-pitcher .prop-trackers').forEach(el=> el.remove());
-                        if(metricsDiv){ metricsDiv.insertAdjacentHTML('afterend', buildUnifiedPropTrackersHTML(awayName,'away', compositeId)); }
+                        let container = card.querySelector('.away-pitcher .prop-trackers');
+                        if(!container){
+                            if(metricsDiv){ metricsDiv.insertAdjacentHTML('afterend', buildUnifiedPropTrackersHTML(awayName,'away', compositeId)); }
+                        } else {
+                            // Update existing trackers with lines/proj from unified dataset
+                            try {
+                                const pk = normName(awayName);
+                                const idx = window.__UNIFIED_NAME_INDEX || {};
+                                const backendKey = idx[pk] || pk;
+                                const bundle = (window.__UNIFIED_PITCHER_DATA || {})[backendKey] || {};
+                                const uMarkets = bundle.markets || {};
+                                const uProj = bundle.simple_projection || {};
+                                Object.keys(uMarkets).forEach(mkt => {
+                                    const id = `prop-${mkt}-away-${compositeId}`;
+                                    const el = document.getElementById(id);
+                                    const info = uMarkets[mkt] || {};
+                                    if(el){
+                                        if(typeof info.line === 'number'){ el.dataset.propLine = info.line; el.querySelector('.line')?.textContent = `Line ${Number(info.line).toFixed(1)}`; }
+                                        const projVal = (typeof info.proj==='number')?info.proj:(typeof uProj[mkt]==='number'?uProj[mkt]:null);
+                                        if(projVal!=null){ el.querySelector('.proj')?.textContent = `Proj ${Number(projVal).toFixed(1)}`; }
+                                    }
+                                });
+                            } catch(_){}
+                        }
                         // Re-apply cached live values immediately after rebuild to avoid blanking
                         applyCachedLiveToTrackers(card, compositeId, 'away');
                     }
                     if(homeName){
                         const metricsDivH = card.querySelector('.home-pitcher .pitch-metrics');
-                        card.querySelectorAll('.home-pitcher .prop-trackers').forEach(el=> el.remove());
-                        if(metricsDivH){ metricsDivH.insertAdjacentHTML('afterend', buildUnifiedPropTrackersHTML(homeName,'home', compositeId)); }
+                        let containerH = card.querySelector('.home-pitcher .prop-trackers');
+                        if(!containerH){
+                            if(metricsDivH){ metricsDivH.insertAdjacentHTML('afterend', buildUnifiedPropTrackersHTML(homeName,'home', compositeId)); }
+                        } else {
+                            // Update existing trackers with lines/proj from unified dataset
+                            try {
+                                const pkH = normName(homeName);
+                                const idx = window.__UNIFIED_NAME_INDEX || {};
+                                const backendKeyH = idx[pkH] || pkH;
+                                const bundleH = (window.__UNIFIED_PITCHER_DATA || {})[backendKeyH] || {};
+                                const uMarketsH = bundleH.markets || {};
+                                const uProjH = bundleH.simple_projection || {};
+                                Object.keys(uMarketsH).forEach(mkt => {
+                                    const id = `prop-${mkt}-home-${compositeId}`;
+                                    const el = document.getElementById(id);
+                                    const info = uMarketsH[mkt] || {};
+                                    if(el){
+                                        if(typeof info.line === 'number'){ el.dataset.propLine = info.line; el.querySelector('.line')?.textContent = `Line ${Number(info.line).toFixed(1)}`; }
+                                        const projVal = (typeof info.proj==='number')?info.proj:(typeof uProjH[mkt]==='number'?uProjH[mkt]:null);
+                                        if(projVal!=null){ el.querySelector('.proj')?.textContent = `Proj ${Number(projVal).toFixed(1)}`; }
+                                    }
+                                });
+                            } catch(_){}
+                        }
                         // Re-apply cached live values immediately after rebuild to avoid blanking
                         applyCachedLiveToTrackers(card, compositeId, 'home');
                     }
@@ -2930,21 +2973,63 @@
                                 if(metrics){ metrics.insertAdjacentElement('afterend', container); }
                                 else { sideContainer.appendChild(container); }
                             }
-                            container.innerHTML = '';
+                            // Use unified dataset to populate projections/odds when available
+                            const idx = window.__UNIFIED_NAME_INDEX || {};
+                            const backendKey = idx[pk] || pk;
+                            const bundle = (window.__UNIFIED_PITCHER_DATA || {})[backendKey] || {};
+                            const uMarkets = bundle.markets || {};
+                            const uProj = bundle.simple_projection || {};
+
                             Object.entries(store).forEach(([mkt,lineVal])=>{
-                                const div = document.createElement('div');
-                                div.className='prop-tracker';
-                                div.setAttribute('data-pitcher', pk);
-                                div.setAttribute('data-prop-market', mkt);
-                                div.setAttribute('data-prop-side', 'over');
-                                div.dataset.propLine=lineVal;
-                                div.id = `prop-${mkt}-${side}-${compositeId}`;
+                                const id = `prop-${mkt}-${side}-${compositeId}`;
+                                let div = document.getElementById(id);
                                 const label = (mkt==='strikeouts'?'K': mkt==='hits_allowed'?'H': mkt==='earned_runs'?'ER': mkt==='walks'?'BB': mkt==='outs'?'Outs': mkt);
-                                div.innerHTML = `<span class=\"label\">${label}</span>`+
-                                                `<span class=\"proj\">Proj ?</span>`+
-                                                `<span class=\"line\">Line ${Number(lineVal).toFixed(1)}</span>`+
-                                                ` <span class=\"live\" data-live=\"${mkt}\">Live: —</span>`;
-                                container.appendChild(div);
+                                const info = uMarkets[mkt] || {};
+                                const projVal = (typeof info.proj === 'number') ? info.proj : (typeof uProj[mkt] === 'number' ? uProj[mkt] : null);
+                                const overOdds = info.over_odds != null ? info.over_odds : null;
+                                const underOdds = info.under_odds != null ? info.under_odds : null;
+                                if(!div){
+                                    div = document.createElement('div');
+                                    div.className='prop-tracker';
+                                    div.setAttribute('data-pitcher', pk);
+                                    div.setAttribute('data-prop-market', mkt);
+                                    div.setAttribute('data-prop-side', 'over');
+                                    div.dataset.propLine=lineVal;
+                                    div.id = id;
+                                    const projText = projVal!=null? `Proj ${Number(projVal).toFixed(1)}` : 'Proj -';
+                                    div.innerHTML = `<span class=\"label\">${label}</span>`+
+                                                    `<span class=\"proj\">${projText}</span>`+
+                                                    `<span class=\"line\">Line ${Number(lineVal).toFixed(1)}</span>`+
+                                                    ` <span class=\"live\" data-live=\"${mkt}\">Live: —</span>`;
+                                    container.appendChild(div);
+                                } else {
+                                    // Update line
+                                    div.dataset.propLine = lineVal;
+                                    const lineSpan = div.querySelector('.line');
+                                    if(lineSpan){ lineSpan.textContent = `Line ${Number(lineVal).toFixed(1)}`; }
+                                    // Update proj if known
+                                    if(projVal!=null){
+                                        const projSpan = div.querySelector('.proj');
+                                        if(projSpan){ projSpan.textContent = `Proj ${Number(projVal).toFixed(1)}`; }
+                                    }
+                                }
+                                // Update odds if known
+                                if(overOdds!=null || underOdds!=null){
+                                    let oddsSpan = div.querySelector('.odds');
+                                    if(!oddsSpan){ oddsSpan = document.createElement('span'); oddsSpan.className='odds'; div.appendChild(oddsSpan); }
+                                    const fmt = o => o==null?'' : String(o);
+                                    oddsSpan.textContent = `O ${fmt(overOdds)} / U ${fmt(underOdds)}`.trim();
+                                }
+                                // Compute and stamp edge if we have proj
+                                if(projVal!=null){
+                                    const projSpan = div.querySelector('.proj');
+                                    if(projSpan){
+                                        const edge = Number(projVal) - Number(lineVal);
+                                        let edgeSpan = projSpan.querySelector('span.edge');
+                                        if(!edgeSpan){ edgeSpan = document.createElement('span'); edgeSpan.className='edge'; projSpan.appendChild(edgeSpan); }
+                                        edgeSpan.textContent = `(${edge.toFixed(1)})`;
+                                    }
+                                }
                             });
                             // Re-apply cached live values for this side to avoid blanking
                             applyCachedLiveToTrackers(card, compositeId, side);
