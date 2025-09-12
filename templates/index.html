@@ -840,6 +840,53 @@
                 .replace(/[^a-z0-9]+/g, ' ')
                 .trim();
         }
+        // Parse "HH:MM AM/PM ET" to a CT display string. If parsing fails, return original string.
+        function etToCtDisplay(timeStr) {
+            try {
+                if (!timeStr) return '';
+                const m = String(timeStr).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)\s*(ET)?$/i);
+                if (!m) return String(timeStr).trim();
+                let h = parseInt(m[1], 10);
+                const min = parseInt(m[2], 10);
+                const ampm = m[3].toUpperCase();
+                if (ampm === 'PM' && h !== 12) h += 12;
+                if (ampm === 'AM' && h === 12) h = 0;
+                // ET -> CT is -1 hour (handles DST uniformly since both shift together)
+                h = (h + 24 - 1) % 24;
+                const h12 = ((h + 11) % 12) + 1;
+                const ampmOut = h < 12 ? 'AM' : 'PM';
+                return `${h12}:${String(min).padStart(2, '0')} ${ampmOut} CT`;
+            } catch (_) {
+                return String(timeStr).trim();
+            }
+        }
+        // Extract minutes since midnight for a "HH:MM AM/PM" string, assuming ET; returns null if unparseable
+        function meridianToMinutesET(timeStr) {
+            try {
+                const m = String(timeStr || '').match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+                if (!m) return null;
+                let h = parseInt(m[1], 10);
+                const min = parseInt(m[2], 10);
+                const ampm = m[3].toUpperCase();
+                if (ampm === 'PM' && h !== 12) h += 12;
+                if (ampm === 'AM' && h === 12) h = 0;
+                return h * 60 + min; // ET minutes
+            } catch (_) { return null; }
+        }
+        // Build a numeric sort key for a game time, preferring ISO timestamps; fallback to ET minutes for meridian strings
+        function gameSortKey(game) {
+            try {
+                const gt = game?.game_time || '';
+                if (gt && (gt.includes('T') || gt.includes('Z'))) {
+                    const ts = Date.parse(gt);
+                    if (!Number.isNaN(ts)) return ts;
+                }
+                const tStr = (game?.live_status?.game_time) || gt || '';
+                const minsET = meridianToMinutesET(tStr);
+                if (minsET != null) return minsET * 60000; // scale to ms for consistency
+            } catch (_) {}
+            return Number.MAX_SAFE_INTEGER; // push unknowns to end
+        }
         // Get user's local date, not UTC date
         let currentDate = new Date();
         let localDateString = currentDate.getFullYear() + '-' + 
@@ -1903,10 +1950,8 @@
                     });
                     
                     upcomingGames.sort((a, b) => {
-                        // Upcoming: earliest games first
-                        const timeA = new Date(a.game_time || '9999-12-31');
-                        const timeB = new Date(b.game_time || '9999-12-31');
-                        return timeA - timeB;
+                        // Upcoming: earliest games first using robust sort key
+                        return gameSortKey(a) - gameSortKey(b);
                     });
                     
                     completedGames.sort((a, b) => {
@@ -2086,35 +2131,30 @@
                 // Otherwise, try to convert the raw game time
                 else if (game.game_time && game.game_time !== 'TBD') {
                     try {
-                        // Handle enhanced data time format: "2025-08-14T17:05:00+00:00"
+                        // Handle ISO or meridian strings like "10:45 PM ET"
                         let gameTimeString = game.game_time;
-                        
                         console.log('🕐 Processing game time:', gameTimeString);
-                        
-                        // The enhanced data should already be in proper ISO format
-                        // "2025-08-14T17:05:00+00:00" is valid ISO 8601
-                        const gameDate = new Date(gameTimeString);
-                        
-                        // Verify the date was parsed correctly
-                        if (isNaN(gameDate.getTime())) {
-                            console.error('❌ Invalid date parsed:', gameTimeString);
-                            displayTime = 'TBD';
+                        if (/^(\d{1,2}):(\d{2})\s*(AM|PM)\s*ET$/i.test(gameTimeString)) {
+                            displayTime = etToCtDisplay(gameTimeString);
+                            console.log('✅ ET string converted to:', displayTime);
+                        } else if (/(T|Z)/.test(gameTimeString)) {
+                            const gameDate = new Date(gameTimeString);
+                            if (isNaN(gameDate.getTime())) {
+                                console.error('❌ Invalid date parsed:', gameTimeString);
+                                displayTime = 'TBD';
+                            } else {
+                                displayTime = gameDate.toLocaleTimeString('en-US', {
+                                    hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago'
+                                }) + ' CT';
+                                console.log('✅ Time converted successfully:', { original: gameTimeString, parsed: gameDate.toISOString(), central: displayTime });
+                            }
+                        } else if (/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.test(gameTimeString)) {
+                            // Already a meridian string without TZ; display as-is
+                            displayTime = gameTimeString.trim();
+                            console.log('ℹ️ Using provided meridian string:', displayTime);
                         } else {
-                            // Always convert to Central Time for consistency
-                            displayTime = gameDate.toLocaleTimeString('en-US', { 
-                                hour: 'numeric', 
-                                minute: '2-digit',
-                                hour12: true,
-                                timeZone: 'America/Chicago' // Central Time
-                            });
-                            
-                            displayTime += ' CT'; // Central Time indicator
-                            
-                            console.log('✅ Time converted successfully:', {
-                                original: gameTimeString,
-                                parsed: gameDate.toISOString(),
-                                central: displayTime
-                            });
+                            console.error('❌ Unrecognized time format:', gameTimeString);
+                            displayTime = 'TBD';
                         }
                     } catch (error) {
                         console.error('❌ Error converting game time:', error);
