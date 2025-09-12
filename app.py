@@ -3460,13 +3460,45 @@ def _process_ingested_event(ev: dict):
     except Exception:
         pass
 
+def _get_ingest_token():
+    """Return (token, source) from env or file without raising.
+    Priority: env PITCHER_SSE_INGEST_TOKEN -> file at PITCHER_SSE_INGEST_TOKEN_FILE -> common defaults.
+    """
+    try:
+        env_tok = os.environ.get('PITCHER_SSE_INGEST_TOKEN')
+        if env_tok:
+            return env_tok.strip(), 'env'
+        # Check file path via env
+        fpath = os.environ.get('PITCHER_SSE_INGEST_TOKEN_FILE')
+        candidates = []
+        if fpath:
+            candidates.append(fpath)
+        # Common secret file locations (Render/K8s style)
+        candidates += [
+            '/etc/secrets/pitcher_sse_ingest_token',
+            '/var/secrets/pitcher_sse_ingest_token',
+            os.path.join(os.getcwd(), 'secrets', 'pitcher_sse_ingest_token'),
+        ]
+        for p in candidates:
+            try:
+                if p and os.path.exists(p):
+                    with open(p, 'r', encoding='utf-8') as fh:
+                        val = fh.read().strip()
+                        if val:
+                            return val, f'file:{p}'
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return '', 'none'
+
 @app.route('/internal/pitcher-props/broadcast', methods=['POST'])
 def api_pitcher_props_broadcast_ingest():
     """Allow a separate worker to relay events for SSE and persistence.
     Requires Authorization: Bearer <PITCHER_SSE_INGEST_TOKEN>.
     Accepts either a single event or {type:'batch', events:[...]}."""
     try:
-        expected = os.environ.get('PITCHER_SSE_INGEST_TOKEN')
+        expected, _src = _get_ingest_token()
         auth = request.headers.get('Authorization','').strip()
         token = auth.split('Bearer')[-1].strip() if 'Bearer' in auth else auth
         if not expected or token != expected:
@@ -3496,11 +3528,15 @@ def api_health_props_stream_stats():
         props_path = os.path.join(base_dir, f'bovada_pitcher_props_{safe_date}.json')
         recs_path = os.path.join(base_dir, f'pitcher_prop_recommendations_{safe_date}.json')
         line_hist_path = os.path.join(base_dir, f'pitcher_prop_line_history_{safe_date}.json')
+        _tok, _src = _get_ingest_token()
         stats = {
             'subscribers': len(_PITCHER_SSE_SUBSCRIBERS),
             'last_event_ts': _PITCHER_SSE_STATS.get('last_event_ts'),
             'last_event_type': _PITCHER_SSE_STATS.get('last_event_type'),
             'counts_by_type': _PITCHER_SSE_STATS.get('counts_by_type', {}),
+            # Safe diagnostics only
+            'ingest_token_configured': bool(_tok),
+            'ingest_token_source': _src,
             'last_props_snapshot': _PITCHER_SSE_STATS.get('last_props_snapshot'),
             'last_recs_snapshot': _PITCHER_SSE_STATS.get('last_recs_snapshot'),
             'files': {

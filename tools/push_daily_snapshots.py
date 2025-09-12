@@ -21,6 +21,7 @@ import argparse
 from datetime import datetime
 import sys
 from pathlib import Path
+import importlib
 
 # Ensure repository root is on sys.path so we can import tools.pitcher_sse_worker_bridge
 try:
@@ -30,12 +31,14 @@ try:
 except Exception:
     pass
 
-try:
-    from tools.pitcher_sse_worker_bridge import send_events as bridge_send  # type: ignore
-except Exception:
-    def bridge_send(_events):
+_BRIDGE_AVAILABLE = True
+def _lazy_bridge_send():
+    try:
+        mod = importlib.import_module('tools.pitcher_sse_worker_bridge')
+        return getattr(mod, 'send_events')
+    except Exception:
         print("[push_daily_snapshots] Bridge unavailable. Set WEB_BASE_URL and PITCHER_SSE_INGEST_TOKEN.")
-        return False
+        return None
 
 DATA_DIR = os.path.join('data', 'daily_bovada')
 
@@ -52,10 +55,22 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--date', help='Date (YYYY-MM-DD). Defaults to today (UTC).')
     ap.add_argument('--verbose', action='store_true')
+    ap.add_argument('--base', help='Override WEB_BASE_URL (e.g., https://your-app)')
+    ap.add_argument('--token', help='Override PITCHER_SSE_INGEST_TOKEN')
     ap.add_argument('--props-only', action='store_true', help='Only send props snapshot')
     ap.add_argument('--recs-only', action='store_true', help='Only send recommendations snapshot')
     ap.add_argument('--split', action='store_true', help='Send snapshots in separate POSTs')
     args = ap.parse_args()
+    # Optional overrides for env so the bridge picks them up
+    if args.base:
+        os.environ['WEB_BASE_URL'] = args.base
+    if args.token:
+        os.environ['PITCHER_SSE_INGEST_TOKEN'] = args.token
+
+    # Import bridge after setting env
+    bridge_send = _lazy_bridge_send()
+    if bridge_send is None:
+        return 1
 
     date_str = args.date or datetime.utcnow().strftime('%Y-%m-%d')
     tag = date_str.replace('-', '_')
