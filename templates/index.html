@@ -680,6 +680,13 @@
     <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="white" stroke="black" stroke-width="4"/><path d="M20,30 C40,50 60,50 80,30" stroke="red" stroke-width="4" fill="none"/><path d="M20,70 C40,50 60,50 80,70" stroke="red" stroke-width="4" fill="none"/></svg>' />
 </head>
 <body>
+        <!-- Health banner for props feed -->
+        <div id="propsHealthBanner" style="display:none; position:fixed; bottom:16px; right:16px; z-index:9999; background:#fff7e6; color:#663c00; border:1px solid #ffe8bf; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.12); padding:10px 12px; font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial;">
+            <span style="font-weight:600;">Pitcher props feed is stale</span>
+            <span id="propsHealthMsg" style="margin-left:6px;">Showing last-known lines; live updates may be delayed.</span>
+        </div>
+        <!-- SSE status indicator -->
+        <div id="sseStatusDot" title="Props stream status" style="position:fixed; bottom:16px; left:16px; width:10px; height:10px; border-radius:50%; background:#bbb; box-shadow:0 0 0 2px #fff, 0 0 0 3px rgba(0,0,0,0.1); z-index:9999;"></div>
     <div class="container">
         <div class="header">
             <h1>⚾ MLB-Betting</h1>
@@ -3209,14 +3216,15 @@
                 break;
             }
           }
-          function startSSE(){
-            try {
-              es = new EventSource('/api/pitcher-props/stream');
-              es.onmessage = (msg)=>{ if(!msg.data) return; try { const ev = JSON.parse(msg.data); if(ev && ev.type) handleEvent(ev); } catch(e){ console.warn('SSE parse', e); } };
-              es.onerror = ()=>{ try { es.close(); } catch(_){}; setTimeout(startSSE, 10000); };
-            } catch(e){ console.warn('SSE init failed', e); setTimeout(startSSE, 15000); }
-          }
-         async function primeFromUnified(){
+                    function startSSE(){
+                        try {
+                            es = new EventSource('/api/pitcher-props/stream');
+                            try { document.getElementById('sseStatusDot').style.background = '#00c853'; } catch(_){ }
+                            es.onmessage = (msg)=>{ if(!msg.data) return; try { const ev = JSON.parse(msg.data); if(ev && ev.type) handleEvent(ev); } catch(e){ console.warn('SSE parse', e); } };
+                            es.onerror = ()=>{ try { es.close(); } catch(_){}; try { document.getElementById('sseStatusDot').style.background = '#bbb'; } catch(_){ } setTimeout(startSSE, 10000); };
+                        } catch(e){ console.warn('SSE init failed', e); setTimeout(startSSE, 15000); }
+                    }
+                 async function primeFromUnified(){
                  try {
                      const selDate = document.getElementById('game-date')?.value || '';
                      console.debug('[UNIFIED] fetching unified props for date:', selDate);
@@ -3228,6 +3236,8 @@
                      if(!data.success) { console.warn('[UNIFIED] response not successful', data); return; }
              // Store full unified dataset for sidebar + trackers
              window.__UNIFIED_PITCHER_DATA = data.data || {};
+                 // Expose unified meta for health signal (e.g., source_date fallback)
+                 window.__UNIFIED_PITCHER_META = data.meta || {};
                             console.debug('[UNIFIED] loaded pitchers:', Object.keys(window.__UNIFIED_PITCHER_DATA).length, 'meta:', data.meta);
                             // Build simple->backend key index for name normalization consistency
                             (function(){
@@ -3270,7 +3280,10 @@
              }
           async function snapshotPatch(){
             try {
-              const r = await fetch('/api/pitcher-props/current');
+              const selDate = document.getElementById('game-date')?.value || '';
+              const bust = `t=${Date.now()}`;
+              const q = selDate?`?date=${encodeURIComponent(selDate)}&${bust}`:`?${bust}`;
+              const r = await fetch('/api/pitcher-props/current' + q);
               if(r.ok){
                 const data = await r.json();
                 const props = data.pitcher_props || {};
@@ -3288,6 +3301,38 @@
           document.addEventListener('DOMContentLoaded', ()=>{ startSSE(); snapshotPatch(); primeFromUnified(); });
           // Periodic refresh every 60s to keep EV / Kelly / lines current
           setInterval(()=> { primeFromUnified(); }, 30000);
+          
+                    // === Props Health Polling ===
+                    async function checkPropsHealth(){
+                        try {
+                            const selDate = document.getElementById('game-date')?.value || '';
+                            const bust = `t=${Date.now()}`;
+                            const q = selDate?`date=${encodeURIComponent(selDate)}&${bust}`:bust;
+                            const r = await fetch(`/api/health/props-stream-stats?${q}`);
+                            if(!r.ok) return;
+                            const h = await r.json();
+                            const banner = document.getElementById('propsHealthBanner');
+                            const msg = document.getElementById('propsHealthMsg');
+                            const latest = h.latest_props || {};
+                            const nonempty = h.latest_nonempty_props || {};
+                            const pitchers = (latest.meta && typeof latest.meta.pitchers==='number') ? latest.meta.pitchers : null;
+                            const latestDate = latest.date || latest.source_date || '';
+                            const nonEmptyDate = nonempty.date || '';
+                            const usingFallback = window.__UNIFIED_PITCHER_META && window.__UNIFIED_PITCHER_META.source_date && window.__UNIFIED_PITCHER_META.source_date !== (latestDate || '').slice(0,10);
+                            const stale = (pitchers === 0) || usingFallback;
+                            if(stale){
+                                if(msg){
+                                    const note = usingFallback && nonEmptyDate ? ` Using ${nonEmptyDate} file.` : '';
+                                    msg.textContent = `Showing last-known lines; live updates may be delayed.${note}`;
+                                }
+                                if(banner) banner.style.display = 'block';
+                            } else {
+                                if(banner) banner.style.display = 'none';
+                            }
+                        } catch(_e) { /* ignore */ }
+                    }
+                    // Kick off health checks
+                    document.addEventListener('DOMContentLoaded', ()=>{ checkPropsHealth(); setInterval(checkPropsHealth, 60000); });
           // === Pitcher Sidebar Rendering ===
           function renderPitcherSidebar(){
              const root = document.getElementById('pitcherSidebarContent');

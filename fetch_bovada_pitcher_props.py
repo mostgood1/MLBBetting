@@ -354,6 +354,28 @@ def main() -> bool:
     if not events:
         logger.warning("No events retrieved; writing empty stub file")
     props = parse_pitcher_props(events)
+    # If parser produced zero pitchers, dump a light diagnostic sample for triage
+    if not props and events:
+        try:
+            sample = []
+            for ev in events[:10]:
+                ev_id = ev.get('id')
+                ev_desc = (ev.get('description') or ev.get('shortName') or '')
+                items = []
+                for dg in (ev.get('displayGroups') or [])[:4]:
+                    for mk in (dg.get('markets') or [])[:8]:
+                        desc = str(mk.get('description', '')).strip()
+                        if any(h in desc.lower() for h in ['strike', 'out', 'walk', 'earned', 'hit']):
+                            items.append(desc)
+                if items:
+                    sample.append({'event_id': ev_id, 'event': ev_desc, 'markets': items[:25]})
+            date_tag = datetime.utcnow().strftime('%Y_%m_%d')
+            dbg_path = os.path.join(DATA_DIR, f'debug_pitcher_props_empty_{date_tag}.json')
+            with open(dbg_path, 'w', encoding='utf-8') as f:
+                json.dump({'events_count': len(events), 'sample': sample}, f, indent=2)
+            logger.info(f"Wrote empty-props debug sample: {dbg_path} (events={len(events)}, samples={len(sample)})")
+        except Exception:
+            pass
     # Merge with today's previously saved props so we don't lose lines once games are in-progress/final
     # Keep a union of markets seen throughout the day (retain previous when newly fetched is missing)
     try:

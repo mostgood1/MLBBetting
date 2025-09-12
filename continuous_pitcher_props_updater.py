@@ -410,6 +410,13 @@ def main():
                 print(f"[PitcherPropsUpdater] Generation error: {e}")
 
         props_payload = load_props_file(date_str)
+        try:
+            top_keys = list(props_payload.keys()) if isinstance(props_payload, dict) else []
+            pcount = len((props_payload.get('pitcher_props') or {})) if isinstance(props_payload, dict) else 0
+            if pcount == 0:
+                print(f"[PitcherPropsUpdater] Warning: props payload empty for {date_str}. top_keys={top_keys}")
+        except Exception:
+            pass
         summary = extract_pitcher_market_summary(props_payload)
         # Relay full props snapshot to web so the site can serve latest lines (even without git)
         try:

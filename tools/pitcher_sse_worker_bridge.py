@@ -19,6 +19,8 @@ def send_events(events):
     try:
         url = WEB_BASE.rstrip('/') + '/internal/pitcher-props/broadcast'
         data = json.dumps({'type':'batch','events': events}).encode('utf-8')
+        if DEBUG:
+            print(f"[Bridge] POST {url} bytes={len(data)} events={len(events)} types={[e.get('type') for e in events][:5]}")
         req = urllib.request.Request(url, data=data, headers={'Content-Type':'application/json', 'Authorization': f'Bearer {TOKEN}'})
         with urllib.request.urlopen(req, timeout=10) as resp:
             ok = 200 <= resp.status < 300

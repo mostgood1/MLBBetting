@@ -3249,6 +3249,9 @@ _PITCHER_SSE_STATS = {
     'last_event_ts': None,
     'last_event_type': None,
     'counts_by_type': {},
+    # Diagnostics for latest snapshots received from worker
+    'last_props_snapshot': None,      # {'date': 'YYYY-MM-DD', 'pitchers': int, 'event_count': int|None, 'retrieved_at': iso}
+    'last_recs_snapshot': None        # {'date': 'YYYY-MM-DD', 'count': int, 'generated_at': iso}
 }
 
 def broadcast_pitcher_update(event: dict):
@@ -3407,6 +3410,17 @@ def _process_ingested_event(ev: dict):
             doc = ev.get('doc') or {}
             if isinstance(doc, dict):
                 try:
+                    # Update in-memory diagnostics
+                    try:
+                        pc = len((doc.get('pitcher_props') or {}))
+                    except Exception:
+                        pc = 0
+                    _PITCHER_SSE_STATS['last_props_snapshot'] = {
+                        'date': d,
+                        'pitchers': pc,
+                        'event_count': doc.get('event_count'),
+                        'retrieved_at': doc.get('retrieved_at')
+                    }
                     safe = d.replace('-', '_')
                     base_dir = os.path.join('data', 'daily_bovada')
                     os.makedirs(base_dir, exist_ok=True)
@@ -3423,6 +3437,16 @@ def _process_ingested_event(ev: dict):
             doc = ev.get('doc') or {}
             if isinstance(doc, dict):
                 try:
+                    # Update in-memory diagnostics
+                    try:
+                        rc = len((doc.get('recommendations') or []))
+                    except Exception:
+                        rc = 0
+                    _PITCHER_SSE_STATS['last_recs_snapshot'] = {
+                        'date': d,
+                        'count': rc,
+                        'generated_at': doc.get('generated_at') or doc.get('built_at') or doc.get('timestamp')
+                    }
                     safe = d.replace('-', '_')
                     base_dir = os.path.join('data', 'daily_bovada')
                     os.makedirs(base_dir, exist_ok=True)
@@ -3477,6 +3501,8 @@ def api_health_props_stream_stats():
             'last_event_ts': _PITCHER_SSE_STATS.get('last_event_ts'),
             'last_event_type': _PITCHER_SSE_STATS.get('last_event_type'),
             'counts_by_type': _PITCHER_SSE_STATS.get('counts_by_type', {}),
+            'last_props_snapshot': _PITCHER_SSE_STATS.get('last_props_snapshot'),
+            'last_recs_snapshot': _PITCHER_SSE_STATS.get('last_recs_snapshot'),
             'files': {
                 'props': {
                     'path': props_path,
