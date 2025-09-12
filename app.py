@@ -3586,6 +3586,25 @@ def api_pitcher_props_unified():
         else:
             stats_core = stats_doc
         games_doc = _load_json(games_path, [])
+        # Fallback: if no local games file, derive from MLB schedule for requested date
+        if (not games_doc) or (isinstance(games_doc, list) and len(games_doc) == 0) or (isinstance(games_doc, dict) and not games_doc.get('games')):
+            try:
+                from live_mlb_data import LiveMLBData
+                mlb_api = LiveMLBData()
+                live_games = mlb_api.get_enhanced_games_data(date_str) or []
+                # Normalize to a simple list compatible with build_team_map expectations
+                games_doc = [
+                    {
+                        'away_team': g.get('away_team'),
+                        'home_team': g.get('home_team'),
+                        'away_pitcher': g.get('away_pitcher'),
+                        'home_pitcher': g.get('home_pitcher')
+                    }
+                    for g in live_games if g.get('away_team') and g.get('home_team')
+                ]
+                logger.info(f"[UNIFIED] Built games_doc from MLB schedule with {len(games_doc)} entries for {date_str}")
+            except Exception as _e:
+                logger.warning(f"[UNIFIED] Could not build games_doc from MLB schedule: {_e}")
         team_map = build_team_map(games_doc) if _proj_available else {}
 
         stats_by_name = {}
