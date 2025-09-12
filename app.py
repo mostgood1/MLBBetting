@@ -5565,9 +5565,48 @@ def api_today_games():
                 except Exception as fe:
                     logger.error(f"Fallback to daily games failed: {fe}")
 
+            # If still no data, try building from live MLB schedule
+            if not today_data:
+                try:
+                    logger.info(f"🛰️ Fallback 2: building games from MLB live schedule for {date_param}")
+                    from live_mlb_data import LiveMLBData
+                    mlb_api = LiveMLBData()
+                    live_games = mlb_api.get_enhanced_games_data(date_param)
+                    built = {}
+                    for lg in live_games:
+                        away_team = lg.get('away_team', '')
+                        home_team = lg.get('home_team', '')
+                        if not away_team or not home_team:
+                            continue
+                        game_key = f"{away_team.replace(' ', '_')}_vs_{home_team.replace(' ', '_')}"
+                        game_time = lg.get('game_time') or lg.get('gameDate') or 'TBD'
+                        built[game_key] = {
+                            'away_team': away_team,
+                            'home_team': home_team,
+                            'game_date': date_param,
+                            'game_time': game_time,
+                            'game_id': lg.get('game_pk') or lg.get('game_id') or '',
+                            'away_win_probability': 0.5,
+                            'home_win_probability': 0.5,
+                            'predicted_total_runs': 9.0,
+                            'pitcher_info': {
+                                'away_pitcher_name': lg.get('away_pitcher') or 'TBD',
+                                'home_pitcher_name': lg.get('home_pitcher') or 'TBD'
+                            },
+                            'comprehensive_details': {},
+                            'meta': {'source': 'mlb_schedule_fallback'}
+                        }
+                    if built:
+                        today_data = {'games': built}
+                        logger.info(f"✅ MLB schedule fallback built {len(built)} games")
+                    else:
+                        logger.warning("MLB schedule returned no games to build")
+                except Exception as le:
+                    logger.error(f"MLB schedule fallback failed: {le}")
+
             # If still no data, return error
             if not today_data:
-                logger.error(f"❌ No data found for {date_param} in any cache structure or daily files")
+                logger.error(f"❌ No data found for {date_param} in any cache structure, daily files, or MLB schedule")
                 return jsonify({
                     'success': False,
                     'date': date_param,
