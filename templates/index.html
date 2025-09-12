@@ -68,11 +68,8 @@
     .games-grid { display: grid; gap: 15px; grid-template-columns: 1fr; }
     @media (max-width: 640px) {
     .container { padding: 12px; }
-    /* Horizontal swipe for cards on phones */
-    .games-grid { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
-    .games-grid::-webkit-scrollbar { height: 6px; }
-    .games-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-    .game-card { flex: 0 0 88vw; min-width: 88vw; scroll-snap-align: start; }
+    /* Vertical list of full-width cards on phones */
+    .games-grid { display: grid; grid-template-columns: 1fr; gap: 12px; padding-bottom: 4px; }
         .card-body { grid-template-columns: 1fr; }
         .game-teams { font-size: 1rem; }
         .team-logo { width: 28px; height: 28px; }
@@ -225,6 +222,7 @@
             align-items: center;
             gap: 8px;
         }
+    @media (max-width: 480px) { .game-teams { font-size: 1.05rem; } }
 
         .team-info {
             display: flex;
@@ -259,7 +257,7 @@
             opacity: 0.7;
             font-size: 0.9rem;
         }
-    @media (max-width: 480px) { .game-time { font-size: 0.85rem; } }
+    @media (max-width: 480px) { .game-time { font-size: 0.9rem; } }
 
         .prediction-summary {
             display: grid;
@@ -267,6 +265,7 @@
             gap: 10px;
             margin-top: 10px;
         }
+    @media (max-width: 480px) { .prediction-summary { grid-template-columns: 1fr 1fr; } }
 
         /* Two-column interior body for game card */
         .card-body {
@@ -274,6 +273,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
+    @media (max-width: 480px) { .card-body { grid-template-columns: 1fr; gap: 10px; } }
 
         .card-section { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; }
         .card-section.transparent { background: transparent; padding: 0; }
@@ -351,6 +351,7 @@
             border-radius: 8px;
             border-left: 4px solid #4fd1c7;
         }
+    @media (max-width: 480px) { .betting-recommendations { margin-top: 10px; padding: 12px; } }
 
         .betting-recommendations h4 {
             margin: 0 0 12px 0;
@@ -489,8 +490,8 @@
         }
 
         .game-time {
-            font-size: 0.85rem;
-            opacity: 0.8;
+            font-size: 0.9rem;
+            opacity: 0.85;
             margin-top: 4px;
         }
 
@@ -518,6 +519,7 @@
             border-radius: 8px;
             border-left: 3px solid #28a745;
         }
+    @media (max-width: 480px) { .final-analysis { padding: 8px; } }
 
         .final-analysis h5 {
             color: #28a745;
