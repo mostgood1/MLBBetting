@@ -12,7 +12,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #0b1e2a; color: #e5e7eb; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
         .header { text-align: center; margin-bottom: 30px; }
 
         .header p {
@@ -65,14 +65,14 @@
             background: #45b7b8;
         }
 
-    .games-grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-    /* Tablet: two columns */
-    @media (min-width: 641px) and (max-width: 1024px) {
-        .games-grid { grid-template-columns: 1fr 1fr; }
-    }
+    .games-grid { display: grid; gap: 15px; grid-template-columns: 1fr; }
     @media (max-width: 640px) {
-        .container { padding: 12px; }
-        .games-grid { grid-template-columns: 1fr; }
+    .container { padding: 12px; }
+    /* Horizontal swipe for cards on phones */
+    .games-grid { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .games-grid::-webkit-scrollbar { height: 6px; }
+    .games-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    .game-card { flex: 0 0 88vw; min-width: 88vw; scroll-snap-align: start; }
         .card-body { grid-template-columns: 1fr; }
         .game-teams { font-size: 1rem; }
         .team-logo { width: 28px; height: 28px; }
@@ -92,6 +92,8 @@
             transition: transform 0.3s, box-shadow 0.3s;
             position: relative;
             overflow: hidden;
+            max-width: 980px;
+            width: 100%;
         }
 
         @media (hover: hover) {
