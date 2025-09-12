@@ -802,6 +802,32 @@
                 clearTimeout(id);
             }
         }
+        // Modal helpers: open/close with backdrop and Escape support
+        function openModal() {
+            const modal = document.getElementById('prediction-modal');
+            if (!modal) return;
+            modal.style.display = 'block';
+            try { document.body.style.overflow = 'hidden'; } catch(_){}
+        }
+        function closeModal() {
+            const modal = document.getElementById('prediction-modal');
+            if (!modal) return;
+            modal.style.display = 'none';
+            try { document.body.style.overflow = ''; } catch(_){}
+        }
+        // Attach one-time listeners for backdrop click and Escape key
+        (function attachModalHandlers(){
+            if (window.__MODAL_HANDLERS_ATTACHED__) return;
+            window.__MODAL_HANDLERS_ATTACHED__ = true;
+            document.addEventListener('DOMContentLoaded', function(){
+                const modal = document.getElementById('prediction-modal');
+                if (!modal) return;
+                // Close when clicking backdrop (but not when clicking content)
+                modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
+                // Close on Escape
+                document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+            });
+        })();
     // Cache of last-known live stats keyed by game compositeId and side (away/home)
     window.__LAST_LIVE_STATS = window.__LAST_LIVE_STATS || {};
 
