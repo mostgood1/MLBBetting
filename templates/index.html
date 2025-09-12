@@ -65,13 +65,21 @@
             background: #45b7b8;
         }
 
-    .games-grid { display: grid; gap: 15px; }
+    .games-grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    /* Tablet: two columns */
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .games-grid { grid-template-columns: 1fr 1fr; }
+    }
     @media (max-width: 640px) {
         .container { padding: 12px; }
         .games-grid { grid-template-columns: 1fr; }
         .card-body { grid-template-columns: 1fr; }
         .game-teams { font-size: 1rem; }
         .team-logo { width: 28px; height: 28px; }
+        /* Reduce UI clutter on very small screens */
+        #togglePitcherSidebar, #pitcher-sidebar, #sseStatusDot, #propsHealthBanner { display: none !important; }
+        .date-selector { flex-wrap: wrap; gap: 8px; }
+        .date-selector .btn { flex: 1 1 calc(50% - 8px); }
     }
 
         .game-card {
@@ -86,23 +94,33 @@
             overflow: hidden;
         }
 
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        @media (hover: hover) {
+            .game-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            }
         }
 
         .game-header {
             /* Compact full-width header: Away | status/score | Home */
             display: grid;
             grid-template-columns: 1fr auto 1fr;
+            grid-template-areas: 'left center right';
             align-items: center;
             gap: 10px;
             margin-bottom: 12px;
         }
 
-        .header-left { justify-self: start; }
-        .header-center { justify-self: center; text-align: center; }
-        .header-right { justify-self: end; }
+        .header-left { justify-self: start; grid-area: left; }
+        .header-center { justify-self: center; text-align: center; grid-area: center; }
+        .header-right { justify-self: end; grid-area: right; }
+
+        /* On small phones, put status/time on top and teams below side-by-side */
+        @media (max-width: 480px) {
+            .game-header { grid-template-columns: 1fr 1fr; grid-template-areas: 'center center' 'left right'; row-gap: 6px; }
+            .game-teams { font-size: 0.95rem; }
+            .team-logo { width: 24px; height: 24px; }
+        }
 
         .starting-pitchers {
             margin-bottom: 15px;
@@ -213,6 +231,7 @@
             transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             border: 1px solid rgba(255,255,255,0.1);
+            min-width: 0; /* allow text ellipsis within grid/flex */
         }
         
         .team-info:hover {
@@ -226,9 +245,7 @@
             object-fit: contain;
         }
 
-        .team-name {
-            font-weight: bold;
-        }
+    .team-name { font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .vs-separator {
             font-size: 0.9rem;
@@ -240,6 +257,7 @@
             opacity: 0.7;
             font-size: 0.9rem;
         }
+    @media (max-width: 480px) { .game-time { font-size: 0.85rem; } }
 
         .prediction-summary {
             display: grid;
@@ -263,6 +281,7 @@
             padding-top: 15px;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
+    @media (max-width: 480px) { .betting-lines { margin-top: 10px; padding-top: 10px; } }
 
         .betting-lines h4 {
             margin-bottom: 12px;
@@ -271,12 +290,15 @@
             text-align: center;
             font-weight: bold;
         }
+    @media (max-width: 480px) { .betting-lines h4 { font-size: 0.85rem; } }
 
         .betting-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
         }
+        @media (max-width: 480px) { .betting-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 360px) { .betting-grid { grid-template-columns: 1fr; } }
 
         .betting-item {
             text-align: center;
@@ -485,6 +507,7 @@
             font-weight: bold;
             font-size: 1.1rem;
         }
+    @media (max-width: 480px) { .live-score .team-score { font-size: 1rem; } }
 
         .final-analysis {
             margin-top: 10px;
@@ -505,6 +528,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 6px;
         }
+    @media (max-width: 480px) { .analysis-grid { grid-template-columns: 1fr; } }
 
         .analysis-item {
             margin: 4px 0;
