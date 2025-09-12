@@ -1834,10 +1834,11 @@
                 let data;
                 let attempt = 0;
                 let lastErr = null;
-                while (attempt < 3) {
+        while (attempt < 3) {
                     try {
                         const endpoint = attempt === 2 ? '/api/today-games' : url; // final attempt without date
-                        const response = await fetchWithTimeout(endpoint, {}, 10000);
+            // Extend timeout to 20s to accommodate first-load computations on the server
+            const response = await fetchWithTimeout(endpoint, {}, 20000);
                         if (!response.ok) throw new Error(`HTTP ${response.status}`);
                         data = await response.json();
                         break;

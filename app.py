@@ -931,6 +931,60 @@ def load_unified_cache():
         logger.error(f"❌ CRITICAL: Error parsing unified cache: {e}")
         raise json.JSONDecodeError(f"Invalid unified cache data: {e}")
 
+# --- Performance helpers for latency-sensitive endpoints (today-games) ---
+_LIVE_GAMES_CACHE = {}
+_LIVE_GAMES_CACHE_TS = {}
+
+def _get_live_games_cached(date_str: str, ttl_seconds: int = 30):
+    """Fetch live/schedule games for a date with a short in-process cache to avoid repeated network calls."""
+    try:
+        now = time.time()
+        ts = _LIVE_GAMES_CACHE_TS.get(date_str)
+        if date_str in _LIVE_GAMES_CACHE and ts and (now - ts < ttl_seconds):
+            return _LIVE_GAMES_CACHE[date_str]
+        from live_mlb_data import LiveMLBData
+        mlb_api = LiveMLBData()
+        games = mlb_api.get_enhanced_games_data(date_str)
+        _LIVE_GAMES_CACHE[date_str] = games
+        _LIVE_GAMES_CACHE_TS[date_str] = now
+        return games
+    except Exception as e:
+        logger.warning(f"_get_live_games_cached failed for {date_str}: {e}")
+        return []
+
+def _get_unified_betting_recs_with_timeout(timeout_sec: float = 2.5) -> dict:
+    """Call get_app_betting_recommendations with a soft timeout to keep /api/today-games responsive.
+    Returns only the raw unified recommendations dict; empty dict on timeout/error.
+    """
+    try:
+        result_box = {'data': {}}
+        done = threading.Event()
+
+        def _worker():
+            try:
+                from app_betting_integration import get_app_betting_recommendations
+                raw_recs, _ = get_app_betting_recommendations()
+                if isinstance(raw_recs, dict):
+                    result_box['data'] = raw_recs
+            except Exception as _e:
+                logger.warning(f"unified betting recs worker error: {_e}")
+            finally:
+                try:
+                    done.set()
+                except Exception:
+                    pass
+
+        t = threading.Thread(target=_worker, daemon=True)
+        t.start()
+        t.join(timeout=timeout_sec)
+        if not done.is_set():
+            logger.info(f"⏱️ Unified betting recs timed out after {timeout_sec}s; continuing without them")
+            return {}
+        return result_box.get('data') or {}
+    except Exception as e:
+        logger.warning(f"_get_unified_betting_recs_with_timeout failed: {e}")
+        return {}
+
 def extract_real_total_line(real_lines, game_key="Unknown"):
     """
     Extract real total line from betting data - NO HARDCODED FALLBACKS
@@ -5513,46 +5567,12 @@ def api_today_games():
             logger.error(f"🎯 BETTING LINES: Failed to load - {e}")
             real_betting_lines = None
 
-        # Try to load betting recommendations, but handle missing files gracefully
-        try:
-            betting_recommendations = load_betting_recommendations()
-        except FileNotFoundError as e:
-            logger.warning(f"No betting recommendations file found for API call: {e}")
-            betting_recommendations = {'games': {}}  # Empty recommendations
-        except Exception as e:
-            logger.error(f"Error loading betting recommendations for API: {e}")
-            betting_recommendations = {'games': {}}  # Empty recommendations
+        # Unified betting recommendations with soft timeout; skip legacy loader here to keep latency low
+        betting_recommendations = {'games': {}}  # placeholder for downstream shape
+        logger.info("🎯 Loading unified betting recommendations for API (soft timeout)...")
+        unified_betting_recommendations = _get_unified_betting_recs_with_timeout(timeout_sec=2.5)
+        logger.info(f"✅ Unified betting recs ready: {len(unified_betting_recommendations) if hasattr(unified_betting_recommendations,'keys') else 0} games (may be 0 on timeout)")
 
-        # Get unified betting recommendations using new engine
-        unified_betting_recommendations = {}
-        try:
-            logger.info("🎯 Loading unified betting recommendations for API...")
-            from app_betting_integration import get_app_betting_recommendations
-            try:
-                raw_unified_recs, _ = get_app_betting_recommendations()
-                if logger.isEnabledFor(logging.DEBUG):
-                    logger.debug(f"get_app_betting_recommendations returned type: {type(raw_unified_recs)}")
-                    logger.debug(f"get_app_betting_recommendations keys sample: {list(raw_unified_recs.keys())[:5] if hasattr(raw_unified_recs, 'keys') else 'N/A'}")
-            except Exception as inner_e:
-                logger.error(f"❌ Error inside get_app_betting_recommendations: {inner_e}")
-                logger.error(f"❌ Traceback: {traceback.format_exc()}")
-                raw_unified_recs = {}
-            unified_betting_recommendations = raw_unified_recs
-            logger.info(f"✅ Loaded unified betting recommendations for {len(unified_betting_recommendations) if hasattr(unified_betting_recommendations, 'keys') else 0} games")
-        except Exception as e:
-            logger.error(f"❌ Failed to load unified betting recommendations: {e}")
-            logger.error(f"❌ Traceback: {traceback.format_exc()}")
-            unified_betting_recommendations = {}
-        # Try to load betting recommendations, but handle missing files gracefully
-        try:
-            betting_recommendations = load_betting_recommendations()
-        except FileNotFoundError as e:
-            logger.warning(f"No betting recommendations file found for API call: {e}")
-            betting_recommendations = {'games': {}}  # Empty recommendations
-        except Exception as e:
-            logger.error(f"Error loading betting recommendations for API: {e}")
-            betting_recommendations = {'games': {}}  # Empty recommendations
-            
         logger.info(f"Loaded cache with keys: {list(unified_cache.keys())[:5]}...")  # Show first 5 keys
         
         # Access the predictions_by_date structure
