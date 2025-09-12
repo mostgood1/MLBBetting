@@ -57,6 +57,7 @@ def main():
     ap.add_argument('--verbose', action='store_true')
     ap.add_argument('--base', help='Override WEB_BASE_URL (e.g., https://your-app)')
     ap.add_argument('--token', help='Override PITCHER_SSE_INGEST_TOKEN')
+    ap.add_argument('--token-file', help='Path to file containing ingest token (alternative to --token)')
     ap.add_argument('--props-only', action='store_true', help='Only send props snapshot')
     ap.add_argument('--recs-only', action='store_true', help='Only send recommendations snapshot')
     ap.add_argument('--split', action='store_true', help='Send snapshots in separate POSTs')
@@ -66,6 +67,8 @@ def main():
         os.environ['WEB_BASE_URL'] = args.base
     if args.token:
         os.environ['PITCHER_SSE_INGEST_TOKEN'] = args.token
+    if args.token_file:
+        os.environ['PITCHER_SSE_INGEST_TOKEN_FILE'] = args.token_file
 
     # Import bridge after setting env
     bridge_send = _lazy_bridge_send()
@@ -121,7 +124,7 @@ def main():
         print('[push_daily_snapshots] Sent snapshots successfully.')
         return 0
     else:
-        print('[push_daily_snapshots] Failed to send snapshots. Ensure WEB_BASE_URL and PITCHER_SSE_INGEST_TOKEN are set and valid.')
+        print('[push_daily_snapshots] Failed to send snapshots. Ensure WEB_BASE_URL and ingest token (env or file) are set and valid.')
         return 1
 
 

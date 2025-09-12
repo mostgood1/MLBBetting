@@ -8,21 +8,36 @@ import os, json, urllib.request, time
 from urllib.error import HTTPError, URLError
 
 WEB_BASE = os.environ.get('WEB_BASE_URL')  # e.g., https://mlb-betting-system.onrender.com
-TOKEN = os.environ.get('PITCHER_SSE_INGEST_TOKEN')
 DEBUG = os.environ.get('PITCHER_SSE_BRIDGE_DEBUG','0') == '1'
 TIMEOUT = float(os.environ.get('PITCHER_SSE_BRIDGE_TIMEOUT_SEC', '20'))
 RETRIES = int(os.environ.get('PITCHER_SSE_BRIDGE_RETRIES', '2'))
 
+def _get_token():
+    tok = os.environ.get('PITCHER_SSE_INGEST_TOKEN')
+    if tok:
+        return tok.strip(), 'env'
+    fpath = os.environ.get('PITCHER_SSE_INGEST_TOKEN_FILE')
+    if fpath and os.path.exists(fpath):
+        try:
+            with open(fpath, 'r', encoding='utf-8') as fh:
+                val = fh.read().strip()
+                if val:
+                    return val, f'file:{fpath}'
+        except Exception:
+            pass
+    return '', 'none'
+
 def send_events(events):
-    if not WEB_BASE or not TOKEN:
+    token, src = _get_token()
+    if not WEB_BASE or not token:
         if DEBUG:
-            print(f"[Bridge] Missing WEB_BASE_URL or PITCHER_SSE_INGEST_TOKEN (WEB_BASE_URL={bool(WEB_BASE)} TOKEN_SET={bool(TOKEN)})")
+            print(f"[Bridge] Missing WEB_BASE_URL or ingest token (WEB_BASE_URL={bool(WEB_BASE)} TOKEN_SRC={src})")
         return False
     url = WEB_BASE.rstrip('/') + '/internal/pitcher-props/broadcast'
     data = json.dumps({'type':'batch','events': events}).encode('utf-8')
     if DEBUG:
-        print(f"[Bridge] POST {url} bytes={len(data)} events={len(events)} types={[e.get('type') for e in events][:5]} timeout={TIMEOUT}s retries={RETRIES}")
-    headers = {'Content-Type':'application/json', 'Authorization': f'Bearer {TOKEN}'}
+        print(f"[Bridge] POST {url} bytes={len(data)} events={len(events)} types={[e.get('type') for e in events][:5]} timeout={TIMEOUT}s retries={RETRIES} token_src={src}")
+    headers = {'Content-Type':'application/json', 'Authorization': f'Bearer {token}'}
     last_err = None
     for attempt in range(0, RETRIES + 1):
         try:
