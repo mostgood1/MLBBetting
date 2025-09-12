@@ -24,6 +24,7 @@ import subprocess
 import requests
 from collections import defaultdict, Counter
 from utils.name_normalization import normalize_name
+from pathlib import Path
 
 # -------------------------------------------------------------
 # Date helper (some endpoints rely on business date concept; fallback to today)
@@ -7197,6 +7198,30 @@ def proxy_available_dates():
                 }), 200
         except Exception as _e:
             logger.error(f"Local fallback failed for available-dates: {_e}")
+        # Last-resort fallback: scan data files for betting_recommendations_*.json
+        try:
+            data_dir = Path(__file__).parent / 'data'
+            dates: list[str] = []
+            if data_dir.exists():
+                for p in data_dir.glob('betting_recommendations_*.json'):
+                    base = p.stem  # betting_recommendations_YYYY_MM_DD[_enhanced]
+                    name_part = base.replace('betting_recommendations_', '')
+                    # Strip trailing _enhanced if present
+                    if name_part.endswith('_enhanced'):
+                        name_part = name_part[:-len('_enhanced')]
+                    # Expect YYYY_MM_DD; normalize to YYYY-MM-DD
+                    if len(name_part) == 10 and name_part[4] == '_' and name_part[7] == '_':
+                        dates.append(name_part.replace('_', '-'))
+            dates = sorted(set(dates))
+            if dates:
+                return jsonify({
+                    'success': True,
+                    'dates': dates,
+                    'count': len(dates),
+                    'message': f'Found {len(dates)} dates (file scan fallback)'
+                }), 200
+        except Exception as _e2:
+            logger.error(f"File-scan fallback failed for available-dates: {_e2}")
         return jsonify({
             'success': False,
             'error': 'Historical analysis service unavailable',
@@ -8714,6 +8739,122 @@ def roi_summary_direct():
     except Exception as e:
         logger.error(f"Error calculating ROI summary: {e}")
         return jsonify({'success': False, 'error': str(e)})
+
+# --------------------------------------------------------------------
+# Direct daily betting recommendations endpoint
+# --------------------------------------------------------------------
+@app.route('/api/betting-recommendations/date/<date_iso>')
+def api_betting_recommendations_by_date(date_iso):
+    """Return a flat list of recommendations for a given date (YYYY-MM-DD).
+
+    Looks for data/betting_recommendations_YYYY_MM_DD.json and aggregates
+    any recommendations found across games into a single list.
+    """
+    try:
+        # Normalize date to underscore format used by files
+        safe_date = str(date_iso).strip()
+        if not safe_date or len(safe_date) != 10 or safe_date[4] != '-' or safe_date[7] != '-':
+            return jsonify({'success': False, 'error': 'Invalid date format; expected YYYY-MM-DD'}), 400
+        date_us = safe_date.replace('-', '_')
+        data_dir = Path(__file__).parent / 'data'
+        cand_files = [
+            data_dir / f'betting_recommendations_{date_us}.json',
+            data_dir / f'betting_recommendations_{date_us}_enhanced.json',
+        ]
+        fp = next((p for p in cand_files if p.exists()), None)
+        if not fp:
+            return jsonify({'success': False, 'error': 'Not Found'}), 404
+
+        with open(fp, 'r', encoding='utf-8') as f:
+            payload = json.load(f)
+
+        games = payload.get('games', {}) if isinstance(payload, dict) else {}
+        recs = []
+
+        def add_rec(game_name: str, away: str, home: str, rec_type: str, recommendation: str, odds=None, confidence=None, expected_value=None):
+            item = {
+                'game': f"{away} @ {home}" if away and home else game_name,
+                'type': rec_type,
+                'recommendation': recommendation,
+                'odds': odds,
+                'american_odds': odds,
+                'confidence': confidence,
+                'expected_value': expected_value,
+                'away_team': away,
+                'home_team': home,
+            }
+            recs.append(item)
+
+        for gkey, g in games.items():
+            try:
+                away = g.get('away_team')
+                home = g.get('home_team')
+                lines = g.get('betting_lines') or {}
+                # Case 1: unified array of recommendations per game
+                if isinstance(g.get('recommendations'), list):
+                    for r in g['recommendations']:
+                        rec_type = str(r.get('type') or r.get('bet_type') or '').lower()
+                        rec_text = r.get('recommendation') or r.get('pick') or ''
+                        # Try to attach odds from lines when possible
+                        odds = None
+                        if rec_type.startswith('moneyline') or rec_text.endswith(' ML') or ' ML' in rec_text:
+                            # Determine side by matching team name in text
+                            side_ml = None
+                            if away and away in rec_text:
+                                side_ml = 'away'
+                            elif home and home in rec_text:
+                                side_ml = 'home'
+                            if side_ml == 'away':
+                                odds = lines.get('away_ml')
+                            elif side_ml == 'home':
+                                odds = lines.get('home_ml')
+                        elif rec_type.startswith('total') or rec_text.upper().startswith(('OVER', 'UNDER')):
+                            if rec_text.strip().upper().startswith('OVER'):
+                                odds = lines.get('over_odds')
+                            elif rec_text.strip().upper().startswith('UNDER'):
+                                odds = lines.get('under_odds')
+                        elif rec_type.startswith('run'):
+                            # Not always available as a single odds number
+                            odds = None
+                        add_rec(gkey, away, home, rec_type or 'other', rec_text, odds=odds,
+                                confidence=r.get('confidence'), expected_value=r.get('expected_value'))
+
+                # Case 2: dict under betting_recommendations with moneyline/total_runs/run_line
+                br = g.get('betting_recommendations')
+                if isinstance(br, dict):
+                    # moneyline
+                    ml = br.get('moneyline')
+                    if ml and isinstance(ml, dict) and ml.get('recommendation') not in (None, 'PASS'):
+                        rec_text = ml.get('recommendation', '')
+                        odds = None
+                        if away and away in rec_text:
+                            odds = (lines.get('away_ml') if isinstance(lines, dict) else None)
+                        elif home and home in rec_text:
+                            odds = (lines.get('home_ml') if isinstance(lines, dict) else None)
+                        add_rec(gkey, away, home, 'moneyline', rec_text, odds=odds, confidence=ml.get('confidence'), expected_value=ml.get('expected_value'))
+                    # totals
+                    tr = br.get('total_runs')
+                    if tr and isinstance(tr, dict) and tr.get('recommendation') not in (None, 'PASS'):
+                        rec_text = tr.get('recommendation', '')
+                        odds = None
+                        up = rec_text.strip().upper()
+                        if up.startswith('OVER'):
+                            odds = (lines.get('over_odds') if isinstance(lines, dict) else None)
+                        elif up.startswith('UNDER'):
+                            odds = (lines.get('under_odds') if isinstance(lines, dict) else None)
+                        add_rec(gkey, away, home, 'total', rec_text, odds=odds, confidence=tr.get('confidence'), expected_value=tr.get('expected_value'))
+                    # run line
+                    rl = br.get('run_line')
+                    if rl and isinstance(rl, dict) and rl.get('recommendation'):
+                        rec_text = rl.get('recommendation', '')
+                        add_rec(gkey, away, home, 'run_line', rec_text, odds=None, confidence=rl.get('confidence'), expected_value=rl.get('expected_value'))
+            except Exception as ge:
+                logger.warning(f"Failed to parse recommendations for game {gkey}: {ge}")
+
+        return jsonify({'success': True, 'date': safe_date, 'recommendations': recs})
+    except Exception as e:
+        logger.error(f"Error in betting recommendations by date: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 def initialize_system():
     """Initialize the system with REAL MLB data from repository files (using August 19, 2025 dataset)"""
