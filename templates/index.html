@@ -1932,7 +1932,7 @@
             console.log('Loading todays games for date:', date);
             container.innerHTML = '<div class="loading">Loading today\'s games...</div>';
             // Coordinated UI timeouts so we don't prematurely swap the spinner on slow networks
-            let fetchTimeoutMs = 45000; // more tolerant for slow connections
+            let fetchTimeoutMs = 15000; // start modest; we'll retry and fallback quickly
             const slowTimer = setTimeout(() => {
                 const loading = container.querySelector('.loading');
                 if (loading) loading.innerHTML = 'Loading today\'s games... (taking longer than usual)';
@@ -1951,6 +1951,7 @@
                 let data;
                 let attempt = 0;
                 let lastErr = null;
+                let usedQuickFallback = false;
                 while (attempt < 3) {
                     try {
                         const endpoint = attempt >= 1 ? '/api/today-games' : url; // let server decide on retry
@@ -1975,7 +1976,25 @@
                         lastErr = e;
                         attempt += 1;
                         console.warn('today-games fetch attempt failed', attempt, e);
-                        if ((e && (e.name === 'AbortError' || String(e).includes('aborted'))) && attempt < 3) {
+                        const isAbort = (e && (e.name === 'AbortError' || String(e).includes('aborted')));
+                        if (isAbort && !usedQuickFallback) {
+                            // Immediately fetch quick snapshot to render something, then continue attempts in background
+                            usedQuickFallback = true;
+                            try {
+                                console.info('[FALLBACK] loading quick snapshot for immediate render');
+                                const q = await fetchWithTimeout(`/api/today-games/quick?date=${encodeURIComponent(date||'')}`, {}, 6000);
+                                if (q.ok) {
+                                    const snap = await q.json();
+                                    if (snap && snap.success && Array.isArray(snap.games) && snap.games.length) {
+                                        // Render snapshot right away
+                                        hydrateFromTodayGames(snap, container);
+                                        // After snapshot paint, keep trying full endpoint once more with longer timeout
+                                        fetchTimeoutMs = Math.min(fetchTimeoutMs + 15000, 45000);
+                                    }
+                                }
+                            } catch(ex){ console.debug('quick snapshot failed', ex); }
+                        }
+                        if (isAbort && attempt < 3) {
                             fetchTimeoutMs = Math.min(fetchTimeoutMs + 10000, 45000);
                         }
                     }
@@ -1989,6 +2008,14 @@
                 if (data.success && data.games.length > 0) {
                     try { window.__PERF.mark('render_start'); } catch(_){}
                     console.log('Processing games...');
+                    // If we previously rendered a quick snapshot, clear sections before re-render to avoid dupes
+                    try {
+                        if (usedQuickFallback) {
+                            document.getElementById('live-games-container').innerHTML = '';
+                            document.getElementById('upcoming-games-container').innerHTML = '';
+                            document.getElementById('completed-games-container').innerHTML = '';
+                        }
+                    } catch(_){ }
                     
                     // Build a quick lookup of full games by game_id for later (finals UI)
                     window.__GAME_BY_ID = window.__GAME_BY_ID || {};
@@ -2096,6 +2123,22 @@
                 }
             } catch (error) {
                 console.error('Error loading games:', error);
+                // Try one last-ditch quick snapshot if we haven't already painted anything
+                try {
+                    const hasCard = !!document.querySelector('.game-card');
+                    if (!hasCard) {
+                        const q = await fetchWithTimeout(`/api/today-games/quick?date=${encodeURIComponent(date||'')}`, {}, 6000);
+                        if (q.ok) {
+                            const snap = await q.json();
+                            if (snap && snap.success && Array.isArray(snap.games) && snap.games.length) {
+                                console.info('[FALLBACK] rendered quick snapshot after error');
+                                hydrateFromTodayGames(snap, container);
+                                clearTimeout(slowTimer); clearTimeout(watchdog);
+                                return;
+                            }
+                        }
+                    }
+                } catch(_){ }
                 container.style.display = '';
                 container.innerHTML = `
                     <div class="error">
@@ -2104,6 +2147,38 @@
                     </div>`;
             }
             finally { clearTimeout(slowTimer); clearTimeout(watchdog); }
+        }
+
+        // Helper to render a today-games JSON payload into sections
+        function hydrateFromTodayGames(data, container){
+            try {
+                const liveGames = [];
+                const upcomingGames = [];
+                const completedGames = [];
+                const uniqueGames = new Map();
+                (data.games||[]).forEach(game => {
+                    const gameKey = `${game.away_team}_${game.home_team}_${game.date}`;
+                    if (uniqueGames.has(gameKey)) return;
+                    uniqueGames.set(gameKey, true);
+                    const ls = game.live_status || {};
+                    if (ls.is_live) liveGames.push(game);
+                    else if (ls.is_final) completedGames.push(game);
+                    else upcomingGames.push(game);
+                });
+                // Sort like main path
+                const sortKey = (g)=>{ try{ return gameSortKey(g);}catch(_){return Number.MAX_SAFE_INTEGER;}};
+                liveGames.sort((a,b)=> new Date(a.game_time||0)-new Date(b.game_time||0));
+                upcomingGames.sort((a,b)=> sortKey(a)-sortKey(b));
+                completedGames.sort((a,b)=> new Date(b.game_time||0)-new Date(a.game_time||0));
+                displayGameSection('live-games', liveGames);
+                displayGameSection('upcoming-games', upcomingGames);
+                displayGameSection('completed-games', completedGames);
+                container.style.display = 'none';
+                // Trigger live updates and deferred props
+                updateLiveGames();
+                startLiveUpdates();
+                setTimeout(()=>{ try{ primeFromUnified(); }catch(_){ } }, 300);
+            } catch(e){ console.warn('hydrateFromTodayGames failed', e); }
         }
 
         // Global JS error surface (so silent errors don’t leave spinner forever)

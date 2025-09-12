@@ -1,0 +1,302 @@
+{
+  "date": "2025-09-12",
+  "timestamp": "2025-09-12T19:11:51.761777",
+  "iteration": 1,
+  "coverage": {
+    "covered_pitchers": 27,
+    "total_pitchers": 28,
+    "percent": 96.42857142857143
+  },
+  "newly_filled_pitchers": [
+    "michael lorenzen (kc)",
+    "walker buehler (bos)",
+    "brad lord (was)",
+    "mitch keller (pit)",
+    "chris bassitt (tor)",
+    "trevor rogers (bal)",
+    "martin perez (sd)",
+    "tanner bibee (cle)",
+    "martin perez (cws)",
+    "sandy alcantara (mia)",
+    "tarik skubal (det)",
+    "lucas giolito (bos)",
+    "luis gil (nyy)",
+    "jacob degrom (tex)",
+    "jonah tong",
+    "hurston waldrep (atl)",
+    "brandon pfaadt (ari)",
+    "pablo lopez (min)",
+    "andre pallante (stl)",
+    "quinn priester (mil)",
+    "jp sears (sd)",
+    "tanner gordon (col)",
+    "brady singer (cin)",
+    "luis castillo (sea)",
+    "yusei kikuchi (laa)",
+    "yoshinobu yamamoto (lad)",
+    "justin verlander (sf)"
+  ],
+  "all_pitcher_markets": {
+    "michael lorenzen (kc)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "walker buehler (bos)": {
+      "markets_with_lines": [
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 4
+    },
+    "brad lord (was)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "mitch keller (pit)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "chris bassitt (tor)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "trevor rogers (bal)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "trevor rodgers": {
+      "markets_with_lines": [],
+      "market_count": 0
+    },
+    "martin perez (sd)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "outs"
+      ],
+      "market_count": 4
+    },
+    "tanner bibee (cle)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "martin perez (cws)": {
+      "markets_with_lines": [
+        "walks"
+      ],
+      "market_count": 1
+    },
+    "sandy alcantara (mia)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "tarik skubal (det)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "lucas giolito (bos)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "luis gil (nyy)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "jacob degrom (tex)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "jonah tong": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "hurston waldrep (atl)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "brandon pfaadt (ari)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "pablo lopez (min)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "andre pallante (stl)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "quinn priester (mil)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "jp sears (sd)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks"
+      ],
+      "market_count": 4
+    },
+    "tanner gordon (col)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "brady singer (cin)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "luis castillo (sea)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "yusei kikuchi (laa)": {
+      "markets_with_lines": [
+        "strikeouts",
+        "hits_allowed",
+        "earned_runs",
+        "walks",
+        "outs"
+      ],
+      "market_count": 5
+    },
+    "yoshinobu yamamoto (lad)": {
+      "markets_with_lines": [
+        "walks"
+      ],
+      "market_count": 1
+    },
+    "justin verlander (sf)": {
+      "markets_with_lines": [
+        "walks"
+      ],
+      "market_count": 1
+    }
+  },
+  "all_games_started": false,
+  "active_game_count": 15
+}

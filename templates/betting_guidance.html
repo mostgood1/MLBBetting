@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Betting Guidance - Kelly Recommendations</title>
+  <link rel="icon" href="/static/favicon.ico" />
   <style>
     body { font-family: Inter, Segoe UI, Arial, sans-serif; background:#0b1e39; color:#111; margin:0; }
     .container { max-width:1200px; margin:0 auto; padding:24px; }
@@ -241,9 +242,9 @@
       }catch(e){ console.warn('SSE init failed', e); setTimeout(startPitcherSSE, 15000); }
     }
 
-    async function snapshotFallback(){
+  async function snapshotFallback(){
       try{
-        const res = await fetch('/api/pitcher-props/current');
+    const res = await fetchWithTimeout('/api/pitcher-props/current', {}, 10000);
         if(!res.ok) throw new Error('snapshot http '+res.status);
         const data = await res.json();
         if(data && data.pitcher_props){
@@ -407,7 +408,15 @@
 
     async function loadROIMetricsPanel(){
       try{
-        const res = await fetchWithTimeout('/api/optimization/roi-metrics', {}, 12000);
+        // Slightly longer timeout; retry once on abort
+        let res;
+        try{
+          res = await fetchWithTimeout('/api/optimization/roi-metrics', {}, 15000);
+        }catch(e){
+          if(e && (e.name === 'AbortError' || String(e).includes('aborted'))){
+            res = await fetchWithTimeout('/api/optimization/roi-metrics', {}, 15000);
+          } else { throw e; }
+        }
         const data = await res.json();
         const cont = document.getElementById('roi-metrics-content');
         cont.innerHTML='';
@@ -517,7 +526,7 @@
       const grid = document.getElementById('today-kpis'); grid.innerHTML='';
       try{
         // Pull historical analysis for today to evaluate correctness using final scores (and evaluated maps)
-        const res = await fetch(`/api/historical-analysis/date/${todayISO()}`);
+  const res = await fetchWithTimeout(`/api/historical-analysis/date/${todayISO()}`, {}, 10000);
         if(!res.ok){
           // If historical API not available for today yet, show neutral tiles based on rec count only
           const tiles=[
@@ -778,7 +787,7 @@
             // Then merge previous-day finals
             const prev = new Date(d0.getTime() - 24*60*60*1000);
             const prevStr = `${prev.getUTCFullYear()}-${z(prev.getUTCMonth()+1)}-${z(prev.getUTCDate())}`;
-            const fsResPrev = await fetch(`/api/historical-analysis/final-scores/${prevStr}`);
+            const fsResPrev = await fetchWithTimeout(`/api/historical-analysis/final-scores/${prevStr}`, {}, 8000);
             if(fsResPrev.ok){
               const fsDataP = await fsResPrev.json();
               const fsP = fsDataP.final_scores || {};
@@ -1042,7 +1051,7 @@
       if(!start || !end) return;
       try{
         // We'll aggregate by fetching per-day rec files and final scores for all days in range
-        const datesRes = await fetch('/api/historical-analysis/available-dates');
+  const datesRes = await fetchWithTimeout('/api/historical-analysis/available-dates', {}, 12000);
         if(!datesRes.ok){
           document.getElementById('range-grid').innerHTML='';
           document.getElementById('range-recs').innerHTML='<div class="muted">Historical service unavailable.</div>';
@@ -1059,7 +1068,7 @@
     // Parallel fetch of day analyses for evaluated correctness and final scores
     const dayAnalyses = await Promise.all(allDates.map(async d=>{
           try{
-            const r = await fetch(`/api/historical-analysis/date/${d}`);
+            const r = await fetchWithTimeout(`/api/historical-analysis/date/${d}`, {}, 10000);
             if(!r.ok) return { date: d, data: null };
             const j = await r.json();
             return { date: d, data: (j && j.data ? j.data : j) };
@@ -1083,18 +1092,18 @@
           try{
             const z = n=> String(n).padStart(2,'0');
             // Same day
-            const fsRes = await fetch(`/api/historical-analysis/final-scores/${entry.date}`);
+            const fsRes = await fetchWithTimeout(`/api/historical-analysis/final-scores/${entry.date}`, {}, 8000);
             if(fsRes.ok){ const fsData = await fsRes.json(); const fs = fsData.final_scores || {}; Object.values(fs).forEach(s=>{ const awayName = s.away_team_display || s.away_team; const homeName = s.home_team_display || s.home_team; const gname = `${awayName} @ ${homeName}`; const a = Number(s.away_score), h = Number(s.home_score); if(!isNaN(a)&&!isNaN(h)){ finalScores.set(gname, {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); finalScores.set(normGameKey(gname), {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); } }); }
             // Next day
             const d0 = new Date(entry.date + 'T00:00:00Z');
             const next = new Date(d0.getTime() + 24*60*60*1000);
             const nextStr = `${next.getUTCFullYear()}-${z(next.getUTCMonth()+1)}-${z(next.getUTCDate())}`;
-            const fsResNext = await fetch(`/api/historical-analysis/final-scores/${nextStr}`);
+            const fsResNext = await fetchWithTimeout(`/api/historical-analysis/final-scores/${nextStr}`, {}, 8000);
             if(fsResNext.ok){ const fsDataN = await fsResNext.json(); const fsN = fsDataN.final_scores || {}; Object.values(fsN).forEach(s=>{ const awayName = s.away_team_display || s.away_team; const homeName = s.home_team_display || s.home_team; if(!awayName||!homeName) return; const gname = `${awayName} @ ${homeName}`; const a = Number(s.away_score), h = Number(s.home_score); if(!isNaN(a)&&!isNaN(h)){ if(!finalScores.has(gname) && !finalScores.has(normGameKey(gname))){ finalScores.set(gname, {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); finalScores.set(normGameKey(gname), {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); } } }); }
             // Previous day
             const prev = new Date(d0.getTime() - 24*60*60*1000);
             const prevStr = `${prev.getUTCFullYear()}-${z(prev.getUTCMonth()+1)}-${z(prev.getUTCDate())}`;
-            const fsResPrev = await fetch(`/api/historical-analysis/final-scores/${prevStr}`);
+            const fsResPrev = await fetchWithTimeout(`/api/historical-analysis/final-scores/${prevStr}`, {}, 8000);
             if(fsResPrev.ok){ const fsDataP = await fsResPrev.json(); const fsP = fsDataP.final_scores || {}; Object.values(fsP).forEach(s=>{ const awayName = s.away_team_display || s.away_team; const homeName = s.home_team_display || s.home_team; if(!awayName||!homeName) return; const gname = `${awayName} @ ${homeName}`; const a = Number(s.away_score), h = Number(s.home_score); if(!isNaN(a)&&!isNaN(h)){ if(!finalScores.has(gname) && !finalScores.has(normGameKey(gname))){ finalScores.set(gname, {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); finalScores.set(normGameKey(gname), {away_team:awayName, home_team:homeName, away_score:a, home_score:h}); } } }); }
           }catch(_){ /* optional */ }
 
@@ -1120,7 +1129,7 @@
           // Try to fetch per-day recommendations (primary source for list)
           let recs = [];
           try{
-            const recRes = await fetch(`/api/betting-recommendations/date/${entry.date}`);
+            const recRes = await fetchWithTimeout(`/api/betting-recommendations/date/${entry.date}`, {}, 9000);
             if(recRes.ok){ const recData = await recRes.json(); recs = recData.recommendations || []; }
           }catch(_){ /* ignore */ }
           const currentDate = entry.date;
@@ -1266,11 +1275,11 @@
     loadPerformance(); loadToday(); loadAvailableDates();
 
     // =============== Pitcher Prop Snapshot (Today) ===============
-    async function loadPropSnapshot(){
+  async function loadPropSnapshot(){
       try{
         const sel=document.getElementById('prop-market');
         const hideLow=document.getElementById('prop-hide-low').checked;
-        const res = await fetch(`/api/pitcher-projections?date=${todayISO()}`);
+    const res = await fetchWithTimeout(`/api/pitcher-projections?date=${todayISO()}`, {}, 14000);
         const data = await res.json();
         const cont = document.getElementById('prop-snapshot');
         if(!data.success){ cont.innerHTML = '<div class="muted">No projections available.</div>'; return; }
@@ -1310,10 +1319,10 @@
     setInterval(loadPropSnapshot, 30000);
 
     // =============== Yesterday Pitcher Prop Recap ===============
-    async function loadYesterdayPropRecap(){
+  async function loadYesterdayPropRecap(){
       try{
         const date = yesterdayISO();
-        const res = await fetch(`/api/pitcher-props/recap?date=${date}`);
+    const res = await fetchWithTimeout(`/api/pitcher-props/recap?date=${date}`, {}, 10000);
         const data = await res.json();
         const cont = document.getElementById('props-yesterday');
         const kpis = document.getElementById('props-yesterday-kpis');
@@ -1341,9 +1350,9 @@
     }
 
     // =============== Per-Day Prop Reconciliation ===============
-    async function populatePropsDaySelector(){
+  async function populatePropsDaySelector(){
       try{
-        const res = await fetch('/api/historical-analysis/available-dates');
+    const res = await fetchWithTimeout('/api/historical-analysis/available-dates', {}, 12000);
         const data = await res.json();
         const dates = (data.dates || data.available_dates || []);
         const sel = document.getElementById('props-day'); sel.innerHTML='';
@@ -1351,10 +1360,10 @@
         if(dates.length){ sel.value = dates[dates.length-1]; }
       }catch(e){ /* ignore */ }
     }
-    async function loadPropsForDay(){
+  async function loadPropsForDay(){
       const day = document.getElementById('props-day').value; if(!day) return;
       try{
-        const res = await fetch(`/api/pitcher-props/recap?date=${day}`);
+    const res = await fetchWithTimeout(`/api/pitcher-props/recap?date=${day}`, {}, 10000);
         const data = await res.json();
         const cont = document.getElementById('props-day');
         const kpis = document.getElementById('props-day-kpis');
@@ -1376,15 +1385,15 @@
       }catch(e){ console.warn('props day load error', e); }
     }
 
-    // Kick off prop sections
-    loadPropSnapshot();
-    loadYesterdayPropRecap();
-    populatePropsDaySelector().then(loadPropsForDay);
+  // Kick off prop sections (deferred to prioritize first paint)
+  setTimeout(loadPropSnapshot, 600);
+  setTimeout(loadYesterdayPropRecap, 900);
+  setTimeout(()=>{ populatePropsDaySelector().then(loadPropsForDay); }, 1200);
 
     // ================= Diagnostics Integration =================
-    async function loadPitcherDiagnostics(){
+  async function loadPitcherDiagnostics(){
       try{
-        const res = await fetch('/api/pitcher-props/model-diagnostics');
+    const res = await fetchWithTimeout('/api/pitcher-props/model-diagnostics', {}, 12000);
         const data = await res.json();
         const cont = document.getElementById('pitcher-diagnostics');
         if(!cont) return;
@@ -1420,18 +1429,24 @@
         const days = []; for(let i=1;i<=7;i++){ const d=new Date(today.getTime()-i*86400000); days.push(d.toISOString().slice(0,10)); }
         const buckets = [0,0,0,0,0,0,0,0,0,0]; // successes
         const counts = [0,0,0,0,0,0,0,0,0,0];
-        for(const day of days){
-          try{
-            const r = await fetch(`/api/pitcher-props/recap?date=${day}`); const j = await r.json(); if(!j.success) continue;
-            (j.results||[]).forEach(rec=>{
-              // Approx probability from edge -> rough mapping (edge ~ (p-0.5)*scale). Fallback: treat edge 0.5 ~ 60%.
-              const edge = Number(rec.edge||0); const p = Math.max(0.05, Math.min(0.95, 0.5 + edge*0.12));
-              const idx = Math.min(9, Math.max(0, Math.floor(p*10)));
-              if(rec.result==='HIT'){ buckets[idx] += 1; }
-              if(rec.result==='HIT' || rec.result==='MISS') counts[idx] += 1;
-            });
-          }catch(e){ /* ignore */ }
-        }
+        // Fetch in parallel with timeouts to avoid long serial hangs
+        const promises = days.map(day => (
+          fetchWithTimeout(`/api/pitcher-props/recap?date=${day}`, {}, 8000)
+            .then(r => r.ok ? r.json() : null)
+            .catch(() => null)
+        ));
+        const results = await Promise.allSettled(promises);
+        results.forEach((res) => {
+          if(!res || res.status !== 'fulfilled' || !res.value || !res.value.success) return;
+          const arr = res.value.results || [];
+          arr.forEach(rec => {
+            const edge = Number(rec.edge||0);
+            const p = Math.max(0.05, Math.min(0.95, 0.5 + edge*0.12));
+            const idx = Math.min(9, Math.max(0, Math.floor(p*10)));
+            if(rec.result==='HIT'){ buckets[idx] += 1; }
+            if(rec.result==='HIT' || rec.result==='MISS') counts[idx] += 1;
+          });
+        });
         const obs = buckets.map((s,i)=> counts[i]? (s/counts[i]) : 0);
         const exp = buckets.map((_,i)=> (i+0.5)/10);
         // Lazy inline chart without external lib using canvas 2D
@@ -1450,7 +1465,8 @@
       }catch(e){ console.warn('prob calib chart error', e); }
     }
 
-    loadPitcherDiagnostics();
+  // Defer diagnostics to reduce contention on initial load
+  setTimeout(loadPitcherDiagnostics, 1500);
     setInterval(loadPitcherDiagnostics, 120000);
   </script>
 </body>

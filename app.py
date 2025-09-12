@@ -6532,6 +6532,143 @@ def api_today_games():
             'debug_traceback': traceback.format_exc()
         })
 
+@app.route('/api/today-games/quick')
+def api_today_games_quick():
+    """Ultra-fast fallback for today's games. Uses lightweight home snapshot only.
+    Returns minimal enhanced_game-shaped objects to render cards quickly without heavy processing.
+    """
+    try:
+        date_param = request.args.get('date', get_business_date())
+        snap = _get_home_snapshot_fast()
+        preds = snap.get('predictions', []) or []
+        games = []
+        for g in preds:
+            try:
+                away = normalize_team_name(g.get('away_team') or g.get('away') or '')
+                home = normalize_team_name(g.get('home_team') or g.get('home') or '')
+                if not away or not home:
+                    continue
+                away_pitcher = (g.get('away_pitcher') or g.get('pitcher_info', {}).get('away_pitcher_name') or 'TBD')
+                home_pitcher = (g.get('home_pitcher') or g.get('pitcher_info', {}).get('home_pitcher_name') or 'TBD')
+                away_wp = g.get('away_win_probability') or g.get('away_win_prob') or 50.0
+                home_wp = g.get('home_win_probability') or g.get('home_win_prob') or 50.0
+                # If stored as fraction, convert to percent
+                if isinstance(away_wp, (int, float)) and away_wp <= 1:
+                    away_wp = round(away_wp * 100.0, 1)
+                if isinstance(home_wp, (int, float)) and home_wp <= 1:
+                    home_wp = round(home_wp * 100.0, 1)
+                away_logo = get_team_logo_url(away)
+                home_logo = get_team_logo_url(home)
+                away_assets = get_team_assets(away)
+                home_assets = get_team_assets(home)
+                predicted_away_score = g.get('predicted_away_score') or 0
+                predicted_home_score = g.get('predicted_home_score') or 0
+                total_runs = g.get('predicted_total_runs') or (predicted_away_score or 0) + (predicted_home_score or 0)
+                games.append({
+                    'game_id': f"{away.replace(' ', '_')}_vs_{home.replace(' ', '_')}",
+                    'away_team': away,
+                    'home_team': home,
+                    'away_logo': away_logo,
+                    'home_logo': home_logo,
+                    'away_team_assets': {
+                        'logo_url': away_logo,
+                        'primary_color': away_assets.get('primary_color', '#333333'),
+                        'secondary_color': away_assets.get('secondary_color', '#666666'),
+                        'text_color': away_assets.get('text_color', '#FFFFFF')
+                    },
+                    'home_team_assets': {
+                        'logo_url': home_logo,
+                        'primary_color': home_assets.get('primary_color', '#333333'),
+                        'secondary_color': home_assets.get('secondary_color', '#666666'),
+                        'text_color': home_assets.get('text_color', '#FFFFFF')
+                    },
+                    'away_team_colors': {
+                        'primary': away_assets.get('primary_color', '#333333'),
+                        'secondary': away_assets.get('secondary_color', '#666666'),
+                        'text': away_assets.get('text_color', '#FFFFFF')
+                    },
+                    'home_team_colors': {
+                        'primary': home_assets.get('primary_color', '#333333'),
+                        'secondary': home_assets.get('secondary_color', '#666666'),
+                        'text': home_assets.get('text_color', '#FFFFFF')
+                    },
+                    'date': date_param,
+                    'game_time': 'TBD',
+                    'status': 'Scheduled',
+                    'away_pitcher': away_pitcher,
+                    'home_pitcher': home_pitcher,
+                    'away_pitcher_factor': 1.0,
+                    'home_pitcher_factor': 1.0,
+                    'predicted_away_score': round(float(predicted_away_score or 0), 1),
+                    'predicted_home_score': round(float(predicted_home_score or 0), 1),
+                    'predicted_total_runs': round(float(total_runs or 0), 1),
+                    'away_win_probability': round(float(away_wp or 0), 1),
+                    'home_win_probability': round(float(home_wp or 0), 1),
+                    'win_probabilities': {
+                        'away_prob': round((away_wp or 0)/100.0, 3),
+                        'home_prob': round((home_wp or 0)/100.0, 3)
+                    },
+                    'pitching_metrics': { 'away': None, 'home': None },
+                    'away_score': 0,
+                    'home_score': 0,
+                    'is_live': False,
+                    'is_final': False,
+                    'inning': '',
+                    'inning_state': '',
+                    'confidence': round(float(max(away_wp or 0, home_wp or 0)), 1),
+                    'recommendation': 'PENDING',
+                    'bet_grade': 'N/A',
+                    'predicted_winner': away if (away_wp or 0) > (home_wp or 0) else home,
+                    'over_under_total': None,
+                    'over_under_recommendation': 'N/A',
+                    'over_probability': 0.5,
+                    'real_betting_lines': {},
+                    'has_real_betting_lines': False,
+                    'betting_recommendations': {
+                        'value_bets': [],
+                        'total_opportunities': 0,
+                        'best_bet': None,
+                        'summary': 'Snapshot'
+                    },
+                    'live_status': {
+                        'is_live': False,
+                        'is_final': False,
+                        'away_score': 0,
+                        'home_score': 0,
+                        'inning': '',
+                        'inning_state': '',
+                        'is_top_inning': None,
+                        'status': 'Scheduled',
+                        'badge_class': 'scheduled',
+                        'game_time': 'TBD'
+                    },
+                    'prediction_details': {
+                        'confidence_level': 'MEDIUM',
+                        'moneyline_recommendation': 'NEUTRAL',
+                        'simulation_count': 0,
+                        'model_version': 'snapshot',
+                        'prediction_time': ''
+                    }
+                })
+            except Exception:
+                continue
+        return jsonify({
+            'success': True,
+            'date': date_param,
+            'games': games,
+            'count': len(games),
+            'archaeological_note': 'quick_snapshot'
+        })
+    except Exception as e:
+        logger.warning(f"api_today_games_quick failed: {e}")
+        return jsonify({
+            'success': False,
+            'date': request.args.get('date', get_business_date()),
+            'games': [],
+            'count': 0,
+            'error': str(e)
+        })
+
 @app.route('/api/live-status')
 def api_live_status():
     """API endpoint for live game status updates using MLB API"""
@@ -7298,12 +7435,22 @@ def proxy_date_analysis(date):
                 }), 200
         except Exception as _e:
             logger.error(f"Local fallback failed for date {date}: {_e}")
-        return jsonify({
-            'success': False,
-            'error': 'Historical analysis service unavailable',
+        # Final safe stub so the UI can continue without a 503
+        stub = {
+            'success': True,
             'date': date,
-            'message': 'Make sure historical_analysis_app.py is running on port 5001'
-        }), 503
+            'data': {
+                'betting_recommendations': {
+                    'recommendations_evaluated': []
+                },
+                'game_cards': [],
+                'roi_analysis': {
+                    'game_results': []
+                }
+            },
+            'message': 'Historical analysis service unavailable; returning stub data'
+        }
+        return jsonify(stub), 200
 
 @app.route('/api/historical-analysis/today-games/<date>')
 def proxy_today_games(date):
