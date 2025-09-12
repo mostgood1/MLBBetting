@@ -226,6 +226,13 @@ class LiveMLBData:
         # Used to avoid flicker/missing data between feed updates within the same half-inning
         self._last_ab_cache = {}
         self._last_ab_ttl = 30  # seconds
+        # Reuse HTTP session for connection pooling (reduces TLS handshakes/latency)
+        self._session = requests.Session()
+        # Per-request throttle for feed/live fallbacks to keep latency predictable on Render
+        from threading import local as _local
+        self._tl = _local()
+        self._fallback_limit = 3  # max feed/live fallbacks per request
+        self._budget_window_sec = 2.0  # total time budget for fallbacks per request
 
     def _get_feed_live(self, game_pk: str) -> Dict:
         """Fetch /game/{gamePk}/feed/live with a very short TTL cache.
@@ -241,11 +248,11 @@ class LiveMLBData:
                 return cached.get('data', {})
 
             url = f"{self.game_url}/{game_pk}/feed/live"
-            # Slightly longer timeout and one retry to reduce transient gaps
+            # Use session with modest timeout and one retry to reduce tail latency
             try:
-                resp = requests.get(url, timeout=4)
+                resp = self._session.get(url, timeout=3)
             except Exception:
-                resp = requests.get(url, timeout=4)
+                resp = self._session.get(url, timeout=3)
             resp.raise_for_status()
             data = resp.json() or {}
             # store
@@ -268,7 +275,7 @@ class LiveMLBData:
 
             # Use API call with pitcher and team data hydration (shorter timeout)
             url = f"{self.schedule_url}?sportId=1&date={date}&hydrate=probablePitcher,linescore,team,game(content(summary),tickets)"
-            response = requests.get(url, timeout=5)
+            response = self._session.get(url, timeout=4)
             response.raise_for_status()
             data = response.json() or {}
             # Cache and return
@@ -288,7 +295,7 @@ class LiveMLBData:
         """Get live status for specific game"""
         try:
             url = f"{self.game_url}/{game_pk}/linescore"
-            response = requests.get(url, timeout=5)
+            response = self._session.get(url, timeout=4)
             response.raise_for_status()
             
             return response.json()
@@ -526,8 +533,20 @@ class LiveMLBData:
                     (outs_in_half is not None and outs_in_half >= 0)
                 )
                 if is_apparently_live and (count_balls is None or count_strikes is None or current_batter is None or last_play_text is None):
+                    # Respect per-request budget for expensive feed/live fallbacks
+                    allow_fallback = False
+                    try:
+                        import time as _t
+                        self._tl.budget_deadline = getattr(self._tl, 'budget_deadline', _t.time() + self._budget_window_sec)
+                        self._tl.fallback_used = getattr(self._tl, 'fallback_used', 0)
+                        if (_t.time() < self._tl.budget_deadline) and (self._tl.fallback_used < self._fallback_limit):
+                            allow_fallback = True
+                            self._tl.fallback_used += 1
+                    except Exception:
+                        # If thread-local unavailable, allow first attempt only
+                        allow_fallback = False
                     game_pk = game.get('gamePk')
-                    feed = self._get_feed_live(game_pk)
+                    feed = self._get_feed_live(game_pk) if allow_fallback else {}
                     try:
                         current_play = ((feed.get('liveData') or {}).get('plays') or {}).get('currentPlay') or {}
                         # batter
