@@ -254,6 +254,19 @@
             color: #fff;
         }
 
+    /* Live at-bat widget */
+    .live-atbat { display: inline-flex; align-items: center; gap: 10px; margin-top: 4px; }
+    .half-inning { font-size: 0.78rem; opacity: 0.9; color: #fff; white-space: nowrap; }
+    .bases-diamond { display: grid; grid-template-columns: repeat(3, 8px); grid-template-rows: repeat(3, 8px); gap: 3px; width: 30px; height: 30px; align-items: center; justify-items: center; }
+    .base-dot { width: 8px; height: 8px; border-radius: 2px; transform: rotate(45deg); border: 1px solid rgba(255,255,255,0.3); background: transparent; }
+    .base-dot.on { background: #22c55e; border-color: #22c55e; }
+    .b1 { grid-row: 2; grid-column: 3; }
+    .b2 { grid-row: 1; grid-column: 2; }
+    .b3 { grid-row: 2; grid-column: 1; }
+    .outs { display: inline-flex; align-items: center; gap: 4px; }
+    .out-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: transparent; }
+    .out-dot.on { background: #ef4444; border-color: #ef4444; }
+
         .pitcher-matchup .vs-separator {
             font-size: 0.8rem;
             opacity: 0.5;
@@ -1531,6 +1544,42 @@
             return '';
         }
 
+        // Helper: ordinal
+        function ordinal(n){
+            n = parseInt(n, 10);
+            if (!n && n !== 0) return '';
+            const s=["th","st","nd","rd"], v=n%100;
+            return n + (s[(v-20)%10]||s[v]||s[0]);
+        }
+
+        // Build graphical live at-bat widget (bases/outs/inning)
+        function buildLiveAtBatWidget(lg){
+            if(!lg || !lg.is_live) return '';
+            const half = (typeof lg.is_top_inning === 'boolean')
+                ? (lg.is_top_inning ? 'Top' : 'Bottom')
+                : ((lg.inning_state || '').toLowerCase().startsWith('top') ? 'Top' : (lg.inning_state || '').toLowerCase().startsWith('bottom') ? 'Bottom' : '');
+            const arrow = half === 'Top' ? '↑' : (half === 'Bottom' ? '↓' : '');
+            const inn = lg.inning ? ordinal(lg.inning) : '';
+            const outs = Math.max(0, Math.min(2, parseInt(lg.outs != null ? lg.outs : 0, 10)));
+            const outDots = [0,1,2].map(i => `<span class="out-dot${i < outs ? ' on' : ''}"></span>`).join('');
+            const b1 = lg.on_first ? ' on' : '';
+            const b2 = lg.on_second ? ' on' : '';
+            const b3 = lg.on_third ? ' on' : '';
+            const countChip = (lg.balls != null && lg.strikes != null) ? `<span class="count-chip">${lg.balls} balls, ${lg.strikes} strikes</span>` : '';
+            return `
+                <div class="live-atbat">
+                    <div class="half-inning">${arrow} ${half} ${inn}</div>
+                    <div class="bases-diamond" title="Bases">
+                        <span class="base-dot b2${b2}"></span>
+                        <span class="base-dot b3${b3}"></span>
+                        <span class="base-dot b1${b1}"></span>
+                    </div>
+                    <div class="outs" title="Outs">${outDots}</div>
+                    ${countChip}
+                </div>
+            `;
+        }
+
         function updateGameCard(liveGame) {
             // Find the corresponding game card by composite ID using the selected date
             const dateStr = document.getElementById('game-date')?.value || '';
@@ -1572,10 +1621,12 @@
                             liveGame.home_pitcher,
                             typeof liveGame.is_top_inning === 'boolean' ? liveGame.is_top_inning : undefined
                         );
-            const countChip = (liveGame.balls != null && liveGame.strikes != null) ? `<span class=\"count-chip\">${liveGame.balls} balls, ${liveGame.strikes} strikes</span>` : '';
+            // Graphical widget: bases/outs/inning + count
+            const atbatWidget = buildLiveAtBatWidget(liveGame);
                         headerCenter.innerHTML = `
                             <div class="live-header" data-dynamic="header-center">
-                ${vsLine ? `<div class=\"batter-line\">${vsLine}${countChip ? ` ${countChip}` : ''}</div>` : (liveGame.current_batter ? `<div class=\"batter-line\">${liveGame.current_batter}${countChip ? ` ${countChip}` : ''}</div>` : '')}
+                ${vsLine ? `<div class=\"batter-line\">${vsLine}</div>` : (liveGame.current_batter ? `<div class=\"batter-line\">${liveGame.current_batter}</div>` : '')}
+                ${atbatWidget}
                                 ${liveGame.last_play ? `<div class=\"last-play-line\">${liveGame.last_play}</div>` : ''}
                             </div>
                         `;
