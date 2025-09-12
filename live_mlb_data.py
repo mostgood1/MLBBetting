@@ -222,6 +222,10 @@ class LiveMLBData:
         self._schedule_cache = {}
         self._schedule_cache_ts = {}
         self._schedule_ttl = 8  # seconds
+        # Short-term cache for last-known at-bat context (per game)
+        # Used to avoid flicker/missing data between feed updates within the same half-inning
+        self._last_ab_cache = {}
+        self._last_ab_ttl = 30  # seconds
 
     def _get_feed_live(self, game_pk: str) -> Dict:
         """Fetch /game/{gamePk}/feed/live with a very short TTL cache.
@@ -237,7 +241,11 @@ class LiveMLBData:
                 return cached.get('data', {})
 
             url = f"{self.game_url}/{game_pk}/feed/live"
-            resp = requests.get(url, timeout=3)
+            # Slightly longer timeout and one retry to reduce transient gaps
+            try:
+                resp = requests.get(url, timeout=4)
+            except Exception:
+                resp = requests.get(url, timeout=4)
             resp.raise_for_status()
             data = resp.json() or {}
             # store
@@ -376,6 +384,12 @@ class LiveMLBData:
                         inning_state = 'Top' if linescore.get('isTopInning') else 'Bottom'
                     if isinstance(linescore.get('isTopInning'), bool):
                         is_top_flag = linescore.get('isTopInning')
+                    # If boolean flag missing but we have a string state, infer it
+                    if is_top_flag is None and isinstance(inning_state, str):
+                        if inning_state.lower().startswith('top'):
+                            is_top_flag = True
+                        elif inning_state.lower().startswith('bottom'):
+                            is_top_flag = False
                     if inning and inning_state:
                         # Format as "Top 6th" or "Bottom 6th"
                         inning_ordinal = linescore.get('currentInningOrdinal', f"{inning}th")
@@ -401,6 +415,9 @@ class LiveMLBData:
             current_batter = None
             count_balls = None
             count_strikes = None
+            # Track currently active pitchers (override starters when live)
+            current_home_pitcher = None
+            current_away_pitcher = None
             # Number of pitches in the current plate appearance
             current_ab_pitches = None
             last_play_text = None
@@ -414,6 +431,7 @@ class LiveMLBData:
                         outs_in_half = None
 
                 offense = linescore_all.get('offense', {}) if isinstance(linescore_all, dict) else {}
+                defense = linescore_all.get('defense', {}) if isinstance(linescore_all, dict) else {}
                 on_first = bool(offense.get('first')) if isinstance(offense.get('first'), (dict, list)) or offense.get('first') else False
                 on_second = bool(offense.get('second')) if isinstance(offense.get('second'), (dict, list)) or offense.get('second') else False
                 on_third = bool(offense.get('third')) if isinstance(offense.get('third'), (dict, list)) or offense.get('third') else False
@@ -435,6 +453,32 @@ class LiveMLBData:
                 else:
                     base_state = 'Bases empty'
 
+                # Extra fallback: try to extract current pitcher, and batter/count from linescore offense/defense if available
+                try:
+                    # current pitcher from linescore_all.defense
+                    try:
+                        pit_obj = defense.get('pitcher') or {}
+                        if isinstance(pit_obj, dict):
+                            pname = pit_obj.get('fullName') or pit_obj.get('lastName')
+                            if pname:
+                                if is_top_flag is True:
+                                    current_home_pitcher = current_home_pitcher or pname
+                                elif is_top_flag is False:
+                                    current_away_pitcher = current_away_pitcher or pname
+                    except Exception:
+                        pass
+                    if current_batter is None and isinstance(offense, dict):
+                        batter_obj = offense.get('batter') or {}
+                        if isinstance(batter_obj, dict):
+                            current_batter = batter_obj.get('fullName') or batter_obj.get('lastName')
+                    if isinstance(linescore_all, dict):
+                        if count_balls is None and linescore_all.get('balls') is not None:
+                            count_balls = linescore_all.get('balls')
+                        if count_strikes is None and linescore_all.get('strikes') is not None:
+                            count_strikes = linescore_all.get('strikes')
+                except Exception:
+                    pass
+
                 # Try to extract current batter and count from liveData if available on schedule payload
                 live_data = game.get('liveData', {})
                 if isinstance(live_data, dict):
@@ -442,12 +486,16 @@ class LiveMLBData:
                     current_play = plays.get('currentPlay', {}) if isinstance(plays, dict) else {}
                     matchup = current_play.get('matchup', {})
                     batter = matchup.get('batter', {})
-                    if isinstance(batter, dict):
-                        current_batter = batter.get('fullName') or batter.get('lastName')
+                    if current_batter is None and isinstance(batter, dict):
+                        name = batter.get('fullName') or batter.get('lastName')
+                        if name:
+                            current_batter = name
                     count = current_play.get('count', {})
                     if isinstance(count, dict):
-                        count_balls = count.get('balls')
-                        count_strikes = count.get('strikes')
+                        if count_balls is None and (count.get('balls') is not None):
+                            count_balls = count.get('balls')
+                        if count_strikes is None and (count.get('strikes') is not None):
+                            count_strikes = count.get('strikes')
                     # Pitch count for the current at-bat from playEvents
                     try:
                         events = current_play.get('playEvents') or []
@@ -467,7 +515,7 @@ class LiveMLBData:
                         pass
                     # Last play text
                     result = current_play.get('result', {}) if isinstance(current_play, dict) else {}
-                    if isinstance(result, dict):
+                    if last_play_text is None and isinstance(result, dict):
                         last_play_text = result.get('description') or result.get('event')
 
                 # Fallback: schedule hydrate often omits liveData; fetch feed/live when game appears in progress
@@ -487,12 +535,111 @@ class LiveMLBData:
                         batter = matchup.get('batter') or {}
                         if current_batter is None and isinstance(batter, dict):
                             current_batter = batter.get('fullName') or batter.get('lastName')
+                        # pitcher (extra fallback from currentPlay)
+                        try:
+                            pit = matchup.get('pitcher') or {}
+                            if isinstance(pit, dict):
+                                pname = pit.get('fullName') or pit.get('lastName')
+                                if pname:
+                                    if is_top_flag is True:
+                                        current_home_pitcher = current_home_pitcher or pname
+                                    elif is_top_flag is False:
+                                        current_away_pitcher = current_away_pitcher or pname
+                        except Exception:
+                            pass
                         # count
                         count = current_play.get('count') or {}
                         if count_balls is None:
                             count_balls = count.get('balls')
                         if count_strikes is None:
                             count_strikes = count.get('strikes')
+                        # Additional fallback: liveData.linescore often carries balls/strikes and offense batter
+                        try:
+                            ls = ((feed.get('liveData') or {}).get('linescore') or {})
+                            # current pitcher from feed linescore.defense
+                            try:
+                                def_obj = (ls.get('defense') or {})
+                                pit_obj = def_obj.get('pitcher') or {}
+                                if isinstance(pit_obj, dict):
+                                    pname = pit_obj.get('fullName') or pit_obj.get('lastName')
+                                    if pname:
+                                        if is_top_flag is True:
+                                            current_home_pitcher = current_home_pitcher or pname
+                                        elif is_top_flag is False:
+                                            current_away_pitcher = current_away_pitcher or pname
+                            except Exception:
+                                pass
+                            if current_batter is None:
+                                off = (ls.get('offense') or {})
+                                bat_obj = off.get('batter') or {}
+                                # name directly present
+                                if isinstance(bat_obj, dict):
+                                    current_batter = bat_obj.get('fullName') or bat_obj.get('lastName') or current_batter
+                                # sometimes batter is an ID; try to resolve via feed rosters
+                                if current_batter is None:
+                                    try:
+                                        batter_id = None
+                                        if isinstance(bat_obj, dict):
+                                            batter_id = bat_obj.get('id') or bat_obj.get('playerId') or bat_obj.get('person', {}).get('id')
+                                        elif isinstance(bat_obj, int):
+                                            batter_id = bat_obj
+                                        if batter_id:
+                                            pid_key = f"ID{batter_id}"
+                                            name = None
+                                            gd_players = ((feed.get('gameData') or {}).get('players') or {})
+                                            if isinstance(gd_players, dict) and pid_key in gd_players:
+                                                pdata = gd_players.get(pid_key) or {}
+                                                name = (pdata.get('fullName') or pdata.get('lastFirstName'))
+                                            if not name:
+                                                # fall back to boxscore players by batting side
+                                                bs = ((feed.get('liveData') or {}).get('boxscore') or {})
+                                                batting_side = 'away' if (is_top_flag is True) else 'home' if (is_top_flag is False) else None
+                                                if batting_side:
+                                                    team_players = (((bs.get('teams') or {}).get(batting_side) or {}).get('players') or {})
+                                                    if isinstance(team_players, dict) and pid_key in team_players:
+                                                        pdata = (team_players.get(pid_key) or {}).get('person') or {}
+                                                        name = pdata.get('fullName') or pdata.get('lastFirstName')
+                                            if name:
+                                                current_batter = name
+                                    except Exception:
+                                        pass
+                            if count_balls is None and ls.get('balls') is not None:
+                                count_balls = ls.get('balls')
+                            if count_strikes is None and ls.get('strikes') is not None:
+                                count_strikes = ls.get('strikes')
+                            # Update outs and base occupancy if missing or unknown
+                            if outs_in_half is None and ls.get('outs') is not None:
+                                outs_in_half = ls.get('outs')
+                            try:
+                                off = (ls.get('offense') or {})
+                                of = off.get('first')
+                                os_ = off.get('second')
+                                ot = off.get('third')
+                                if any(v is not None for v in [of, os_, ot]):
+                                    on_first = bool(of) if isinstance(of, (dict, list)) or of else False
+                                    on_second = bool(os_) if isinstance(os_, (dict, list)) or os_ else False
+                                    on_third = bool(ot) if isinstance(ot, (dict, list)) or ot else False
+                                    occupied = [b for b in [on_first, on_second, on_third] if b]
+                                    if len(occupied) == 3:
+                                        base_state = 'Bases loaded'
+                                    elif len(occupied) == 2 and on_first and on_second:
+                                        base_state = 'Runners on 1st & 2nd'
+                                    elif len(occupied) == 2 and on_first and on_third:
+                                        base_state = 'Runners on 1st & 3rd'
+                                    elif len(occupied) == 2 and on_second and on_third:
+                                        base_state = 'Runners on 2nd & 3rd'
+                                    elif len(occupied) == 1 and on_first:
+                                        base_state = 'Runner on 1st'
+                                    elif len(occupied) == 1 and on_second:
+                                        base_state = 'Runner on 2nd'
+                                    elif len(occupied) == 1 and on_third:
+                                        base_state = 'Runner on 3rd'
+                                    else:
+                                        base_state = 'Bases empty'
+                            except Exception:
+                                pass
+                        except Exception:
+                            pass
                         # pitch count for current AB (fallback source)
                         if current_ab_pitches is None:
                             try:
@@ -515,6 +662,41 @@ class LiveMLBData:
                             last_play_text = result.get('description') or result.get('event')
                     except Exception:
                         pass
+
+                # If still missing batter/count while live and in a half-inning, try serving last-known within same half
+                try:
+                    game_pk = game.get('gamePk')
+                    if game_pk and status_code in ['I', 'IH', 'IT', 'IR'] and inning and inning_state and inning_state not in ['Middle', 'End']:
+                        cache = self._last_ab_cache.get(game_pk) or {}
+                        now_ts = time.time()
+                        if cache and (now_ts - cache.get('ts', 0) <= self._last_ab_ttl):
+                            # Only reuse if same half-inning
+                            same_half = (cache.get('inning') == inning) and (cache.get('is_top') == (True if (is_top_flag is True) else False))
+                            if same_half:
+                                if current_batter is None:
+                                    current_batter = cache.get('batter')
+                                if count_balls is None:
+                                    count_balls = cache.get('balls')
+                                if count_strikes is None:
+                                    count_strikes = cache.get('strikes')
+                                if last_play_text is None:
+                                    last_play_text = cache.get('last_play')
+                        # Update cache if we have fresh values
+                        if any(v is not None for v in [current_batter, count_balls, count_strikes, last_play_text]):
+                            try:
+                                self._last_ab_cache[game_pk] = {
+                                    'ts': now_ts,
+                                    'inning': inning,
+                                    'is_top': True if (is_top_flag is True) else False,
+                                    'batter': current_batter,
+                                    'balls': count_balls,
+                                    'strikes': count_strikes,
+                                    'last_play': last_play_text,
+                                }
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
             except Exception as _:
                 pass
 
@@ -528,8 +710,8 @@ class LiveMLBData:
                 'game_date': game_date,
                 'away_team': away_team,
                 'home_team': home_team,
-                'away_pitcher': away_pitcher,
-                'home_pitcher': home_pitcher,
+                'away_pitcher': (current_away_pitcher or away_pitcher),
+                'home_pitcher': (current_home_pitcher or home_pitcher),
                 'away_score': away_score,
                 'home_score': home_score,
                 'away_abbreviation': away_abbreviation,

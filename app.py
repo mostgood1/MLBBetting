@@ -722,6 +722,7 @@ UNIFIED_CACHE_DURATION = 60  # 1 minute
 _HOME_SNAPSHOT = None  # type: ignore[var-annotated]
 _HOME_SNAPSHOT_TS = 0.0
 HOME_SNAPSHOT_TTL = 60  # seconds
+_HOME_SNAPSHOT_BUILDING = False
 
 def _build_home_snapshot() -> dict:
     """Build a fast snapshot for the home page using only local cached files.
@@ -810,6 +811,43 @@ def _build_home_snapshot() -> dict:
             'comprehensive_stats': {},
             'betting_recommendations': {'games': {}}
         }
+
+def _get_home_snapshot_fast() -> dict:
+    """Return a snapshot immediately. If a fresh snapshot isn't ready,
+    return a minimal skeleton and kick a background build of the real snapshot.
+    This avoids blocking the first page load on large file I/O.
+    """
+    global _HOME_SNAPSHOT, _HOME_SNAPSHOT_TS, _HOME_SNAPSHOT_BUILDING
+    now = time.time()
+    # If we have a fresh snapshot, use it
+    if _HOME_SNAPSHOT and (now - _HOME_SNAPSHOT_TS < HOME_SNAPSHOT_TTL):
+        return _HOME_SNAPSHOT
+    # Otherwise, return a minimal skeleton immediately and build in background
+    minimal = {
+        'date': get_business_date(),
+        'predictions': [],
+        'stats': {'total_games': 0, 'premium_predictions': 0},
+        'comprehensive_stats': {},
+        'betting_recommendations': {'games': {}, 'summary': {'source': 'skeleton'}}
+    }
+    # Kick background build if not already running
+    if not _HOME_SNAPSHOT_BUILDING:
+        def _bg():
+            global _HOME_SNAPSHOT, _HOME_SNAPSHOT_TS, _HOME_SNAPSHOT_BUILDING
+            try:
+                _HOME_SNAPSHOT_BUILDING = True
+                snap = _build_home_snapshot()
+                _HOME_SNAPSHOT = snap
+                _HOME_SNAPSHOT_TS = time.time()
+            except Exception:
+                pass
+            finally:
+                _HOME_SNAPSHOT_BUILDING = False
+        try:
+            threading.Thread(target=_bg, daemon=True).start()
+        except Exception:
+            pass
+    return minimal
 
 def _get_home_snapshot(force_rebuild: bool = False) -> dict:
     global _HOME_SNAPSHOT, _HOME_SNAPSHOT_TS
@@ -2432,23 +2470,17 @@ def home():
     """Enhanced home page with comprehensive archaeological data insights"""
     # Get business date (uses 6 AM cutoff to prevent premature rollover)
     today = get_business_date()
-    
     try:
-        # Fast path: serve a lightweight snapshot to render instantly
-        snap = _get_home_snapshot()
-        # Kick a background refresh of the snapshot so later hits are fresh
-        def _bg_refresh():
-            try:
-                _get_home_snapshot(force_rebuild=True)
-            except Exception:
-                pass
-        threading.Thread(target=_bg_refresh, daemon=True).start()
+        # Fastest path: serve a minimal snapshot immediately on cold start.
+        # Heavy unified cache reads are deferred to a background builder.
+        snap = _get_home_snapshot_fast()
 
         # Also pre-load unified cache for downstream routes without blocking
         try:
             threading.Thread(target=load_unified_cache, daemon=True).start()
         except Exception:
             pass
+
         # Immediate render using snapshot data; heavy work happens in background via APIs
         return render_template(
             'index.html',
@@ -2496,13 +2528,24 @@ def home():
             }
         }
 
-        snap = _get_home_snapshot()
-        return render_template('index.html', 
-                 predictions=snap.get('predictions', []),
-                 stats=snap.get('stats', {'total_games': 0, 'premium_predictions': 0}),
-                 comprehensive_stats=snap.get('comprehensive_stats', default_comprehensive_stats),
-                 today_date=today,
-                 games_count=len(snap.get('predictions', [])))
+        try:
+            snap = _get_home_snapshot()
+        except Exception:
+            snap = {
+                'predictions': [],
+                'stats': {'total_games': 0, 'premium_predictions': 0},
+                'comprehensive_stats': default_comprehensive_stats,
+                'betting_recommendations': {'games': {}}
+            }
+        return render_template(
+            'index.html',
+            predictions=snap.get('predictions', []),
+            stats=snap.get('stats', {'total_games': 0, 'premium_predictions': 0}),
+            comprehensive_stats=snap.get('comprehensive_stats', default_comprehensive_stats),
+            today_date=today,
+            games_count=len(snap.get('predictions', [])),
+            betting_recommendations=snap.get('betting_recommendations', {'games': {}})
+        )
 
 @app.route('/monitoring')
 def monitoring_dashboard():
@@ -6213,8 +6256,9 @@ def api_live_status():
                 # Merge with our game data
                 # Try to infer probable/starter names from cache to map live pitches
                 pitcher_info = game_data.get('pitcher_info', {}) if isinstance(game_data, dict) else {}
-                away_pitcher_name = normalize_name(pitcher_info.get('away_pitcher_name') or game_data.get('away_pitcher') or '')
-                home_pitcher_name = normalize_name(pitcher_info.get('home_pitcher_name') or game_data.get('home_pitcher') or '')
+                # Prefer live current pitcher names from live_status when available
+                away_pitcher_name = normalize_name(live_status.get('away_pitcher') or pitcher_info.get('away_pitcher_name') or game_data.get('away_pitcher') or '')
+                home_pitcher_name = normalize_name(live_status.get('home_pitcher') or pitcher_info.get('home_pitcher_name') or game_data.get('home_pitcher') or '')
 
                 # Fallback live boxscore lookup if cache miss for these pitchers
                 def _get_live_stat(name_key: str, field: str):
