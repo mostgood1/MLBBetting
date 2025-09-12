@@ -1972,6 +1972,27 @@
                     loading.innerHTML = 'Loading today\'s games... (still working; slow network)';
                 }
             }, Math.max(12000, fetchTimeoutMs - 5000));
+            // Proactive quick-snapshot fallback if first paint takes too long
+            let usedQuickFallback = false;
+            let paintedQuick = false;
+            const quickPaintTimer = setTimeout(async () => {
+                try {
+                    if (paintedQuick) return;
+                    const hasCards = !!document.querySelector('.game-card');
+                    if (hasCards) return;
+                    console.info('[FALLBACK] timed quick snapshot to avoid long spinner');
+                    const q = await fetchWithTimeout(`/api/today-games/quick?date=${encodeURIComponent(date||'')}` , {}, 6000);
+                    if (q.ok) {
+                        const snap = await q.json();
+                        if (snap && snap.success && Array.isArray(snap.games) && snap.games.length) {
+                            usedQuickFallback = true;
+                            paintedQuick = true;
+                            hydrateFromTodayGames(snap, container);
+                            clearTimeout(slowTimer); clearTimeout(watchdog);
+                        }
+                    }
+                } catch(_){ /* ignore */ }
+            }, 3000);
             
             try {
                 try { window.__PERF.mark('todayGames_fetch_start'); } catch(_){}
@@ -1979,7 +2000,6 @@
                 let data;
                 let attempt = 0;
                 let lastErr = null;
-                let usedQuickFallback = false;
                 while (attempt < 3) {
                     try {
                         const endpoint = attempt >= 1 ? '/api/today-games' : url; // let server decide on retry
@@ -2005,7 +2025,8 @@
                         attempt += 1;
                         console.warn('today-games fetch attempt failed', attempt, e);
                         const isAbort = (e && (e.name === 'AbortError' || String(e).includes('aborted')));
-                        if (isAbort && !usedQuickFallback) {
+                        // On first failure of any kind, try to paint a quick snapshot if not already done
+                        if (!usedQuickFallback && !paintedQuick) {
                             // Immediately fetch quick snapshot to render something, then continue attempts in background
                             usedQuickFallback = true;
                             try {
@@ -2016,6 +2037,8 @@
                                     if (snap && snap.success && Array.isArray(snap.games) && snap.games.length) {
                                         // Render snapshot right away
                                         hydrateFromTodayGames(snap, container);
+                                        paintedQuick = true;
+                                        clearTimeout(slowTimer); clearTimeout(watchdog);
                                         // After snapshot paint, keep trying full endpoint once more with longer timeout
                                         fetchTimeoutMs = Math.min(fetchTimeoutMs + 15000, 45000);
                                     }
@@ -2174,7 +2197,7 @@
                         <button class="btn" style="margin-top:10px" onclick="loadTodaysGames()">Retry</button>
                     </div>`;
             }
-            finally { clearTimeout(slowTimer); clearTimeout(watchdog); }
+            finally { clearTimeout(slowTimer); clearTimeout(watchdog); clearTimeout(quickPaintTimer); }
         }
 
         // Helper to render a today-games JSON payload into sections
