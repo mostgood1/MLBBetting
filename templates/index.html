@@ -1402,9 +1402,16 @@
                                     const el = document.getElementById(id);
                                     const info = uMarkets[mkt] || {};
                                     if(el){
-                                        if(typeof info.line === 'number'){ el.dataset.propLine = info.line; el.querySelector('.line')?.textContent = `Line ${Number(info.line).toFixed(1)}`; }
+                                        if(typeof info.line === 'number'){
+                                            el.dataset.propLine = info.line;
+                                            const lineEl = el.querySelector('.line');
+                                            if(lineEl) lineEl.textContent = `Line ${Number(info.line).toFixed(1)}`;
+                                        }
                                         const projVal = (typeof info.proj==='number')?info.proj:(typeof uProj[mkt]==='number'?uProj[mkt]:null);
-                                        if(projVal!=null){ el.querySelector('.proj')?.textContent = `Proj ${Number(projVal).toFixed(1)}`; }
+                                        if(projVal!=null){
+                                            const projEl = el.querySelector('.proj');
+                                            if(projEl) projEl.textContent = `Proj ${Number(projVal).toFixed(1)}`;
+                                        }
                                     }
                                 });
                             } catch(_){}
@@ -1431,9 +1438,16 @@
                                     const el = document.getElementById(id);
                                     const info = uMarketsH[mkt] || {};
                                     if(el){
-                                        if(typeof info.line === 'number'){ el.dataset.propLine = info.line; el.querySelector('.line')?.textContent = `Line ${Number(info.line).toFixed(1)}`; }
+                                        if(typeof info.line === 'number'){
+                                            el.dataset.propLine = info.line;
+                                            const lineElH = el.querySelector('.line');
+                                            if(lineElH) lineElH.textContent = `Line ${Number(info.line).toFixed(1)}`;
+                                        }
                                         const projVal = (typeof info.proj==='number')?info.proj:(typeof uProjH[mkt]==='number'?uProjH[mkt]:null);
-                                        if(projVal!=null){ el.querySelector('.proj')?.textContent = `Proj ${Number(projVal).toFixed(1)}`; }
+                                        if(projVal!=null){
+                                            const projElH = el.querySelector('.proj');
+                                            if(projElH) projElH.textContent = `Proj ${Number(projVal).toFixed(1)}`;
+                                        }
                                     }
                                 });
                             } catch(_){}
