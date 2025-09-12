@@ -5680,11 +5680,9 @@ def api_today_games():
             if not today_data:
                 try:
                     logger.info(f"🛰️ Fallback 2: building games from MLB live schedule for {date_param}")
-                    from live_mlb_data import LiveMLBData
-                    mlb_api = LiveMLBData()
-                    live_games = mlb_api.get_enhanced_games_data(date_param)
+                    live_games = _get_live_games_cached(date_param)
                     built = {}
-                    for lg in live_games:
+                    for lg in (live_games or []):
                         away_team = lg.get('away_team', '')
                         home_team = lg.get('home_team', '')
                         if not away_team or not home_team:
@@ -5736,13 +5734,11 @@ def api_today_games():
         
         # Check for doubleheaders and add missing games from live data
         try:
-            from live_mlb_data import LiveMLBData
-            mlb_api = LiveMLBData()
-            live_games = mlb_api.get_enhanced_games_data(date_param)
+            live_games = _get_live_games_cached(date_param)
             # Build a map of probable pitchers by normalized matchup to fill TBDs later
             probable_by_matchup = {}
             try:
-                for lg in live_games:
+                for lg in (live_games or []):
                     a = normalize_team_name(lg.get('away_team', ''))
                     h = normalize_team_name(lg.get('home_team', ''))
                     if a and h:
@@ -5755,7 +5751,7 @@ def api_today_games():
             
             # Group live games by team matchup
             live_matchups = {}
-            for live_game in live_games:
+            for live_game in (live_games or []):
                 away_team = live_game.get('away_team', '')
                 home_team = live_game.get('home_team', '')
                 matchup_key = f"{away_team}_vs_{home_team}"
@@ -5810,7 +5806,7 @@ def api_today_games():
         # Build a fast lookup map for live status to avoid per-game API calls
         live_status_map = {}
         try:
-            for lg in live_games:
+            for lg in (live_games or []):
                 a = normalize_team_name(lg.get('away_team', ''))
                 h = normalize_team_name(lg.get('home_team', ''))
                 if a and h:
