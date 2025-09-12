@@ -338,6 +338,28 @@ def debug_routes():
 
 print("DEBUG: Debug routes route added")
 
+# Lightweight health and ping endpoints for deployment diagnostics
+@app.route('/healthz')
+def healthz():
+    try:
+        # Basic checks: routes registered, key data file present
+        routes_count = len(list(app.url_map.iter_rules()))
+        data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'unified_predictions_cache.json')
+        data_exists = os.path.exists(data_path)
+        resp = {
+            'ok': True,
+            'routes': routes_count,
+            'data_cache_exists': data_exists,
+            'ts': datetime.utcnow().isoformat()
+        }
+        return jsonify(resp), 200
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+@app.route('/api/ping')
+def api_ping():
+    return jsonify({'ok': True, 'ts': datetime.utcnow().isoformat()}), 200
+
 # ----------------------------------------------------------------------------
 # ROI Metrics & Optimization History Endpoint
 # ----------------------------------------------------------------------------
