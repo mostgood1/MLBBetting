@@ -29,6 +29,11 @@
   .row .line { opacity: 0.95; }
   .row .live { font-weight: 700; }
   .row .odds { font-size: 0.8rem; opacity: 0.9; }
+  /* Live vs projection highlighting */
+  .live.delta-up { color: #22c55e; }
+  .live.delta-down { color: #ef4444; }
+  .live.delta-strong { text-shadow: 0 0 6px rgba(255,255,255,0.12); }
+  .live.delta-weak { opacity: 0.95; }
     .edge { margin-left: 6px; font-weight: 800; }
     .edge-strong { color: #22c55e; }
     .edge-medium { color: #f59e0b; }
@@ -197,6 +202,7 @@
         const addBox = (label, value, cls, mk) => {
           const div = document.createElement('div');
           div.className = `stat-box ${cls||''}`.trim();
+          if (mk) div.setAttribute('data-market', mk);
           let badge = '';
           // Derive an arrow for each stat that has both a projection and a line
           if (mk) {
@@ -224,10 +230,20 @@
         for(const mk of order){
           if(!(mk in markets)) continue;
           const info = markets[mk] || {}; const lineV = info.line; const over = info.over_odds; const under = info.under_odds;
+          const projV = getProj(mk);
           const label = mk==='strikeouts'?'K': mk==='hits_allowed'?'Hits Allowed': mk==='earned_runs'?'Earned Runs': mk==='walks'?'Walks':'Outs';
           const row = document.createElement('div');
           row.className = 'row';
           row.setAttribute('data-market', mk);
+          if (projV != null && !Number.isNaN(projV)) row.setAttribute('data-proj', String(projV));
+          if (lineV != null && !Number.isNaN(lineV)) row.setAttribute('data-line', String(lineV));
+          // Prefer explicit play side for the selected market; otherwise derive from proj vs line
+          const sideDirect = (playMarket===mk && playSide) ? String(playSide).toUpperCase() : null;
+          if (sideDirect) {
+            row.setAttribute('data-side', sideDirect);
+          } else if (projV!=null && lineV!=null && !Number.isNaN(projV) && !Number.isNaN(lineV)){
+            const d = projV - lineV; if (Math.abs(d) >= 0.05) row.setAttribute('data-side', d>0?'OVER':'UNDER');
+          }
           row.innerHTML = `
             <div class="label">${label}</div>
             <div class="line">Line ${lineV!=null?lineV.toFixed?.(1) ?? lineV:'—'}</div>
@@ -238,6 +254,51 @@
         }
         grid.appendChild(card);
       }
+    }
+
+    // Recompute projection box border class and arrow when line moves
+    function updateProjectionBox(card, mk, newLine){
+      try{
+        const box = card.querySelector(`.stat-box[data-market="${mk}"]`);
+        if(!box) return;
+        const marketRows = card.querySelector(`.row[data-market="${mk}"]`);
+        // establish current projection
+        let proj = null;
+        if (marketRows){
+          const pAttr = marketRows.getAttribute('data-proj');
+          if (pAttr!=null && pAttr!=='') proj = Number(pAttr);
+        }
+        if (proj==null || Number.isNaN(proj) || typeof newLine !== 'number'){
+          // near tie or missing -> clear badge and edge classes
+          const lbl = box.querySelector('.label');
+          if (lbl){
+            const text = lbl.textContent ? lbl.textContent.replace(/[▲▼]/g,'').trim() : '';
+            lbl.innerHTML = text; // remove badge
+          }
+          box.classList.remove('edge-strong','edge-medium','edge-small');
+          return;
+        }
+        const d = proj - newLine;
+        // update edge intensity class
+        box.classList.remove('edge-strong','edge-medium','edge-small');
+        const cls = classifyEdge(d);
+        if (cls) box.classList.add(cls);
+        // update badge arrow by side
+        const side = Math.abs(d) < 0.05 ? null : (d > 0 ? 'OVER' : 'UNDER');
+        const lbl = box.querySelector('.label');
+        if (lbl){
+          // extract plain label text (strip any prior badge)
+          const raw = lbl.textContent || '';
+          // The label contains e.g., 'K▲' or 'K'; rebuild cleanly from market key
+          const label = (mk==='strikeouts'?'K': mk==='hits_allowed'?'Hits' : mk==='earned_runs'?'ER' : mk==='walks'?'BB':'Outs');
+          let badge = '';
+          if (side){
+            const arrow = side === 'OVER' ? '▲' : '▼';
+            badge = `<span class="play-badge ${side.toLowerCase()}" title="${side}">${arrow}</span>`;
+          }
+          lbl.innerHTML = `${label}${badge}`;
+        }
+      }catch(_){ }
     }
 
     async function loadUnified(){
@@ -271,7 +332,52 @@
       }catch(_){ }
     }
 
-  function updateLive(ev){
+    function classifyDelta(mk, delta, side){
+      const abs = Math.abs(Number(delta) || 0);
+      // Market-specific sensitivity (in stat units)
+      const thr = { strikeouts: 0.5, outs: 1.0, earned_runs: 0.5, hits_allowed: 1.0, walks: 0.5 };
+      const t = thr[mk] || 0.7;
+      const cls = [];
+      // side-based goodness: OVER good when live > line; UNDER good when live < line
+      if (side === 'OVER' && delta > 0) cls.push('delta-up');
+      else if (side === 'UNDER' && delta < 0) cls.push('delta-up');
+      else if (side === 'OVER' && delta < 0) cls.push('delta-down');
+      else if (side === 'UNDER' && delta > 0) cls.push('delta-down');
+      if (cls.length) cls.push(abs >= t ? 'delta-strong' : 'delta-weak');
+      return cls.join(' ');
+    }
+
+    function applyLiveToRow(card, mk, value){
+      const row = card.querySelector(`.row[data-market="${mk}"]`);
+      if(!row) return;
+      const liveEl = row.querySelector('.live');
+      if(liveEl){
+        liveEl.textContent = `Live: ${value}`;
+        // compute delta vs betting line; color by play side (OVER/UNDER)
+        const lineAttr = row.getAttribute('data-line');
+        const line = lineAttr!=null && lineAttr!=='' ? Number(lineAttr) : null;
+        // Always derive side from current proj vs line when possible; fallback to stored data-side
+        const projAttr = row.getAttribute('data-proj');
+        const proj = projAttr!=null && projAttr!=='' ? Number(projAttr) : null;
+        let side = null;
+        if (proj!=null && line!=null && !Number.isNaN(proj) && !Number.isNaN(line)){
+          const d = proj - line; if (Math.abs(d) >= 0.05) side = d > 0 ? 'OVER' : 'UNDER';
+        }
+        if (!side) side = (row.getAttribute('data-side') || '').toUpperCase() || null;
+        liveEl.classList.remove('delta-up','delta-down','delta-strong','delta-weak');
+        if (line!=null && !Number.isNaN(line) && side){
+          const delta = Number(value) - line;
+          const cls = classifyDelta(mk, delta, side);
+          cls.split(' ').forEach(c=>{ if(c) liveEl.classList.add(c); });
+          liveEl.title = `${side}: Δ ${delta>=0?'+':''}${delta.toFixed(1)} vs line ${line.toFixed(1)}`;
+        } else {
+          // no line -> leave white and clear tooltip
+          liveEl.removeAttribute('title');
+        }
+      }
+    }
+
+    function updateLive(ev){
       try{
         const pk = norm(ev.pitcher || ev.pitcher_name || ev.key || '');
         if(!pk) return;
@@ -295,12 +401,42 @@
               <div class="live" data-live="${mk}">Live: —</div>
               <div class="odds"></div>
             `;
+            // Attempt to backfill line/proj/side from current unified payload if available
+            try{
+              if (window.__UNIFIED && window.__UNIFIED.data){
+                const bundle = window.__UNIFIED.data[pk];
+                if (bundle){
+                  const markets = bundle.markets || {};
+                  const info = markets[mk] || {};
+                  const lineV = info.line;
+                  if (typeof lineV === 'number'){ row.setAttribute('data-line', String(lineV)); row.querySelector('.line').textContent = `Line ${lineV.toFixed(1)}`; }
+                  const proj = (typeof info.proj === 'number') ? info.proj : ((bundle.simple_projection||{})[mk]);
+                  if (typeof proj === 'number'){ row.setAttribute('data-proj', String(proj)); }
+                  const plays = bundle.plays || {}; const pM = (plays && plays.market) ? String(plays.market) : null; const pS = (plays && plays.side) ? String(plays.side).toUpperCase() : null;
+                  if (pM===mk && pS){ row.setAttribute('data-side', pS); }
+                  else if (typeof proj === 'number' && typeof lineV === 'number'){
+                    const d = proj - lineV; if (Math.abs(d) >= 0.05) row.setAttribute('data-side', d>0?'OVER':'UNDER');
+                  }
+                }
+              }
+            }catch(_){ }
             rowsWrap.appendChild(row);
           }
         }
-        if(row){
+  if(row){
           if(typeof line === 'number'){
             const l = row.querySelector('.line'); if(l) l.textContent = `Line ${line.toFixed(1)}`;
+            row.setAttribute('data-line', String(line));
+            // Recompute and persist side: OVER/UNDER or clear when near tie
+            try{
+              const projAttr = row.getAttribute('data-proj');
+              const proj = projAttr!=null && projAttr!=='' ? Number(projAttr) : null;
+              if (proj!=null && !Number.isNaN(proj)){
+                const d = proj - line; if (Math.abs(d) >= 0.05) row.setAttribute('data-side', d>0?'OVER':'UNDER'); else row.removeAttribute('data-side');
+              }
+            }catch(_){ }
+            // Update projection box visuals for this market
+            updateProjectionBox(el, mk, line);
           }
           const odds = row.querySelector('.odds');
           if(odds){
@@ -334,7 +470,7 @@
     }
 
     // Poll live per-pitcher stats and update the 'Live:' cells in market rows
-    async function pollLiveStats(){
+  async function pollLiveStats(){
       try{
         const date = document.getElementById('date').value;
         const r = await fetch(`/api/pitcher-props/live-stats?date=${encodeURIComponent(date)}&t=${Date.now()}`);
@@ -350,15 +486,11 @@
         for(const [k, st] of Object.entries(stats)){
           const card = document.querySelector(`.card[data-pitcher="${norm(k)}"]`);
           if(!card) continue;
-          const update = (mk, text) => {
-            const row = card.querySelector(`.row[data-market="${mk}"] .live`);
-            if(row) row.textContent = `Live: ${text}`;
-          };
-          if(typeof st.strikeouts === 'number') update('strikeouts', st.strikeouts);
-          if(typeof st.outs === 'number') update('outs', st.outs);
-          if(typeof st.earned_runs === 'number') update('earned_runs', st.earned_runs);
-          if(typeof st.hits_allowed === 'number') update('hits_allowed', st.hits_allowed);
-          if(typeof st.walks === 'number') update('walks', st.walks);
+      if(typeof st.strikeouts === 'number') applyLiveToRow(card, 'strikeouts', st.strikeouts);
+      if(typeof st.outs === 'number') applyLiveToRow(card, 'outs', st.outs);
+      if(typeof st.earned_runs === 'number') applyLiveToRow(card, 'earned_runs', st.earned_runs);
+      if(typeof st.hits_allowed === 'number') applyLiveToRow(card, 'hits_allowed', st.hits_allowed);
+      if(typeof st.walks === 'number') applyLiveToRow(card, 'walks', st.walks);
           // also keep pitch count badge aligned if present
           const pcEl = card.querySelector('[data-live-pc]');
           if(pcEl && typeof st.pitches === 'number'){ updatePcBadge(pcEl, st.pitches); }
@@ -367,15 +499,11 @@
         for(const [pid, st] of Object.entries(statsById)){
           const card = document.querySelector(`.card[data-pid="${String(pid)}"]`);
           if(!card) continue;
-          const update = (mk, text) => {
-            const row = card.querySelector(`.row[data-market="${mk}"] .live`);
-            if(row) row.textContent = `Live: ${text}`;
-          };
-          if(typeof st.strikeouts === 'number') update('strikeouts', st.strikeouts);
-          if(typeof st.outs === 'number') update('outs', st.outs);
-          if(typeof st.earned_runs === 'number') update('earned_runs', st.earned_runs);
-          if(typeof st.hits_allowed === 'number') update('hits_allowed', st.hits_allowed);
-          if(typeof st.walks === 'number') update('walks', st.walks);
+      if(typeof st.strikeouts === 'number') applyLiveToRow(card, 'strikeouts', st.strikeouts);
+      if(typeof st.outs === 'number') applyLiveToRow(card, 'outs', st.outs);
+      if(typeof st.earned_runs === 'number') applyLiveToRow(card, 'earned_runs', st.earned_runs);
+      if(typeof st.hits_allowed === 'number') applyLiveToRow(card, 'hits_allowed', st.hits_allowed);
+      if(typeof st.walks === 'number') applyLiveToRow(card, 'walks', st.walks);
           const pcEl = card.querySelector('[data-live-pc]');
           if(pcEl && typeof st.pitches === 'number'){ updatePcBadge(pcEl, st.pitches); }
         }
