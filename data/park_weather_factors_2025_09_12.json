@@ -1,0 +1,756 @@
+{
+  "date": "2025-09-12",
+  "updated_at": "2025-09-12T08:23:29.309112",
+  "teams": {
+    "Arizona Diamondbacks": {
+      "total_factor": 1.03,
+      "park_factor": 1.03,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Chase Field",
+        "park_factor": 1.05,
+        "altitude": 1117,
+        "dome": true,
+        "wall_height": 7.5,
+        "foul_territory": "medium",
+        "wind_factor": 0.0,
+        "run_environment": 1.03
+      },
+      "weather": {
+        "temperature": 72,
+        "humidity": 45,
+        "wind_speed": 0,
+        "wind_direction": 0,
+        "conditions": "dome",
+        "visibility": 10,
+        "pressure": 30.0
+      },
+      "stadium_name": "Chase Field"
+    },
+    "Atlanta Braves": {
+      "total_factor": 0.9797,
+      "park_factor": 1.01,
+      "weather_factor": 0.97,
+      "park_info": {
+        "name": "Truist Park",
+        "park_factor": 1.02,
+        "altitude": 1050,
+        "dome": false,
+        "wall_height": 8.0,
+        "foul_territory": "small",
+        "wind_factor": 1.0,
+        "run_environment": 1.01
+      },
+      "weather": {
+        "temperature": 68.67,
+        "humidity": 83,
+        "wind_speed": 3.44,
+        "wind_direction": 50,
+        "conditions": "Clear",
+        "visibility": 6.213727366498068,
+        "pressure": 30.179660000000002
+      },
+      "stadium_name": "Truist Park"
+    },
+    "Baltimore Orioles": {
+      "total_factor": 1.05,
+      "park_factor": 1.05,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Oriole Park at Camden Yards",
+        "park_factor": 1.08,
+        "altitude": 20,
+        "dome": false,
+        "wall_height": 7.0,
+        "foul_territory": "small",
+        "wind_factor": 1.0,
+        "run_environment": 1.05
+      },
+      "weather": {
+        "temperature": 68.65,
+        "humidity": 74,
+        "wind_speed": 7,
+        "wind_direction": 52,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 30.179660000000002
+      },
+      "stadium_name": "Oriole Park at Camden Yards"
+    },
+    "Boston Red Sox": {
+      "total_factor": 1.0816000000000001,
+      "park_factor": 1.04,
+      "weather_factor": 1.04,
+      "park_info": {
+        "name": "Fenway Park",
+        "park_factor": 1.06,
+        "altitude": 20,
+        "dome": false,
+        "wall_height": 37.2,
+        "foul_territory": "small",
+        "wind_factor": 1.0,
+        "run_environment": 1.04
+      },
+      "weather": {
+        "temperature": 64.89,
+        "humidity": 69,
+        "wind_speed": 11.5,
+        "wind_direction": 30,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 30.20919
+      },
+      "stadium_name": "Fenway Park"
+    },
+    "Chicago Cubs": {
+      "total_factor": 0.9894,
+      "park_factor": 1.02,
+      "weather_factor": 0.97,
+      "park_info": {
+        "name": "Wrigley Field",
+        "park_factor": 1.03,
+        "altitude": 595,
+        "dome": false,
+        "wall_height": 11.2,
+        "foul_territory": "small",
+        "wind_factor": 1.2,
+        "run_environment": 1.02
+      },
+      "weather": {
+        "temperature": 64.36,
+        "humidity": 96,
+        "wind_speed": 1.99,
+        "wind_direction": 93,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 30.20919
+      },
+      "stadium_name": "Wrigley Field"
+    },
+    "Chicago White Sox": {
+      "total_factor": 0.97,
+      "park_factor": 1.0,
+      "weather_factor": 0.97,
+      "park_info": {
+        "name": "Guaranteed Rate Field",
+        "park_factor": 1.01,
+        "altitude": 595,
+        "dome": false,
+        "wall_height": 8.0,
+        "foul_territory": "medium",
+        "wind_factor": 1.0,
+        "run_environment": 1.0
+      },
+      "weather": {
+        "temperature": 65.95,
+        "humidity": 96,
+        "wind_speed": 4.16,
+        "wind_direction": 168,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 30.20919
+      },
+      "stadium_name": "Guaranteed Rate Field"
+    },
+    "Cincinnati Reds": {
+      "total_factor": 1.02,
+      "park_factor": 1.02,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Great American Ball Park",
+        "park_factor": 1.04,
+        "altitude": 550,
+        "dome": false,
+        "wall_height": 12.0,
+        "foul_territory": "medium",
+        "wind_factor": 1.0,
+        "run_environment": 1.02
+      },
+      "weather": {
+        "temperature": 65.25,
+        "humidity": 73,
+        "wind_speed": 5.75,
+        "wind_direction": 100,
+        "conditions": "Clear",
+        "visibility": 6.213727366498068,
+        "pressure": 30.20919
+      },
+      "stadium_name": "Great American Ball Park"
+    },
+    "Cleveland Guardians": {
+      "total_factor": 0.9506,
+      "park_factor": 0.98,
+      "weather_factor": 0.97,
+      "park_info": {
+        "name": "Progressive Field",
+        "park_factor": 0.98,
+        "altitude": 650,
+        "dome": false,
+        "wall_height": 19.0,
+        "foul_territory": "large",
+        "wind_factor": 1.0,
+        "run_environment": 0.98
+      },
+      "weather": {
+        "temperature": 61.41,
+        "humidity": 86,
+        "wind_speed": 0,
+        "wind_direction": 0,
+        "conditions": "Clear",
+        "visibility": 6.213727366498068,
+        "pressure": 30.23872
+      },
+      "stadium_name": "Progressive Field"
+    },
+    "Colorado Rockies": {
+      "total_factor": 1.12,
+      "park_factor": 1.12,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Coors Field",
+        "park_factor": 1.15,
+        "altitude": 5200,
+        "dome": false,
+        "wall_height": 8.0,
+        "foul_territory": "large",
+        "wind_factor": 1.1,
+        "run_environment": 1.12
+      },
+      "weather": {
+        "temperature": 66.76,
+        "humidity": 49,
+        "wind_speed": 1.99,
+        "wind_direction": 254,
+        "conditions": "Clear",
+        "visibility": 6.213727366498068,
+        "pressure": 30.03201
+      },
+      "stadium_name": "Coors Field"
+    },
+    "Detroit Tigers": {
+      "total_factor": 0.9409,
+      "park_factor": 0.97,
+      "weather_factor": 0.97,
+      "park_info": {
+        "name": "Comerica Park",
+        "park_factor": 0.96,
+        "altitude": 585,
+        "dome": false,
+        "wall_height": 8.0,
+        "foul_territory": "large",
+        "wind_factor": 1.0,
+        "run_environment": 0.97
+      },
+      "weather": {
+        "temperature": 63.81,
+        "humidity": 89,
+        "wind_speed": 4.61,
+        "wind_direction": 10,
+        "conditions": "Clear",
+        "visibility": 6.213727366498068,
+        "pressure": 30.23872
+      },
+      "stadium_name": "Comerica Park"
+    },
+    "Houston Astros": {
+      "total_factor": 1.0,
+      "park_factor": 1.0,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Minute Maid Park",
+        "park_factor": 1.0,
+        "altitude": 22,
+        "dome": true,
+        "wall_height": 21.0,
+        "foul_territory": "small",
+        "wind_factor": 0.0,
+        "run_environment": 1.0
+      },
+      "weather": {
+        "temperature": 72,
+        "humidity": 45,
+        "wind_speed": 0,
+        "wind_direction": 0,
+        "conditions": "dome",
+        "visibility": 10,
+        "pressure": 30.0
+      },
+      "stadium_name": "Minute Maid Park"
+    },
+    "Kansas City Royals": {
+      "total_factor": 0.9408,
+      "park_factor": 0.98,
+      "weather_factor": 0.96,
+      "park_info": {
+        "name": "Kauffman Stadium",
+        "park_factor": 0.97,
+        "altitude": 750,
+        "dome": false,
+        "wall_height": 12.0,
+        "foul_territory": "large",
+        "wind_factor": 1.0,
+        "run_environment": 0.98
+      },
+      "weather": {
+        "temperature": 73.09,
+        "humidity": 74,
+        "wind_speed": 9.22,
+        "wind_direction": 180,
+        "conditions": "Clear",
+        "visibility": 6.213727366498068,
+        "pressure": 30.091070000000002
+      },
+      "stadium_name": "Kauffman Stadium"
+    },
+    "Los Angeles Angels": {
+      "total_factor": 0.7528752000000001,
+      "park_factor": 0.99,
+      "weather_factor": 0.76048,
+      "park_info": {
+        "name": "Angel Stadium",
+        "park_factor": 0.99,
+        "altitude": 150,
+        "dome": false,
+        "wall_height": 8.0,
+        "foul_territory": "large",
+        "wind_factor": 0.8,
+        "run_environment": 0.99
+      },
+      "weather": {
+        "temperature": 63.21,
+        "humidity": 90,
+        "wind_speed": 15.01,
+        "wind_direction": 100,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 29.913890000000002
+      },
+      "stadium_name": "Angel Stadium"
+    },
+    "Los Angeles Dodgers": {
+      "total_factor": 0.9311999999999999,
+      "park_factor": 0.96,
+      "weather_factor": 0.97,
+      "park_info": {
+        "name": "Dodger Stadium",
+        "park_factor": 0.95,
+        "altitude": 540,
+        "dome": false,
+        "wall_height": 10.0,
+        "foul_territory": "large",
+        "wind_factor": 0.8,
+        "run_environment": 0.96
+      },
+      "weather": {
+        "temperature": 63.39,
+        "humidity": 89,
+        "wind_speed": 6.91,
+        "wind_direction": 110,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 29.913890000000002
+      },
+      "stadium_name": "Dodger Stadium"
+    },
+    "Miami Marlins": {
+      "total_factor": 0.95,
+      "park_factor": 0.95,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "loanDepot park",
+        "park_factor": 0.94,
+        "altitude": 9,
+        "dome": true,
+        "wall_height": 12.0,
+        "foul_territory": "medium",
+        "wind_factor": 0.0,
+        "run_environment": 0.95
+      },
+      "weather": {
+        "temperature": 72,
+        "humidity": 45,
+        "wind_speed": 0,
+        "wind_direction": 0,
+        "conditions": "dome",
+        "visibility": 10,
+        "pressure": 30.0
+      },
+      "stadium_name": "loanDepot park"
+    },
+    "Milwaukee Brewers": {
+      "total_factor": 1.0,
+      "park_factor": 1.0,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "American Family Field",
+        "park_factor": 1.01,
+        "altitude": 635,
+        "dome": true,
+        "wall_height": 8.0,
+        "foul_territory": "medium",
+        "wind_factor": 0.5,
+        "run_environment": 1.0
+      },
+      "weather": {
+        "temperature": 72,
+        "humidity": 45,
+        "wind_speed": 0,
+        "wind_direction": 0,
+        "conditions": "dome",
+        "visibility": 10,
+        "pressure": 30.0
+      },
+      "stadium_name": "American Family Field"
+    },
+    "Minnesota Twins": {
+      "total_factor": 0.9797,
+      "park_factor": 1.01,
+      "weather_factor": 0.97,
+      "park_info": {
+        "name": "Target Field",
+        "park_factor": 1.02,
+        "altitude": 815,
+        "dome": false,
+        "wall_height": 8.0,
+        "foul_territory": "medium",
+        "wind_factor": 1.0,
+        "run_environment": 1.01
+      },
+      "weather": {
+        "temperature": 63.61,
+        "humidity": 83,
+        "wind_speed": 9.22,
+        "wind_direction": 130,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 30.06154
+      },
+      "stadium_name": "Target Field"
+    },
+    "New York Mets": {
+      "total_factor": 0.97,
+      "park_factor": 0.97,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Citi Field",
+        "park_factor": 0.96,
+        "altitude": 20,
+        "dome": false,
+        "wall_height": 12.0,
+        "foul_territory": "large",
+        "wind_factor": 1.0,
+        "run_environment": 0.97
+      },
+      "weather": {
+        "temperature": 68.83,
+        "humidity": 65,
+        "wind_speed": 12.66,
+        "wind_direction": 50,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 30.20919
+      },
+      "stadium_name": "Citi Field"
+    },
+    "New York Yankees": {
+      "total_factor": 1.092,
+      "park_factor": 1.05,
+      "weather_factor": 1.04,
+      "park_info": {
+        "name": "Yankee Stadium",
+        "park_factor": 1.07,
+        "altitude": 55,
+        "dome": false,
+        "wall_height": 8.0,
+        "foul_territory": "small",
+        "wind_factor": 1.0,
+        "run_environment": 1.05
+      },
+      "weather": {
+        "temperature": 67.86,
+        "humidity": 67,
+        "wind_speed": 10.36,
+        "wind_direction": 40,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 30.20919
+      },
+      "stadium_name": "Yankee Stadium"
+    },
+    "Oakland Athletics": {
+      "total_factor": 0.8924,
+      "park_factor": 0.92,
+      "weather_factor": 0.97,
+      "park_info": {
+        "name": "Oakland Coliseum",
+        "park_factor": 0.93,
+        "altitude": 0,
+        "dome": false,
+        "wall_height": 10.0,
+        "foul_territory": "very_large",
+        "wind_factor": 1.1,
+        "run_environment": 0.92
+      },
+      "weather": {
+        "temperature": 60.93,
+        "humidity": 84,
+        "wind_speed": 5.75,
+        "wind_direction": 230,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 29.94342
+      },
+      "stadium_name": "Oakland Coliseum"
+    },
+    "Philadelphia Phillies": {
+      "total_factor": 1.03,
+      "park_factor": 1.03,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Citizens Bank Park",
+        "park_factor": 1.05,
+        "altitude": 60,
+        "dome": false,
+        "wall_height": 13.0,
+        "foul_territory": "small",
+        "wind_factor": 1.0,
+        "run_environment": 1.03
+      },
+      "weather": {
+        "temperature": 69.01,
+        "humidity": 73,
+        "wind_speed": 9.22,
+        "wind_direction": 50,
+        "conditions": "Clear",
+        "visibility": 6.213727366498068,
+        "pressure": 30.20919
+      },
+      "stadium_name": "Citizens Bank Park"
+    },
+    "Pittsburgh Pirates": {
+      "total_factor": 0.99,
+      "park_factor": 0.99,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "PNC Park",
+        "park_factor": 0.98,
+        "altitude": 730,
+        "dome": false,
+        "wall_height": 6.0,
+        "foul_territory": "medium",
+        "wind_factor": 1.0,
+        "run_environment": 0.99
+      },
+      "weather": {
+        "temperature": 61.88,
+        "humidity": 80,
+        "wind_speed": 3,
+        "wind_direction": 340,
+        "conditions": "Clear",
+        "visibility": 6.213727366498068,
+        "pressure": 30.23872
+      },
+      "stadium_name": "PNC Park"
+    },
+    "San Diego Padres": {
+      "total_factor": 0.93,
+      "park_factor": 0.93,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Petco Park",
+        "park_factor": 0.92,
+        "altitude": 62,
+        "dome": false,
+        "wall_height": 17.6,
+        "foul_territory": "large",
+        "wind_factor": 0.9,
+        "run_environment": 0.93
+      },
+      "weather": {
+        "temperature": 65.98,
+        "humidity": 80,
+        "wind_speed": 3.44,
+        "wind_direction": 230,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 29.913890000000002
+      },
+      "stadium_name": "Petco Park"
+    },
+    "San Francisco Giants": {
+      "total_factor": 0.873,
+      "park_factor": 0.9,
+      "weather_factor": 0.97,
+      "park_info": {
+        "name": "Oracle Park",
+        "park_factor": 0.89,
+        "altitude": 0,
+        "dome": false,
+        "wall_height": 25.0,
+        "foul_territory": "large",
+        "wind_factor": 1.2,
+        "run_environment": 0.9
+      },
+      "weather": {
+        "temperature": 60.48,
+        "humidity": 85,
+        "wind_speed": 5.99,
+        "wind_direction": 248,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 29.94342
+      },
+      "stadium_name": "Oracle Park"
+    },
+    "Seattle Mariners": {
+      "total_factor": 0.96,
+      "park_factor": 0.96,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "T-Mobile Park",
+        "park_factor": 0.95,
+        "altitude": 350,
+        "dome": true,
+        "wall_height": 17.0,
+        "foul_territory": "large",
+        "wind_factor": 0.5,
+        "run_environment": 0.96
+      },
+      "weather": {
+        "temperature": 72,
+        "humidity": 45,
+        "wind_speed": 0,
+        "wind_direction": 0,
+        "conditions": "dome",
+        "visibility": 10,
+        "pressure": 30.0
+      },
+      "stadium_name": "T-Mobile Park"
+    },
+    "St. Louis Cardinals": {
+      "total_factor": 1.0,
+      "park_factor": 1.0,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Busch Stadium",
+        "park_factor": 1.0,
+        "altitude": 465,
+        "dome": false,
+        "wall_height": 11.0,
+        "foul_territory": "medium",
+        "wind_factor": 1.0,
+        "run_environment": 1.0
+      },
+      "weather": {
+        "temperature": 69.82,
+        "humidity": 77,
+        "wind_speed": 1.01,
+        "wind_direction": 273,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 30.15013
+      },
+      "stadium_name": "Busch Stadium"
+    },
+    "Tampa Bay Rays": {
+      "total_factor": 0.97,
+      "park_factor": 0.97,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Tropicana Field",
+        "park_factor": 0.96,
+        "altitude": 15,
+        "dome": true,
+        "wall_height": 10.0,
+        "foul_territory": "medium",
+        "wind_factor": 0.0,
+        "run_environment": 0.97
+      },
+      "weather": {
+        "temperature": 72,
+        "humidity": 45,
+        "wind_speed": 0,
+        "wind_direction": 0,
+        "conditions": "dome",
+        "visibility": 10,
+        "pressure": 30.0
+      },
+      "stadium_name": "Tropicana Field"
+    },
+    "Texas Rangers": {
+      "total_factor": 1.06,
+      "park_factor": 1.06,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Globe Life Field",
+        "park_factor": 1.08,
+        "altitude": 551,
+        "dome": true,
+        "wall_height": 8.0,
+        "foul_territory": "small",
+        "wind_factor": 0.0,
+        "run_environment": 1.06
+      },
+      "weather": {
+        "temperature": 72,
+        "humidity": 45,
+        "wind_speed": 0,
+        "wind_direction": 0,
+        "conditions": "dome",
+        "visibility": 10,
+        "pressure": 30.0
+      },
+      "stadium_name": "Globe Life Field"
+    },
+    "Toronto Blue Jays": {
+      "total_factor": 1.02,
+      "park_factor": 1.02,
+      "weather_factor": 1.0,
+      "park_info": {
+        "name": "Rogers Centre",
+        "park_factor": 1.03,
+        "altitude": 300,
+        "dome": true,
+        "wall_height": 10.0,
+        "foul_territory": "medium",
+        "wind_factor": 0.0,
+        "run_environment": 1.02
+      },
+      "weather": {
+        "temperature": 72,
+        "humidity": 45,
+        "wind_speed": 0,
+        "wind_direction": 0,
+        "conditions": "dome",
+        "visibility": 10,
+        "pressure": 30.0
+      },
+      "stadium_name": "Rogers Centre"
+    },
+    "Washington Nationals": {
+      "total_factor": 1.0504,
+      "park_factor": 1.01,
+      "weather_factor": 1.04,
+      "park_info": {
+        "name": "Nationals Park",
+        "park_factor": 1.02,
+        "altitude": 50,
+        "dome": false,
+        "wall_height": 8.0,
+        "foul_territory": "medium",
+        "wind_factor": 1.0,
+        "run_environment": 1.01
+      },
+      "weather": {
+        "temperature": 68.32,
+        "humidity": 77,
+        "wind_speed": 10.36,
+        "wind_direction": 30,
+        "conditions": "Clouds",
+        "visibility": 6.213727366498068,
+        "pressure": 30.179660000000002
+      },
+      "stadium_name": "Nationals Park"
+    }
+  }
+}
