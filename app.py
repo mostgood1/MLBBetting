@@ -7525,7 +7525,8 @@ def test_proxy():
 def proxy_available_dates():
     """Proxy route to forward requests to historical analysis app"""
     try:
-        response = requests.get('http://localhost:5001/api/available-dates', timeout=10)
+        # Use a very short timeout; we have robust local fallbacks
+        response = requests.get('http://localhost:5001/api/available-dates', timeout=1.5)
         return jsonify(response.json()), response.status_code
     except Exception as e:
         logger.error(f"Failed to proxy available-dates request: {e}")
@@ -7576,7 +7577,8 @@ def proxy_available_dates():
 def proxy_cumulative():
     """Proxy route for cumulative analysis"""
     try:
-        response = requests.get('http://localhost:5001/api/cumulative', timeout=30)
+        # Keep this short to avoid blocking UI
+        response = requests.get('http://localhost:5001/api/cumulative', timeout=2)
         return jsonify(response.json()), response.status_code
     except Exception as e:
         logger.error(f"Failed to proxy cumulative request: {e}")
@@ -7620,7 +7622,8 @@ def proxy_cumulative():
 def proxy_date_analysis(date):
     """Proxy route for date-specific analysis"""
     try:
-        response = requests.get(f'http://localhost:5001/api/date/{date}', timeout=20)
+        # Short timeout; front-end will also fetch per-day recs directly
+        response = requests.get(f'http://localhost:5001/api/date/{date}', timeout=2)
         return jsonify(response.json()), response.status_code
     except Exception as e:
         logger.error(f"Failed to proxy date analysis request for {date}: {e}")
@@ -7663,7 +7666,7 @@ def proxy_date_analysis(date):
 def proxy_today_games(date):
     """Proxy route for today's games by date"""
     try:
-        response = requests.get(f'http://localhost:5001/api/today-games/{date}', timeout=15)
+        response = requests.get(f'http://localhost:5001/api/today-games/{date}', timeout=2)
         return jsonify(response.json()), response.status_code
     except Exception as e:
         logger.error(f"Failed to proxy today-games request for {date}: {e}")
@@ -7706,7 +7709,7 @@ def proxy_final_scores(date):
     """Proxy route for final scores with local fallback"""
     # Try dedicated service first
     try:
-        response = requests.get(f'http://localhost:5001/api/final-scores/{date}', timeout=10)
+        response = requests.get(f'http://localhost:5001/api/final-scores/{date}', timeout=2)
         return jsonify(response.json()), response.status_code
     except Exception as e:
         logger.error(f"Failed to proxy final-scores for {date}: {e}")

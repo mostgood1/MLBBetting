@@ -323,21 +323,69 @@
       const div = document.getElementById('today');
       const recs = data.recommendations || [];
       if(!recs.length){ div.innerHTML='<div class="muted">No recommendations available.</div>'; return; }
-      // Normalize rows and sort by confidence then EV
-      const rows = recs.map(r=>({
-        game: r.game || `${r.away_team||''} @ ${r.home_team||''}`,
-        bet: `${String(r.type||'').replace('_',' ').toUpperCase()} ${r.recommendation||''}`.trim(),
-        odds: r.american_odds ?? r.odds,
-        conf: String(r.confidence||'').toUpperCase(),
-        ev: r.expected_value
-      }));
+
+      // Helper to normalize type and build a clean bet label
+      const buildBet = (r)=>{
+        let type = String(r.type||'').toLowerCase();
+        if(type==='over/under' || type.startsWith('total')) type='total';
+        if(type==='ml' || type.startsWith('moneyline')) type='moneyline';
+        if(type.startsWith('run')) type='run_line';
+
+        const pickRaw = (r.recommendation!=null && String(r.recommendation).trim()!=='' ? r.recommendation : (r.pick!=null ? r.pick : r.side)) || '';
+        const typeLabel = String(type||'').replace('_',' ').toUpperCase();
+
+        if(type==='total'){
+          // Parse side and line from recommendation and fallbacks
+          let side=null, line=null;
+          const p1 = parseSideLine(String(pickRaw)); if(p1.side) side=p1.side; if(p1.line!=null) line=Number(p1.line);
+          if(line==null && r.betting_line!=null) line = Number(r.betting_line);
+          if(line==null && r.line!=null) line = Number(r.line);
+          if(line==null && r.total_line!=null) line = Number(r.total_line);
+          if(!side){
+            const p2 = parseSideLine(String(r.side||r.pick||''));
+            if(p2.side) side=p2.side;
+            if(p2.line!=null && line==null) line=Number(p2.line);
+          }
+          const parts = [typeLabel, side||'', (line!=null && !Number.isNaN(Number(line))) ? String(line) : ''];
+          return parts.join(' ').trim().replace(/\s+/g,' ');
+        }
+        if(type==='moneyline'){
+          const pickTxt = String(pickRaw||'').trim();
+          return (typeLabel + (pickTxt ? (' ' + pickTxt) : '')).trim();
+        }
+        // Default fallback
+        const pickTxt = String(pickRaw||'').trim();
+        return (typeLabel + (pickTxt ? (' ' + pickTxt) : '')).trim();
+      };
+
+      // Filter out NONE / no-recommendation entries and build rows
+  const rows = recs
+        .filter(r=>{
+          const txt = String(r.recommendation||r.pick||r.side||'').toLowerCase();
+          const t = String(r.type||'').toLowerCase();
+          if(t==='none') return false;
+          if(!txt) return false;
+          if(txt==='none' || txt.includes('no recommendation')) return false;
+          return true;
+        })
+        .map(r=>{
+          const oddsVal = r.american_odds ?? r.odds;
+          return {
+            game: r.game || `${r.away_team||''} @ ${r.home_team||''}`,
+            bet: buildBet(r),
+            odds: (oddsVal===null || oddsVal===undefined || oddsVal==='') ? '—' : oddsVal,
+            conf: String(r.confidence||'').toUpperCase(),
+    ev: r.expected_value,
+    _orig: r
+          };
+        });
       rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
       div.innerHTML = '<div class="table-wrap"><table class="table"><thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th></tr></thead><tbody>' +
         rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td></tr>`).join('') +
       '</tbody></table></div>';
 
       // Build Today Recap KPIs based on THESE recs only (so counts match what you see)
-      await loadTodayRecap(recs);
+  await loadTodayRecap(rows.map(r=> r._orig));
     }
     async function loadAvailableDates(){
       try{
@@ -349,8 +397,7 @@
   // Sort dates ascending to keep behavior stable, then select the latest
   dates.sort();
   dates.forEach(dt=>{ const o=document.createElement('option'); o.value=dt; o.textContent=dt; sel.appendChild(o); });
-  // Auto-select most recent date and preload KPIs
-  // Do not auto-load heavy day performance on initial paint; user can click Load
+  // Auto-select most recent date
   if(dates.length){ sel.value = dates[dates.length-1]; }
 
   // Populate range selectors
@@ -375,8 +422,11 @@
       rs.value = dates[0];
       re.value = dates[dates.length-1];
     }
-  // Defer range load until user clicks the button to avoid heavy initial loads
   }
+
+  // Auto-load Day and Range sections now that selectors are populated
+  try { await loadDayPerformance(); } catch(_) {}
+  try { await loadRangePerformance(); } catch(_) {}
       }catch(e){ console.warn('Failed to load available dates', e); }
     }
     function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
@@ -506,8 +556,12 @@
         data = {};
       }
   const grid=document.getElementById('day-grid'); grid.innerHTML='';
+      // Ensure the recommendations container shows a loading state immediately
       // Build recommendations table pulling directly from the per-day betting recommendations file
       const recDiv = document.getElementById('day-recs');
+      if(recDiv && (!recDiv.innerHTML || !recDiv.innerHTML.trim())){
+        recDiv.innerHTML = '<div class="muted">Loading recommendations…</div>';
+      }
       try{
         // 1) Primary source: evaluated recommendations from historical API
         // Build correctness map from data.betting_recommendations.recommendations_evaluated
@@ -902,26 +956,44 @@
             {label:'Net Profit', val: '$'+profitFB.toFixed(2)}
           ].map(t=>`<div class='stat'><div class='num'>${t.val}</div><div class='muted'>${t.label}</div></div>`).join('');
         }
-      }catch(e){ recDiv.innerHTML='<div class="muted">Unable to load recommendations for this date.</div>'; }
+      }catch(e){
+        console.warn('Day performance load error', e);
+        if(recDiv){ recDiv.innerHTML='<div class="muted">Unable to load recommendations for this date.</div>'; }
+        if(grid && (!grid.innerHTML || !grid.innerHTML.trim())){
+          grid.innerHTML = [
+            {label:'Rec Accuracy', val:'0.0%'},
+            {label:'Total Recs', val: 0},
+            {label:'ROI %', val:'0.0%'},
+            {label:'Net Profit', val:'$0.00'}
+          ].map(t=>`<div class='stat'><div class='num'>${t.val}</div><div class='muted'>${t.label}</div></div>`).join('');
+        }
+      }
     }
     // Expose range loader at global scope
     async function loadRangePerformance(){
       const start = document.getElementById('range-start').value;
       const end = document.getElementById('range-end').value;
       if(!start || !end) return;
+    // Placeholders so the section isn't blank during heavy fetches
+    const rangeGrid = document.getElementById('range-grid');
+    const rangeRecs = document.getElementById('range-recs');
+    const levelGridR = document.getElementById('range-level-grid');
+    if(rangeRecs) rangeRecs.innerHTML = '<div class="muted">Loading range recommendations…</div>';
+    if(rangeGrid) rangeGrid.innerHTML = '';
+    if(levelGridR) levelGridR.innerHTML = '';
       try{
         // We'll aggregate by fetching per-day rec files and final scores for all days in range
   const datesRes = await fetchWithTimeout('/api/historical-analysis/available-dates', {}, 12000);
         if(!datesRes.ok){
-          document.getElementById('range-grid').innerHTML='';
-          document.getElementById('range-recs').innerHTML='<div class="muted">Historical service unavailable.</div>';
+      if(rangeGrid) rangeGrid.innerHTML='';
+      if(rangeRecs) rangeRecs.innerHTML='<div class="muted">Historical service unavailable.</div>';
           return;
         }
         const datesData = await datesRes.json();
         const allDates = (datesData.dates || datesData.available_dates || []).filter(d=> d>=start && d<=end);
         if(!allDates.length){
-          document.getElementById('range-grid').innerHTML='';
-          document.getElementById('range-recs').innerHTML='<div class="muted">No data in selected range.</div>';
+          if(rangeGrid) rangeGrid.innerHTML='';
+          if(rangeRecs) rangeRecs.innerHTML='<div class="muted">No data in selected range.</div>';
           return;
         }
 
@@ -1079,7 +1151,7 @@
 
         // Sort and render rows
         rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
-        const recDiv = document.getElementById('range-recs');
+    const recDiv = document.getElementById('range-recs');
   recDiv.innerHTML = rows.length ? ('<div class="table-wrap"><table class="table"><thead><tr><th>Date</th><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th><th>Correct</th></tr></thead><tbody>' +
     rows.map(r=>`<tr><td>${r.date||''}</td><td>${r.game}</td><td>${r.bet}</td><td>${r.odds||''}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td><td>${checkIcon(r.correct)}</td></tr>`).join('') +
   '</tbody></table></div>') : '<div class="muted">No recommendations in this range.</div>';
