@@ -2325,7 +2325,8 @@
             card.setAttribute('data-game-id', compositeId);
             card.setAttribute('data-away-team', (game.away_team || '').toLowerCase());
             card.setAttribute('data-home-team', (game.home_team || '').toLowerCase());
-            card.onclick = () => loadPrediction(game.away_team, game.home_team, game.date);
+            // Open modal using already-loaded game data (faster, avoids API errors)
+            card.onclick = () => openGameModal(game);
             
             // Debug: log the entire game object
             console.log(`🔍 CREATING CARD FOR: ${game.away_team} @ ${game.home_team}`);
@@ -2983,6 +2984,64 @@
             return html;
         }
 
+        // Open modal with details built from the game object already on the page (no network)
+        function openGameModal(game){
+            try {
+                if (!game) return;
+                const modal = document.getElementById('prediction-modal');
+                const body = document.getElementById('modal-body');
+                const title = document.getElementById('modal-title');
+                const awayAssets = game.away_team_assets || { logo_url: game.away_logo };
+                const homeAssets = game.home_team_assets || { logo_url: game.home_logo };
+
+                // Title
+                title.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <img src="${awayAssets.logo_url || ''}" alt="${game.away_team}" style="width:24px;height:24px;" />
+                            <span>${game.away_team}</span>
+                        </div>
+                        <span>@</span>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <img src="${homeAssets.logo_url || ''}" alt="${game.home_team}" style="width:24px;height:24px;" />
+                            <span>${game.home_team}</span>
+                        </div>
+                    </div>`;
+
+                // Build sections using existing helpers and safe fallbacks
+                const summaryHtml = (function(){
+                    try { return createPredictionSummaryHtml(game); } catch(_) { return ''; }
+                })();
+                const recsHtml = (function(){
+                    try {
+                        if (game.betting_recommendations) return createBettingRecommendationsHtml(game.betting_recommendations, game.away_team, game.home_team);
+                        return '';
+                    } catch(_) { return ''; }
+                })();
+                const pitchersHtml = `
+                    <div style="margin-top:16px;">
+                        <h3>Starting Pitchers</h3>
+                        <p><strong>Away:</strong> ${game.away_pitcher || 'TBD'}</p>
+                        <p><strong>Home:</strong> ${game.home_pitcher || 'TBD'}</p>
+                    </div>`;
+
+                body.innerHTML = `
+                    <div class="prediction-details">
+                        <div class="prediction-summary">${summaryHtml}</div>
+                        ${recsHtml}
+                        ${pitchersHtml}
+                    </div>`;
+
+                openModal();
+            } catch (e){
+                try {
+                    const body = document.getElementById('modal-body');
+                    body.innerHTML = `<div class="error">Failed to render details: ${e.message || 'Unknown error'}</div>`;
+                    openModal();
+                } catch(_){ }
+            }
+        }
+
         async function loadPrediction(awayTeam, homeTeam, date) {
             document.getElementById('modal-body').innerHTML = 'Loading detailed prediction...';
             document.getElementById('prediction-modal').style.display = 'block';
@@ -3036,8 +3095,8 @@
             console.log('🎯 displayPredictionDetails called with:', data);
             console.log('Betting recommendations:', data.betting_recommendations);
             
-            const prediction = data.prediction;  // Extract prediction from data object
-            const game = data.game;  // Extract game info from data object
+            const prediction = data && data.prediction ? data.prediction : {};
+            const game = data && data.game ? data.game : {};
             const pred = prediction;  // Keep this for backward compatibility with existing code
             const meta = prediction.meta || {
                 execution_time_ms: 0,
@@ -3080,7 +3139,7 @@
                             <div class="label">Total Runs</div>
                         </div>
                         <div class="prediction-item">
-                            <div class="value">${pred.home_win_probability.toFixed(2)}%</div>
+                            <div class="value">${(pred.home_win_probability != null ? Number(pred.home_win_probability).toFixed(2) : '—')}%</div>
                             <div class="label">Home Win Prob</div>
                         </div>
                     </div>
