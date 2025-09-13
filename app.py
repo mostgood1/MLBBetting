@@ -4085,6 +4085,24 @@ def api_pitcher_props_debug():
         logger.error(f"Error in api_pitcher_props_debug: {e}\n{traceback.format_exc()}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/pitcher-props/refresh-models', methods=['POST'])
+def api_pitcher_props_refresh_models():
+    """Kick off the nightly model refresh pipeline asynchronously.
+    Runs modeling/auto_refresh_models.py with a short timeout and returns immediately.
+    """
+    try:
+        repo_root = Path(__file__).resolve().parent
+        script = repo_root / 'modeling' / 'auto_refresh_models.py'
+        if not script.exists():
+            return jsonify({'success': False, 'error': 'auto_refresh_models.py not found'}), 404
+        import subprocess
+        # Start process detached; no blocking
+        subprocess.Popen([sys.executable, str(script)], cwd=str(repo_root))
+        return jsonify({'success': True, 'message': 'Model refresh started'}), 202
+    except Exception as e:
+        logger.error(f"Error starting model refresh: {e}\n{traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/pitcher-props/unified')
 def api_pitcher_props_unified():
     """Unified pitcher props + projections + EV/Kelly in one call (15s cache)."""
