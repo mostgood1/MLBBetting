@@ -67,6 +67,7 @@ class PitcherPropsModels:
     def __init__(self, base_dir: Optional[str] = None) -> None:
         self.base_dir = base_dir or _latest_model_dir()
         self.models: Dict[str, Any] = {}
+        self.dv: Dict[str, Any] = {}
         self.meta: Dict[str, Any] = {}
         self.available = False
         if self.base_dir and joblib is not None:
@@ -79,6 +80,9 @@ class PitcherPropsModels:
                     path = os.path.join(self.base_dir, f'{m}_mean.joblib')
                     if os.path.exists(path):
                         self.models[m] = joblib.load(path)
+                    dv_path = os.path.join(self.base_dir, f'{m}_dv.joblib')
+                    if os.path.exists(dv_path):
+                        self.dv[m] = joblib.load(dv_path)
                 self.available = len(self.models) > 0
             except Exception:
                 self.available = False
@@ -87,12 +91,15 @@ class PitcherPropsModels:
         if not self.available:
             return None
         feats = _build_features(stats, team, opponent)
-        # Convert feats dict to a fixed-order list for many sklearn models
-        keys = sorted(feats.keys())
-        X = [[feats[k] for k in keys]]
+        # Use per-market DictVectorizer if available; otherwise fallback simple ordering
         out: Dict[str, float] = {}
         for m, model in self.models.items():
             try:
+                if m in self.dv and self.dv[m] is not None:
+                    X = self.dv[m].transform([feats])
+                else:
+                    keys = sorted(feats.keys())
+                    X = [[feats[k] for k in keys]]
                 y = model.predict(X)
                 out[m] = float(y[0])
             except Exception:

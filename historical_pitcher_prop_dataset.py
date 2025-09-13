@@ -14,7 +14,7 @@ Columns (initial set):
 The script is idempotent: avoids duplicate (date,pitcher_id) rows per stat.
 """
 from __future__ import annotations
-import os, json, csv, re
+import os, json, csv, re, unicodedata
 from glob import glob
 from datetime import datetime
 from typing import Dict, Any
@@ -25,7 +25,7 @@ OUT_DIR = os.path.join(DATA_DIR, 'model_datasets')
 OUT_CSV = os.path.join(OUT_DIR, 'pitcher_props_history.csv')
 
 FIELDS = [
-    'date','pitcher_id','pitcher_name','team','opponent','venue_home_team',
+    'date','pitcher_id','pitcher_name','pitcher_key','team','opponent','venue_home_team',
     'line_strikeouts','line_outs','proj_strikeouts','proj_outs','adj_strikeouts','adj_outs',
     'k_factor','outs_factor','opponent_k_rate','park_factor_used','recent_ip_per_start',
     'recent_ip_weighted','league_avg_k_rate','edge_dir_ks','edge_dir_outs',
@@ -85,6 +85,8 @@ def build_dataset():
             key = (date, pid)
             if key in existing:
                 continue
+            name = p.get('pitcher_name')
+            pkey = _normalize_name(name) if name else None
             lines = p.get('lines', {}) or {}
             ks_line = _safe_number((lines.get('strikeouts') or {}).get('line'))
             outs_line = _safe_number((lines.get('outs') or {}).get('line'))
@@ -99,7 +101,8 @@ def build_dataset():
             row = {
                 'date': date,
                 'pitcher_id': pid,
-                'pitcher_name': p.get('pitcher_name'),
+                'pitcher_name': name,
+                'pitcher_key': pkey,
                 'team': p.get('team'),
                 'opponent': p.get('opponent'),
                 'venue_home_team': p.get('venue_home_team'),
@@ -158,6 +161,14 @@ def _extract_date_from_filename(path: str):
         d = m.group(1)
         return f"{d[0:4]}-{d[5:7]}-{d[8:10]}"
     return None
+
+def _normalize_name(name: str) -> str:
+    try:
+        t = unicodedata.normalize('NFD', name)
+        t = ''.join(ch for ch in t if unicodedata.category(ch) != 'Mn')
+        return t.lower().strip()
+    except Exception:
+        return (name or '').lower().strip()
 
 if __name__ == '__main__':
     build_dataset()
