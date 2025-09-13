@@ -127,9 +127,8 @@
             align-items: center;
             gap: 8px;
         }
-        .pitcher-label { font-size: 0.75rem; opacity: 0.85; margin-right: 4px; }
-        .pitcher-name { font-weight: 600; }
-        .pitch-metrics { font-size: 0.78rem; opacity: 0.9; }
+    .pitcher-label { font-size: 0.75rem; opacity: 0.85; margin-right: 4px; }
+    .pitcher-name { font-weight: 600; }
         .vs-separator { font-weight: 700; color: #9ca3af; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 2px 8px; }
 
         .prediction-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -1376,39 +1375,7 @@
                         headerCenter.innerHTML = `${timeHtml}<span class="game-status-badge badge-${liveGame.badge_class}">${liveGame.status}</span>`;
                     }
                 }
-                try {
-                    const pm = liveGame.pitching_metrics || {};
-                    const sides = ['away', 'home'];
-                    for (const side of sides) {
-                        // Select the pitch-metrics container for this side
-                        const el = card.querySelector(`.${side}-pitcher .pitch-metrics`);
-                        if (!el) continue;
-                        const metrics = (pm[side] || {});
-                        // Persist last-known live pitches/inning in cache
-                        try {
-                            const compId = compositeId;
-                            const g = window.__LAST_LIVE_STATS[compId] = window.__LAST_LIVE_STATS[compId] || {};
-                            const sc = g[side] = g[side] || {};
-                            if (metrics.live_pitches != null) sc.live_pitches = metrics.live_pitches;
-                            if (metrics.inning != null) sc.inning = metrics.inning;
-                        } catch(_){ }
-                        if (metrics.live_pitches != null) {
-                            // Find or create the live span
-                            let liveSpan = el.querySelector('.live');
-                            const liveText = ` • Live: ${metrics.live_pitches}${metrics.inning ? ` (IP ${metrics.inning})` : ''}`;
-                            if (liveSpan) {
-                                liveSpan.textContent = liveText;
-                            } else {
-                                liveSpan = document.createElement('span');
-                                liveSpan.className = 'live';
-                                liveSpan.textContent = liveText;
-                                el.appendChild(liveSpan);
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.warn('⚠️ Could not update pitch-metrics:', e);
-                }
+                // Pitch count metrics removed from main page
 
                 // Prop trackers removed: skip per-market updates
                 
@@ -2018,30 +1985,11 @@
                                 <div class="away-pitcher">
                                     <span class="pitcher-label">Starting Pitcher:</span>
                                     <span class="pitcher-name">${game.away_pitcher || 'TBD'}</span>
-                                    <div class="pitch-metrics" id="pitch-metrics-away-${compositeId}">
-                                        ${game.pitching_metrics && game.pitching_metrics.away ? `
-                                        <span class="proj">Proj: ${game.pitching_metrics.away.projected_pitch_count ?? '-'}<span class="ppo"> (PPO ${game.pitching_metrics.away.pp_out ?? '-'})</span></span>
-                                        ${game.pitching_metrics.away.live_pitches != null ? `<span class="live"> • Live: ${game.pitching_metrics.away.live_pitches}${game.pitching_metrics.away.inning ? ` (IP ${game.pitching_metrics.away.inning})` : ''}</span>` : ''}
-
-                                        ` : ''}
-
-                                    </div>
-                                    
                                 </div>
                                 <span class="vs-separator">vs</span>
                                 <div class="home-pitcher">
                                     <span class="pitcher-label">Starting Pitcher:</span>
                                     <span class="pitcher-name">${game.home_pitcher || 'TBD'}</span>
-                                    <div class="pitch-metrics" id="pitch-metrics-home-${compositeId}">
-                                        ${game.pitching_metrics && game.pitching_metrics.home ? `
-
-                                        <span class="proj">Proj: ${game.pitching_metrics.home.projected_pitch_count ?? '-'}<span class="ppo"> (PPO ${game.pitching_metrics.home.pp_out ?? '-'})</span></span>
-                                        ${game.pitching_metrics.home.live_pitches != null ? `<span class="live"> • Live: ${game.pitching_metrics.home.live_pitches}${game.pitching_metrics.home.inning ? ` (IP ${game.pitching_metrics.home.inning})` : ''}</span>` : ''}
-
-                                        ` : ''}
-
-                                    </div>
-                                    
                                 </div>
                             </div>
                         </div>
