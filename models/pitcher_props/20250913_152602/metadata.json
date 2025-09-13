@@ -1,0 +1,10 @@
+{
+  "version": "20250913_152602",
+  "trained_markets": [
+    "strikeouts",
+    "outs"
+  ],
+  "dataset": "data/model_datasets/pitcher_props_history_with_targets.csv",
+  "created_at": "2025-09-13T20:26:03Z",
+  "notes": "Initial minimal GBM models; targets use proj_* columns as placeholders."
+}

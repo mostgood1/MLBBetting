@@ -1,0 +1,17 @@
+{
+  "games": [],
+  "pitcher_market_outcomes": [
+    {
+      "date": "2025-09-11",
+      "pitcher_key": "",
+      "market": "strikeouts",
+      "line": null,
+      "actual": null,
+      "proj": null,
+      "side": "OVER",
+      "edge": 1.2,
+      "odds_over": null,
+      "odds_under": null
+    }
+  ]
+}

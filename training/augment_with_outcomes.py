@@ -84,7 +84,7 @@ def main():
         out_rows.append(r)
     os.makedirs(DATA_DIR, exist_ok=True)
     _write_rows(OUT_CSV, out_fields, out_rows)
-    print(f"✅ Wrote targets dataset -> {OUT_CSV} ({len(out_rows)} rows)")
+    print(f"Wrote targets dataset -> {OUT_CSV} ({len(out_rows)} rows)")
     return True
 
 

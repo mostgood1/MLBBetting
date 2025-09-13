@@ -21,6 +21,20 @@ MARKETS = ['strikeouts','outs','earned_runs','hits_allowed','walks']
 def _latest_model_dir() -> Optional[str]:
     if not os.path.exists(MODEL_ROOT):
         return None
+    # Prefer promoted version if specified
+    try:
+        prom_path = os.path.join(MODEL_ROOT, 'promoted.json')
+        if os.path.exists(prom_path):
+            import json as _json
+            with open(prom_path, 'r', encoding='utf-8') as f:
+                doc = _json.load(f)
+            ver = (doc or {}).get('version')
+            if ver:
+                cand = os.path.join(MODEL_ROOT, str(ver))
+                if os.path.isdir(cand):
+                    return cand
+    except Exception:
+        pass
     dirs = [d for d in glob.glob(os.path.join(MODEL_ROOT, '*')) if os.path.isdir(d)]
     if not dirs:
         return None

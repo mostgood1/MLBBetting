@@ -148,7 +148,7 @@ def main():
     os.makedirs(version_dir, exist_ok=True)
     with open(os.path.join(version_dir, 'metadata.json'),'w',encoding='utf-8') as f:
         json.dump(meta, f, indent=2)
-    print(f'✅ Trained markets: {trained} -> {version_dir}')
+    print(f'Trained markets: {trained} -> {version_dir}')
     return True
 
 if __name__ == '__main__':
