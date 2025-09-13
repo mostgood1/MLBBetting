@@ -915,6 +915,47 @@ _HOME_SNAPSHOT_TS = 0.0
 HOME_SNAPSHOT_TTL = 60  # seconds
 _HOME_SNAPSHOT_BUILDING = False
 
+def _get_quick_predictions_for_date(date_str: str) -> list:
+    """Very fast extraction of prediction stubs for a specific date from the unified cache.
+    Avoids heavy processing and honors the requested date (used by /api/today-games/quick).
+    Returns a list of dicts with minimal fields needed to render quick cards.
+    """
+    try:
+        uc = load_unified_cache()
+        predictions_by_date = uc.get('predictions_by_date', {}) if isinstance(uc, dict) else {}
+        day = predictions_by_date.get(date_str, {}) if isinstance(predictions_by_date, dict) else {}
+        games_dict = day.get('games', {}) if isinstance(day, dict) else {}
+        out = []
+        for gk, gd in (games_dict.items() if isinstance(games_dict, dict) else []):
+            try:
+                away = gd.get('away_team') or gd.get('away') or ''
+                home = gd.get('home_team') or gd.get('home') or ''
+                preds = gd.get('predictions', {}) if isinstance(gd, dict) else {}
+                away_score = preds.get('predicted_away_score', gd.get('predicted_away_score'))
+                home_score = preds.get('predicted_home_score', gd.get('predicted_home_score'))
+                total_runs = preds.get('predicted_total_runs', gd.get('predicted_total_runs'))
+                away_wp = preds.get('away_win_prob', gd.get('away_win_probability'))
+                home_wp = preds.get('home_win_prob', gd.get('home_win_probability'))
+                pitcher_info = gd.get('pitcher_info', {}) if isinstance(gd, dict) else {}
+                out.append({
+                    'game_id': gk,
+                    'away_team': away,
+                    'home_team': home,
+                    'date': date_str,
+                    'away_pitcher': pitcher_info.get('away_pitcher_name', gd.get('away_pitcher', 'TBD')),
+                    'home_pitcher': pitcher_info.get('home_pitcher_name', gd.get('home_pitcher', 'TBD')),
+                    'predicted_away_score': round(float(away_score), 1) if isinstance(away_score, (int, float)) else None,
+                    'predicted_home_score': round(float(home_score), 1) if isinstance(home_score, (int, float)) else None,
+                    'predicted_total_runs': round(float(total_runs), 1) if isinstance(total_runs, (int, float)) else None,
+                    'away_win_probability': round(((away_wp * 100.0) if (isinstance(away_wp, (int, float)) and away_wp <= 1) else (away_wp or 0)), 1) if (away_wp is not None) else None,
+                    'home_win_probability': round(((home_wp * 100.0) if (isinstance(home_wp, (int, float)) and home_wp <= 1) else (home_wp or 0)), 1) if (home_wp is not None) else None,
+                })
+            except Exception:
+                continue
+        return out
+    except Exception:
+        return []
+
 def _build_home_snapshot() -> dict:
     """Build a fast snapshot for the home page using only local cached files.
     Avoids heavy engines and external calls to keep first render snappy.
@@ -6686,8 +6727,8 @@ def api_today_games_quick():
     """
     try:
         date_param = request.args.get('date', get_business_date())
-        snap = _get_home_snapshot_fast()
-        preds = snap.get('predictions', []) or []
+        # Honor the requested date by pulling directly from unified cache
+        preds = _get_quick_predictions_for_date(date_param) or []
         games = []
         for g in preds:
             try:

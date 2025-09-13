@@ -84,10 +84,10 @@
     "game_time": "2025-09-12T23:15:00Z",
     "away_team": "Houston Astros",
     "home_team": "Atlanta Braves",
-    "away_pitcher": "TBD",
+    "away_pitcher": "Jayden Murray",
     "home_pitcher": "Hurston Waldrep",
-    "home_probable_pitcher": "Hurston Waldrep",
-    "away_probable_pitcher": "TBD"
+    "away_probable_pitcher": "Jayden Murray",
+    "home_probable_pitcher": "Hurston Waldrep"
   },
   {
     "game_pk": 776355,
@@ -115,9 +115,9 @@
     "away_team": "Colorado Rockies",
     "home_team": "San Diego Padres",
     "away_pitcher": "Tanner Gordon",
-    "home_pitcher": "TBD",
+    "home_pitcher": "JP Sears",
     "away_probable_pitcher": "Tanner Gordon",
-    "home_probable_pitcher": "TBD"
+    "home_probable_pitcher": "JP Sears"
   },
   {
     "game_pk": 776358,
@@ -125,9 +125,9 @@
     "away_team": "Cincinnati Reds",
     "home_team": "Athletics",
     "away_pitcher": "Brady Singer",
-    "home_pitcher": "TBD",
+    "home_pitcher": "J.T. Ginn",
     "away_probable_pitcher": "Brady Singer",
-    "home_probable_pitcher": "TBD"
+    "home_probable_pitcher": "J.T. Ginn"
   },
   {
     "game_pk": 776345,

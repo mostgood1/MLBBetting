@@ -430,6 +430,95 @@ def complete_daily_automation():
     lines_ok = betting_lines_path.exists()
     games_ok = games_path.exists()
     
+    def ensure_today_in_unified_cache(unified_cache_path: Path, games_path: Path, betting_recs_path: Path) -> bool:
+        """If today's predictions are missing in unified cache, synthesize from games + betting_recommendations.
+        Returns True if unified cache was updated (or already had today), False on hard failure.
+        """
+        try:
+            import json
+            if not games_path.exists():
+                logger.warning(f"⚠️ Cannot build unified cache: games file missing: {games_path}")
+                return False
+            if not betting_recs_path.exists():
+                logger.warning(f"⚠️ Cannot build unified cache fully: betting recommendations missing: {betting_recs_path}")
+                # We'll still try to build a skeletal entry from games only
+            # Load current unified cache or start a fresh structure
+            cache_data = {}
+            if unified_cache_path.exists():
+                try:
+                    with open(unified_cache_path, 'r', encoding='utf-8') as f:
+                        cache_data = json.load(f)
+                except Exception:
+                    cache_data = {}
+            if 'predictions_by_date' not in cache_data:
+                cache_data['predictions_by_date'] = {}
+
+            # Load files
+            with open(games_path, 'r', encoding='utf-8') as f:
+                games_list = json.load(f) or []
+            betting_doc = {}
+            if betting_recs_path.exists():
+                try:
+                    with open(betting_recs_path, 'r', encoding='utf-8') as f:
+                        betting_doc = json.load(f) or {}
+                except Exception:
+                    betting_doc = {}
+            rec_games = betting_doc.get('games', {}) if isinstance(betting_doc, dict) else {}
+
+            def match_rec(away: str, home: str):
+                # Robust match by team names across all rec entries
+                if not isinstance(rec_games, dict):
+                    return {}
+                for _, v in rec_games.items():
+                    if not isinstance(v, dict):
+                        continue
+                    if v.get('away_team') == away and v.get('home_team') == home:
+                        return v
+                return {}
+
+            def keyify(away: str, home: str) -> str:
+                return f"{away}_vs_{home}".replace(' ', '_')
+
+            unified_games = {}
+            for g in (games_list or []):
+                away = g.get('away_team') or ''
+                home = g.get('home_team') or ''
+                if not away or not home:
+                    continue
+                rec = match_rec(away, home)
+                preds = rec.get('predictions', {}) if isinstance(rec, dict) else {}
+                unified_games[keyify(away, home)] = {
+                    'away_team': away,
+                    'home_team': home,
+                    'game_date': today,
+                    'game_time': g.get('game_time', ''),
+                    'away_pitcher': g.get('away_pitcher', 'TBD'),
+                    'home_pitcher': g.get('home_pitcher', 'TBD'),
+                    'predictions': preds,
+                    'betting_lines': rec.get('betting_lines', {}),
+                    'recommendations': rec.get('recommendations', []) or rec.get('value_bets', []),
+                    'pitcher_info': rec.get('pitcher_info', {}),
+                    'source': 'daily_files'
+                }
+
+            cache_data['predictions_by_date'][today] = {
+                'games': unified_games,
+                'timestamp': datetime.now().isoformat(),
+                'total_games': len(unified_games),
+                'source': 'daily_files',
+                'games_file': str(games_path),
+                'betting_file': str(betting_recs_path) if betting_recs_path.exists() else None
+            }
+
+            unified_cache_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(unified_cache_path, 'w', encoding='utf-8') as f:
+                json.dump(cache_data, f, indent=2)
+            logger.info(f"✅ Injected today's predictions into unified cache: {unified_cache_path}")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Failed to ensure today's unified cache: {e}")
+            return False
+
     if cache_ok:
         try:
             import json
@@ -442,8 +531,21 @@ def complete_daily_automation():
                 logger.info(f"✅ Unified cache loaded: {len(dates)} dates, today included: {has_today}, games today: {games_count}")
                 if not has_today or games_count == 0:
                     logger.warning(f"⚠️ Cache missing today's data: has_today={has_today}, games_count={games_count}")
-                    # Allow system to continue - betting engine can work with existing data
-                    cache_ok = True  # Don't fail the entire system for missing today's predictions
+                    # Attempt to build today's entry from games + betting recommendations
+                    built = ensure_today_in_unified_cache(unified_cache_path, games_path, betting_recs_path)
+                    if built:
+                        # Re-check counts after injection
+                        try:
+                            with open(unified_cache_path, 'r', encoding='utf-8') as rf:
+                                rc = json.load(rf)
+                                games_count2 = len(rc.get('predictions_by_date', {}).get(today, {}).get('games', {}))
+                                logger.info(f"🔁 Unified cache rebuilt for today: games now: {games_count2}")
+                        except Exception:
+                            pass
+                        cache_ok = True
+                    else:
+                        # Allow system to continue - engine can still work, but note degraded state
+                        cache_ok = True
                 else:
                     cache_ok = True
         except Exception as e:

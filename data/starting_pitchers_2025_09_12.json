@@ -1,6 +1,6 @@
 {
   "date": "2025-09-12",
-  "fetched_at": "2025-09-12T08:23:27.415182",
+  "fetched_at": "2025-09-12T21:19:12.608716",
   "games": [
     {
       "away_team": "Tampa Bay Rays",
@@ -61,7 +61,7 @@
     {
       "away_team": "Houston Astros",
       "home_team": "Atlanta Braves",
-      "away_pitcher": "TBD",
+      "away_pitcher": "Jayden Murray",
       "home_pitcher": "Hurston Waldrep",
       "game_key": "Houston Astros @ Atlanta Braves"
     },
@@ -83,14 +83,14 @@
       "away_team": "Colorado Rockies",
       "home_team": "San Diego Padres",
       "away_pitcher": "Tanner Gordon",
-      "home_pitcher": "TBD",
+      "home_pitcher": "JP Sears",
       "game_key": "Colorado Rockies @ San Diego Padres"
     },
     {
       "away_team": "Cincinnati Reds",
       "home_team": "Athletics",
       "away_pitcher": "Brady Singer",
-      "home_pitcher": "TBD",
+      "home_pitcher": "J.T. Ginn",
       "game_key": "Cincinnati Reds @ Athletics"
     },
     {
