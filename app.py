@@ -3086,7 +3086,15 @@ def _load_boxscore_pitcher_stats(date_str: Optional[str] = None) -> Dict[str, Di
             person = obj.get('person') if isinstance(obj.get('person'), dict) else None
             position = obj.get('position') if isinstance(obj.get('position'), dict) else None
             stats = obj.get('stats') if isinstance(obj.get('stats'), dict) else None
-            if person and position and stats and position.get('abbreviation') == 'P':
+            # Accept entries that have pitching stats and are pitchers (abbrev 'P' or code '1')
+            is_pitcher = False
+            try:
+                abbr = (position or {}).get('abbreviation')
+                code = (position or {}).get('code')
+                is_pitcher = (abbr == 'P') or (str(code) == '1')
+            except Exception:
+                is_pitcher = False
+            if person and stats and ((stats.get('pitching') if isinstance(stats.get('pitching'), dict) else None) is not None) and is_pitcher:
                 name = str(person.get('fullName') or person.get('name') or '').strip()
                 pitching = stats.get('pitching') if isinstance(stats.get('pitching'), dict) else {}
                 if name:
@@ -3105,22 +3113,39 @@ def _load_boxscore_pitcher_stats(date_str: Optional[str] = None) -> Dict[str, Di
                     pitches = pitching.get('numberOfPitches')
                     if pitches is None:
                         pitches = pitching.get('pitchesThrown')
-                    try:
-                        entry['pitches'] = int(pitches) if pitches is not None else entry.get('pitches')
-                    except Exception:
-                        pass
+                    if pitches is not None:
+                        try:
+                            entry['pitches'] = int(pitches)
+                        except Exception:
+                            pass
                     # Outs, strikeouts, innings pitched
-                    try:
-                        entry['outs'] = int(pitching.get('outs')) if pitching.get('outs') is not None else entry.get('outs')
-                    except Exception:
-                        pass
-                    try:
-                        entry['strikeouts'] = int(pitching.get('strikeOuts')) if pitching.get('strikeOuts') is not None else entry.get('strikeouts')
-                    except Exception:
-                        pass
+                    outs_val = pitching.get('outs')
+                    if outs_val is not None:
+                        try:
+                            entry['outs'] = int(outs_val)
+                        except Exception:
+                            pass
+                    ks_val = pitching.get('strikeOuts')
+                    if ks_val is not None:
+                        try:
+                            entry['strikeouts'] = int(ks_val)
+                        except Exception:
+                            pass
                     ip = pitching.get('inningsPitched')
                     if ip is not None:
                         entry['innings_pitched'] = ip
+                        # Derive outs from inningsPitched if outs missing
+                        try:
+                            if 'outs' not in entry or entry.get('outs') is None:
+                                # IP like '5.2' means 5 innings and 2 outs
+                                if isinstance(ip, str) and ip:
+                                    parts = ip.split('.')
+                                    inn = int(parts[0] or 0)
+                                    rem = int(parts[1] or 0) if len(parts) > 1 else 0
+                                    if 0 <= rem <= 2:
+                                        entry['outs'] = inn * 3 + rem
+                        except Exception:
+                            pass
 
                     # Additional live pitcher metrics for props
                     try:
@@ -4016,7 +4041,7 @@ def api_pitcher_props_live_stats():
                 target_lastnames.setdefault(ln, set()).add(n)
             except Exception:
                 pass
-
+        
         for k, v in box.items():
             if not isinstance(v, dict):
                 continue
@@ -4043,6 +4068,94 @@ def api_pitcher_props_live_stats():
                 pid = v.get('player_id')
                 if pid:
                     out_by_id[str(pid)] = rec
+        # If key starters are missing or have no usable fields, try fetching live boxscores per game to fill
+        try:
+            stats_fields = ('pitches','outs','strikeouts','walks','hits','earned_runs','innings_pitched')
+            def _has_stats(d: Dict[str, Any]) -> bool:
+                return any((d.get(f) is not None) for f in stats_fields)
+            missing = set()
+            for n in (target_names or set()):
+                r = out.get(n)
+                if (r is None) or (not _has_stats(r)):
+                    missing.add(n)
+            # Fetch per game if there are missing starters
+            if missing:
+                # Build list of game IDs from available games_doc (from above block)
+                pks = []
+                try:
+                    iterable2 = games_doc if isinstance(games_doc, list) else (games_doc.get('games') or games_doc or [])
+                except Exception:
+                    iterable2 = []
+                if isinstance(iterable2, dict):
+                    iterable2 = list(iterable2.values())
+                for g in iterable2:
+                    pk = g.get('game_id') or g.get('game_pk') or (g.get('meta') or {}).get('game_id')
+                    if pk and str(pk) not in pks:
+                        pks.append(str(pk))
+                # Helper: fetch one boxscore
+                def _fetch_box(game_pk: str) -> Dict[str, Dict[str, Any]]:
+                    try:
+                        import requests
+                        url = f"https://statsapi.mlb.com/api/v1/game/{game_pk}/boxscore"
+                        resp = requests.get(url, timeout=4)
+                        if not resp.ok:
+                            return {}
+                        data = resp.json() or {}
+                        res: Dict[str, Dict[str, Any]] = {}
+                        teams = (data.get('teams') or {})
+                        for side in ('away','home'):
+                            players = (teams.get(side) or {}).get('players') or {}
+                            for _, pdata in players.items():
+                                try:
+                                    person = pdata.get('person') or {}
+                                    full = str(person.get('fullName') or '').strip()
+                                    if not full:
+                                        continue
+                                    pos = ((pdata.get('position') or {}) or {}).get('abbreviation')
+                                    if pos != 'P':
+                                        continue
+                                    stats = ((pdata.get('stats') or {}) or {}).get('pitching') or {}
+                                    key = normalize_name(full)
+                                    entry = res.setdefault(key, {})
+                                    # map fields
+                                    val = stats.get('numberOfPitches') or stats.get('pitchesThrown')
+                                    if val is not None:
+                                        try: entry['pitches'] = int(val)
+                                        except Exception: pass
+                                    for sk, dk in (
+                                        ('outs','outs'), ('strikeOuts','strikeouts'), ('inningsPitched','innings_pitched'),
+                                        ('baseOnBalls','walks'), ('hits','hits'), ('earnedRuns','earned_runs')
+                                    ):
+                                        vv = stats.get(sk)
+                                        if vv is not None:
+                                            try:
+                                                entry[dk] = int(vv) if dk != 'innings_pitched' else vv
+                                            except Exception:
+                                                entry[dk] = vv
+                                    pid = (person.get('id') if isinstance(person, dict) else None)
+                                    if pid is not None:
+                                        entry['player_id'] = str(pid)
+                                except Exception:
+                                    continue
+                        return res
+                    except Exception:
+                        return {}
+                # Merge fetched stats
+                for pk in pks[:20]:  # cap to avoid excessive calls
+                    fetched = _fetch_box(str(pk))
+                    if not fetched:
+                        continue
+                    for nk, st in fetched.items():
+                        if name_filter and name_filter not in str(nk).lower():
+                            continue
+                        if not _has_stats(st):
+                            continue
+                        out[nk] = {**out.get(nk, {}), **st}
+                        pid = st.get('player_id')
+                        if pid:
+                            out_by_id[str(pid)] = {**out_by_id.get(str(pid), {}), **st}
+        except Exception:
+            pass
         return jsonify({'success': True, 'date': date_str, 'count': len(out), 'live_stats': out, 'live_stats_by_id': out_by_id})
     except Exception as e:
         logger.error(f"Error in api_pitcher_props_live_stats: {e}\n{traceback.format_exc()}")
