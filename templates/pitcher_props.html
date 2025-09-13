@@ -35,6 +35,9 @@
     .edge-small { color: #60a5fa; }
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #bbb; box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(0,0,0,0.1); }
   .proj-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 8px 0 10px; overflow: visible; }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; box-shadow: 0 0 0 2px rgba(255,255,255,0.2); }
+  .live-dot.ok { background: #00c853; }
+  .live-dot.bad { background: #888; }
   .stat-box { flex: 1 1 0%; min-width: 0; display: grid; grid-template-columns: 1fr auto; gap: 4px; align-items: baseline; padding: 4px 6px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.03); }
   .stat-box .label { font-size: 0.68rem; opacity: 0.85; font-weight: 700; white-space: normal; overflow: visible; text-overflow: clip; min-width: 0; }
   .stat-box .value { font-size: 0.85rem; font-weight: 800; white-space: nowrap; overflow: visible; text-overflow: clip; }
@@ -67,6 +70,13 @@
     </div>
     <div id="meta" class="muted" style="margin-bottom:8px;">Loading...</div>
     <div id="grid" class="grid"></div>
+    <div id="modelBanner" class="muted" style="margin-top:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.12); display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <span id="modelInfo">Model: —</span>
+      <span id="modelWhen"></span>
+      <span id="linesFeed" title="Count of line/odds change events captured today"></span>
+  <span class="live-dot" id="liveStatsDot" title="Live stats polling health"></span>
+  <span id="liveStatsStatus"></span>
+    </div>
   </div>
 
   <script>
@@ -137,7 +147,9 @@
 
         const card = document.createElement('div');
         card.className = 'card';
-        card.setAttribute('data-pitcher', norm(key));
+  card.setAttribute('data-pitcher', norm(key));
+  const pid = bundle.mlb_player_id || bundle.player_id;
+  if (pid) { card.setAttribute('data-pid', String(pid)); }
         // Build header
         card.innerHTML = `
           <div class="card-header">
@@ -240,22 +252,60 @@
       renderCards(data);
     }
 
-    function updateLive(ev){
+    async function loadDiagnostics(){
+      try{
+        const date = document.getElementById('date').value;
+        const r = await fetch(`/api/pitcher-props/model-diagnostics?date=${encodeURIComponent(date)}&t=${Date.now()}`);
+        if(!r.ok) return;
+        const d = await r.json();
+        if(!d.success) return;
+        const model = d.model || {};
+        const ver = model.version || 'n/a';
+        const when = model.promoted_at || model.created_at || '';
+        const modelInfo = document.getElementById('modelInfo');
+        const modelWhen = document.getElementById('modelWhen');
+        const linesFeed = document.getElementById('linesFeed');
+        if(modelInfo) modelInfo.textContent = `Model: ${ver}`;
+        if(modelWhen) modelWhen.textContent = when ? `• Promoted: ${when}` : '';
+        if(linesFeed) linesFeed.textContent = typeof d.line_event_count === 'number' ? `• Lines feed events: ${d.line_event_count}` : '';
+      }catch(_){ }
+    }
+
+  function updateLive(ev){
       try{
         const pk = norm(ev.pitcher || ev.pitcher_name || ev.key || '');
         if(!pk) return;
         const el = document.querySelector(`.card[data-pitcher="${pk}"]`);
         if(!el) return;
-        const mk = ev.market; const line = ev.line;
-        const row = el.querySelector(`.row[data-market="${mk}"]`);
+    const mk = ev.market;
+    // Support both initial and move events
+    const line = (typeof ev.line === 'number') ? ev.line : (typeof ev.new_line === 'number' ? ev.new_line : undefined);
+        let row = el.querySelector(`.row[data-market="${mk}"]`);
+        if(!row && mk){
+          // Create a new row dynamically if this market appeared after initial render
+          const label = mk==='strikeouts'?'K': mk==='hits_allowed'?'Hits Allowed': mk==='earned_runs'?'Earned Runs': mk==='walks'?'Walks':'Outs';
+          const rowsWrap = el.querySelector('[data-market-rows]');
+          if(rowsWrap){
+            row = document.createElement('div');
+            row.className = 'row';
+            row.setAttribute('data-market', mk);
+            row.innerHTML = `
+              <div class="label">${label}</div>
+              <div class="line">Line —</div>
+              <div class="live" data-live="${mk}">Live: —</div>
+              <div class="odds"></div>
+            `;
+            rowsWrap.appendChild(row);
+          }
+        }
         if(row){
           if(typeof line === 'number'){
             const l = row.querySelector('.line'); if(l) l.textContent = `Line ${line.toFixed(1)}`;
           }
           const odds = row.querySelector('.odds');
           if(odds){
-            const oo = ev.over_odds != null ? ev.over_odds : '';
-            const uo = ev.under_odds != null ? ev.under_odds : '';
+      const oo = (ev.over_odds != null) ? ev.over_odds : (ev.new_over_odds != null ? ev.new_over_odds : '');
+      const uo = (ev.under_odds != null) ? ev.under_odds : (ev.new_under_odds != null ? ev.new_under_odds : '');
             if(oo!=='' || uo!=='') odds.textContent = `O ${oo} / U ${uo}`;
           }
         }
@@ -283,24 +333,77 @@
       }catch(_){}
     }
 
+    // Poll live per-pitcher stats and update the 'Live:' cells in market rows
+    async function pollLiveStats(){
+      try{
+        const date = document.getElementById('date').value;
+        const r = await fetch(`/api/pitcher-props/live-stats?date=${encodeURIComponent(date)}&t=${Date.now()}`);
+  const status = document.getElementById('liveStatsStatus');
+  const dot = document.getElementById('liveStatsDot');
+  if(!r.ok){ if(status) status.textContent = '• Live stats: error'; if(dot){ dot.classList.remove('ok'); dot.classList.add('bad'); } return; }
+        const data = await r.json();
+  if(!data.success){ if(status) status.textContent = '• Live stats: error'; if(dot){ dot.classList.remove('ok'); dot.classList.add('bad'); } return; }
+        const stats = data.live_stats || {};
+        const statsById = data.live_stats_by_id || {};
+  if(status) status.textContent = `• Live stats: ${Object.keys(stats).length}`;
+  if(dot){ dot.classList.remove('bad'); dot.classList.add('ok'); }
+        for(const [k, st] of Object.entries(stats)){
+          const card = document.querySelector(`.card[data-pitcher="${norm(k)}"]`);
+          if(!card) continue;
+          const update = (mk, text) => {
+            const row = card.querySelector(`.row[data-market="${mk}"] .live`);
+            if(row) row.textContent = `Live: ${text}`;
+          };
+          if(typeof st.strikeouts === 'number') update('strikeouts', st.strikeouts);
+          if(typeof st.outs === 'number') update('outs', st.outs);
+          if(typeof st.earned_runs === 'number') update('earned_runs', st.earned_runs);
+          if(typeof st.hits_allowed === 'number') update('hits_allowed', st.hits_allowed);
+          if(typeof st.walks === 'number') update('walks', st.walks);
+          // also keep pitch count badge aligned if present
+          const pcEl = card.querySelector('[data-live-pc]');
+          if(pcEl && typeof st.pitches === 'number'){ updatePcBadge(pcEl, st.pitches); }
+        }
+        // Second pass: fill by player_id for cases where name keys don't match
+        for(const [pid, st] of Object.entries(statsById)){
+          const card = document.querySelector(`.card[data-pid="${String(pid)}"]`);
+          if(!card) continue;
+          const update = (mk, text) => {
+            const row = card.querySelector(`.row[data-market="${mk}"] .live`);
+            if(row) row.textContent = `Live: ${text}`;
+          };
+          if(typeof st.strikeouts === 'number') update('strikeouts', st.strikeouts);
+          if(typeof st.outs === 'number') update('outs', st.outs);
+          if(typeof st.earned_runs === 'number') update('earned_runs', st.earned_runs);
+          if(typeof st.hits_allowed === 'number') update('hits_allowed', st.hits_allowed);
+          if(typeof st.walks === 'number') update('walks', st.walks);
+          const pcEl = card.querySelector('[data-live-pc]');
+          if(pcEl && typeof st.pitches === 'number'){ updatePcBadge(pcEl, st.pitches); }
+        }
+      }catch(_){ }
+    }
+
     let es;
     function startSSE(){
       try {
-        es = new EventSource('/api/pitcher-props/stream');
-        document.getElementById('sseDot').style.background = '#00c853';
+  es = new EventSource('/api/pitcher-props/stream');
+  es.onopen = ()=>{ document.getElementById('sseDot').style.background = '#00c853'; };
         es.onmessage = (msg)=>{ if(!msg.data) return; try { const ev = JSON.parse(msg.data); if(ev && ev.type) updateLive(ev); } catch(e){} };
         es.onerror = ()=>{ try{ es.close(); }catch(_){}; document.getElementById('sseDot').style.background = '#bbb'; setTimeout(startSSE, 10000); };
       } catch(e){ setTimeout(startSSE, 15000); }
     }
 
-    document.getElementById('refreshBtn').addEventListener('click', ()=>{ loadUnified(); setTimeout(pollLivePitches, 200); });
+  document.getElementById('refreshBtn').addEventListener('click', ()=>{ loadUnified(); loadDiagnostics(); setTimeout(()=>{ pollLivePitches(); pollLiveStats(); }, 200); });
     let _pcTimer;
     window.addEventListener('DOMContentLoaded', ()=>{
-      loadUnified(); startSSE();
+  loadUnified(); loadDiagnostics(); startSSE();
       // Poll every 20s for live pitch counts
       try{ if(_pcTimer) clearInterval(_pcTimer); }catch(_){}
       _pcTimer = setInterval(pollLivePitches, 20000);
       setTimeout(pollLivePitches, 1500);
+  // Poll live stats every 15s
+  try{ if(window._lsTimer) clearInterval(window._lsTimer); }catch(_){ }
+  window._lsTimer = setInterval(pollLiveStats, 15000);
+  setTimeout(pollLiveStats, 1200);
     });
   </script>
 </body>

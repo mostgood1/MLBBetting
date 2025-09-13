@@ -103,3 +103,6 @@ logs_archive/
 cleanup/
 archive-*/
 cleanup-*/
+
+# Secrets
+secrets/

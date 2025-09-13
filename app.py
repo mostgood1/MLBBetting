@@ -3073,13 +3073,12 @@ def _load_boxscore_pitcher_stats(date_str: Optional[str] = None) -> Dict[str, Di
     This walks the JSON generically to find pitcher entries, so it tolerates
     structure variations. If no file or parse error, returns {}.
     """
-    candidates = [
-        os.path.join('data', 'boxscore_cache.json')
-    ]
-    # Also try a dated variant if provided
+    # Prefer date-specific cache first (if available), then fall back to generic cache
+    candidates = []
     if date_str:
         safe_date = date_str.replace('-', '_')
         candidates.append(os.path.join('data', f'boxscore_cache_{safe_date}.json'))
+    candidates.append(os.path.join('data', 'boxscore_cache.json'))
 
     def _collect_from_obj(obj: Any, out: Dict[str, Dict[str, Any]]):
         if isinstance(obj, dict):
@@ -3095,6 +3094,13 @@ def _load_boxscore_pitcher_stats(date_str: Optional[str] = None) -> Dict[str, Di
                     # Also keep the pure lowercase form for legacy lookups
                     key_ascii = name.strip().lower()
                     entry = out.setdefault(key, {})
+                    # Attach MLBAM player id for robust lookups
+                    try:
+                        pid = person.get('id')
+                        if pid is not None:
+                            entry['player_id'] = str(pid)
+                    except Exception:
+                        pass
                     # Prefer numberOfPitches, fallback to pitchesThrown
                     pitches = pitching.get('numberOfPitches')
                     if pitches is None:
@@ -3951,6 +3957,97 @@ def api_pitcher_props_live_pitches():
         logger.error(f"Error in api_pitcher_props_live_pitches: {e}\n{traceback.format_exc()}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/pitcher-props/live-stats')
+def api_pitcher_props_live_stats():
+    """Return current live pitcher stats by normalized pitcher key.
+    Provides fields used by props UI per-market 'Live' cells: strikeouts, outs, walks, hits_allowed, earned_runs, and pitches.
+    Optional: name=<substring> to filter, date=YYYY-MM-DD to specify date.
+    """
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        name_filter = (request.args.get('name') or '').strip().lower()
+        box = _load_boxscore_pitcher_stats(date_str) or {}
+        # Build today's probable pitcher name/id sets to focus live stats on relevant starters
+        target_names: set[str] = set()
+        target_ids: set[str] = set()
+        try:
+            safe_date = date_str.replace('-', '_')
+            games_path = os.path.join('data', f'games_{date_str}.json')
+            games_doc = {}
+            if os.path.exists(games_path):
+                try:
+                    with open(games_path, 'r', encoding='utf-8') as f:
+                        games_doc = json.load(f)
+                except Exception:
+                    games_doc = {}
+            if not games_doc:
+                try:
+                    from live_mlb_data import LiveMLBData
+                    mlb_api = LiveMLBData()
+                    live_games = mlb_api.get_enhanced_games_data(date_str) or []
+                    games_doc = {'games': {str(i): g for i, g in enumerate(live_games)}}
+                except Exception:
+                    games_doc = {}
+            iterable = games_doc if isinstance(games_doc, list) else (games_doc.get('games') or games_doc or [])
+            if isinstance(iterable, dict):
+                iterable = list(iterable.values())
+            for g in iterable:
+                ap = (g.get('away_pitcher') or '').strip()
+                hp = (g.get('home_pitcher') or '').strip()
+                if ap:
+                    target_names.add(normalize_name(ap))
+                if hp:
+                    target_names.add(normalize_name(hp))
+                apid = g.get('away_pitcher_id') or g.get('away_pitcher_mlb_id')
+                hpid = g.get('home_pitcher_id') or g.get('home_pitcher_mlb_id')
+                if apid:
+                    target_ids.add(str(apid))
+                if hpid:
+                    target_ids.add(str(hpid))
+        except Exception:
+            pass
+        out: Dict[str, Dict[str, Any]] = {}
+        out_by_id: Dict[str, Dict[str, Any]] = {}
+        # Prepare last-name maps for target starters to allow surname-only matches when unique
+        target_lastnames = {}
+        for n in list(target_names):
+            try:
+                ln = n.split()[-1]
+                target_lastnames.setdefault(ln, set()).add(n)
+            except Exception:
+                pass
+
+        for k, v in box.items():
+            if not isinstance(v, dict):
+                continue
+            if name_filter and name_filter not in str(k).lower():
+                continue
+            rec = {}
+            # Map available fields; hits in boxscore are hits allowed for pitcher
+            if v.get('pitches') is not None:
+                rec['pitches'] = int(v.get('pitches'))
+            if v.get('outs') is not None:
+                rec['outs'] = int(v.get('outs'))
+            if v.get('strikeouts') is not None:
+                rec['strikeouts'] = int(v.get('strikeouts'))
+            if v.get('walks') is not None:
+                rec['walks'] = int(v.get('walks'))
+            if v.get('hits') is not None:
+                rec['hits_allowed'] = int(v.get('hits'))
+            if v.get('earned_runs') is not None:
+                rec['earned_runs'] = int(v.get('earned_runs'))
+            if v.get('innings_pitched') is not None:
+                rec['innings_pitched'] = v.get('innings_pitched')
+            if rec:
+                out[k] = rec
+                pid = v.get('player_id')
+                if pid:
+                    out_by_id[str(pid)] = rec
+        return jsonify({'success': True, 'date': date_str, 'count': len(out), 'live_stats': out, 'live_stats_by_id': out_by_id})
+    except Exception as e:
+        logger.error(f"Error in api_pitcher_props_live_stats: {e}\n{traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/pitcher-props/model-diagnostics')
 def api_pitcher_props_model_diagnostics():
     """Return model diagnostics aggregating volatility, calibration, realized outcomes, and recent recommendation coverage.
@@ -3987,6 +4084,18 @@ def api_pitcher_props_model_diagnostics():
                     'created_at': meta.get('created_at'),
                     'dataset': meta.get('dataset'),
                 }
+                # Attach promotion metadata if available
+                try:
+                    prom_path = os.path.join('models', 'pitcher_props', 'promoted.json')
+                    if os.path.exists(prom_path):
+                        with open(prom_path, 'r', encoding='utf-8') as f:
+                            prom_doc = json.load(f)
+                        if isinstance(prom_doc, dict):
+                            if prom_doc.get('version') and not model_meta.get('version'):
+                                model_meta['version'] = prom_doc.get('version')
+                            model_meta['promoted_at'] = prom_doc.get('promoted_at')
+                except Exception:
+                    pass
                 # Feature importances if available
                 for mkt, model in (models.models or {}).items():
                     try:
@@ -4050,6 +4159,58 @@ def api_pitcher_props_model_diagnostics():
         })
     except Exception as e:
         logger.error(f"Error in api_pitcher_props_model_diagnostics: {e}\n{traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/pitcher-props/debug-features')
+def api_pitcher_props_debug_features():
+    """Inspect feature vectors and predictions for one or more pitchers.
+    Query: name=<substring, optional>; limit=<int, default 3>
+    """
+    try:
+        from pitcher_model_runtime import load_models
+        models = load_models()
+        if models is None:
+            return jsonify({'success': False, 'error': 'models unavailable'}), 503
+        date_str = request.args.get('date') or get_business_date()
+        safe_date = date_str.replace('-', '_')
+        base_dir = os.path.join('data','daily_bovada')
+        props_path = os.path.join(base_dir, f'bovada_pitcher_props_{safe_date}.json')
+        stats = _load_master_pitcher_stats()
+        props_doc = {}
+        if os.path.exists(props_path):
+            with open(props_path,'r',encoding='utf-8') as f:
+                props_doc = json.load(f)
+        pitcher_props = props_doc.get('pitcher_props', {}) if isinstance(props_doc, dict) else {}
+        if not pitcher_props:
+            # Fallback to last-known lines snapshot
+            lk_path = os.path.join(base_dir, f'pitcher_last_known_lines_{safe_date}.json')
+            if os.path.exists(lk_path):
+                try:
+                    with open(lk_path,'r',encoding='utf-8') as f:
+                        pitcher_props = json.load(f)
+                except Exception:
+                    pitcher_props = {}
+        name_q = (request.args.get('name') or '').strip().lower()
+        limit = int(request.args.get('limit') or 3)
+        out = {}
+        cnt = 0
+        for raw_key, mkts in pitcher_props.items():
+            nk = normalize_name(raw_key.split('(')[0])
+            if name_q and name_q not in nk:
+                continue
+            st = stats.get(nk, {})
+            if not st:
+                continue
+            team = st.get('team')
+            opp = st.get('opponent')
+            dbg = models.debug_features(st, team, opp, lines=mkts)
+            out[nk] = dbg
+            cnt += 1
+            if cnt >= limit:
+                break
+        return jsonify({'success': True, 'count': len(out), 'data': out})
+    except Exception as e:
+        logger.error(f"Error in api_pitcher_props_debug_features: {e}\n{traceback.format_exc()}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/pitcher-props/debug')
@@ -4217,11 +4378,13 @@ def api_pitcher_props_unified():
             stats_core = stats_doc['refresh_info']['pitcher_data']
         else:
             stats_core = stats_doc
+
         # Load live boxscore-derived pitcher stats for live pitch counts
         try:
             live_box = _load_boxscore_pitcher_stats(date_str)
         except Exception:
             live_box = {}
+
         games_doc = _load_json(games_path, [])
         # Fallback: if no local games file, derive from MLB schedule for requested date
         if (not games_doc) or (isinstance(games_doc, list) and len(games_doc) == 0) or (isinstance(games_doc, dict) and not games_doc.get('games')):
@@ -4242,7 +4405,121 @@ def api_pitcher_props_unified():
                 logger.info(f"[UNIFIED] Built games_doc from MLB schedule with {len(games_doc)} entries for {date_str}")
             except Exception as _e:
                 logger.warning(f"[UNIFIED] Could not build games_doc from MLB schedule: {_e}")
+
         team_map = build_team_map(games_doc) if _proj_available else {}
+
+        # Lightweight MLB player id resolver with on-disk cache to enrich rookies/fringe pitchers
+        pid_cache_path = os.path.join('data', 'player_id_cache.json')
+        try:
+            with open(pid_cache_path, 'r', encoding='utf-8') as f:
+                _PID_CACHE = json.load(f)
+            if not isinstance(_PID_CACHE, dict):
+                _PID_CACHE = {}
+        except Exception:
+            _PID_CACHE = {}
+
+        def _save_pid_cache():
+            try:
+                os.makedirs(os.path.dirname(pid_cache_path), exist_ok=True)
+                with open(pid_cache_path, 'w', encoding='utf-8') as f:
+                    json.dump(_PID_CACHE, f, ensure_ascii=False, indent=2)
+            except Exception:
+                pass
+
+        # Per-request MLB schedule cache to avoid repeated fetches during this call
+        _SCHED_LOCAL = {'games': None}
+        def _get_sched_games():
+            if _SCHED_LOCAL['games'] is not None:
+                return _SCHED_LOCAL['games'] or []
+            try:
+                from utils.mlb_data_fetcher import MLBDataFetcher
+                _fetch = MLBDataFetcher()
+                sched_games = _fetch.fetch_schedule_for_date(date_str) or []
+                _SCHED_LOCAL['games'] = sched_games
+                return sched_games
+            except Exception:
+                _SCHED_LOCAL['games'] = []
+                return []
+
+        def _resolve_player_id_by_name(name):
+            """Resolve MLBAM player id using cache, schedule, or StatsAPI search."""
+            if not name:
+                return None
+            try:
+                from generate_pitcher_prop_projections import normalize_name as _nn
+            except Exception:
+                def _nn(n):
+                    return (n or '').lower().strip()
+            key = _nn(name)
+            pid = _PID_CACHE.get(key)
+            if pid:
+                return str(pid)
+            try:
+                iterable = games_doc if isinstance(games_doc, list) else (games_doc.get('games') or [])
+                for g in iterable:
+                    ap = (g.get('away_pitcher') or '').strip()
+                    hp = (g.get('home_pitcher') or '').strip()
+                    if ap and _nn(ap) == key:
+                        pid_local = g.get('away_pitcher_id') or g.get('away_pitcher_mlb_id')
+                        if pid_local:
+                            _PID_CACHE[key] = str(pid_local)
+                            _save_pid_cache()
+                            return str(pid_local)
+                    if hp and _nn(hp) == key:
+                        pid_local = g.get('home_pitcher_id') or g.get('home_pitcher_mlb_id')
+                        if pid_local:
+                            _PID_CACHE[key] = str(pid_local)
+                            _save_pid_cache()
+                            return str(pid_local)
+            except Exception:
+                pass
+            # Use per-request cached MLB schedule
+            try:
+                sched_games = _get_sched_games()
+                for g in sched_games:
+                    ap = (g.get('away_pitcher') or '').strip()
+                    hp = (g.get('home_pitcher') or '').strip()
+                    if ap and _nn(ap) == key and g.get('away_pitcher_id'):
+                        _PID_CACHE[key] = str(g['away_pitcher_id'])
+                        _save_pid_cache()
+                        return str(g['away_pitcher_id'])
+                    if hp and _nn(hp) == key and g.get('home_pitcher_id'):
+                        _PID_CACHE[key] = str(g['home_pitcher_id'])
+                        _save_pid_cache()
+                        return str(g['home_pitcher_id'])
+            except Exception:
+                pass
+            try:
+                import requests
+                url = "https://statsapi.mlb.com/api/v1/people"
+                resp = requests.get(url, params={'search': name}, timeout=12)
+                if resp.ok:
+                    data = resp.json() or {}
+                    people = data.get('people') or []
+                    best = None
+                    for p in people:
+                        full = (p.get('fullName') or '').strip()
+                        pos = ((p.get('primaryPosition') or {}) or {}).get('code')
+                        if full and _nn(full) == key:
+                            if pos == '1':
+                                best = p
+                                break
+                            best = best or p
+                    if not best:
+                        for p in people:
+                            full = (p.get('fullName') or '').strip()
+                            pos = ((p.get('primaryPosition') or {}) or {}).get('code')
+                            if pos == '1' and key in _nn(full):
+                                best = p
+                                break
+                    if best and best.get('id'):
+                        pid3 = str(best['id'])
+                        _PID_CACHE[key] = pid3
+                        _save_pid_cache()
+                        return pid3
+            except Exception:
+                pass
+            return None
 
         # Build stats_by_name map including MLBAM player id from source keys when possible
         stats_by_name = {}
@@ -4252,7 +4529,6 @@ def api_pitcher_props_unified():
                 if not pname:
                     continue
                 nk = normalize_name(pname)
-                # Preserve original data and attach a stable player id for headshots
                 enriched = dict(pdata or {})
                 if 'player_id' not in enriched:
                     try:
@@ -4261,7 +4537,6 @@ def api_pitcher_props_unified():
                         pass
                 stats_by_name[nk] = enriched
         except Exception:
-            # Fallback if stats_core is not a dict keyed by ids
             for _, pdata in (stats_core or {}).items():
                 pname = str((pdata or {}).get('name', '')).strip()
                 if pname:
@@ -4270,7 +4545,7 @@ def api_pitcher_props_unified():
         recs_by_pitcher = {}
         rec_doc = _load_json(rec_path, {})
         if isinstance(rec_doc, dict):
-            for r in rec_doc.get('recommendations', []) or []:
+            for r in (rec_doc.get('recommendations') or []):
                 pk = r.get('pitcher_key')
                 if pk:
                     recs_by_pitcher[pk] = r
@@ -4282,10 +4557,17 @@ def api_pitcher_props_unified():
             st = stats_by_name.get(norm_key, {})
             team_info = team_map.get(norm_key, {'team': None, 'opponent': None})
             opponent = team_info.get('opponent') if _proj_available else None
-            proj = (project_pitcher(norm_key, st, opponent) if (st and _proj_available) else {})
+            if not st:
+                st = {'name': name_only, 'team': team_info.get('team')}
+                try:
+                    pid = _resolve_player_id_by_name(name_only)
+                    if pid:
+                        st['player_id'] = pid
+                except Exception:
+                    pass
+            proj = (project_pitcher(norm_key, st, opponent, lines=mkts) if (st and _proj_available) else {})
             markets_out = {}
 
-            # Fill missing lines from last-known snapshot
             augmented_mkts = dict(mkts)
             try:
                 lk = last_known_pitchers.get(norm_key, {})
@@ -4342,7 +4624,6 @@ def api_pitcher_props_unified():
                         'under_odds': under_odds
                     }
                 else:
-                    # Lines-only market payload to avoid breaking UI when projections module missing
                     markets_out[market_key] = {
                         'line': line_val,
                         'proj': proj_val,
@@ -4355,14 +4636,13 @@ def api_pitcher_props_unified():
                         'over_odds': over_odds,
                         'under_odds': under_odds
                     }
+
             rec = recs_by_pitcher.get(norm_key)
-            # Choose a primary play (market/side/edge) from the recommendations, if present
             primary_play = None
             plays_all = None
             try:
                 if rec and isinstance(rec.get('plays'), list) and rec['plays']:
                     plays_all = rec['plays']
-                    # Rank: confidence HIGH>MEDIUM>LOW, then by abs(edge)
                     conf_rank = {'HIGH': 3, 'MEDIUM': 2, 'LOW': 1}
                     primary_play = max(
                         rec['plays'],
@@ -4371,7 +4651,6 @@ def api_pitcher_props_unified():
                             abs(p.get('edge') or 0)
                         )
                     )
-                    # Normalize keys on primary
                     primary_play = {
                         'market': primary_play.get('market'),
                         'side': (primary_play.get('side') or '').upper() or None,
@@ -4381,19 +4660,23 @@ def api_pitcher_props_unified():
             except Exception:
                 primary_play = None
 
-            # Derive display name, team logo, and headshot URL if we have a player id
             display_name = (st.get('name') if isinstance(st, dict) else None) or name_only
             try:
-                # Ensure reasonable capitalization if source is lower/upper case
                 if isinstance(display_name, str):
                     display_name = ' '.join([w.capitalize() if not w.isupper() else w for w in display_name.split()])
             except Exception:
                 pass
-            player_id = (st.get('player_id') if isinstance(st, dict) else None) or (st.get('id') if isinstance(st, dict) else None)
+            # Preserve original id but also resolve MLB player id explicitly for headshots and live mapping
+            original_id = (st.get('player_id') if isinstance(st, dict) else None) or (st.get('id') if isinstance(st, dict) else None)
+            mlb_player_id = None
+            try:
+                mlb_player_id = _resolve_player_id_by_name(display_name)
+            except Exception:
+                mlb_player_id = None
             headshot_url = None
-            if player_id:
-                # MLB official headshot CDN
-                headshot_url = f"https://img.mlbstatic.com/mlb-photos/image/upload/w_120,q_auto:best/v1/people/{player_id}/headshot/67/current"
+            use_id_for_photo = mlb_player_id or original_id
+            if use_id_for_photo:
+                headshot_url = f"https://img.mlbstatic.com/mlb-photos/image/upload/w_120,q_auto:best/v1/people/{use_id_for_photo}/headshot/67/current"
             team_name_for_logo = team_info.get('team')
             team_logo = get_team_logo_url(team_name_for_logo) if team_name_for_logo else None
             opponent_logo = get_team_logo_url(opponent) if opponent else None
@@ -4401,6 +4684,8 @@ def api_pitcher_props_unified():
             merged[norm_key] = {
                 'raw_key': raw_key,
                 'display_name': display_name,
+                'player_id': original_id,
+                'mlb_player_id': mlb_player_id,
                 'headshot_url': headshot_url,
                 'team_logo': team_logo,
                 'opponent_logo': opponent_logo,
@@ -4444,23 +4729,39 @@ def api_pitcher_props_unified():
                 st = stats_by_name.get(nk, {})
                 team_info = (team_map.get(nk, {'team': None, 'opponent': None}) if _proj_available else {'team': None, 'opponent': None})
                 opponent = team_info.get('opponent') if _proj_available else None
-                proj = (project_pitcher(nk, st, opponent) if (st and _proj_available) else {})
+                if not st:
+                    st = {'name': pname, 'team': team_info.get('team')}
+                    try:
+                        pid = _resolve_player_id_by_name(pname)
+                        if pid:
+                            st['player_id'] = pid
+                    except Exception:
+                        pass
+                proj = (project_pitcher(nk, st, opponent, lines={}) if (st and _proj_available) else {})
                 display_name = (st.get('name') if isinstance(st, dict) else None) or pname
                 try:
                     if isinstance(display_name, str):
                         display_name = ' '.join([w.capitalize() if not w.isupper() else w for w in display_name.split()])
                 except Exception:
                     pass
-                player_id = (st.get('player_id') if isinstance(st, dict) else None) or (st.get('id') if isinstance(st, dict) else None)
+                original_id = (st.get('player_id') if isinstance(st, dict) else None) or (st.get('id') if isinstance(st, dict) else None)
+                mlb_player_id = None
+                try:
+                    mlb_player_id = _resolve_player_id_by_name(display_name)
+                except Exception:
+                    mlb_player_id = None
                 headshot_url = None
-                if player_id:
-                    headshot_url = f"https://img.mlbstatic.com/mlb-photos/image/upload/w_120,q_auto:best/v1/people/{player_id}/headshot/67/current"
+                use_id_for_photo = mlb_player_id or original_id
+                if use_id_for_photo:
+                    headshot_url = f"https://img.mlbstatic.com/mlb-photos/image/upload/w_120,q_auto:best/v1/people/{use_id_for_photo}/headshot/67/current"
                 team_name_for_logo = team_info.get('team')
                 team_logo = get_team_logo_url(team_name_for_logo) if team_name_for_logo else None
                 opponent_logo = get_team_logo_url(opponent) if opponent else None
                 merged[nk] = {
                     'raw_key': pname,
                     'display_name': display_name,
+                    'player_id': original_id,
+                    'mlb_player_id': mlb_player_id,
                     'headshot_url': headshot_url,
                     'team_logo': team_logo,
                     'opponent_logo': opponent_logo,
@@ -6622,7 +6923,7 @@ def api_today_games():
                 adv_proj = None
                 try:
                     from generate_pitcher_prop_projections import project_pitcher as _adv_project_pitcher
-                    adv_proj = _adv_project_pitcher(normalize_name(name), stats_by_name.get(normalize_name(name), {}), opp)
+                    adv_proj = _adv_project_pitcher(normalize_name(name), stats_by_name.get(normalize_name(name), {}), opp, None)
                 except Exception:
                     adv_proj = None
                 # Prefer advanced pitch count / per-market projections when available

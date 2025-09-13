@@ -53,7 +53,7 @@ def load_json(path: str):
     except Exception:
         return None
 
-def project_pitcher(pitcher: str, stats: Dict[str, Any], opponent: str | None = None) -> Dict[str, float]:
+def project_pitcher(pitcher: str, stats: Dict[str, Any], opponent: str | None = None, lines: Dict[str, Any] | None = None) -> Dict[str, float]:
     """Project per-market means for a pitcher.
 
     Heuristic baseline is always computed; if models are available we override
@@ -131,7 +131,7 @@ def project_pitcher(pitcher: str, stats: Dict[str, Any], opponent: str | None = 
             models = load_models()
             team = str(stats.get('team') or '') or None
             if models is not None:
-                pred = models.predict_means(stats, team, opponent)
+                pred = models.predict_means(stats, team, opponent, lines=lines)
                 if pred and isinstance(pred, dict):
                     if 'outs' in pred and pred['outs'] is not None:
                         base['outs'] = round(float(pred['outs']), 1)
@@ -311,7 +311,7 @@ def main():
         st = by_name.get(p_key, {})
         team_info = team_map.get(p_key, {'team': None, 'opponent': None})
         opponent = team_info.get('opponent')
-        proj = project_pitcher(p_key, st, opponent)
+        proj = project_pitcher(p_key, st, opponent, lines=markets)
         plays = []
         for market_key in ['strikeouts', 'outs', 'hits_allowed', 'walks', 'earned_runs']:
             mkt = markets.get(market_key)
