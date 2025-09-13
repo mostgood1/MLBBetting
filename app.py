@@ -2978,6 +2978,16 @@ def pitcher_projections_page():
         # Render with today's date fallback
         return render_template('pitcher_projections.html', date=get_business_date())
 
+@app.route('/pitcher-props')
+def pitcher_props_page():
+    """Dedicated Pitcher Props page with per-pitcher cards and live updates."""
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        return render_template('pitcher_props.html', date=date_str)
+    except Exception as e:
+        logger.error(f"Error rendering pitcher props page: {e}")
+        return render_template('pitcher_props.html', date=get_business_date())
+
 def _load_bovada_pitcher_props(date_str: str) -> Dict[str, Any]:
     """Load Bovada pitcher props for the given date (if available). Keys are lowercased pitcher names."""
     try:

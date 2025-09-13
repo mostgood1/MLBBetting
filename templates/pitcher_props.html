@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pitcher Props</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background: #0b1220; color: #e5f2ff; margin: 0; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    input, button { padding: 8px 10px; border-radius: 8px; border: 1px solid #263655; background: #0f1a2e; color: #e5f2ff; }
+    button { background: #18b7a0; border-color: #18b7a0; cursor: pointer; font-weight: 600; }
+    button:hover { background: #10a38e; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+    .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px; }
+    .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .team-logo { width: 28px; height: 28px; object-fit: contain; }
+    .pitcher-headshot { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.25); }
+    .pitcher-name { font-weight: 800; }
+    .muted { opacity: 0.85; font-size: 0.85rem; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); font-size: 0.75rem; margin-left: 6px; }
+    .rows { display: grid; gap: 6px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+    .row .label { font-weight: 700; }
+    .row .proj { opacity: 0.95; }
+    .row .line { opacity: 0.95; }
+    .row .live { font-weight: 700; }
+    .row .odds { font-size: 0.8rem; opacity: 0.9; }
+    .edge { margin-left: 6px; font-weight: 800; }
+    .edge-strong { color: #22c55e; }
+    .edge-medium { color: #f59e0b; }
+    .edge-small { color: #60a5fa; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #bbb; box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="toolbar">
+      <a href="/" style="text-decoration:none; color:#18b7a0; font-weight:700">← Back</a>
+      <h1 style="margin:0 6px 0 2px;">Pitcher Props</h1>
+      <div class="status-dot" id="sseDot" title="Props stream status"></div>
+    </div>
+    <div class="toolbar">
+      <label>Date <input type="date" id="date" value="{{ date }}" /></label>
+      <button id="refreshBtn">Refresh</button>
+    </div>
+    <div id="meta" class="muted" style="margin-bottom:8px;">Loading...</div>
+    <div id="grid" class="grid"></div>
+  </div>
+
+  <script>
+    const norm = s => (s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+
+    function headshotUrl(name){
+      // Best-effort initials-based placeholder; can be replaced with player IDs later
+      const initials = (name||'').split(' ').map(p=>p[0]).join('').toUpperCase();
+      const bg = '1f2937';
+      const fg = 'e5e7eb';
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=${bg}&color=${fg}`;
+    }
+
+    function classifyEdge(edge){
+      const a = Math.abs(Number(edge)||0);
+      if(a >= 1.0) return 'edge-strong';
+      if(a >= 0.6) return 'edge-medium';
+      if(a >= 0.3) return 'edge-small';
+      return '';
+    }
+
+    function renderCards(data){
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      const pitchers = Object.entries(data.data || {}).sort((a,b)=>{
+        const ea = (a[1].plays && a[1].plays.edge) ? Math.abs(a[1].plays.edge) : 0;
+        const eb = (b[1].plays && b[1].plays.edge) ? Math.abs(b[1].plays.edge) : 0;
+        return eb - ea;
+      });
+      const meta = data.meta || {};
+      document.getElementById('meta').textContent = `${meta.pitchers||0} pitchers • source: ${meta.source_date||data.date}`;
+
+      for(const [key, bundle] of pitchers){
+        const name = bundle.raw_key || key;
+        const team = bundle.team || '';
+        const opp = bundle.opponent || '';
+        const proj = bundle.simple_projection || {};
+        const markets = bundle.markets || {};
+        const plays = bundle.plays || {};
+        const edge = typeof plays.edge === 'number' ? plays.edge : null;
+
+        // Choose a primary market to surface edge; otherwise fall back to Ks if present
+        const primary = plays.market || (markets.strikeouts ? 'strikeouts' : Object.keys(markets)[0]);
+        const m = markets[primary] || {};
+        const line = m.line;
+        const overOdds = m.over_odds; const underOdds = m.under_odds;
+        const oddsTxt = (overOdds!=null || underOdds!=null) ? `O ${overOdds??''} / U ${underOdds??''}` : '';
+        const projVal = (typeof m.proj === 'number') ? m.proj : (typeof proj[primary] === 'number' ? proj[primary] : null);
+        const edgeTxt = projVal!=null && line!=null ? ` (${(projVal - line).toFixed(1)})` : '';
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.setAttribute('data-pitcher', norm(key));
+        card.innerHTML = `
+          <div class="card-header">
+            <img class="pitcher-headshot" src="${headshotUrl(name)}" alt="${name}" />
+            <div style="display:flex; flex-direction:column; gap:2px;">
+              <div class="pitcher-name">${name}<span class="tag">${team}${opp?` vs ${opp}`:''}</span>${edge!=null?` <span class="tag ${classifyEdge(edge)}">edge ${edge.toFixed(2)}</span>`:''}</div>
+              <div class="muted">PC ${proj.pitch_count ?? '-'} • K ${proj.strikeouts ?? '-'} • Outs ${proj.outs ?? '-'}</div>
+            </div>
+          </div>
+          <div class="rows" data-market-rows></div>
+        `;
+        const rows = card.querySelector('[data-market-rows]');
+        const order = ['strikeouts','outs','earned_runs','hits_allowed','walks'];
+        for(const mk of order){
+          if(!(mk in markets)) continue;
+          const info = markets[mk] || {}; const lineV = info.line; const over = info.over_odds; const under = info.under_odds;
+          const projV = (typeof info.proj === 'number') ? info.proj : (typeof proj[mk] === 'number' ? proj[mk] : null);
+          const ed = (projV!=null && lineV!=null) ? (projV - lineV) : null;
+          const label = mk==='strikeouts'?'K': mk==='hits_allowed'?'Hits Allowed': mk==='earned_runs'?'Earned Runs': mk==='walks'?'Walks':'Outs';
+          const row = document.createElement('div');
+          row.className = 'row';
+          row.setAttribute('data-market', mk);
+          row.innerHTML = `
+            <div class="label">${label}</div>
+            <div class="proj">Proj ${projV!=null?projV.toFixed(1):'—'}${ed!=null?` <span class="edge ${classifyEdge(ed)}">(${ed.toFixed(1)})</span>`:''}</div>
+            <div class="line">Line ${lineV!=null?lineV.toFixed?.(1) ?? lineV:'—'}</div>
+            <div class="live" data-live="${mk}">Live: —</div>
+            <div class="odds">${over!=null||under!=null?`O ${over??''} / U ${under??''}`:''}</div>
+          `;
+          rows.appendChild(row);
+        }
+        grid.appendChild(card);
+      }
+    }
+
+    async function loadUnified(){
+      const date = document.getElementById('date').value;
+      const bust = `t=${Date.now()}`;
+      const q = date?`date=${encodeURIComponent(date)}&${bust}`:bust;
+      const r = await fetch(`/api/pitcher-props/unified?${q}`);
+      if(!r.ok){ document.getElementById('meta').textContent = 'Failed to load unified props.'; return; }
+      const data = await r.json();
+      if(!data.success){ document.getElementById('meta').textContent = 'No data'; return; }
+      window.__UNIFIED = data;
+      renderCards(data);
+    }
+
+    function updateLive(ev){
+      try{
+        const pk = norm(ev.pitcher || ev.pitcher_name || ev.key || '');
+        if(!pk) return;
+        const el = document.querySelector(`.card[data-pitcher="${pk}"]`);
+        if(!el) return;
+        const mk = ev.market; const line = ev.line;
+        const row = el.querySelector(`.row[data-market="${mk}"]`);
+        if(row){
+          if(typeof line === 'number'){
+            const l = row.querySelector('.line'); if(l) l.textContent = `Line ${line.toFixed(1)}`;
+          }
+          const odds = row.querySelector('.odds');
+          if(odds){
+            const oo = ev.over_odds != null ? ev.over_odds : '';
+            const uo = ev.under_odds != null ? ev.under_odds : '';
+            if(oo!=='' || uo!=='') odds.textContent = `O ${oo} / U ${uo}`;
+          }
+        }
+      }catch(e){ console.warn('live update failed', e); }
+    }
+
+    let es;
+    function startSSE(){
+      try {
+        es = new EventSource('/api/pitcher-props/stream');
+        document.getElementById('sseDot').style.background = '#00c853';
+        es.onmessage = (msg)=>{ if(!msg.data) return; try { const ev = JSON.parse(msg.data); if(ev && ev.type) updateLive(ev); } catch(e){} };
+        es.onerror = ()=>{ try{ es.close(); }catch(_){}; document.getElementById('sseDot').style.background = '#bbb'; setTimeout(startSSE, 10000); };
+      } catch(e){ setTimeout(startSSE, 15000); }
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', loadUnified);
+    window.addEventListener('DOMContentLoaded', ()=>{ loadUnified(); startSSE(); });
+  </script>
+</body>
+</html>
