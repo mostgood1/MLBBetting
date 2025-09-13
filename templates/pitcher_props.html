@@ -11,7 +11,8 @@
     input, button { padding: 8px 10px; border-radius: 8px; border: 1px solid #263655; background: #0f1a2e; color: #e5f2ff; }
     button { background: #18b7a0; border-color: #18b7a0; cursor: pointer; font-weight: 600; }
     button:hover { background: #10a38e; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 760px){ .grid { grid-template-columns: 1fr; gap: 12px; } }
     .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px; }
     .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .team-logo { width: 28px; height: 28px; object-fit: contain; }
@@ -20,17 +21,36 @@
     .muted { opacity: 0.85; font-size: 0.85rem; }
     .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); font-size: 0.75rem; margin-left: 6px; }
     .rows { display: grid; gap: 6px; }
-    .row { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
-    .row .label { font-weight: 700; }
-    .row .proj { opacity: 0.95; }
-    .row .line { opacity: 0.95; }
-    .row .live { font-weight: 700; }
-    .row .odds { font-size: 0.8rem; opacity: 0.9; }
+  .row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: center; gap: 6px; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+  .row > div { text-align: center; }
+  .row .label { font-weight: 700; }
+  .row .proj { opacity: 0.95; }
+  .row .line { opacity: 0.95; }
+  .row .live { font-weight: 700; }
+  .row .odds { font-size: 0.8rem; opacity: 0.9; }
     .edge { margin-left: 6px; font-weight: 800; }
     .edge-strong { color: #22c55e; }
     .edge-medium { color: #f59e0b; }
     .edge-small { color: #60a5fa; }
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #bbb; box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(0,0,0,0.1); }
+  .proj-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 8px 0 10px; overflow: visible; }
+  .stat-box { flex: 1 1 0%; min-width: 0; display: grid; grid-template-columns: 1fr auto; gap: 4px; align-items: baseline; padding: 4px 6px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.03); }
+  .stat-box .label { font-size: 0.68rem; opacity: 0.85; font-weight: 700; white-space: normal; overflow: visible; text-overflow: clip; min-width: 0; }
+  .stat-box .value { font-size: 0.85rem; font-weight: 800; white-space: nowrap; overflow: visible; text-overflow: clip; }
+    @media (max-width: 380px){
+      .stat-box { padding: 3px 5px; gap: 3px; }
+      .stat-box .label { font-size: 0.64rem; }
+      .stat-box .value { font-size: 0.8rem; }
+    }
+  .stat-box.edge-strong { border-color: #22c55e; }
+  .stat-box.edge-medium { border-color: #f59e0b; }
+  .stat-box.edge-small { border-color: #60a5fa; }
+  .play-badge { display: inline-block; margin-left: 6px; padding: 0 4px; border-radius: 4px; font-size: 0.8rem; font-weight: 900; line-height: 1; border: 0; }
+  .play-badge.over { color: #22c55e; }
+  .play-badge.under { color: #ef4444; }
+  .live-pc { margin-left: auto; margin-right: 2px; padding: 2px 6px; border-radius: 999px; background: rgba(24,183,160,0.15); border: 1px solid rgba(24,183,160,0.35); font-size: 0.75rem; font-weight: 800; color: #9be9dd; }
+  .card-header { position: relative; }
+  .live-pc.bad { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); color: #fecaca; }
   </style>
 </head>
 <body>
@@ -50,13 +70,28 @@
 
   <script>
     const norm = s => (s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    const PC_BAD_THRESHOLD = 95;
+    function updatePcBadge(el, v){
+      if(!el) return;
+      if (typeof v === 'number') {
+        el.textContent = `PC ${v}`;
+        el.classList.toggle('bad', v >= PC_BAD_THRESHOLD);
+      } else {
+        el.textContent = 'PC —';
+        el.classList.remove('bad');
+      }
+    }
 
-    function headshotUrl(name){
-      // Best-effort initials-based placeholder; can be replaced with player IDs later
+    function initialsAvatar(name){
       const initials = (name||'').split(' ').map(p=>p[0]).join('').toUpperCase();
       const bg = '1f2937';
       const fg = 'e5e7eb';
       return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=${bg}&color=${fg}`;
+    }
+
+    function toTitleCase(name){
+      if(!name) return '';
+      return name.split(' ').map(w => w.length<=2 ? w.toUpperCase() : (w[0].toUpperCase()+w.slice(1).toLowerCase())).join(' ');
     }
 
     function classifyEdge(edge){
@@ -76,16 +111,19 @@
         return eb - ea;
       });
       const meta = data.meta || {};
-      document.getElementById('meta').textContent = `${meta.pitchers||0} pitchers • source: ${meta.source_date||data.date}`;
+  document.getElementById('meta').textContent = `${meta.pitchers||0} pitchers • source: ${meta.source_date||data.date}`;
 
       for(const [key, bundle] of pitchers){
-        const name = bundle.raw_key || key;
-        const team = bundle.team || '';
+  const name = bundle.display_name || bundle.raw_key || key;
+  const team = bundle.team || '';
         const opp = bundle.opponent || '';
         const proj = bundle.simple_projection || {};
         const markets = bundle.markets || {};
         const plays = bundle.plays || {};
-        const edge = typeof plays.edge === 'number' ? plays.edge : null;
+  const edge = typeof plays.edge === 'number' ? plays.edge : null;
+  const logo = bundle.team_logo || null;
+  const oppLogo = bundle.opponent_logo || null;
+  const headshot = bundle.headshot_url || null;
 
         // Choose a primary market to surface edge; otherwise fall back to Ks if present
         const primary = plays.market || (markets.strikeouts ? 'strikeouts' : Object.keys(markets)[0]);
@@ -99,30 +137,86 @@
         const card = document.createElement('div');
         card.className = 'card';
         card.setAttribute('data-pitcher', norm(key));
+        // Build header
         card.innerHTML = `
           <div class="card-header">
-            <img class="pitcher-headshot" src="${headshotUrl(name)}" alt="${name}" />
+            ${logo?`<img class="team-logo" src="${logo}" alt="${team}" />`:''}
+            <img class="pitcher-headshot" src="${headshot || initialsAvatar(name)}" alt="${name}" onerror="this.onerror=null; this.src='${initialsAvatar(name)}'" />
             <div style="display:flex; flex-direction:column; gap:2px;">
-              <div class="pitcher-name">${name}<span class="tag">${team}${opp?` vs ${opp}`:''}</span>${edge!=null?` <span class="tag ${classifyEdge(edge)}">edge ${edge.toFixed(2)}</span>`:''}</div>
-              <div class="muted">PC ${proj.pitch_count ?? '-'} • K ${proj.strikeouts ?? '-'} • Outs ${proj.outs ?? '-'}</div>
+              <div class="pitcher-name">${toTitleCase(name)}${edge!=null?` <span class="tag ${classifyEdge(edge)}">edge ${edge.toFixed(2)}</span>`:''}</div>
+              <div style="display:flex; align-items:center; gap:6px;" class="muted">
+                ${logo?`<img class="team-logo" src="${logo}" alt="${team}" title="${team}" />`:''}
+                <span style="font-weight:700;">vs</span>
+                ${oppLogo?`<img class="team-logo" src="${oppLogo}" alt="${opp}" title="${opp}" />`:''}
+              </div>
             </div>
+            <div class="live-pc" title="Live pitch count" data-live-pc>PC —</div>
           </div>
+          <div class="proj-stats" data-proj-stats></div>
           <div class="rows" data-market-rows></div>
         `;
+
+        // Populate projection stat boxes with edge-colored outlines when a market line exists
+        const projWrap = card.querySelector('[data-proj-stats]');
+        const getProj = (mk) => {
+          const info = markets[mk] || {};
+          if (typeof info.proj === 'number') return info.proj;
+          if (typeof proj[mk] === 'number') return proj[mk];
+          return null;
+        };
+        const edgeClassFor = (mk) => {
+          const p = getProj(mk);
+          const l = (markets[mk] || {}).line;
+          if (p != null && l != null) return classifyEdge(p - l);
+          return '';
+        };
+        const fmt = (v) => (typeof v === 'number' ? v.toFixed(1) : '—');
+  // Primary play (still used for sorting/tag), but arrows are derived per-stat from proj vs line
+  const playMarket = (plays && plays.market) ? String(plays.market) : null;
+  const playSide = (plays && plays.side) ? String(plays.side).toUpperCase() : null;
+        const deriveSide = (mk) => {
+          const p = getProj(mk); const l = (markets[mk]||{}).line;
+          if (p==null || l==null) return null;
+          const d = p - l;
+          if (Math.abs(d) < 0.05) return null;
+          return d > 0 ? 'OVER' : 'UNDER';
+        };
+        const addBox = (label, value, cls, mk) => {
+          const div = document.createElement('div');
+          div.className = `stat-box ${cls||''}`.trim();
+          let badge = '';
+          // Derive an arrow for each stat that has both a projection and a line
+          if (mk) {
+            const side = deriveSide(mk) || (playMarket===mk ? playSide : null);
+            if (side) {
+              const arrow = side === 'OVER' ? '▲' : '▼';
+              badge = `<span class="play-badge ${side.toLowerCase()}" title="${side}">${arrow}</span>`;
+            }
+          }
+          div.innerHTML = `<div class="label">${label}${badge}</div><div class="value">${fmt(value)}</div>`;
+          projWrap.appendChild(div);
+        };
+        addBox('PC', proj.pitch_count ?? null, '', null);
+        // Initialize live pitch badge if available
+        const livePcEl = card.querySelector('[data-live-pc]');
+        const lp = bundle.live_pitches;
+  if (livePcEl) updatePcBadge(livePcEl, lp);
+        addBox('K', getProj('strikeouts'), edgeClassFor('strikeouts'), 'strikeouts');
+        addBox('Outs', getProj('outs'), edgeClassFor('outs'), 'outs');
+        addBox('ER', getProj('earned_runs'), edgeClassFor('earned_runs'), 'earned_runs');
+        addBox('Hits', getProj('hits_allowed'), edgeClassFor('hits_allowed'), 'hits_allowed');
+        addBox('BB', getProj('walks'), edgeClassFor('walks'), 'walks');
         const rows = card.querySelector('[data-market-rows]');
         const order = ['strikeouts','outs','earned_runs','hits_allowed','walks'];
         for(const mk of order){
           if(!(mk in markets)) continue;
           const info = markets[mk] || {}; const lineV = info.line; const over = info.over_odds; const under = info.under_odds;
-          const projV = (typeof info.proj === 'number') ? info.proj : (typeof proj[mk] === 'number' ? proj[mk] : null);
-          const ed = (projV!=null && lineV!=null) ? (projV - lineV) : null;
           const label = mk==='strikeouts'?'K': mk==='hits_allowed'?'Hits Allowed': mk==='earned_runs'?'Earned Runs': mk==='walks'?'Walks':'Outs';
           const row = document.createElement('div');
           row.className = 'row';
           row.setAttribute('data-market', mk);
           row.innerHTML = `
             <div class="label">${label}</div>
-            <div class="proj">Proj ${projV!=null?projV.toFixed(1):'—'}${ed!=null?` <span class="edge ${classifyEdge(ed)}">(${ed.toFixed(1)})</span>`:''}</div>
             <div class="line">Line ${lineV!=null?lineV.toFixed?.(1) ?? lineV:'—'}</div>
             <div class="live" data-live="${mk}">Live: —</div>
             <div class="odds">${over!=null||under!=null?`O ${over??''} / U ${under??''}`:''}</div>
@@ -164,7 +258,28 @@
             if(oo!=='' || uo!=='') odds.textContent = `O ${oo} / U ${uo}`;
           }
         }
+        // Optionally support pitch count events if provided
+        if (typeof ev.live_pitches === 'number'){
+          const pcEl = el.querySelector('[data-live-pc]');
+          if (pcEl) updatePcBadge(pcEl, ev.live_pitches);
+        }
       }catch(e){ console.warn('live update failed', e); }
+    }
+
+    // Gentle polling for live pitch counts to supplement SSE
+    async function pollLivePitches(){
+      try{
+        const date = document.getElementById('date').value;
+        const r = await fetch(`/api/pitcher-props/live-pitches?date=${encodeURIComponent(date)}&t=${Date.now()}`);
+        if(!r.ok) return;
+        const data = await r.json();
+        if(!data.success) return;
+        const map = data.live_pitches || {};
+        for(const [k,v] of Object.entries(map)){
+          const el = document.querySelector(`.card[data-pitcher="${norm(k)}"] [data-live-pc]`);
+          if(el){ updatePcBadge(el, v); }
+        }
+      }catch(_){}
     }
 
     let es;
@@ -177,8 +292,15 @@
       } catch(e){ setTimeout(startSSE, 15000); }
     }
 
-    document.getElementById('refreshBtn').addEventListener('click', loadUnified);
-    window.addEventListener('DOMContentLoaded', ()=>{ loadUnified(); startSSE(); });
+    document.getElementById('refreshBtn').addEventListener('click', ()=>{ loadUnified(); setTimeout(pollLivePitches, 200); });
+    let _pcTimer;
+    window.addEventListener('DOMContentLoaded', ()=>{
+      loadUnified(); startSSE();
+      // Poll every 20s for live pitch counts
+      try{ if(_pcTimer) clearInterval(_pcTimer); }catch(_){}
+      _pcTimer = setInterval(pollLivePitches, 20000);
+      setTimeout(pollLivePitches, 1500);
+    });
   </script>
 </body>
 </html>
