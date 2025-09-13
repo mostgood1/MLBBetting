@@ -324,22 +324,29 @@ def _warm_caches_async():
             try:
                 # tiny delay to ensure server fully initialized
                 time.sleep(1.5)
+                date_str = get_business_date()
                 # Warm unified
-                with app.test_request_context(f"/api/pitcher-props/unified?date={get_business_date()}"):
+                with app.test_request_context(f"/api/pitcher-props/unified?date={date_str}"):
                     try:
                         api_pitcher_props_unified()
                     except Exception:
                         pass
                 # Warm live-status (will use cached schedule and avoid heavy calls)
-                with app.test_request_context(f"/api/live-status?date={get_business_date()}"):
+                with app.test_request_context(f"/api/live-status?date={date_str}"):
                     try:
                         api_live_status()
                     except Exception:
                         pass
                 # Warm today-games to reduce first-hit latency
-                with app.test_request_context(f"/api/today-games?date={get_business_date()}"):
+                with app.test_request_context(f"/api/today-games?date={date_str}"):
                     try:
                         api_today_games()
+                    except Exception:
+                        pass
+                # Also warm the ultra-fast quick snapshot variant
+                with app.test_request_context(f"/api/today-games/quick?date={date_str}"):
+                    try:
+                        api_today_games_quick()
                     except Exception:
                         pass
             except Exception:
@@ -349,6 +356,124 @@ def _warm_caches_async():
         pass
 
 _warm_caches_async()
+
+# Explicit warm endpoint to prebuild caches and reduce cold-start latency
+@app.route('/api/warm')
+def api_warm():
+    """Warm critical caches on demand. Optionally async with ?async=1.
+    Query params:
+      - date: YYYY-MM-DD (defaults to business date)
+      - async: 1 to run in background
+      - quick_only: 1 to only warm quick snapshot + live status
+    """
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        do_async = (request.args.get('async') == '1')
+        quick_only = (request.args.get('quick_only') == '1')
+
+        def _do_warm(date_str_inner: str, quick_only_inner: bool = False) -> dict:
+            metrics = {'date': date_str_inner, 'steps': [], 'started_at': datetime.utcnow().isoformat()}
+            def _time_step(name: str, func):
+                t0 = time.time()
+                ok = True
+                err = None
+                try:
+                    func()
+                except Exception as e:
+                    ok = False
+                    err = str(e)
+                dt = (time.time() - t0) * 1000.0
+                metrics['steps'].append({'name': name, 'ok': ok, 'duration_ms': round(dt, 1), 'error': err})
+
+            def _call_with_path(path: str, fn):
+                # Ensure proper request context for route handlers
+                with app.test_request_context(path):
+                    return fn()
+
+            # Preload unified cache (disk -> memory)
+            _time_step('load_unified_cache', lambda: load_unified_cache())
+
+            # Warm quick snapshot (always lightweight)
+            _time_step('today-games-quick', lambda: _call_with_path(
+                f"/api/today-games/quick?date={date_str_inner}", api_today_games_quick
+            ))
+
+            # Warm live status (uses cached schedule/feed where possible)
+            _time_step('live-status', lambda: _call_with_path(
+                f"/api/live-status?date={date_str_inner}", api_live_status
+            ))
+
+            if not quick_only_inner:
+                # Warm unified pitcher props
+                _time_step('pitcher-props-unified', lambda: _call_with_path(
+                    f"/api/pitcher-props/unified?date={date_str_inner}", api_pitcher_props_unified
+                ))
+                # Warm full today-games (heavier)
+                _time_step('today-games', lambda: _call_with_path(
+                    f"/api/today-games?date={date_str_inner}", api_today_games
+                ))
+
+            metrics['finished_at'] = datetime.utcnow().isoformat()
+            total_ms = 0.0
+            for s in metrics['steps']:
+                try:
+                    total_ms += float(s.get('duration_ms') or 0)
+                except Exception:
+                    pass
+            metrics['total_duration_ms'] = round(total_ms, 1)
+            metrics['success'] = all(s.get('ok') for s in metrics['steps'])
+            return metrics
+
+        if do_async:
+            def _bg():
+                try:
+                    res = _do_warm(date_str, quick_only)
+                    logger.info(f"/api/warm async completed: {res}")
+                except Exception as e:
+                    logger.warning(f"/api/warm async failed: {e}")
+            threading.Thread(target=_bg, daemon=True).start()
+            return jsonify({'accepted': True, 'date': date_str, 'mode': 'async', 'ts': datetime.utcnow().isoformat()})
+        else:
+            result = _do_warm(date_str, quick_only)
+            return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error in /api/warm: {e}\n{traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Optional periodic warmer (disabled by default). Enable with env ENABLE_PERIODIC_WARM=1
+def _start_periodic_warmer_if_enabled():
+    try:
+        if os.environ.get('ENABLE_PERIODIC_WARM', '0') != '1':
+            return
+        try:
+            interval_sec = int(os.environ.get('PERIODIC_WARM_INTERVAL_SECONDS', '480'))  # 8 minutes default
+        except Exception:
+            interval_sec = 480
+
+        def _loop():
+            i = 0
+            while True:
+                try:
+                    date_str = get_business_date()
+                    quick_only = (i % 3 != 0)  # every 3rd cycle do full warm
+                    with app.app_context():
+                        try:
+                            # Reuse the /api/warm logic synchronously
+                            with app.test_request_context(f"/api/warm?date={date_str}&quick_only={'1' if quick_only else '0'}"):
+                                api_warm()
+                        except Exception:
+                            pass
+                    i += 1
+                except Exception:
+                    pass
+                time.sleep(max(60, interval_sec))
+
+        threading.Thread(target=_loop, daemon=True).start()
+        logger.info("Periodic warmer thread started (ENV ENABLE_PERIODIC_WARM=1)")
+    except Exception:
+        pass
+
+_start_periodic_warmer_if_enabled()
 
 # Add a simple test route to verify app is working
 @app.route('/api/test-route')
