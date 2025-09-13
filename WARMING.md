@@ -1,3 +1,59 @@
+# Service Warming Guide
+
+This project includes warmers to reduce first-hit latency and keep key pages (home, betting guidance) snappy.
+
+## Endpoints warmed
+- /api/today-games/quick (fast home snapshot)
+- /api/live-status (lightweight live/schedule cache)
+- /api/kelly-betting-guidance (drives /betting-guidance)
+- /api/betting-guidance/performance (historical perf summary)
+- /api/pitcher-props/unified (only in full warm)
+- /api/today-games (full, heavier; only in full warm)
+
+## Startup warmer (automatic)
+On app boot, a background thread warms:
+- /api/pitcher-props/unified?date=<business date>
+- /api/live-status?date=<business date>
+- /api/today-games?date=<business date>
+- /api/today-games/quick?date=<business date>
+- /api/kelly-betting-guidance
+- /api/betting-guidance/performance
+
+No action needed—this reduces cold starts after deploy.
+
+## Manual warm endpoint
+- Quick-only (lightweight):
+  GET /api/warm?async=1&quick_only=1
+- Full warm (heavier):
+  GET /api/warm (optionally add ?async=1)
+
+The JSON response includes per-step durations and ok flags.
+
+## Periodic warmer (optional, env-gated)
+Enable a built-in background loop with environment variables:
+- ENABLE_PERIODIC_WARM=1
+- PERIODIC_WARM_INTERVAL_SECONDS=480  # optional, default 480s (8 min)
+
+Behavior:
+- Every cycle warms: quick snapshot, live status, betting guidance APIs
+- Every 3rd cycle also warms: pitcher props unified and full today-games
+
+## Platform cron/uptime pings (recommended)
+If your platform supports cron/uptime pings (e.g., Render cron job), schedule:
+- Method: GET
+- URL: https://<your-domain>/api/warm?async=1&quick_only=1
+- Interval: 5–10 minutes
+
+This keeps home and betting guidance pages warm without heavy work.
+
+## Verification
+- Check quick snapshot: GET /api/today-games/quick?date=YYYY-MM-DD
+- Warm all and inspect steps: GET /api/warm (no async)
+- Betting guidance health: GET /api/kelly-betting-guidance and /api/betting-guidance/performance
+
+## Notes
+- The home UI already passes `date` to both quick and full endpoints.
+- Quick-only warm is safe to run frequently; run full warm less often if needed.
 API warmers and cold-start mitigation
 
 Overview

@@ -349,6 +349,17 @@ def _warm_caches_async():
                         api_today_games_quick()
                     except Exception:
                         pass
+                # Warm betting guidance APIs to keep guidance page snappy
+                with app.test_request_context(f"/api/kelly-betting-guidance"):
+                    try:
+                        api_kelly_betting_guidance()
+                    except Exception:
+                        pass
+                with app.test_request_context(f"/api/betting-guidance/performance"):
+                    try:
+                        api_betting_guidance_performance()
+                    except Exception:
+                        pass
             except Exception:
                 pass
         threading.Thread(target=_worker, daemon=True).start()
@@ -412,6 +423,14 @@ def api_warm():
                 _time_step('today-games', lambda: _call_with_path(
                     f"/api/today-games?date={date_str_inner}", api_today_games
                 ))
+
+            # Always warm betting guidance APIs (they are lightweight and power /betting-guidance UI)
+            _time_step('kelly-betting-guidance', lambda: _call_with_path(
+                "/api/kelly-betting-guidance", api_kelly_betting_guidance
+            ))
+            _time_step('betting-guidance-performance', lambda: _call_with_path(
+                "/api/betting-guidance/performance", api_betting_guidance_performance
+            ))
 
             metrics['finished_at'] = datetime.utcnow().isoformat()
             total_ms = 0.0
