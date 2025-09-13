@@ -4124,7 +4124,7 @@ def api_pitcher_props_live_stats():
                                         except Exception: pass
                                     for sk, dk in (
                                         ('outs','outs'), ('strikeOuts','strikeouts'), ('inningsPitched','innings_pitched'),
-                                        ('baseOnBalls','walks'), ('hits','hits'), ('earnedRuns','earned_runs')
+                                        ('baseOnBalls','walks'), ('hits','hits_allowed'), ('earnedRuns','earned_runs')
                                     ):
                                         vv = stats.get(sk)
                                         if vv is not None:
@@ -4156,7 +4156,32 @@ def api_pitcher_props_live_stats():
                             out_by_id[str(pid)] = {**out_by_id.get(str(pid), {}), **st}
         except Exception:
             pass
-        return jsonify({'success': True, 'date': date_str, 'count': len(out), 'live_stats': out, 'live_stats_by_id': out_by_id})
+        # Normalize any residual 'hits' keys to 'hits_allowed' before returning
+        def _normalize_rec(d: Dict[str, Any]) -> Dict[str, Any]:
+            r: Dict[str, Any] = {}
+            for k2 in ('pitches','outs','strikeouts','walks','earned_runs','innings_pitched','hits_allowed'):
+                if k2 in d and d.get(k2) is not None:
+                    r[k2] = d[k2]
+            # Back-compat: map raw 'hits' if present
+            if 'hits_allowed' not in r and 'hits' in d and d.get('hits') is not None:
+                try:
+                    r['hits_allowed'] = int(d.get('hits'))
+                except Exception:
+                    r['hits_allowed'] = d.get('hits')
+            return r
+
+        norm_out: Dict[str, Dict[str, Any]] = {}
+        for nk, dv in out.items():
+            nr = _normalize_rec(dv or {})
+            if nr:
+                norm_out[nk] = nr
+        norm_by_id: Dict[str, Dict[str, Any]] = {}
+        for pid, dv in out_by_id.items():
+            nr = _normalize_rec(dv or {})
+            if nr:
+                norm_by_id[pid] = nr
+
+        return jsonify({'success': True, 'date': date_str, 'count': len(norm_out), 'live_stats': norm_out, 'live_stats_by_id': norm_by_id})
     except Exception as e:
         logger.error(f"Error in api_pitcher_props_live_stats: {e}\n{traceback.format_exc()}")
         return jsonify({'success': False, 'error': str(e)}), 500
