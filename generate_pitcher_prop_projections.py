@@ -9,6 +9,10 @@ Enhancements:
 import os, math, json, unicodedata
 from datetime import datetime
 from typing import Dict, Any, List
+try:
+    from pitcher_model_runtime import load_models
+except Exception:
+    load_models = None  # type: ignore
 
 DEFAULT_EDGE_THRESHOLD = float(os.environ.get('PITCHER_PROPS_EDGE_THRESHOLD', 0.5))
 DEFAULT_PITCHES_PER_OUT = 5.1
@@ -50,6 +54,45 @@ def load_json(path: str):
         return None
 
 def project_pitcher(pitcher: str, stats: Dict[str, Any], opponent: str | None = None) -> Dict[str, float]:
+    """Project per-market means for a pitcher.
+
+    Tries model-based predictions if a model bundle is available; otherwise
+    falls back to the heuristic projection logic below.
+    """
+    # Attempt model-based path
+    try:
+        if load_models is not None:
+            models = load_models()
+            # stats may include 'team' in our master set; we don’t want to break if missing
+            team = str(stats.get('team') or '') or None
+            if models is not None:
+                pred = models.predict_means(stats, team, opponent)
+                if pred and isinstance(pred, dict):
+                    # Synthesize pitch_count from outs using heuristic ppo
+                    outs = float(pred.get('outs') or 0.0)
+                    ppo = DEFAULT_PITCHES_PER_OUT
+                    try:
+                        pitches_thrown = float(stats.get('pitches_thrown') or 0)
+                        ip = float(stats.get('innings_pitched') or 0)
+                        if pitches_thrown > 0 and ip > 0:
+                            ppo = max(MIN_PITCHES_PER_OUT, min(MAX_PITCHES_PER_OUT, pitches_thrown/(ip*3)))
+                    except Exception:
+                        pass
+                    pitch_count = round(outs * ppo, 0)
+                    pred['pitch_count'] = pitch_count
+                    return {
+                        'outs': round(float(pred.get('outs', 0.0)), 1),
+                        'strikeouts': round(float(pred.get('strikeouts', 0.0)), 1),
+                        'earned_runs': round(float(pred.get('earned_runs', 0.0)), 1),
+                        'hits_allowed': round(float(pred.get('hits_allowed', 0.0)), 1),
+                        'walks': round(float(pred.get('walks', 0.0)), 1),
+                        'pitch_count': pitch_count
+                    }
+    except Exception:
+        # Silent fallback to heuristic
+        pass
+
+    # Heuristic fallback
     innings_pitched = float(stats.get('innings_pitched', 0) or 0)
     games_started = int(stats.get('games_started', 0) or 0)
     strikeouts = float(stats.get('strikeouts', 0) or 0)
