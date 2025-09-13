@@ -2433,17 +2433,16 @@
             return html;
         }
 
-        // Open modal with details built from the game object already on the page (no network)
+        // Open modal preferring robust API-backed details, with graceful fallback
         function openGameModal(game){
             try {
                 if (!game) return;
-                const modal = document.getElementById('prediction-modal');
                 const body = document.getElementById('modal-body');
                 const title = document.getElementById('modal-title');
                 const awayAssets = game.away_team_assets || { logo_url: game.away_logo };
                 const homeAssets = game.home_team_assets || { logo_url: game.home_logo };
 
-                // Title
+                // Set title immediately
                 title.innerHTML = `
                     <div style="display:flex;align-items:center;gap:10px;">
                         <div style="display:flex;align-items:center;gap:6px;">
@@ -2457,35 +2456,37 @@
                         </div>
                     </div>`;
 
-                // Build sections using existing helpers and safe fallbacks
-                const summaryHtml = (function(){
-                    try { return createPredictionSummaryHtml(game); } catch(_) { return ''; }
-                })();
-                const recsHtml = (function(){
-                    try {
-                        if (game.betting_recommendations) return createBettingRecommendationsHtml(game.betting_recommendations, game.away_team, game.home_team);
-                        return '';
-                    } catch(_) { return ''; }
-                })();
-                const pitchersHtml = `
-                    <div style="margin-top:16px;">
-                        <h3>Starting Pitchers</h3>
-                        <p><strong>Away:</strong> ${game.away_pitcher || 'TBD'}</p>
-                        <p><strong>Home:</strong> ${game.home_pitcher || 'TBD'}</p>
-                    </div>`;
-
-                body.innerHTML = `
-                    <div class="prediction-details">
-                        <div class="prediction-summary">${summaryHtml}</div>
-                        ${recsHtml}
-                        ${pitchersHtml}
-                    </div>`;
-
+                // Show loading state and open modal
+                body.innerHTML = '<div class="loading">Loading detailed prediction...</div>';
                 openModal();
+
+                // Attempt robust load via API
+                const date = game.date || (document.getElementById('game-date')?.value || '');
+                loadPrediction(game.away_team, game.home_team, date);
             } catch (e){
+                // Fallback: lightweight summary + local recs + pitchers
                 try {
-                    const body = document.getElementById('modal-body');
-                    body.innerHTML = `<div class="error">Failed to render details: ${e.message || 'Unknown error'}</div>`;
+                    const summaryHtml = (function(){
+                        try { return createPredictionSummaryHtml(game); } catch(_) { return ''; }
+                    })();
+                    const recsHtml = (function(){
+                        try {
+                            if (game.betting_recommendations) return createBettingRecommendationsHtml(game.betting_recommendations, game.away_team, game.home_team);
+                            return '';
+                        } catch(_) { return ''; }
+                    })();
+                    const pitchersHtml = `
+                        <div style="margin-top:16px;">
+                            <h3>Starting Pitchers</h3>
+                            <p><strong>Away:</strong> ${game.away_pitcher || 'TBD'}</p>
+                            <p><strong>Home:</strong> ${game.home_pitcher || 'TBD'}</p>
+                        </div>`;
+                    document.getElementById('modal-body').innerHTML = `
+                        <div class="prediction-details">
+                            <div class="prediction-summary">${summaryHtml}</div>
+                            ${recsHtml}
+                            ${pitchersHtml}
+                        </div>`;
                     openModal();
                 } catch(_){ }
             }
