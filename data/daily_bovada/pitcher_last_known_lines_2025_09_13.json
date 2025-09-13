@@ -1,0 +1,586 @@
+{
+  "date": "2025-09-13",
+  "updated_at": "2025-09-13T16:24:40.917680",
+  "pitchers": {
+    "drew rasmussen": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": "-105",
+        "under_odds": "-125"
+      },
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "+130",
+        "under_odds": "-170"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "+110",
+        "under_odds": "-150"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "+130",
+        "under_odds": "-170"
+      }
+    },
+    "colin rea": {
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-155",
+        "under_odds": "+115"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "+115",
+        "under_odds": "-155"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "+160",
+        "under_odds": "-230"
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": "-190",
+        "under_odds": "+145"
+      }
+    },
+    "tomoyuki sugano": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": "+140",
+        "under_odds": "-185"
+      },
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "-145",
+        "under_odds": "+105"
+      },
+      "earned_runs": {
+        "line": 3.5,
+        "over_odds": "+125",
+        "under_odds": "-165"
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": "+135",
+        "under_odds": "-175"
+      }
+    },
+    "max scherzer": {
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-115",
+        "under_odds": "-125"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "+130",
+        "under_odds": "-170"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-110",
+        "under_odds": "-130"
+      }
+    },
+    "bubba chandler": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": "+120",
+        "under_odds": "-160"
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-120",
+        "under_odds": "-120"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "+115",
+        "under_odds": "-155"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "+130",
+        "under_odds": "-170"
+      },
+      "outs": {
+        "line": 12.5,
+        "over_odds": "EVEN",
+        "under_odds": "-140"
+      }
+    },
+    "andrew alvarez": {
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-120",
+        "under_odds": "-120"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-105",
+        "under_odds": "-135"
+      },
+      "walks": {
+        "line": 2.5,
+        "over_odds": "+130",
+        "under_odds": "-170"
+      }
+    },
+    "charlie morton": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": "-115",
+        "under_odds": "-115"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "+115",
+        "under_odds": "-155"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-145",
+        "under_odds": "+105"
+      }
+    },
+    "janson junk": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": "-150",
+        "under_odds": "+115"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-120",
+        "under_odds": "-120"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "+145",
+        "under_odds": "-190"
+      }
+    },
+    "max fried": {
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "-145",
+        "under_odds": "+105"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "EVEN",
+        "under_odds": "-140"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-165",
+        "under_odds": "+125"
+      }
+    },
+    "brayan bello": {
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "+115",
+        "under_odds": "-155"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-155",
+        "under_odds": "+115"
+      },
+      "walks": {
+        "line": 2.5,
+        "over_odds": "+125",
+        "under_odds": "-165"
+      }
+    },
+    "brandon sproat": {
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-155",
+        "under_odds": "+115"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-105",
+        "under_odds": "-135"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-170",
+        "under_odds": "+130"
+      }
+    },
+    "patrick corbin": {
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "+130",
+        "under_odds": "-170"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-135",
+        "under_odds": "-105"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-145",
+        "under_odds": "+105"
+      }
+    },
+    "taijuan walker": {
+      "strikeouts": {
+        "line": 2.5,
+        "over_odds": "-170",
+        "under_odds": "+130"
+      },
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "-115",
+        "under_odds": "-125"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-140",
+        "under_odds": "EVEN"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "+120",
+        "under_odds": "-160"
+      }
+    },
+    "ryan bergert": {
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-155",
+        "under_odds": "+115"
+      },
+      "earned_runs": {
+        "line": 3.5,
+        "over_odds": "+130",
+        "under_odds": "-170"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-170",
+        "under_odds": "+130"
+      }
+    },
+    "parker messick": {
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "-115",
+        "under_odds": "-125"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "+140",
+        "under_odds": "-180"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "+135",
+        "under_odds": "-175"
+      }
+    },
+    "davis martin": {
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-145",
+        "under_odds": "+105"
+      },
+      "walks": {
+        "line": 2.5,
+        "over_odds": "+145",
+        "under_odds": "-190"
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": "+105",
+        "under_odds": "-145"
+      }
+    },
+    "ryne nelson": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": "-135",
+        "under_odds": "+105"
+      },
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "-125",
+        "under_odds": "-115"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-150",
+        "under_odds": "+110"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "+120",
+        "under_odds": "-160"
+      }
+    },
+    "joe ryan": {
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "+105",
+        "under_odds": "-145"
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": "-175",
+        "under_odds": "+135"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "+190",
+        "under_odds": "-290"
+      }
+    },
+    "bryce elder": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": "+110",
+        "under_odds": "-145"
+      },
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "-145",
+        "under_odds": "+105"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-130",
+        "under_odds": "-110"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "EVEN",
+        "under_odds": "-140"
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": "-140",
+        "under_odds": "EVEN"
+      }
+    },
+    "hunter brown": {
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-125",
+        "under_odds": "-115"
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": "-170",
+        "under_odds": "+130"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-190",
+        "under_odds": "+145"
+      }
+    },
+    "jacob misiorowski": {
+      "strikeouts": {
+        "line": 6.5,
+        "over_odds": "-115",
+        "under_odds": "-115"
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": "-140",
+        "under_odds": "EVEN"
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": "-130",
+        "under_odds": "-110"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-120",
+        "under_odds": "-120"
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": "+140",
+        "under_odds": "-180"
+      }
+    },
+    "sonny gray": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": "+105",
+        "under_odds": "-135"
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-140",
+        "under_odds": "EVEN"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-130",
+        "under_odds": "-110"
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": "-115",
+        "under_odds": "-125"
+      }
+    },
+    "bradley blalock": {
+      "strikeouts": {
+        "line": 2.5,
+        "over_odds": "-105",
+        "under_odds": "-125"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-110",
+        "under_odds": "-130"
+      }
+    },
+    "dylan cease": {
+      "strikeouts": {
+        "line": 7.5,
+        "over_odds": "-165",
+        "under_odds": "+125"
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": "-145",
+        "under_odds": "+105"
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": "-105",
+        "under_odds": "-135"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-135",
+        "under_odds": "-105"
+      }
+    },
+    "logan webb": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": "+105",
+        "under_odds": "-135"
+      },
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "-130",
+        "under_odds": "-110"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "+110",
+        "under_odds": "-150"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-105",
+        "under_odds": "-135"
+      },
+      "outs": {
+        "line": 18.5,
+        "over_odds": "+155",
+        "under_odds": "-220"
+      }
+    },
+    "clayton kershaw": {
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-145",
+        "under_odds": "+105"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "+115",
+        "under_odds": "-155"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "EVEN",
+        "under_odds": "-140"
+      }
+    },
+    "mitch farris": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": "-130",
+        "under_odds": "EVEN"
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "-140",
+        "under_odds": "EVEN"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-130",
+        "under_odds": "-110"
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": "-115",
+        "under_odds": "-125"
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": "-150",
+        "under_odds": "+110"
+      }
+    },
+    "bryan woo": {
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": "EVEN",
+        "under_odds": "-140"
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": "-115",
+        "under_odds": "-125"
+      },
+      "walks": {
+        "line": 0.5,
+        "over_odds": "-230",
+        "under_odds": "+160"
+      }
+    },
+    "hunter greene": {
+      "strikeouts": {
+        "line": 7.5,
+        "over_odds": "+115",
+        "under_odds": "-150"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "-125",
+        "under_odds": "-115"
+      }
+    },
+    "luis severino": {
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": "+115",
+        "under_odds": "-155"
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": "+110",
+        "under_odds": "-150"
+      }
+    }
+  }
+}

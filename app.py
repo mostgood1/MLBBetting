@@ -7430,6 +7430,119 @@ def api_single_prediction(away_team, home_team):
             bullpen_factors = {}
             weather_factors = {}
 
+        # -----------------------------
+        # Helpers: EV/Kelly and results
+        # -----------------------------
+        from pathlib import Path as _Path
+        import re as _re
+        def _kelly_sized_amount(kf: float, base_unit: int = 100, kelly_cap: float = 0.25) -> int:
+            """Mirror sizing from opportunities: cap at 25%, scale to base, round to $10 with $10 non-zero floor."""
+            try:
+                sized = base_unit * max(0.0, min(float(kf) / kelly_cap, 1.0))
+                rounded = int(round(sized / 10.0) * 10)
+                if rounded == 0 and sized > 0:
+                    return 10
+                return rounded
+            except Exception:
+                return 0
+
+        def _collect_final_scores_recent(max_days: int = 90) -> list[dict]:
+            """Load recent final score files if available. Returns list of items with teams, scores, date."""
+            items: list[dict] = []
+            try:
+                droot = _Path(__file__).parent / 'data'
+                if not droot.exists():
+                    return items
+                # Accept both dict and list formats inside files
+                for p in sorted(droot.glob('final_scores_2025_*.json')):
+                    try:
+                        with open(p, 'r', encoding='utf-8') as f:
+                            obj = json.load(f)
+                        if isinstance(obj, dict):
+                            vals = list(obj.values())
+                        elif isinstance(obj, list):
+                            vals = obj
+                        else:
+                            vals = []
+                        date_str = p.stem.replace('final_scores_', '').replace('_', '-')
+                        for it in vals:
+                            rec = {
+                                'date': it.get('date') or date_str,
+                                'away_team': it.get('away_team') or it.get('away') or '',
+                                'home_team': it.get('home_team') or it.get('home') or '',
+                                'away_score': it.get('away_score') if it.get('away_score') is not None else it.get('away_runs'),
+                                'home_score': it.get('home_score') if it.get('home_score') is not None else it.get('home_runs')
+                            }
+                            if rec['away_team'] and rec['home_team'] and rec['away_score'] is not None and rec['home_score'] is not None:
+                                items.append(rec)
+                    except Exception as _fe:
+                        logger.debug(f"Skip final scores file {p.name}: {_fe}")
+                # Keep most recent N days by date if present
+                def _ds(x: dict) -> str:
+                    return str(x.get('date') or '')
+                items.sort(key=_ds, reverse=True)
+            except Exception as _e:
+                logger.debug(f"collect_final_scores_recent failed: {_e}")
+            return items
+
+        def _team_form_for(team: str, finals: list[dict], limit: int = 10) -> dict:
+            recs = []
+            for g in finals:
+                if g['away_team'] == team or g['home_team'] == team:
+                    recs.append(g)
+            # Most recent first, take limit
+            recs = recs[:limit]
+            wins = 0
+            runs_for = 0.0
+            runs_against = 0.0
+            trend = []
+            for g in recs:
+                if g['away_team'] == team:
+                    rf, ra = g['away_score'], g['home_score']
+                    win = 1 if rf > ra else 0
+                else:
+                    rf, ra = g['home_score'], g['away_score']
+                    win = 1 if rf > ra else 0
+                wins += win
+                runs_for += (rf or 0)
+                runs_against += (ra or 0)
+                trend.append('W' if win else 'L')
+            games = len(recs)
+            return {
+                'games': games,
+                'wins': wins,
+                'losses': max(0, games - wins),
+                'avg_runs_for': round((runs_for / games), 2) if games else None,
+                'avg_runs_against': round((runs_against / games), 2) if games else None,
+                'last10_trend': ''.join(trend)
+            }
+
+        def _head_to_head(a_team: str, h_team: str, finals: list[dict]) -> dict:
+            series = [g for g in finals if (g['away_team'] == a_team and g['home_team'] == h_team) or (g['away_team'] == h_team and g['home_team'] == a_team)]
+            a_wins = 0
+            h_wins = 0
+            a_runs = 0.0
+            h_runs = 0.0
+            for g in series:
+                if g['away_team'] == a_team:
+                    a_runs += g['away_score']
+                    h_runs += g['home_score']
+                    a_wins += 1 if g['away_score'] > g['home_score'] else 0
+                    h_wins += 1 if g['home_score'] > g['away_score'] else 0
+                else:
+                    a_runs += g['home_score']
+                    h_runs += g['away_score']
+                    a_wins += 1 if g['home_score'] > g['away_score'] else 0
+                    h_wins += 1 if g['away_score'] > g['home_score'] else 0
+            games = len(series)
+            return {
+                'games': games,
+                'away_wins': a_wins,
+                'home_wins': h_wins,
+                'away_avg_runs': round((a_runs / games), 2) if games else None,
+                'home_avg_runs': round((h_runs / games), 2) if games else None
+            }
+
         prediction_response = {
             'success': True,
             'game': {
@@ -7487,6 +7600,58 @@ def api_single_prediction(away_team, home_team):
             }
         }
         
+        # Add Team Form (Last 10) and Head-to-Head using recent final scores if available
+        try:
+            finals = _collect_final_scores_recent()
+            if finals:
+                tf_away = _team_form_for(away_team, finals, limit=10)
+                tf_home = _team_form_for(home_team, finals, limit=10)
+                prediction_response['team_form'] = {
+                    'away': tf_away,
+                    'home': tf_home
+                }
+                prediction_response['head_to_head'] = _head_to_head(away_team, home_team, finals)
+            else:
+                prediction_response['team_form'] = {'away': None, 'home': None}
+                prediction_response['head_to_head'] = None
+        except Exception as _tferr:
+            logger.debug(f"Team form/H2H computation failed: {_tferr}")
+
+        # EV/Kelly breakdown derived from betting recommendations (if available)
+        try:
+            ev_section = {'bets': []}
+            br = prediction_response.get('betting_recommendations')
+            if br:
+                bets = []
+                if isinstance(br, dict):
+                    if br.get('value_bets'):
+                        bets = br['value_bets']
+                    elif br.get('recommendations'):
+                        bets = br['recommendations']
+                for bet in bets:
+                    # bet may be string in legacy flow; handle dicts only
+                    if not isinstance(bet, dict):
+                        continue
+                    kelly = bet.get('kelly_bet_size')
+                    try:
+                        kf = float(kelly) / 100.0 if (kelly and kelly > 1) else float(kelly or 0)
+                    except Exception:
+                        kf = 0.0
+                    ev_item = {
+                        'label': bet.get('recommendation') or bet.get('bet') or bet.get('type') or 'Bet',
+                        'expected_value': bet.get('expected_value'),
+                        'kelly_fraction': round(kf, 4),
+                        'suggested_stake': _kelly_sized_amount(kf),
+                        'estimated_odds': bet.get('estimated_odds') or bet.get('odds'),
+                        'confidence': bet.get('confidence')
+                    }
+                    ev_section['bets'].append(ev_item)
+                if br.get('best_bet') and isinstance(br['best_bet'], dict):
+                    ev_section['best_bet'] = ev_section['bets'][0] if ev_section['bets'] else None
+            prediction_response['ev_kelly'] = ev_section if ev_section['bets'] else None
+        except Exception as _everr:
+            logger.debug(f"EV/Kelly assembly failed: {_everr}")
+
         logger.info(f"Successfully found prediction for {away_team} @ {home_team}")
         return jsonify(prediction_response)
     

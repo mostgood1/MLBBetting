@@ -2655,6 +2655,54 @@
                             <em>Higher team strength and bullpen factors = better performance expected</em>
                         </div>
                     </div>
+                    
+                    <!-- Team Form (Last 10) -->
+                    <div style="margin-top: 20px;">
+                        <h3>🏁 Team Form (Last 10)</h3>
+                        ${data.team_form && (data.team_form.away || data.team_form.home) ? `
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
+                            <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #ff6b6b;">
+                                <div style="font-weight: bold; color: #ff6b6b; margin-bottom: 6px;">${awayTeam}</div>
+                                ${data.team_form.away ? `
+                                <div style="font-size: 0.9em; color: #ccc;">Record: ${data.team_form.away.wins}-${data.team_form.away.losses}</div>
+                                <div style="font-size: 0.9em; color: #ccc;">Avg Runs: ${data.team_form.away.avg_runs_for ?? '—'} for, ${data.team_form.away.avg_runs_against ?? '—'} against</div>
+                                <div style="font-size: 0.85em; color: #aaa; margin-top: 4px;">Trend: ${data.team_form.away.last10_trend || ''}</div>
+                                ` : `<div style=\"font-size: 0.9em; color: #888; font-style: italic;\">No recent data</div>`}
+                            </div>
+                            <div style="padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #4ecdc4;">
+                                <div style="font-weight: bold; color: #4ecdc4; margin-bottom: 6px;">${homeTeam}</div>
+                                ${data.team_form.home ? `
+                                <div style="font-size: 0.9em; color: #ccc;">Record: ${data.team_form.home.wins}-${data.team_form.home.losses}</div>
+                                <div style="font-size: 0.9em; color: #ccc;">Avg Runs: ${data.team_form.home.avg_runs_for ?? '—'} for, ${data.team_form.home.avg_runs_against ?? '—'} against</div>
+                                <div style="font-size: 0.85em; color: #aaa; margin-top: 4px;">Trend: ${data.team_form.home.last10_trend || ''}</div>
+                                ` : `<div style=\"font-size: 0.9em; color: #888; font-style: italic;\">No recent data</div>`}
+                            </div>
+                        </div>
+                        ` : `<div style=\"font-size: 0.9em; color: #888; font-style: italic;\">Recent results not available</div>`}
+                    </div>
+                    
+                    <!-- Head-to-Head -->
+                    <div style="margin-top: 20px;">
+                        <h3>🤝 Head-to-Head</h3>
+                        ${data.head_to_head ? `
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px;">
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">Games</div>
+                                <div>${data.head_to_head.games}</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">Wins</div>
+                                <div style="color: #ff6b6b;">${awayTeam}: ${data.head_to_head.away_wins}</div>
+                                <div style="color: #4ecdc4;">${homeTeam}: ${data.head_to_head.home_wins}</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">Avg Runs</div>
+                                <div style="color: #ff6b6b;">${awayTeam}: ${data.head_to_head.away_avg_runs ?? '—'}</div>
+                                <div style="color: #4ecdc4;">${homeTeam}: ${data.head_to_head.home_avg_runs ?? '—'}</div>
+                            </div>
+                        </div>
+                        ` : `<div style=\"font-size: 0.9em; color: #888; font-style: italic;\">No recent head-to-head data</div>`}
+                    </div>
             `;
             
             // Add betting lines section if available
@@ -2753,6 +2801,25 @@
                 }
                 
                 html += '</div>';
+            }
+
+            // EV/Kelly breakdown section
+            if (data.ev_kelly && data.ev_kelly.bets && data.ev_kelly.bets.length > 0) {
+                html += `
+                <div style="margin-top: 20px;">
+                    <h3>📐 EV & Kelly Breakdown</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 10px;">
+                        ${data.ev_kelly.bets.map(b => `
+                            <div style=\"padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid ${b.expected_value > 0 ? '#4fd1c7' : '#ff6b6b'};\">
+                                <div style=\"font-weight: 600; margin-bottom: 4px;\">${b.label}</div>
+                                <div style=\"font-size: 0.9em; color: #ccc;\">${b.estimated_odds ? `Odds: ${b.estimated_odds}` : ''}</div>
+                                <div style=\"margin-top: 4px; font-size: 0.9em;\">EV: ${b.expected_value != null ? ((b.expected_value * 100).toFixed(2) + '%') : '—'}</div>
+                                <div style=\"font-size: 0.9em;\">Kelly: ${(b.kelly_fraction * 100).toFixed(2)}%</div>
+                                <div style=\"font-size: 0.9em; color: #aaa;\">Suggested Stake: $${b.suggested_stake}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
             }
             
             if (recs.length > 0) {
