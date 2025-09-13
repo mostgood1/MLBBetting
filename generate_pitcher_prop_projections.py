@@ -56,43 +56,10 @@ def load_json(path: str):
 def project_pitcher(pitcher: str, stats: Dict[str, Any], opponent: str | None = None) -> Dict[str, float]:
     """Project per-market means for a pitcher.
 
-    Tries model-based predictions if a model bundle is available; otherwise
-    falls back to the heuristic projection logic below.
+    Heuristic baseline is always computed; if models are available we override
+    only the markets they predict (e.g., strikeouts/outs), keeping the rest.
     """
-    # Attempt model-based path
-    try:
-        if load_models is not None:
-            models = load_models()
-            # stats may include 'team' in our master set; we don’t want to break if missing
-            team = str(stats.get('team') or '') or None
-            if models is not None:
-                pred = models.predict_means(stats, team, opponent)
-                if pred and isinstance(pred, dict):
-                    # Synthesize pitch_count from outs using heuristic ppo
-                    outs = float(pred.get('outs') or 0.0)
-                    ppo = DEFAULT_PITCHES_PER_OUT
-                    try:
-                        pitches_thrown = float(stats.get('pitches_thrown') or 0)
-                        ip = float(stats.get('innings_pitched') or 0)
-                        if pitches_thrown > 0 and ip > 0:
-                            ppo = max(MIN_PITCHES_PER_OUT, min(MAX_PITCHES_PER_OUT, pitches_thrown/(ip*3)))
-                    except Exception:
-                        pass
-                    pitch_count = round(outs * ppo, 0)
-                    pred['pitch_count'] = pitch_count
-                    return {
-                        'outs': round(float(pred.get('outs', 0.0)), 1),
-                        'strikeouts': round(float(pred.get('strikeouts', 0.0)), 1),
-                        'earned_runs': round(float(pred.get('earned_runs', 0.0)), 1),
-                        'hits_allowed': round(float(pred.get('hits_allowed', 0.0)), 1),
-                        'walks': round(float(pred.get('walks', 0.0)), 1),
-                        'pitch_count': pitch_count
-                    }
-    except Exception:
-        # Silent fallback to heuristic
-        pass
-
-    # Heuristic fallback
+    # Heuristic baseline first
     innings_pitched = float(stats.get('innings_pitched', 0) or 0)
     games_started = int(stats.get('games_started', 0) or 0)
     strikeouts = float(stats.get('strikeouts', 0) or 0)
@@ -156,7 +123,35 @@ def project_pitcher(pitcher: str, stats: Dict[str, Any], opponent: str | None = 
             opponent_factor = max(-0.15, min(0.15, -0.08 * oinfo.get('strength', 0)))  # tough offense -> slight downward adjustment
     adjusted_pitches_per_out = avg_pitches_per_out * (1 + opponent_factor)
     pitch_count = round(outs * adjusted_pitches_per_out, 0)
-    return {'outs': outs,'strikeouts': ks,'earned_runs': er,'hits_allowed': ha,'walks': round(bb_per_inning * ip_per_start, 1),'pitch_count': pitch_count}
+    base = {'outs': outs,'strikeouts': ks,'earned_runs': er,'hits_allowed': ha,'walks': round(bb_per_inning * ip_per_start, 1),'pitch_count': pitch_count}
+
+    # Attempt model-based overrides
+    try:
+        if load_models is not None:
+            models = load_models()
+            team = str(stats.get('team') or '') or None
+            if models is not None:
+                pred = models.predict_means(stats, team, opponent)
+                if pred and isinstance(pred, dict):
+                    if 'outs' in pred and pred['outs'] is not None:
+                        base['outs'] = round(float(pred['outs']), 1)
+                    if 'strikeouts' in pred and pred['strikeouts'] is not None:
+                        base['strikeouts'] = round(float(pred['strikeouts']), 1)
+                    # Recompute pitch_count if outs changed
+                    ppo = DEFAULT_PITCHES_PER_OUT
+                    try:
+                        pitches_thrown = float(stats.get('pitches_thrown') or 0)
+                        ip = float(stats.get('innings_pitched') or 0)
+                        if pitches_thrown > 0 and ip > 0:
+                            ppo = max(MIN_PITCHES_PER_OUT, min(MAX_PITCHES_PER_OUT, pitches_thrown/(ip*3)))
+                    except Exception:
+                        pass
+                    base['pitch_count'] = round(base['outs'] * ppo, 0)
+    except Exception:
+        # If anything goes wrong, keep heuristic base
+        pass
+
+    return base
 
 def american_to_profit_mult(odds: str):
     try:

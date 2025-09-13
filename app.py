@@ -3972,6 +3972,41 @@ def api_pitcher_props_model_diagnostics():
         volatility = _load('pitcher_prop_volatility.json') or {}
         calibration = _load('pitcher_prop_calibration_meta.json') or {}
         realized = _load('pitcher_prop_realized_results.json') or {}
+        # Optional: model bundle metadata and feature importances
+        model_meta = {}
+        model_features = {}
+        try:
+            from pitcher_model_runtime import load_models  # lazy import
+            models = load_models()
+            if models is not None:
+                # Basic meta
+                meta = models.meta or {}
+                model_meta = {
+                    'version': meta.get('version'),
+                    'trained_markets': meta.get('trained_markets'),
+                    'created_at': meta.get('created_at'),
+                    'dataset': meta.get('dataset'),
+                }
+                # Feature importances if available
+                for mkt, model in (models.models or {}).items():
+                    try:
+                        importances = getattr(model, 'feature_importances_', None)
+                        dv = (models.dv or {}).get(mkt)
+                        if importances is not None and dv is not None:
+                            try:
+                                names = list(getattr(dv, 'get_feature_names_out', dv.get_feature_names)())
+                            except Exception:
+                                names = []
+                            pairs = []
+                            for i, imp in enumerate(list(importances)):
+                                if i < len(names):
+                                    pairs.append({'feature': names[i], 'importance': float(imp)})
+                            pairs.sort(key=lambda x: x['importance'], reverse=True)
+                            model_features[mkt] = pairs[:15]
+                    except Exception:
+                        continue
+        except Exception:
+            pass
         # Latest recommendations file for coverage stats
         rec_files = [f for f in os.listdir(base_dir) if f.startswith('pitcher_prop_recommendations_')]
         rec_files.sort()
@@ -4009,7 +4044,9 @@ def api_pitcher_props_model_diagnostics():
             'calibration': calibration,
             'realized_outcomes': realized,
             'coverage': coverage,
-            'line_event_count': line_event_count
+            'line_event_count': line_event_count,
+            'model': model_meta,
+            'model_feature_importances': model_features
         })
     except Exception as e:
         logger.error(f"Error in api_pitcher_props_model_diagnostics: {e}\n{traceback.format_exc()}")
