@@ -71,7 +71,7 @@
     </div>
     <div class="toolbar">
       <label>Date <input type="date" id="date" value="{{ date }}" /></label>
-      <button id="refreshBtn">Refresh</button>
+      <button type="button" id="refreshBtn">Refresh</button>
     </div>
     <div id="meta" class="muted" style="margin-bottom:8px;">Loading...</div>
     <div id="grid" class="grid"></div>
@@ -520,10 +520,21 @@
       } catch(e){ setTimeout(startSSE, 15000); }
     }
 
-  document.getElementById('refreshBtn').addEventListener('click', ()=>{ loadUnified(); loadDiagnostics(); setTimeout(()=>{ pollLivePitches(); pollLiveStats(); }, 200); });
     let _pcTimer;
     window.addEventListener('DOMContentLoaded', ()=>{
+  // initial load
   loadUnified(); loadDiagnostics(); startSSE();
+  // wire refresh after DOM is ready
+  try{
+    const btn = document.getElementById('refreshBtn');
+    const date = document.getElementById('date');
+    const doRefresh = ()=>{
+      if(btn){ btn.disabled = true; const prev = btn.textContent; btn.textContent = 'Refreshing…'; setTimeout(()=>{ try{ btn.disabled=false; btn.textContent=prev; }catch(_){ } }, 1200); }
+      loadUnified(); loadDiagnostics(); setTimeout(()=>{ pollLivePitches(); pollLiveStats(); }, 200);
+    };
+    if(btn){ btn.addEventListener('click', doRefresh); }
+    if(date){ date.addEventListener('change', doRefresh); }
+  }catch(_){ }
       // Poll every 20s for live pitch counts
       try{ if(_pcTimer) clearInterval(_pcTimer); }catch(_){}
       _pcTimer = setInterval(pollLivePitches, 20000);
