@@ -4480,9 +4480,9 @@ def api_pitcher_props_unified():
         source_date = date_str
         source_file = props_path if os.path.exists(props_path) else None
 
-        # Fallback: if no props for requested date, choose the most recent available Bovada file
+        # Optional fallback: only when explicitly requested via allow_fallback=1
         try:
-            if not pitcher_props:
+            if (not pitcher_props) and (request.args.get('allow_fallback') == '1'):
                 candidates = sorted(
                     [os.path.join(base_dir, f) for f in os.listdir(base_dir) if f.startswith('bovada_pitcher_props_') and f.endswith('.json')],
                     key=lambda p: os.path.getmtime(p),
@@ -4545,6 +4545,24 @@ def api_pitcher_props_unified():
                 logger.warning(f"[UNIFIED] Could not build games_doc from MLB schedule: {_e}")
 
         team_map = build_team_map(games_doc) if _proj_available else {}
+
+        # Build allowed pitcher set from requested date's schedule to avoid cross-date mixing
+        allowed_nks = set()
+        try:
+            if isinstance(games_doc, list):
+                for g in games_doc:
+                    ap = normalize_name((g.get('away_pitcher') or '').strip())
+                    hp = normalize_name((g.get('home_pitcher') or '').strip())
+                    if ap: allowed_nks.add(ap)
+                    if hp: allowed_nks.add(hp)
+            elif isinstance(games_doc, dict):
+                for _, g in (games_doc.get('games') or {}).items():
+                    ap = normalize_name((g.get('away_pitcher') or '').strip())
+                    hp = normalize_name((g.get('home_pitcher') or '').strip())
+                    if ap: allowed_nks.add(ap)
+                    if hp: allowed_nks.add(hp)
+        except Exception:
+            allowed_nks = set()
 
         # Lightweight MLB player id resolver with on-disk cache to enrich rookies/fringe pitchers
         pid_cache_path = os.path.join('data', 'player_id_cache.json')
@@ -4692,6 +4710,9 @@ def api_pitcher_props_unified():
         for raw_key, mkts in pitcher_props.items():
             name_only = raw_key.split('(')[0].strip()
             norm_key = normalize_name(name_only)
+            # If we have a schedule-derived allowlist, restrict props to that set
+            if allowed_nks and (norm_key not in allowed_nks):
+                continue
             st = stats_by_name.get(norm_key, {})
             team_info = team_map.get(norm_key, {'team': None, 'opponent': None})
             opponent = team_info.get('opponent') if _proj_available else None
