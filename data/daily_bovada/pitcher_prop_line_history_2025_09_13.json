@@ -1,0 +1,47 @@
+{
+  "date": "2025-09-13",
+  "events": [
+    {
+      "type": "line_initial",
+      "pitcher": "spencer strider",
+      "market": "strikeouts",
+      "line": 7.5,
+      "over_odds": -115,
+      "under_odds": -105,
+      "date": "2025-09-13"
+    },
+    {
+      "type": "line_move",
+      "pitcher": "spencer strider",
+      "market": "strikeouts",
+      "old_line": 7.5,
+      "new_line": 8.0,
+      "old_over_odds": -115,
+      "new_over_odds": -110,
+      "old_under_odds": -105,
+      "new_under_odds": -110,
+      "date": "2025-09-13"
+    },
+    {
+      "type": "line_initial",
+      "pitcher": "brayan woo",
+      "market": "strikeouts",
+      "line": 5.5,
+      "over_odds": -120,
+      "under_odds": -105,
+      "date": "2025-09-13"
+    },
+    {
+      "type": "line_move",
+      "pitcher": "brayan woo",
+      "market": "strikeouts",
+      "old_line": 5.5,
+      "new_line": 6.0,
+      "old_over_odds": -120,
+      "new_over_odds": -115,
+      "old_under_odds": -105,
+      "new_under_odds": -110,
+      "date": "2025-09-13"
+    }
+  ]
+}
