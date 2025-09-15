@@ -366,19 +366,10 @@
         // Kick off background full load
         loadUnified(true).catch(()=>{});
       } else {
-        // Merge full data
+        // Merge full data and fully re-render so markets, projections, and odds appear
         window.__UNIFIED = data;
-        // Re-render only enrichment sections (markets & sublines) without destroying order:
-        try {
-          Object.entries(data.data||{}).forEach(([k,b])=>{
-            const card = document.querySelector(`.pitcher-card[data-nk="${k}"]`);
-            if(!card) return;
-            // Could extend to re-render markets; for now we keep light view.
-          });
-          if(metaEl){
-            metaEl.textContent += ' • Full data ready';
-          }
-        }catch(_){ }
+        renderCards(data);
+        if(metaEl){ metaEl.textContent += ' • Full data ready'; }
       }
     }
 
