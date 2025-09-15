@@ -126,6 +126,7 @@
     function renderCards(data){
       const grid = document.getElementById('grid');
       grid.innerHTML = '';
+      const isLight = !!((data && data.meta && data.meta.light_mode));
       const pitchers = Object.entries(data.data || {}).sort((a,b)=>{
         const ea = (a[1].plays && a[1].plays.edge) ? Math.abs(a[1].plays.edge) : 0;
         const eb = (b[1].plays && b[1].plays.edge) ? Math.abs(b[1].plays.edge) : 0;
@@ -193,12 +194,13 @@
         const baseCombo = recSummary && oddsBadge ? `${recSummary} • ${oddsBadge}` : (recSummary || oddsBadge || '');
         if (baseCombo && extra) subLine = `${baseCombo} • ${extra}`; else subLine = baseCombo || extra;
         const stale = Object.values(bundle.lines||{}).some(v => v && v._stale);
+        const loadingBadge = isLight ? `<span class="tag" title="Full details loading…">loading…</span>` : '';
         card.innerHTML = `
           <div class="card-header">
             ${logo?`<img class="team-logo" src="${logo}" alt="${team}" />`:''}
             <img class="pitcher-headshot" src="${headshot || initialsAvatar(name)}" alt="${name}" onerror="this.onerror=null; this.src='${initialsAvatar(name)}'" />
             <div style="display:flex; flex-direction:column; gap:2px;">
-              <div class="pitcher-name">${toTitleCase(name)}${edge!=null?` <span class=\"tag ${classifyEdge(edge)}\">edge ${edge.toFixed(2)}</span>`:''}${stale?` <span class=\"tag edge-small\" title=\"Contains stale (earlier snapshot) line(s)\">stale</span>`:''}</div>
+              <div class="pitcher-name">${toTitleCase(name)}${edge!=null?` <span class=\"tag ${classifyEdge(edge)}\">edge ${edge.toFixed(2)}</span>`:''}${stale?` <span class=\"tag edge-small\" title=\"Contains stale (earlier snapshot) line(s)\">stale</span>`:''} ${loadingBadge}</div>
               <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;" class="muted">
                 ${logo?`<img class="team-logo" src="${logo}" alt="${team}" title="${team}" />`:''}
                 <span style="font-weight:700;">vs</span>
