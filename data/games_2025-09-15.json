@@ -1,0 +1,92 @@
+[
+  {
+    "game_pk": 776318,
+    "game_time": "2025-09-15T22:40:00Z",
+    "away_team": "Chicago Cubs",
+    "home_team": "Pittsburgh Pirates",
+    "away_pitcher": "Jameson Taillon",
+    "home_pitcher": "Braxton Ashcraft",
+    "away_probable_pitcher": "Jameson Taillon",
+    "home_probable_pitcher": "Braxton Ashcraft"
+  },
+  {
+    "game_pk": 776315,
+    "game_time": "2025-09-15T22:45:00Z",
+    "away_team": "Atlanta Braves",
+    "home_team": "Washington Nationals",
+    "away_pitcher": "Spencer Strider",
+    "home_pitcher": "Mitchell Parker",
+    "away_probable_pitcher": "Spencer Strider",
+    "home_probable_pitcher": "Mitchell Parker"
+  },
+  {
+    "game_pk": 776316,
+    "game_time": "2025-09-15T23:35:00Z",
+    "away_team": "Toronto Blue Jays",
+    "home_team": "Tampa Bay Rays",
+    "away_pitcher": "Trey Yesavage",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Trey Yesavage",
+    "home_probable_pitcher": "TBD"
+  },
+  {
+    "game_pk": 776314,
+    "game_time": "2025-09-15T23:40:00Z",
+    "away_team": "Baltimore Orioles",
+    "home_team": "Chicago White Sox",
+    "away_pitcher": "Kyle Bradish",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Kyle Bradish",
+    "home_probable_pitcher": "TBD"
+  },
+  {
+    "game_pk": 776313,
+    "game_time": "2025-09-15T23:40:00Z",
+    "away_team": "New York Yankees",
+    "home_team": "Minnesota Twins",
+    "away_pitcher": "Carlos Rod\u00f3n",
+    "home_pitcher": "Simeon Woods Richardson",
+    "away_probable_pitcher": "Carlos Rod\u00f3n",
+    "home_probable_pitcher": "Simeon Woods Richardson"
+  },
+  {
+    "game_pk": 776312,
+    "game_time": "2025-09-15T23:45:00Z",
+    "away_team": "Cincinnati Reds",
+    "home_team": "St. Louis Cardinals",
+    "away_pitcher": "Zack Littell",
+    "home_pitcher": "Matthew Liberatore",
+    "away_probable_pitcher": "Zack Littell",
+    "home_probable_pitcher": "Matthew Liberatore"
+  },
+  {
+    "game_pk": 776319,
+    "game_time": "2025-09-16T00:10:00Z",
+    "away_team": "Texas Rangers",
+    "home_team": "Houston Astros",
+    "away_pitcher": "Jack Leiter",
+    "home_pitcher": "Jason Alexander",
+    "away_probable_pitcher": "Jack Leiter",
+    "home_probable_pitcher": "Jason Alexander"
+  },
+  {
+    "game_pk": 776309,
+    "game_time": "2025-09-16T01:40:00Z",
+    "away_team": "San Francisco Giants",
+    "home_team": "Arizona Diamondbacks",
+    "away_pitcher": "Kai-Wei Teng",
+    "home_pitcher": "Zac Gallen",
+    "away_probable_pitcher": "Kai-Wei Teng",
+    "home_probable_pitcher": "Zac Gallen"
+  },
+  {
+    "game_pk": 776311,
+    "game_time": "2025-09-16T02:10:00Z",
+    "away_team": "Philadelphia Phillies",
+    "home_team": "Los Angeles Dodgers",
+    "away_pitcher": "Ranger Su\u00e1rez",
+    "home_pitcher": "Emmet Sheehan",
+    "away_probable_pitcher": "Ranger Su\u00e1rez",
+    "home_probable_pitcher": "Emmet Sheehan"
+  }
+]

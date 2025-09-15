@@ -1116,5 +1116,57 @@
     "outcome": "pending",
     "profit_loss": 0.0,
     "roi": 0.0
+  },
+  {
+    "date": "2025-09-15",
+    "game": "Toronto Blue Jays vs Tampa Bay Rays",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 9.0",
+    "confidence": 0.244,
+    "kelly_percentage": 24.4,
+    "recommended_bet": 100,
+    "odds": 101,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-15",
+    "game": "Atlanta Braves vs Washington Nationals",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 9.0",
+    "confidence": 0.198,
+    "kelly_percentage": 19.8,
+    "recommended_bet": 80,
+    "odds": -111,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-15",
+    "game": "Chicago Cubs vs Pittsburgh Pirates",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.0",
+    "confidence": 0.191,
+    "kelly_percentage": 19.1,
+    "recommended_bet": 80,
+    "odds": -113,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-15",
+    "game": "San Francisco Giants vs Arizona Diamondbacks",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 9.5",
+    "confidence": 0.176,
+    "kelly_percentage": 17.6,
+    "recommended_bet": 70,
+    "odds": -101,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
   }
 ]

@@ -1,0 +1,69 @@
+{
+  "date": "2025-09-15",
+  "fetched_at": "2025-09-15T08:41:01.677676",
+  "games": [
+    {
+      "away_team": "Chicago Cubs",
+      "home_team": "Pittsburgh Pirates",
+      "away_pitcher": "Jameson Taillon",
+      "home_pitcher": "Braxton Ashcraft",
+      "game_key": "Chicago Cubs @ Pittsburgh Pirates"
+    },
+    {
+      "away_team": "Atlanta Braves",
+      "home_team": "Washington Nationals",
+      "away_pitcher": "Spencer Strider",
+      "home_pitcher": "Mitchell Parker",
+      "game_key": "Atlanta Braves @ Washington Nationals"
+    },
+    {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Tampa Bay Rays",
+      "away_pitcher": "Trey Yesavage",
+      "home_pitcher": "TBD",
+      "game_key": "Toronto Blue Jays @ Tampa Bay Rays"
+    },
+    {
+      "away_team": "Baltimore Orioles",
+      "home_team": "Chicago White Sox",
+      "away_pitcher": "Kyle Bradish",
+      "home_pitcher": "TBD",
+      "game_key": "Baltimore Orioles @ Chicago White Sox"
+    },
+    {
+      "away_team": "New York Yankees",
+      "home_team": "Minnesota Twins",
+      "away_pitcher": "Carlos Rod\u00f3n",
+      "home_pitcher": "Simeon Woods Richardson",
+      "game_key": "New York Yankees @ Minnesota Twins"
+    },
+    {
+      "away_team": "Cincinnati Reds",
+      "home_team": "St. Louis Cardinals",
+      "away_pitcher": "Zack Littell",
+      "home_pitcher": "Matthew Liberatore",
+      "game_key": "Cincinnati Reds @ St. Louis Cardinals"
+    },
+    {
+      "away_team": "Texas Rangers",
+      "home_team": "Houston Astros",
+      "away_pitcher": "Jack Leiter",
+      "home_pitcher": "Jason Alexander",
+      "game_key": "Texas Rangers @ Houston Astros"
+    },
+    {
+      "away_team": "San Francisco Giants",
+      "home_team": "Arizona Diamondbacks",
+      "away_pitcher": "Kai-Wei Teng",
+      "home_pitcher": "Zac Gallen",
+      "game_key": "San Francisco Giants @ Arizona Diamondbacks"
+    },
+    {
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Ranger Su\u00e1rez",
+      "home_pitcher": "Emmet Sheehan",
+      "game_key": "Philadelphia Phillies @ Los Angeles Dodgers"
+    }
+  ]
+}
