@@ -4998,6 +4998,28 @@ def api_pitcher_props_unified():
 
         timings['merge_pitchers'] = round(time.time()-t_loop,3)
         t_post = time.time()
+        if not merged:
+            # Graceful empty success (no lines + no projections) rather than 500
+            empty_payload = {
+                'success': True,
+                'date': date_str,
+                'meta': {
+                    'pitchers': 0,
+                    'generated_at': datetime.utcnow().isoformat(),
+                    'markets_total': 0,
+                    'requested_date': requested_date,
+                    'source_date': source_date,
+                    'source_file': source_file,
+                    'empty': True
+                },
+                'data': {}
+            }
+            if want_timings:
+                timings['total'] = round(time.time()-t0,3)
+                empty_payload['meta']['timings'] = timings
+            _UNIFIED_PITCHER_CACHE[date_str] = {'ts': now_ts, 'payload': empty_payload}
+            return jsonify(empty_payload)
+
         payload = {
             'success': True,
             'date': date_str,
@@ -5037,7 +5059,9 @@ def api_pitcher_props_unified():
         _UNIFIED_PITCHER_CACHE[date_str] = {'ts': now_ts, 'payload': payload}
         return jsonify(payload)
     except Exception as e:
-        logger.error(f"Error in api_pitcher_props_unified: {e}\n{traceback.format_exc()}")
+        debug_mode = request.args.get('debug') in ('1','true','yes')
+        tb_txt = traceback.format_exc()
+        logger.error(f"Error in api_pitcher_props_unified: {e}\n{tb_txt}")
         # Serve stale cached payload if available to avoid frontend errors
         try:
             date_str = request.args.get('date') or get_business_date()
@@ -5051,7 +5075,10 @@ def api_pitcher_props_unified():
                 return jsonify(payload)
         except Exception:
             pass
-        return jsonify({'success': False, 'error': str(e)}), 500
+        error_payload = {'success': False, 'error': str(e)}
+        if debug_mode:
+            error_payload['traceback'] = tb_txt.splitlines()[-6:]
+        return jsonify(error_payload), 500
 
 @app.route('/api/pitcher-props/refresh', methods=['POST'])
 def api_pitcher_props_refresh():
