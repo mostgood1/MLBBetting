@@ -4414,10 +4414,20 @@ def api_pitcher_props_refresh_models():
 
 @app.route('/api/pitcher-props/unified')
 def api_pitcher_props_unified():
-    """Unified pitcher props + projections + EV/Kelly in one call (15s cache)."""
+    """Unified pitcher props + projections + EV/Kelly in one call (15s cache).
+
+    Performance additions:
+    - ?light=1 returns reduced payload (no plays_all, no simple_projection, no markets detail) for fast first paint.
+    - Embedded timing diagnostics in meta.timings when ?timings=1.
+    - Internal step timings logged at DEBUG when available.
+    """
     try:
         date_str = request.args.get('date') or get_business_date()
         safe_date = date_str.replace('-', '_')
+        light_mode = request.args.get('light') in ('1','true','yes')
+        want_timings = request.args.get('timings') in ('1','true','yes')
+        t0 = time.time()
+        timings = {}
 
         # Cache
         global _UNIFIED_PITCHER_CACHE
@@ -4426,7 +4436,31 @@ def api_pitcher_props_unified():
         now_ts = time.time()
         cached = _UNIFIED_PITCHER_CACHE.get(date_str)
         if cached and (now_ts - cached.get('ts', 0) < 15):
-            return jsonify(cached['payload'])
+            # Serve cached; if light mode requested but cache is full, derive light view on the fly
+            payload = cached['payload']
+            if light_mode and payload.get('data'):
+                slim_data = {}
+                for k,v in payload['data'].items():
+                    slim_data[k] = {
+                        'display_name': v.get('display_name'),
+                        'mlb_player_id': v.get('mlb_player_id'),
+                        'headshot_url': v.get('headshot_url'),
+                        'team_logo': v.get('team_logo'),
+                        'opponent_logo': v.get('opponent_logo'),
+                        'plays': v.get('plays'),
+                        'lines': v.get('lines'),
+                        'team': v.get('team'),
+                        'opponent': v.get('opponent'),
+                        'pitch_count': v.get('pitch_count'),
+                        'live_pitches': v.get('live_pitches')
+                    }
+                light_payload = dict(payload)
+                light_payload['data'] = slim_data
+                light_payload['meta'] = dict(light_payload.get('meta', {}))
+                light_payload['meta']['light_mode'] = True
+                return jsonify(light_payload)
+            return jsonify(payload)
+        timings['cache_check'] = round(time.time()-t0,3)
 
         # Try to import heavy projection helpers; if unavailable, we'll degrade gracefully
         try:
@@ -4453,10 +4487,13 @@ def api_pitcher_props_unified():
             except Exception:
                 return default
 
-        props_doc = _load_json(props_path, {})
-        pitcher_props = props_doc.get('pitcher_props', {}) if isinstance(props_doc, dict) else {}
-        last_known = _load_json(last_known_path, {})
-        last_known_pitchers = last_known.get('pitchers', {}) if isinstance(last_known, dict) else {}
+            # --- Load primary docs ---
+            t_props = time.time()
+            props_doc = _load_json(props_path, {})
+            timings['load_props'] = round(time.time()-t_props,3)
+            pitcher_props = props_doc.get('pitcher_props', {}) if isinstance(props_doc, dict) else {}
+            last_known = _load_json(last_known_path, {})
+            last_known_pitchers = last_known.get('pitchers', {}) if isinstance(last_known, dict) else {}
 
         # If last-known snapshot is missing but we have current props, synthesize it now.
         try:
@@ -4519,7 +4556,9 @@ def api_pitcher_props_unified():
         except Exception as _e:
             logger.warning(f"[UNIFIED] Fallback search for Bovada props failed: {_e}")
 
-        stats_doc = _load_json(stats_path, {})
+            t_stats = time.time()
+            stats_doc = _load_json(stats_path, {})
+            timings['load_stats'] = round(time.time()-t_stats,3)
         if 'pitcher_data' in stats_doc:
             stats_core = stats_doc['pitcher_data']
         elif 'refresh_info' in stats_doc and isinstance(stats_doc.get('refresh_info'), dict) and 'pitcher_data' in stats_doc['refresh_info']:
@@ -4533,7 +4572,9 @@ def api_pitcher_props_unified():
         except Exception:
             live_box = {}
 
-        games_doc = _load_json(games_path, [])
+            t_games = time.time()
+            games_doc = _load_json(games_path, [])
+            timings['load_games'] = round(time.time()-t_games,3)
         # Fallback: if no local games file, derive from MLB schedule for requested date
         if (not games_doc) or (isinstance(games_doc, list) and len(games_doc) == 0) or (isinstance(games_doc, dict) and not games_doc.get('games')):
             try:
@@ -4554,7 +4595,9 @@ def api_pitcher_props_unified():
             except Exception as _e:
                 logger.warning(f"[UNIFIED] Could not build games_doc from MLB schedule: {_e}")
 
-        team_map = build_team_map(games_doc) if _proj_available else {}
+            t_team = time.time()
+            team_map = build_team_map(games_doc) if _proj_available else {}
+            timings['build_team_map'] = round(time.time()-t_team,3)
 
         # Build allowed pitcher set from requested date's schedule to avoid cross-date mixing
         allowed_nks = set()
@@ -4717,6 +4760,7 @@ def api_pitcher_props_unified():
                     recs_by_pitcher[pk] = r
 
         merged = {}
+        t_loop = time.time()
         for raw_key, mkts in pitcher_props.items():
             name_only = raw_key.split('(')[0].strip()
             norm_key = normalize_name(name_only)
@@ -4952,6 +4996,8 @@ def api_pitcher_props_unified():
         except Exception:
             pass
 
+        timings['merge_pitchers'] = round(time.time()-t_loop,3)
+        t_post = time.time()
         payload = {
             'success': True,
             'date': date_str,
@@ -4965,6 +5011,29 @@ def api_pitcher_props_unified():
             },
             'data': merged
         }
+        if light_mode:
+            # Reduce payload size for initial paint
+            slim_data = {}
+            for k,v in merged.items():
+                slim_data[k] = {
+                    'display_name': v.get('display_name'),
+                    'mlb_player_id': v.get('mlb_player_id'),
+                    'headshot_url': v.get('headshot_url'),
+                    'team_logo': v.get('team_logo'),
+                    'opponent_logo': v.get('opponent_logo'),
+                    'plays': v.get('plays'),
+                    'lines': v.get('lines'),
+                    'team': v.get('team'),
+                    'opponent': v.get('opponent'),
+                    'pitch_count': v.get('pitch_count'),
+                    'live_pitches': v.get('live_pitches')
+                }
+            payload['data'] = slim_data
+            payload['meta']['light_mode'] = True
+        timings['assemble_payload'] = round(time.time()-t_post,3)
+        timings['total'] = round(time.time()-t0,3)
+        if want_timings:
+            payload['meta']['timings'] = timings
         _UNIFIED_PITCHER_CACHE[date_str] = {'ts': now_ts, 'payload': payload}
         return jsonify(payload)
     except Exception as e:

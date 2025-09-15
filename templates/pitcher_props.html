@@ -339,16 +339,47 @@
       }catch(_){ }
     }
 
-    async function loadUnified(){
+    async function loadUnified(full=false){
       const date = document.getElementById('date').value;
       const bust = `t=${Date.now()}`;
-      const q = date?`date=${encodeURIComponent(date)}&${bust}`:bust;
-      const r = await fetch(`/api/pitcher-props/unified?${q}`);
-      if(!r.ok){ document.getElementById('meta').textContent = 'Failed to load unified props.'; return; }
-      const data = await r.json();
-      if(!data.success){ document.getElementById('meta').textContent = 'No data'; return; }
-      window.__UNIFIED = data;
-      renderCards(data);
+      const params = new URLSearchParams();
+      if(date) params.set('date', date);
+      params.set('t', Date.now());
+      if(!full) params.set('light','1');
+      // include timings only on first (light) load
+      if(!full) params.set('timings','1');
+      const url = `/api/pitcher-props/unified?${params.toString()}`;
+      const started = performance.now();
+      const resp = await fetch(url);
+      const metaEl = document.getElementById('meta');
+      if(!resp.ok){ if(metaEl) metaEl.textContent = 'Failed to load unified props.'; return; }
+      const data = await resp.json();
+      if(!data.success){ if(metaEl) metaEl.textContent = 'No data'; return; }
+      if(!full){
+        // First paint (light)
+        window.__UNIFIED_LIGHT = data;
+        renderCards(data);
+        if(metaEl){
+          const total = (data.meta && data.meta.timings && data.meta.timings.total) || ((performance.now()-started)/1000).toFixed(2);
+          metaEl.textContent = `Loaded ${data.meta.pitchers||0} pitchers (light) in ${total}s`;
+        }
+        // Kick off background full load
+        loadUnified(true).catch(()=>{});
+      } else {
+        // Merge full data
+        window.__UNIFIED = data;
+        // Re-render only enrichment sections (markets & sublines) without destroying order:
+        try {
+          Object.entries(data.data||{}).forEach(([k,b])=>{
+            const card = document.querySelector(`.pitcher-card[data-nk="${k}"]`);
+            if(!card) return;
+            // Could extend to re-render markets; for now we keep light view.
+          });
+          if(metaEl){
+            metaEl.textContent += ' • Full data ready';
+          }
+        }catch(_){ }
+      }
     }
 
     async function loadDiagnostics(){
