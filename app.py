@@ -2988,6 +2988,16 @@ def pitcher_props_page():
         logger.error(f"Error rendering pitcher props page: {e}")
         return render_template('pitcher_props.html', date=get_business_date())
 
+@app.route('/pitcher_props')
+def pitcher_props_page_underscore():
+    """Backward/alternate alias route to support underscore variant URLs.
+    Redirects permanently to the canonical hyphenated version preserving the date parameter."""
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        return redirect(url_for('pitcher_props_page', date=date_str), code=301)
+    except Exception:
+        return redirect(url_for('pitcher_props_page'), code=301)
+
 def _load_bovada_pitcher_props(date_str: str) -> Dict[str, Any]:
     """Load Bovada pitcher props for the given date (if available). Keys are lowercased pitcher names."""
     try:
