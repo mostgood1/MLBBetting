@@ -4441,6 +4441,20 @@ def api_pitcher_props_unified():
             if light_mode and payload.get('data'):
                 slim_data = {}
                 for k,v in payload['data'].items():
+                    # Build a slim "markets" with just line and odds to keep payload small
+                    full_mkts = v.get('markets') or {}
+                    slim_mkts = {}
+                    try:
+                        for mk, info in full_mkts.items():
+                            if not isinstance(info, dict):
+                                continue
+                            line = info.get('line')
+                            oo = info.get('over_odds')
+                            uo = info.get('under_odds')
+                            if line is not None or oo is not None or uo is not None:
+                                slim_mkts[mk] = {'line': line, 'over_odds': oo, 'under_odds': uo}
+                    except Exception:
+                        slim_mkts = {}
                     slim_data[k] = {
                         'display_name': v.get('display_name'),
                         'mlb_player_id': v.get('mlb_player_id'),
@@ -4449,6 +4463,7 @@ def api_pitcher_props_unified():
                         'opponent_logo': v.get('opponent_logo'),
                         'plays': v.get('plays'),
                         'lines': v.get('lines'),
+                        'markets': slim_mkts,
                         'team': v.get('team'),
                         'opponent': v.get('opponent'),
                         'pitch_count': v.get('pitch_count'),
@@ -5037,6 +5052,20 @@ def api_pitcher_props_unified():
             # Reduce payload size for initial paint
             slim_data = {}
             for k,v in merged.items():
+                # Build a slim markets dict as above (line + odds only)
+                full_mkts = v.get('markets') or {}
+                slim_mkts = {}
+                try:
+                    for mk, info in full_mkts.items():
+                        if not isinstance(info, dict):
+                            continue
+                        line = info.get('line')
+                        oo = info.get('over_odds')
+                        uo = info.get('under_odds')
+                        if line is not None or oo is not None or uo is not None:
+                            slim_mkts[mk] = {'line': line, 'over_odds': oo, 'under_odds': uo}
+                except Exception:
+                    slim_mkts = {}
                 slim_data[k] = {
                     'display_name': v.get('display_name'),
                     'mlb_player_id': v.get('mlb_player_id'),
@@ -5045,6 +5074,7 @@ def api_pitcher_props_unified():
                     'opponent_logo': v.get('opponent_logo'),
                     'plays': v.get('plays'),
                     'lines': v.get('lines'),
+                    'markets': slim_mkts,
                     'team': v.get('team'),
                     'opponent': v.get('opponent'),
                     'pitch_count': v.get('pitch_count'),
