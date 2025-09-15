@@ -4814,7 +4814,12 @@ def api_pitcher_props_unified():
                         'market': primary_play.get('market'),
                         'side': (primary_play.get('side') or '').upper() or None,
                         'edge': primary_play.get('edge'),
-                        'line': primary_play.get('line')
+                        'line': primary_play.get('line'),
+                        'kelly_fraction': primary_play.get('kelly_fraction'),
+                        'selected_ev': primary_play.get('selected_ev'),
+                        'p_over': primary_play.get('p_over'),
+                        'over_odds': primary_play.get('over_odds'),
+                        'under_odds': primary_play.get('under_odds')
                     }
             except Exception:
                 primary_play = None
@@ -4968,6 +4973,86 @@ def api_pitcher_props_unified():
         except Exception:
             pass
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/pitcher-props/refresh', methods=['POST'])
+def api_pitcher_props_refresh():
+    """Force-refresh Bovada pitcher props + regenerate projections/recommendations.
+    Frontend then re-calls /api/pitcher-props/unified for fresh merged data.
+    Synchronous (can take a few seconds) – intended for manual/admin use.
+    """
+    # ----- Rate limiting & optional token guard -----
+    cooldown_sec = 30
+    token_required = os.environ.get('PITCHER_REFRESH_TOKEN')  # if set, require matching X-Refresh-Token header
+    global _PITCHER_REFRESH_LAST
+    now_t = time.time()
+    if '_PITCHER_REFRESH_LAST' in globals():
+        last_t = _PITCHER_REFRESH_LAST or 0
+        if now_t - last_t < cooldown_sec:
+            return jsonify({'success': False, 'error': f'Cooldown: try again in {int(cooldown_sec - (now_t-last_t))}s'}), 429
+    if token_required:
+        hdr = request.headers.get('X-Refresh-Token')
+        if hdr != token_required:
+            return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+
+    started = now_t
+    date_req = None
+    try:
+        if request.is_json:
+            date_req = (request.json or {}).get('date')
+        else:
+            date_req = request.form.get('date')
+    except Exception:
+        date_req = None
+    # Currently the underlying fetch/generate scripts use *today's* date implicitly.
+    # We accept an optional date but only act if it matches business date; otherwise ignore to avoid surprises.
+    biz_today = get_business_date()
+    if date_req and date_req != biz_today:
+        logger.warning(f"/api/pitcher-props/refresh ignored mismatched date {date_req} (server business date {biz_today})")
+    results = {}
+    errors: list[str] = []
+    try:
+        from fetch_bovada_pitcher_props import main as fetch_props_main
+        ok_fetch = fetch_props_main()
+        results['fetch_props'] = bool(ok_fetch)
+    except Exception as e:
+        errors.append(f"fetch_props: {e}")
+        logger.error(f"refresh fetch error: {e}")
+        results['fetch_props'] = False
+    try:
+        from generate_pitcher_prop_projections import main as gen_recs_main
+        ok_gen = gen_recs_main()
+        results['generate_recommendations'] = bool(ok_gen)
+    except Exception as e:
+        errors.append(f"generate_recommendations: {e}")
+        logger.error(f"refresh generate error: {e}")
+        results['generate_recommendations'] = False
+    # Invalidate unified pitcher cache for fresh rebuild on next unified call
+    try:
+        if '_UNIFIED_PITCHER_CACHE' in globals():
+            _UNIFIED_PITCHER_CACHE.pop(biz_today, None)  # type: ignore
+    except Exception:
+        pass
+    # Also invalidate broader unified cache (predictions) if exists so any dependent summaries refresh
+    try:
+        global _unified_cache, _unified_cache_time
+        _unified_cache = None
+        _unified_cache_time = None
+    except Exception:
+        pass
+    duration = round(time.time() - started, 2)
+    success = results.get('fetch_props') or results.get('generate_recommendations')
+    if success:
+        _PITCHER_REFRESH_LAST = now_t
+    payload = {
+        'success': bool(success),
+        'date': biz_today,
+        'duration_sec': duration,
+        'results': results,
+        'errors': errors,
+        'message': 'Refreshed' if success else 'Refresh failed'
+    }
+    status_code = 200 if success else 500
+    return jsonify(payload), status_code
 
 @app.route('/api/health/unified-meta')
 def api_health_unified_meta():

@@ -72,8 +72,13 @@
     <div class="toolbar">
       <label>Date <input type="date" id="date" value="{{ date }}" /></label>
       <button type="button" id="refreshBtn">Refresh</button>
+      <button type="button" id="forceRefreshBtn" style="background:#2563eb; border-color:#2563eb;">Force Lines Refresh</button>
+      <span id="refreshStatus" class="muted" style="min-width:140px;"></span>
     </div>
     <div id="meta" class="muted" style="margin-bottom:8px;">Loading...</div>
+    <div class="muted" style="font-size:11px; line-height:1.4; margin:-4px 0 12px; background:rgba(255,255,255,0.04); padding:8px 10px; border:1px solid rgba(255,255,255,0.08); border-radius:8px;">
+      <strong>Legend:</strong> Edge color (green &gt;=1.0, amber &gt;=0.6, blue &gt;=0.3). ▲ / ▼ arrow shows model lean (over/under). <span style="font-weight:700;">stale</span> badge = line carried from earlier snapshot. Kelly = recommended stake % of bankroll (raw Kelly, un-capped). EV = expected value of selected side. Live deltas color green when the live stat favors the recommended side.
+    </div>
     <div id="grid" class="grid"></div>
     <div id="modelBanner" class="muted" style="margin-top:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.12); display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
       <span id="modelInfo">Model: —</span>
@@ -156,17 +161,50 @@
   const pid = bundle.mlb_player_id || bundle.player_id;
   if (pid) { card.setAttribute('data-pid', String(pid)); }
         // Build header
+        // Build recommendation + odds summary and stale flag
+        let recSummary = '';
+        if (plays && plays.market && plays.side){
+          const labelMap = {strikeouts:'K', outs:'Outs', hits_allowed:'Hits', walks:'BB', earned_runs:'ER'};
+          const mkp = plays.market; const lbl = labelMap[mkp] || mkp;
+          recSummary = `${plays.side} ${lbl}`;
+          if (typeof plays.line === 'number') recSummary += ` @ ${plays.line}`;
+          if (typeof plays.edge === 'number') recSummary += ` (edge ${Number(plays.edge).toFixed(2)})`;
+        }
+        const kInfo = markets.strikeouts || markets.k || null;
+        let oddsBadge = '';
+        if (kInfo && (kInfo.over_odds!=null || kInfo.under_odds!=null)){
+          const oo = kInfo.over_odds!=null ? (kInfo.over_odds>0?`+${kInfo.over_odds}`:kInfo.over_odds) : '';
+          const uo = kInfo.under_odds!=null ? (kInfo.under_odds>0?`+${kInfo.under_odds}`:kInfo.under_odds) : '';
+          oddsBadge = `K O ${oo} / U ${uo}`;
+        }
+        // Add Kelly fraction (%) and EV (selected_ev) if available in plays
+        let kellyTxt = '';
+        if (plays && typeof plays.kelly_fraction === 'number') {
+          const kf = plays.kelly_fraction * 100;
+          if (isFinite(kf) && kf > 0) kellyTxt = `Kelly ${(kf).toFixed(1)}%`;
+        }
+        let evTxt = '';
+        if (plays && typeof plays.selected_ev === 'number') {
+          const evp = plays.selected_ev * 100; // assuming EV is stored as probability delta (already fraction)
+          if (isFinite(evp)) evTxt = `EV ${evp.toFixed(1)}%`;
+        }
+        let extra = [kellyTxt, evTxt].filter(Boolean).join(' • ');
+        let subLine = '';
+        const baseCombo = recSummary && oddsBadge ? `${recSummary} • ${oddsBadge}` : (recSummary || oddsBadge || '');
+        if (baseCombo && extra) subLine = `${baseCombo} • ${extra}`; else subLine = baseCombo || extra;
+        const stale = Object.values(bundle.lines||{}).some(v => v && v._stale);
         card.innerHTML = `
           <div class="card-header">
             ${logo?`<img class="team-logo" src="${logo}" alt="${team}" />`:''}
             <img class="pitcher-headshot" src="${headshot || initialsAvatar(name)}" alt="${name}" onerror="this.onerror=null; this.src='${initialsAvatar(name)}'" />
             <div style="display:flex; flex-direction:column; gap:2px;">
-              <div class="pitcher-name">${toTitleCase(name)}${edge!=null?` <span class="tag ${classifyEdge(edge)}">edge ${edge.toFixed(2)}</span>`:''}</div>
-              <div style="display:flex; align-items:center; gap:6px;" class="muted">
+              <div class="pitcher-name">${toTitleCase(name)}${edge!=null?` <span class=\"tag ${classifyEdge(edge)}\">edge ${edge.toFixed(2)}</span>`:''}${stale?` <span class=\"tag edge-small\" title=\"Contains stale (earlier snapshot) line(s)\">stale</span>`:''}</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;" class="muted">
                 ${logo?`<img class="team-logo" src="${logo}" alt="${team}" title="${team}" />`:''}
                 <span style="font-weight:700;">vs</span>
                 ${oppLogo?`<img class="team-logo" src="${oppLogo}" alt="${opp}" title="${opp}" />`:''}
               </div>
+              ${subLine?`<div class=\"muted\" style=\"font-size:11px;\">${subLine}</div>`:''}
             </div>
             <div class="live-pc" title="Live pitch count" data-live-pc>PC —</div>
           </div>
@@ -543,6 +581,23 @@
   try{ if(window._lsTimer) clearInterval(window._lsTimer); }catch(_){ }
   window._lsTimer = setInterval(pollLiveStats, 15000);
   setTimeout(pollLiveStats, 1200);
+  // Force refresh button logic
+  try{
+    const fBtn = document.getElementById('forceRefreshBtn');
+    const statusEl = document.getElementById('refreshStatus');
+    async function doForce(){
+      if(!fBtn) return; const prev = fBtn.textContent; fBtn.disabled=true; fBtn.textContent='Refreshing…'; statusEl.textContent='';
+      try{
+        const date = document.getElementById('date').value;
+        const r = await fetch('/api/pitcher-props/refresh', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({date})});
+        const js = await r.json().catch(()=>({}));
+        if (r.ok && js.success){ statusEl.textContent='Refreshed'; await loadUnified(); }
+        else statusEl.textContent = 'Refresh failed';
+      }catch(e){ statusEl.textContent='Error'; }
+      finally { fBtn.disabled=false; fBtn.textContent=prev; setTimeout(()=>{ statusEl.textContent=''; }, 5000); }
+    }
+    if(fBtn) fBtn.addEventListener('click', doForce);
+  }catch(_){ }
     });
   </script>
 </body>
