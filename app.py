@@ -4486,14 +4486,13 @@ def api_pitcher_props_unified():
                     return json.load(f)
             except Exception:
                 return default
-
-            # --- Load primary docs ---
-            t_props = time.time()
-            props_doc = _load_json(props_path, {})
-            timings['load_props'] = round(time.time()-t_props,3)
-            pitcher_props = props_doc.get('pitcher_props', {}) if isinstance(props_doc, dict) else {}
-            last_known = _load_json(last_known_path, {})
-            last_known_pitchers = last_known.get('pitchers', {}) if isinstance(last_known, dict) else {}
+        # --- Load primary docs (ensure variables always initialized) ---
+        t_props = time.time()
+        props_doc = _load_json(props_path, {})
+        timings['load_props'] = round(time.time()-t_props,3)
+        pitcher_props = props_doc.get('pitcher_props', {}) if isinstance(props_doc, dict) else {}
+        last_known = _load_json(last_known_path, {})
+        last_known_pitchers = last_known.get('pitchers', {}) if isinstance(last_known, dict) else {}
 
         # If last-known snapshot is missing but we have current props, synthesize it now.
         try:
@@ -4556,9 +4555,10 @@ def api_pitcher_props_unified():
         except Exception as _e:
             logger.warning(f"[UNIFIED] Fallback search for Bovada props failed: {_e}")
 
-            t_stats = time.time()
-            stats_doc = _load_json(stats_path, {})
-            timings['load_stats'] = round(time.time()-t_stats,3)
+        # Load stats doc regardless of fallback outcome
+        t_stats = time.time()
+        stats_doc = _load_json(stats_path, {})
+        timings['load_stats'] = round(time.time()-t_stats,3)
         if 'pitcher_data' in stats_doc:
             stats_core = stats_doc['pitcher_data']
         elif 'refresh_info' in stats_doc and isinstance(stats_doc.get('refresh_info'), dict) and 'pitcher_data' in stats_doc['refresh_info']:
@@ -4572,16 +4572,16 @@ def api_pitcher_props_unified():
         except Exception:
             live_box = {}
 
-            t_games = time.time()
-            games_doc = _load_json(games_path, [])
-            timings['load_games'] = round(time.time()-t_games,3)
+        # Always attempt to load games_doc (previously only happened on exception path -> bug)
+        t_games = time.time()
+        games_doc = _load_json(games_path, [])
+        timings['load_games'] = round(time.time()-t_games,3)
         # Fallback: if no local games file, derive from MLB schedule for requested date
         if (not games_doc) or (isinstance(games_doc, list) and len(games_doc) == 0) or (isinstance(games_doc, dict) and not games_doc.get('games')):
             try:
                 from live_mlb_data import LiveMLBData
                 mlb_api = LiveMLBData()
                 live_games = mlb_api.get_enhanced_games_data(date_str) or []
-                # Normalize to a simple list compatible with build_team_map expectations
                 games_doc = [
                     {
                         'away_team': g.get('away_team'),
@@ -4595,9 +4595,9 @@ def api_pitcher_props_unified():
             except Exception as _e:
                 logger.warning(f"[UNIFIED] Could not build games_doc from MLB schedule: {_e}")
 
-            t_team = time.time()
-            team_map = build_team_map(games_doc) if _proj_available else {}
-            timings['build_team_map'] = round(time.time()-t_team,3)
+        t_team = time.time()
+        team_map = build_team_map(games_doc) if _proj_available else {}
+        timings['build_team_map'] = round(time.time()-t_team,3)
 
         # Build allowed pitcher set from requested date's schedule to avoid cross-date mixing
         allowed_nks = set()
