@@ -661,6 +661,66 @@ def complete_daily_automation():
     except Exception as e:
         logger.warning(f"⚠️ Weekly retune auto-trigger failed: {e}")
 
+    # Auto Git push of any updated data/code (optional, enabled by default)
+    def auto_git_push(repo_dir: Path, logger, today_str: str):
+        try:
+            # Allow disabling via env var
+            if os.environ.get('AUTO_GIT_PUSH_DISABLED', '').lower() in ('1', 'true', 'yes'):
+                logger.info("🛑 Auto git push disabled via AUTO_GIT_PUSH_DISABLED env var")
+                return
+
+            def git(args, check=False):
+                res = subprocess.run(['git'] + list(args), cwd=str(repo_dir), capture_output=True, text=True)
+                if check and res.returncode != 0:
+                    raise RuntimeError(f"git {' '.join(args)} failed: {res.stderr or res.stdout}")
+                return res
+
+            # Verify we're in a git repo
+            res = git(['rev-parse', '--is-inside-work-tree'])
+            if res.returncode != 0 or 'true' not in (res.stdout or '').lower():
+                logger.info("ℹ️ Not a git repository; skipping auto push")
+                return
+
+            # Detect changes
+            status = git(['status', '--porcelain'])
+            changed = []
+            if status.stdout:
+                changed = [line.strip() for line in status.stdout.splitlines() if line.strip()]
+            if not changed:
+                logger.info("🧹 No changes to commit; skipping auto push")
+                return
+
+            # Stage all changes
+            git(['add', '-A'], check=True)
+
+            # Commit
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            commit_msg = (
+                f"Automation: update daily data for {today_str} at {timestamp}\n\n" \
+                f"Files: {min(len(changed), 20)} changed (showing up to 20)\n" \
+                + '\n'.join(changed[:20])
+            )
+            commit = git(['commit', '-m', commit_msg])
+            if commit.returncode != 0:
+                # Possibly nothing to commit (race), recheck and bail
+                logger.info(f"ℹ️ Commit skipped: {commit.stderr.strip() or commit.stdout.strip()}")
+                return
+
+            # Push (non-fatal if it fails)
+            push = git(['push'])
+            if push.returncode == 0:
+                logger.info("🚀 Auto-pushed changes to remote")
+            else:
+                logger.warning(f"⚠️ Auto push failed: {push.stderr.strip() or push.stdout.strip()}")
+        except Exception as e:
+            logger.warning(f"⚠️ Auto git push encountered an issue: {e}")
+
+    # Run auto git push regardless of success outcome if there are changes
+    try:
+        auto_git_push(base_dir, logger, today)
+    except Exception as e:
+        logger.debug(f"Auto git push wrapper failed: {e}")
+
     if all_success:
         logger.info("\n🎉 ALL STEPS COMPLETED SUCCESSFULLY!")
         logger.info(f"🎯 Ready for MLB betting analysis on {today}")
