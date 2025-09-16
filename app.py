@@ -15,6 +15,7 @@ import json
 import os
 import glob
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 import logging
 import traceback
 import statistics
@@ -29,11 +30,19 @@ from pathlib import Path
 # -------------------------------------------------------------
 # Date helper (some endpoints rely on business date concept; fallback to today)
 # -------------------------------------------------------------
-def get_business_date(offset_days: int = 0) -> str:
-    """Return current business date (YYYY-MM-DD). Placeholder: UTC date with optional offset.
-    If later a timezone/business rule is needed, centralize modification here.
+def _now_local() -> datetime:
+    """Return current datetime in business timezone (default America/Chicago).
+    Override with env BUSINESS_TZ.
     """
-    return (datetime.utcnow() + timedelta(days=offset_days)).strftime('%Y-%m-%d')
+    tzname = os.environ.get('BUSINESS_TZ', 'America/Chicago')
+    try:
+        return datetime.now(ZoneInfo(tzname))
+    except Exception:
+        return datetime.now()
+
+def get_business_date(offset_days: int = 0) -> str:
+    """Return current business date (YYYY-MM-DD) in business timezone (not UTC)."""
+    return (_now_local() + timedelta(days=offset_days)).strftime('%Y-%m-%d')
 
 # -------------------------------------------------------------
 # Lightweight response caching (in-memory, per-process)
@@ -3676,17 +3685,17 @@ def _process_ingested_event(ev: dict):
         # Persist line history for initial/move
         if et in ('line_initial','line_move'):
             # Prefer explicit date provided by worker; else fallback to today
-            d = ev.get('date') or datetime.utcnow().strftime('%Y-%m-%d')
+            d = ev.get('date') or get_business_date()
             _append_pitcher_line_history(d, [ev])
         # Persist realized outcomes batches
         if et in ('final_outcomes_batch',):
-            d = ev.get('date') or datetime.utcnow().strftime('%Y-%m-%d')
+            d = ev.get('date') or get_business_date()
             outcomes = ev.get('outcomes') or []
             if isinstance(outcomes, list):
                 _save_realized_results_and_daily(d, outcomes)
         # Persist full props snapshot so web has the latest lines file (for unified/current endpoints)
         if et == 'props_snapshot':
-            d = ev.get('date') or datetime.utcnow().strftime('%Y-%m-%d')
+            d = ev.get('date') or get_business_date()
             doc = ev.get('doc') or {}
             if isinstance(doc, dict):
                 try:
@@ -3713,7 +3722,7 @@ def _process_ingested_event(ev: dict):
                     pass
         # Persist recommendations snapshot (optional, used by unified endpoint for plays/EV context)
         if et == 'recommendations_snapshot':
-            d = ev.get('date') or datetime.utcnow().strftime('%Y-%m-%d')
+            d = ev.get('date') or get_business_date()
             doc = ev.get('doc') or {}
             if isinstance(doc, dict):
                 try:
@@ -4512,7 +4521,7 @@ def api_pitcher_props_unified():
         # If last-known snapshot is missing but we have current props, synthesize it now.
         try:
             if (not last_known_pitchers) and pitcher_props:
-                lk_doc = {'date': date_str, 'updated_at': datetime.utcnow().isoformat(), 'pitchers': {}}
+                lk_doc = {'date': date_str, 'updated_at': _now_local().isoformat(), 'pitchers': {}}
                 for raw_key, mkts in pitcher_props.items():
                     name_only = raw_key.split('(')[0].strip()
                     nk = normalize_name(name_only)
@@ -5022,7 +5031,7 @@ def api_pitcher_props_unified():
                 'date': date_str,
                 'meta': {
                     'pitchers': 0,
-                    'generated_at': datetime.utcnow().isoformat(),
+                    'generated_at': _now_local().isoformat(),
                     'markets_total': 0,
                     'requested_date': requested_date,
                     'source_date': source_date,
@@ -5042,7 +5051,7 @@ def api_pitcher_props_unified():
             'date': date_str,
             'meta': {
                 'pitchers': len(merged),
-                'generated_at': datetime.utcnow().isoformat(),
+                'generated_at': _now_local().isoformat(),
                 'markets_total': sum(len(v.get('markets', {})) for v in merged.values()),
                 'requested_date': requested_date,
                 'source_date': source_date,
