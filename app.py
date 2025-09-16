@@ -4714,9 +4714,11 @@ def api_pitcher_props_unified():
             except Exception:
                 pass
             try:
+                # Cap outbound search attempts per request to avoid long tail latencies
                 import requests
                 url = "https://statsapi.mlb.com/api/v1/people"
-                resp = requests.get(url, params={'search': name}, timeout=12)
+                # Reduce timeout to keep endpoint responsive on Render
+                resp = requests.get(url, params={'search': name}, timeout=6)
                 if resp.ok:
                     data = resp.json() or {}
                     people = data.get('people') or []
@@ -6815,6 +6817,7 @@ def api_all_team_colors():
 def api_today_games():
     """API endpoint for today's games with live status - this is what powers the game cards!"""
     try:
+        t_start = time.time()
         # Get date from request parameter (defaults to business date)
         date_param = request.args.get('date', get_business_date())
         logger.info(f"API today-games called for date: {date_param}")
@@ -6826,26 +6829,39 @@ def api_today_games():
             cached = None
         if cached is not None:
             logger.info("📦 today-games cache HIT")
-            return jsonify(cached)
+            resp = jsonify(cached)
+            try:
+                resp.headers['X-Cache-Hit'] = '1'
+                resp.headers['Server-Timing'] = f"total;dur={int((time.time()-t_start)*1000)}"
+            except Exception:
+                pass
+            return resp
         else:
             logger.info("📦 today-games cache MISS")
 
         # Load unified cache 
+        t_uc = time.time()
         unified_cache = load_unified_cache()
+        uc_ms = int((time.time()-t_uc)*1000)
 
         # Load real betting lines with error handling
         try:
             logger.info("🎯 BETTING LINES: Attempting to load real betting lines...")
+            t_lines = time.time()
             real_betting_lines = load_real_betting_lines()
+            lines_ms = int((time.time()-t_lines)*1000)
             logger.info(f"🎯 BETTING LINES: Successfully loaded with {len(real_betting_lines.get('lines', {}))} games")
         except Exception as e:
             logger.error(f"🎯 BETTING LINES: Failed to load - {e}")
             real_betting_lines = None
+            lines_ms = -1
 
         # Unified betting recommendations with soft timeout; skip legacy loader here to keep latency low
         betting_recommendations = {'games': {}}  # placeholder for downstream shape
         logger.info("🎯 Loading unified betting recommendations for API (soft timeout)...")
+        t_recs = time.time()
         unified_betting_recommendations = _get_unified_betting_recs_with_timeout(timeout_sec=2.5)
+        recs_ms = int((time.time()-t_recs)*1000)
         logger.info(f"✅ Unified betting recs ready: {len(unified_betting_recommendations) if hasattr(unified_betting_recommendations,'keys') else 0} games (may be 0 on timeout)")
 
         logger.info(f"Loaded cache with keys: {list(unified_cache.keys())[:5]}...")  # Show first 5 keys
@@ -7583,7 +7599,15 @@ def api_today_games():
             cache_set('today_games', {'date': date_param}, response_payload)
         except Exception:
             pass
-        return jsonify(response_payload)
+        resp = jsonify(response_payload)
+        try:
+            total_ms = int((time.time()-t_start)*1000)
+            resp.headers['Server-Timing'] = \
+                f"unified_cache;dur={uc_ms},lines;dur={lines_ms},recs;dur={recs_ms},total;dur={total_ms}"
+            resp.headers['X-Cache-Hit'] = '0'
+        except Exception:
+            pass
+        return resp
     except Exception as e:
         logger.error(f"Error in API today-games: {e}")
         logger.error(f"Error type: {type(e)}")
@@ -7596,6 +7620,42 @@ def api_today_games():
             'error': str(e),
             'debug_traceback': traceback.format_exc()
         })
+
+@app.route('/api/ping')
+def api_ping():
+    """Ultra-light reachability check. No external I/O."""
+    try:
+        return jsonify({'ok': True, 'ts': int(time.time()), 'version': 'ping-1'}), 200
+    except Exception:
+        return jsonify({'ok': False}), 500
+
+@app.route('/api/diag')
+def api_diag():
+    """Fast diagnostics endpoint to help debug slowness without heavy downstream calls."""
+    try:
+        t0 = time.time()
+        # Tiny internal checks only
+        info = {
+            'ok': True,
+            'ts': int(t0),
+            'python': sys.version.split()[0],
+            'pid': os.getpid(),
+            'cwd': os.getcwd(),
+        }
+        # Try a super-fast unified cache presence check
+        try:
+            uc = cache_get('unified_cache', {}, ttl_seconds=1)
+            info['unified_cache_cached'] = bool(uc)
+        except Exception:
+            info['unified_cache_cached'] = False
+        resp = jsonify(info)
+        try:
+            resp.headers['Server-Timing'] = f"total;dur={int((time.time()-t0)*1000)}"
+        except Exception:
+            pass
+        return resp
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
 
 @app.route('/api/today-games/quick')
 def api_today_games_quick():

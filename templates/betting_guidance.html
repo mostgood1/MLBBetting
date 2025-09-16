@@ -124,12 +124,13 @@
     // --- Lightweight fetch with timeout to prevent hangs ---
     async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
       const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), timeoutMs);
+      const id = setTimeout(() => { try { controller.abort('timeout'); } catch(_) { controller.abort(); } }, timeoutMs);
       try {
         const bust = url.includes('?') ? `&_=${Date.now()}` : `?_=${Date.now()}`;
-        const res = await fetch(url + bust, { ...options, signal: controller.signal });
-        return res;
-      } finally { clearTimeout(id); }
+        return await fetch(url + bust, { ...options, signal: controller.signal });
+      } finally {
+        clearTimeout(id);
+      }
     }
   // Pitcher props code removed to speed up page load
     function fmtPct(n){ return (Number(n)||0).toFixed(1) + '%'; }

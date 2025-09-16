@@ -347,8 +347,6 @@
       const params = new URLSearchParams();
       if(date) params.set('date', date);
       params.set('t', Date.now());
-      // Allow server to fallback to the most recent Bovada snapshot when today's is empty
-      params.set('allow_fallback','1');
       if(!full) params.set('light','1');
       // include timings only on first (light) load
       if(!full) params.set('timings','1');
@@ -365,7 +363,12 @@
         renderCards(data);
         if(metaEl){
           const total = (data.meta && data.meta.timings && data.meta.timings.total) || ((performance.now()-started)/1000).toFixed(2);
-          metaEl.textContent = `Loaded ${data.meta.pitchers||0} pitchers (light) in ${total}s`;
+          const marketsTotal = (data.meta && typeof data.meta.markets_total === 'number') ? data.meta.markets_total : null;
+          let msg = `Loaded ${data.meta.pitchers||0} pitchers (light) in ${total}s`;
+          if (marketsTotal === 0) {
+            msg += ' • No odds yet — use "Force Lines Refresh" to fetch live odds';
+          }
+          metaEl.textContent = msg;
         }
         // Kick off background full load
         loadUnified(true).catch(()=>{});

@@ -1,8 +1,8 @@
 {
   "date": "2025-09-15",
-  "retrieved_at": "2025-09-15T19:35:50.511656",
-  "pitcher_props": {
-    "braxton ashcraft (pit)": {
+  "updated_at": "2025-09-15T19:33:06.051946",
+  "pitchers": {
+    "braxton ashcraft": {
       "strikeouts": {
         "line": 3.5,
         "over_odds": "-130",
@@ -19,7 +19,7 @@
         "under_odds": "-170"
       }
     },
-    "jameson taillon (chc)": {
+    "jameson taillon": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "+120",
@@ -46,7 +46,7 @@
         "under_odds": "-115"
       }
     },
-    "mitchell parker (was)": {
+    "mitchell parker": {
       "strikeouts": {
         "line": 3.5,
         "over_odds": "+110",
@@ -73,7 +73,7 @@
         "under_odds": "-135"
       }
     },
-    "spencer strider (atl)": {
+    "spencer strider": {
       "strikeouts": {
         "line": 6.5,
         "over_odds": "-105",
@@ -100,7 +100,7 @@
         "under_odds": "+105"
       }
     },
-    "joe boyle (tb)": {
+    "joe boyle": {
       "strikeouts": {
         "line": 3.5,
         "over_odds": "-165",
@@ -144,8 +144,7 @@
         "under_odds": "+115"
       }
     },
-    "pitcher2": {},
-    "kyle bradish (bal)": {
+    "kyle bradish": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "+125",
@@ -172,7 +171,7 @@
         "under_odds": "-120"
       }
     },
-    "carlos rodon (nyy)": {
+    "carlos rodon": {
       "strikeouts": {
         "line": 6.5,
         "over_odds": "EVEN",
@@ -199,7 +198,7 @@
         "under_odds": "+105"
       }
     },
-    "simeon woods richardson (min)": {
+    "simeon woods richardson": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "-125",
@@ -226,9 +225,7 @@
         "under_odds": "+120"
       }
     },
-    "zack littell (cin)": {},
-    "matthew liberatore (stl)": {},
-    "jack leiter (tex)": {
+    "jack leiter": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "+120",
@@ -255,7 +252,7 @@
         "under_odds": "-180"
       }
     },
-    "jason alexander (hou)": {
+    "jason alexander": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "-110",
@@ -282,7 +279,7 @@
         "under_odds": "-150"
       }
     },
-    "kai-wei teng (sf)": {
+    "kai-wei teng": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "EVEN",
@@ -309,7 +306,7 @@
         "under_odds": "+105"
       }
     },
-    "zac gallen (ari)": {
+    "zac gallen": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "+105",
@@ -336,7 +333,7 @@
         "under_odds": "-115"
       }
     },
-    "emmet sheehan (lad)": {
+    "emmet sheehan": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "-110",
@@ -363,7 +360,7 @@
         "under_odds": "-190"
       }
     },
-    "ranger suarez (phi)": {
+    "ranger suarez": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "-130",
@@ -389,8 +386,6 @@
         "over_odds": "-150",
         "under_odds": "+110"
       }
-    },
-    "sean burke (cws)": {}
-  },
-  "event_count": 35
+    }
+  }
 }

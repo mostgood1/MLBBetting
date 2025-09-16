@@ -30,7 +30,8 @@ class MLBDataFetcher:
                 'hydrate': 'game(content(editorial(preview,recap)),decisions,person,probablePitcher,stats,homeRuns,previousPlay,team),linescore(runners),xrefId,story'
             }
             
-            response = requests.get(url, params=params, timeout=30)
+            # Keep this reasonably low to avoid long stalls on hosted platforms
+            response = requests.get(url, params=params, timeout=6)
             response.raise_for_status()
             
             data = response.json()
@@ -113,7 +114,7 @@ class MLBDataFetcher:
                 'season': season
             }
             
-            response = requests.get(url, params=params, timeout=30)
+            response = requests.get(url, params=params, timeout=6)
             response.raise_for_status()
             
             data = response.json()
@@ -151,7 +152,7 @@ class MLBDataFetcher:
                 'season': season
             }
             
-            response = requests.get(url, params=params, timeout=30)
+            response = requests.get(url, params=params, timeout=6)
             response.raise_for_status()
             
             data = response.json()
@@ -199,7 +200,7 @@ class OddsAPIFetcher:
             if date_str:
                 params['date'] = date_str
             
-            response = requests.get(url, params=params, timeout=30)
+            response = requests.get(url, params=params, timeout=6)
             response.raise_for_status()
             
             data = response.json()

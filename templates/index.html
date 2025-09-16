@@ -689,7 +689,9 @@
         // Small fetch helper with timeout and cache-busting
         async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
             const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), timeoutMs);
+            const id = setTimeout(() => {
+                try { controller.abort('timeout'); } catch(_) { controller.abort(); }
+            }, timeoutMs);
             try {
                 const bust = url.includes('?') ? `&_=${Date.now()}` : `?_=${Date.now()}`;
                 const res = await fetch(url + bust, { ...options, signal: controller.signal });
