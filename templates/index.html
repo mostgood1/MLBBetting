@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>MLB-Betting Prediction System</title>
-    <meta name="theme-color" content="#0b1e2a">
+    <!-- Removed meta theme-color (partial support). Consider platform-specific tags if needed. -->
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -13,7 +13,21 @@
         html, body { height: 100%; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #0b1e2a; color: #e5e7eb; }
     .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-        .header { text-align: center; margin-bottom: 30px; }
+    .header { text-align: center; margin-bottom: 30px; }
+    /* Utilities */
+    .hidden { display: none !important; }
+    .mt-5 { margin-top: 5px; }
+    .mt-10 { margin-top: 10px; }
+    .mt-15 { margin-top: 15px; }
+    .mt-30 { margin-top: 30px; }
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .gap-10 { gap: 10px; }
+    .inline-flex { display: inline-flex; }
+    .items-center { align-items: center; }
+    .subtle-note { font-size: 0.9rem; opacity: 0.8; }
+    .badge-pill { display:inline-block; min-width:18px; padding:0 6px; height:18px; line-height:18px; border-radius: 9px; background: rgba(31,41,55,0.6); color:#fff; font-size: 0.72rem; text-align:center; }
+    .toolbar { display:flex; gap:10px; align-items:center; }
 
         .header p {
             font-size: 1.2rem;
@@ -53,11 +67,28 @@
 
     .date-selector input { padding: 8px 12px; border: none; border-radius: 8px; background: rgba(255, 255, 255, 0.9); color: #333; }
 
-    .btn { padding: 8px 16px; border: none; border-radius: 8px; background: #4fd1c7; color: white; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+    .btn { padding: 8px 16px; border: none; border-radius: 8px; background: #4fd1c7; color: white; cursor: pointer; font-weight: bold; transition: background 0.3s, transform 0.2s; }
 
         .btn:hover {
             background: #45b7b8;
+            transform: translateY(-1px);
         }
+
+        /* Admin toolbar buttons/links */
+        .admin-link { display: inline-block; padding: 8px 16px; background: rgba(255, 215, 0, 0.2); color: #FFD700; text-decoration: none; border-radius: 8px; border: 1px solid #FFD700; font-size: 0.9rem; font-weight: bold; transition: all 0.3s ease; }
+        .admin-link:hover { background: rgba(255, 215, 0, 0.3); transform: translateY(-2px); }
+
+        .btn-ghost-cyan { padding: 8px 16px; background: rgba(79, 209, 199, 0.2); color: #4fd1c7; border: 1px solid #4fd1c7; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+        .btn-ghost-cyan:hover { background: rgba(79, 209, 199, 0.3); transform: translateY(-2px); }
+
+        .btn-ghost-gray { padding: 8px 16px; background: rgba(156, 163, 175, 0.2); color: #9ca3af; border: 1px solid #9ca3af; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+        .btn-ghost-gray:hover { background: rgba(156, 163, 175, 0.3); transform: translateY(-2px); }
+
+        .btn-ghost-green { padding: 8px 16px; background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+        .btn-ghost-green:hover { background: rgba(34, 197, 94, 0.3); transform: translateY(-2px); }
+
+        .btn-tbd { padding: 8px 12px; background: rgba(156,163,175,0.15); color: #e5e7eb; border: 1px solid rgba(156,163,175,0.35); border-radius: 8px; font-size: 0.86rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-tbd:hover { transform: translateY(-2px); }
 
     .btn-small { padding: 4px 8px; border: none; border-radius: 4px; background: #4fd1c7; color: white; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: background 0.3s; }
 
@@ -559,35 +590,27 @@
         <div class="header">
             <h1>⚾ MLB-Betting</h1>
             <p>Advanced MLB Prediction System with Real-Time Betting Analysis</p>
-            <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">
+            <p class="subtle-note mt-5">
                 📊 Comprehensive Analysis Since August 7th • Updated Daily • {{ comprehensive_stats.total_games_analyzed or 0 }} Games Tracked
             </p>
             
             <!-- Admin Navigation -->
-            <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="/admin" style="display: inline-block; padding: 8px 16px; background: rgba(255, 215, 0, 0.2); color: #FFD700; text-decoration: none; border-radius: 8px; border: 1px solid #FFD700; font-size: 0.9rem; font-weight: bold; transition: all 0.3s ease;" 
-                   onmouseover="this.style.background='rgba(255, 215, 0, 0.3)'; this.style.transform='translateY(-2px)'" 
-                   onmouseout="this.style.background='rgba(255, 215, 0, 0.2)'; this.style.transform='translateY(0)'">
+            <div class="mt-15 flex gap-10 flex-wrap">
+                <a href="/admin" class="admin-link">
                     🎯 Tuning Dashboard
                 </a>
-                <button id="run-automation-btn" onclick="runDailyAutomation()" style="padding: 8px 16px; background: rgba(79, 209, 199, 0.2); color: #4fd1c7; border: 1px solid #4fd1c7; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease;" 
-                        onmouseover="this.style.background='rgba(79, 209, 199, 0.3)'; this.style.transform='translateY(-2px)'" 
-                        onmouseout="this.style.background='rgba(79, 209, 199, 0.2)'; this.style.transform='translateY(0)'">
+                <button id="run-automation-btn" onclick="runDailyAutomation()" class="btn-ghost-cyan">
                     🚀 Run Daily Update
                 </button>
-                <button id="refresh-stats-btn" onclick="refreshDashboardStats()" style="padding: 8px 16px; background: rgba(156, 163, 175, 0.2); color: #9ca3af; border: 1px solid #9ca3af; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; margin-left: 8px;" 
-                        onmouseover="this.style.background='rgba(156, 163, 175, 0.3)'; this.style.transform='translateY(-2px)'" 
-                        onmouseout="this.style.background='rgba(156, 163, 175, 0.2)'; this.style.transform='translateY(0)'">
+                <button id="refresh-stats-btn" onclick="refreshDashboardStats()" class="btn-ghost-gray">
                     📊 Refresh Stats
                 </button>
-                <button id="init-system-btn" onclick="initializeSystem()" style="padding: 8px 16px; background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; margin-left: 8px;" 
-                        onmouseover="this.style.background='rgba(34, 197, 94, 0.3)'; this.style.transform='translateY(-2px)'" 
-                        onmouseout="this.style.background='rgba(34, 197, 94, 0.2)'; this.style.transform='translateY(0)'">
+                <button id="init-system-btn" onclick="initializeSystem()" class="btn-ghost-green">
                     ⚡ Load Real MLB Data
                 </button>
                 <!-- Compact TBD Monitor button -->
-                <button id="tbd-monitor-btn" onclick="checkTBD()" title="Check TBD pitchers" style="padding: 8px 12px; background: rgba(156,163,175,0.15); color: #e5e7eb; border: 1px solid rgba(156,163,175,0.35); border-radius: 8px; font-size: 0.86rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px;">
-                    🕵️ TBD Monitor <span id="tbd-badge" style="display:inline-block; min-width:18px; padding:0 6px; height:18px; line-height:18px; border-radius: 9px; background: rgba(31,41,55,0.6); color:#fff; font-size: 0.72rem; text-align:center;">0</span>
+                <button id="tbd-monitor-btn" onclick="checkTBD()" title="Check TBD pitchers" class="btn-tbd">
+                    🕵️ TBD Monitor <span id="tbd-badge" class="badge-pill">0</span>
                 </button>
             </div>
         </div>
@@ -598,7 +621,7 @@
             <div class="games-header">
                 <h2>Today's MLB Games</h2>
                 <div class="date-selector">
-                    <input type="date" id="game-date" style="display: none;" />
+                    <input type="date" id="game-date" class="hidden" />
                     <button class="btn" onclick="loadToday()">Refresh</button>
                     <button class="btn secondary" onclick="refreshBettingLines()" id="refresh-betting-lines-btn">💰 Update Betting Lines</button>
                     <button class="btn secondary" onclick="goToHistoricalAnalysis()">📊 Historical Analysis</button>
@@ -608,13 +631,13 @@
             </div>
 
             <!-- Live Games Section -->
-            <div id="live-games-section" style="display: none;">
+            <div id="live-games-section" class="hidden">
                 <h3 class="section-title">🔴 Live Games</h3>
                 <div id="live-games-container" class="games-grid"></div>
             </div>
 
             <!-- Upcoming Games Section -->
-            <div id="upcoming-games-section" style="display: none;">
+            <div id="upcoming-games-section" class="hidden">
                 <h3 class="section-title">⏰ Upcoming Games</h3>
                 <div id="upcoming-games-container" class="games-grid"></div>
             </div>
@@ -624,7 +647,7 @@
             </div>
 
             <!-- Completed Games Section - Moved to bottom -->
-            <div id="completed-games-section" style="display: none; margin-top: 30px;">
+            <div id="completed-games-section" class="hidden mt-30">
                 <h3 class="section-title">✅ Completed Games</h3>
                 <div id="completed-games-container" class="games-grid"></div>
             </div>

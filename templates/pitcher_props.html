@@ -14,6 +14,15 @@
     input, button { padding: 8px 10px; border-radius: 8px; border: 1px solid #263655; background: #0f1a2e; color: #e5f2ff; }
     button { background: #18b7a0; border-color: #18b7a0; cursor: pointer; font-weight: 600; }
     button:hover { background: #10a38e; }
+    /* Utilities */
+    .link-back { text-decoration:none; color:#18b7a0; font-weight:700; }
+    .h1-tight { margin:0 6px 0 2px; }
+    .btn-blue { background:#2563eb; border-color:#2563eb; }
+    .minw-140 { min-width:140px; display:inline-block; }
+    .mb-8 { margin-bottom:8px; }
+    .legend { font-size:11px; line-height:1.4; margin:-4px 0 12px; background:rgba(255,255,255,0.04); padding:8px 10px; border:1px solid rgba(255,255,255,0.08); border-radius:8px; }
+    .fw-700 { font-weight:700; }
+    .model-banner { margin-top:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.12); display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
   .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
   @media (max-width: 760px){ .grid { grid-template-columns: 1fr; gap: 12px; } }
     .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px; }
@@ -68,22 +77,22 @@
 <body>
   <div class="container">
     <div class="toolbar">
-      <a href="/" onclick="if(history.length>1){history.back();return false;}" style="text-decoration:none; color:#18b7a0; font-weight:700">← Back</a>
-      <h1 style="margin:0 6px 0 2px;">Pitcher Props</h1>
+      <a href="/" onclick="if(history.length>1){history.back();return false;}" class="link-back">← Back</a>
+      <h1 class="h1-tight">Pitcher Props</h1>
       <div class="status-dot" id="sseDot" title="Props stream status"></div>
     </div>
     <div class="toolbar">
       <label>Date <input type="date" id="date" value="{{ date }}" /></label>
       <button type="button" id="refreshBtn">Refresh</button>
-      <button type="button" id="forceRefreshBtn" style="background:#2563eb; border-color:#2563eb;">Force Lines Refresh</button>
-      <span id="refreshStatus" class="muted" style="min-width:140px;"></span>
+      <button type="button" id="forceRefreshBtn" class="btn-blue">Force Lines Refresh</button>
+      <span id="refreshStatus" class="muted minw-140"></span>
     </div>
-    <div id="meta" class="muted" style="margin-bottom:8px;">Loading...</div>
-    <div class="muted" style="font-size:11px; line-height:1.4; margin:-4px 0 12px; background:rgba(255,255,255,0.04); padding:8px 10px; border:1px solid rgba(255,255,255,0.08); border-radius:8px;">
-      <strong>Legend:</strong> Edge color (green &gt;=1.0, amber &gt;=0.6, blue &gt;=0.3). ▲ / ▼ arrow shows model lean (over/under). <span style="font-weight:700;">stale</span> badge = line carried from earlier snapshot. Kelly = recommended stake % of bankroll (raw Kelly, un-capped). EV = expected value of selected side. Live deltas color green when the live stat favors the recommended side.
+    <div id="meta" class="muted mb-8">Loading...</div>
+    <div class="muted legend">
+      <strong>Legend:</strong> Edge color (green &gt;=1.0, amber &gt;=0.6, blue &gt;=0.3). ▲ / ▼ arrow shows model lean (over/under). <span class="fw-700">stale</span> badge = line carried from earlier snapshot. Kelly = recommended stake % of bankroll (raw Kelly, un-capped). EV = expected value of selected side. Live deltas color green when the live stat favors the recommended side.
     </div>
     <div id="grid" class="grid"></div>
-    <div id="modelBanner" class="muted" style="margin-top:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.12); display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <div id="modelBanner" class="muted model-banner">
       <span id="modelInfo">Model: —</span>
       <span id="modelWhen"></span>
       <span id="linesFeed" title="Count of line/odds change events captured today"></span>

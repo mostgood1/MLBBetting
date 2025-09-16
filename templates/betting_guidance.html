@@ -6,12 +6,14 @@
   <title>Betting Guidance - Kelly Recommendations</title>
   <link rel="icon" href="/static/favicon.ico" />
   <style>
-    body { font-family: Inter, Segoe UI, Arial, sans-serif; background:#0b1e39; color:#111; margin:0; }
+    /* Base layout */
+    body { font-family: Inter, Segoe UI, Arial, sans-serif; background:#0b1e39; color:#e5e7eb; margin:0; }
     .container { max-width:1200px; margin:0 auto; padding:24px; }
-    .card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:18px; }
+    .card { background:#fff; color:#111; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:18px; }
     h1 { color:#163a6b; }
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:16px; }
-    .stat { background:#f8fbff; border:1px solid #e2ecf7; border-radius:12px; padding:16px; text-align:center; }
+    /* Stat tiles sit on light background, enforce dark text for contrast */
+    .stat { background:#f8fbff; color:#163a6b; border:1px solid #e2ecf7; border-radius:12px; padding:16px; text-align:center; }
     .stat .num { font-size:28px; font-weight:700; color:#163a6b; }
     .badge { padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700; }
     .badge.HIGH { background:#16a34a; color:#fff; }
@@ -21,9 +23,20 @@
   .btn { background:#163a6b; color:#fff; padding:10px 16px; border:none; border-radius:10px; cursor:pointer; text-decoration:none; display:inline-block; }
   .btn.secondary { background:#2a74dc; }
   .input { padding:8px 10px; border-radius:8px; border:1px solid #cfe1f8; }
-    .table { width:100%; border-collapse: collapse; }
-    .table th, .table td { border-bottom:1px solid #eee; padding:10px; text-align:left; }
-    .table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .table { width:100%; border-collapse: collapse; }
+  .table th, .table td { border-bottom:1px solid #eee; padding:10px; text-align:left; }
+  .table-wrap { width:100%; overflow-x:auto; }
+  /* Utilities */
+  .row-between { display:flex; justify-content: space-between; align-items:center; }
+  .toolbar { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
+  .toolbar.wrap { flex-wrap:wrap; }
+  .mt-8 { margin-top:8px; }
+  .mt-10 { margin-top:10px; }
+  .mt-16 { margin-top:16px; }
+  .mt-18 { margin-top:18px; }
+  .mb-4 { margin-bottom:4px; }
+  .mb-8 { margin-bottom:8px; }
+  .heading-tight { margin:8px 0; }
     /* Responsive enhancements */
     @media (max-width: 700px){
       body { font-size:14px; }
@@ -51,31 +64,31 @@
 <body>
   <div class="container">
     <div class="card">
-      <div style="display:flex; justify-content: space-between; align-items:center;">
+      <div class="row-between">
         <h1>🎯 Betting Guidance (Kelly-Based)</h1>
-        <a class="btn secondary" href="/" style="text-decoration:none;">⬅ Back to Main</a>
+        <a class="btn secondary" href="/">⬅ Back to Main</a>
       </div>
       <div class="muted">Today’s opportunities and historical performance by bet type.</div>
-      <div style="margin-top:10px;">
-        <a class="btn" href="/kelly-guidance" style="text-decoration:none;">Open Kelly Guidance Page →</a>
+      <div class="mt-10">
+        <a class="btn" href="/kelly-guidance">Open Kelly Guidance Page →</a>
       </div>
     </div>
 
   <div class="grid" id="perf"></div>
 
-  <div class="card" id="roi-metrics-card" style="margin-top:18px;">
+  <div class="card mt-18" id="roi-metrics-card">
     <h2>Recent ROI & Efficiency</h2>
-    <div class="muted" style="margin-bottom:8px;">Derived from latest weekly retune (rolling 7-day window). Efficiency = profit / sqrt(total stake). Kelly comparison uses recorded Kelly bet sizes vs fixed_stake model.</div>
+    <div class="muted mb-8">Derived from latest weekly retune (rolling 7-day window). Efficiency = profit / sqrt(total stake). Kelly comparison uses recorded Kelly bet sizes vs fixed_stake model.</div>
     <div id="roi-metrics-content" class="grid"></div>
   </div>
 
 
     <div class="card">
       <h2>Today’s Recommendations (All)</h2>
-      <div class="muted" style="margin-bottom:8px;">Sorted by confidence, then EV. EV shown as percentage.</div>
+      <div class="muted mb-8">Sorted by confidence, then EV. EV shown as percentage.</div>
       <div id="today"></div>
-      <div style="margin-top:16px;">
-        <h3 style="margin:8px 0;">Today Recap</h3>
+      <div class="mt-16">
+        <h3 class="heading-tight">Today Recap</h3>
         <div class="grid" id="today-kpis"></div>
       </div>
     </div>
@@ -84,24 +97,24 @@
 
     <div class="card">
       <h2>Historical Day Performance</h2>
-      <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+      <div class="toolbar">
         <label for="hist-day" class="muted">Select day:</label>
         <select id="hist-day" class="input"></select>
         <button class="btn" onclick="loadDayPerformance()">Load</button>
       </div>
       <div class="grid" id="day-grid"></div>
-  <div class="muted" style="margin:8px 0 4px;">By Confidence (variable stake)</div>
+  <div class="muted mt-8 mb-4">By Confidence (variable stake)</div>
   <div class="grid" id="day-level-grid"></div>
-      <div style="margin-top:16px;">
-        <h3 style="margin:8px 0;">Recommendations for Selected Day</h3>
+      <div class="mt-16">
+        <h3 class="heading-tight">Recommendations for Selected Day</h3>
         <div id="day-recs"></div>
       </div>
     </div>
 
     <div class="card">
       <h2>Historical Performance (Date Range)</h2>
-      <div class="muted" style="margin-bottom:8px;">Select a window to see cumulative performance over time.</div>
-      <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+      <div class="muted mb-8">Select a window to see cumulative performance over time.</div>
+      <div class="toolbar wrap">
         <label for="range-start" class="muted">Start date:</label>
         <select id="range-start" class="input"></select>
         <label for="range-end" class="muted">End date:</label>
@@ -109,10 +122,10 @@
         <button class="btn" onclick="loadRangePerformance()">Load Range</button>
       </div>
       <div class="grid" id="range-grid"></div>
-  <div class="muted" style="margin:8px 0 4px;">By Confidence (variable stake)</div>
+  <div class="muted mt-8 mb-4">By Confidence (variable stake)</div>
   <div class="grid" id="range-level-grid"></div>
-      <div style="margin-top:16px;">
-        <h3 style="margin:8px 0;">Recommendations for Selected Range</h3>
+      <div class="mt-16">
+        <h3 class="heading-tight">Recommendations for Selected Range</h3>
         <div id="range-recs"></div>
       </div>
     </div>
