@@ -809,7 +809,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('game-date').value = localDateString;
             loadSummary();
-            loadTodaysGames();
+            // Quick-first: paint ultra-fast snapshot, then hydrate full data
+            loadTodaysGames({ quickFirst: true });
             
             // Start live updates for games in progress
             startLiveUpdates();
@@ -1438,7 +1439,8 @@
             }
         }
 
-    async function loadTodaysGames() {
+    async function loadTodaysGames(opts = {}) {
+        const options = Object.assign({ quickFirst: false }, opts || {});
             const date = document.getElementById('game-date').value;
             const container = document.getElementById('games-container');
             
@@ -1463,6 +1465,7 @@
             const quickPaintTimer = setTimeout(async () => {
                 try {
                     if (paintedQuick) return;
+                    if (!options.quickFirst) return;
                     const hasCards = !!document.querySelector('.game-card');
                     if (hasCards) return;
                     console.info('[FALLBACK] timed quick snapshot to avoid long spinner');
@@ -1477,7 +1480,7 @@
                         }
                     }
                 } catch(_){ /* ignore */ }
-            }, 1500);
+            }, 300); // render quick snapshot ASAP on first load
             
             try {
                 try { window.__PERF.mark('todayGames_fetch_start'); } catch(_){}

@@ -984,6 +984,76 @@ def _get_quick_predictions_for_date(date_str: str) -> list:
     except Exception:
         return []
 
+def _load_daily_games_minimal(date_param: str) -> list:
+    """Fast, minimal loader for daily games from local data file.
+    Returns a list of minimal game dicts suitable for the quick endpoint without touching the unified cache.
+    """
+    try:
+        date_variants = [
+            date_param,
+            date_param.replace('-', '_'),
+            date_param.replace('-', ''),
+        ]
+        data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+        candidates = [os.path.join(data_dir, f"games_{v}.json") for v in date_variants]
+        games_list = None
+        for p in candidates:
+            if os.path.exists(p):
+                try:
+                    with open(p, 'r', encoding='utf-8') as f:
+                        loaded = json.load(f)
+                    if isinstance(loaded, list):
+                        games_list = loaded
+                    elif isinstance(loaded, dict) and 'games' in loaded:
+                        g = loaded['games']
+                        games_list = g if isinstance(g, list) else list(g.values())
+                    else:
+                        games_list = None
+                    if games_list is not None:
+                        break
+                except Exception:
+                    continue
+        if not games_list:
+            return []
+        out = []
+        for g in games_list:
+            try:
+                away_team = g.get('away_team') or g.get('away') or ''
+                home_team = g.get('home_team') or g.get('home') or ''
+                if not away_team or not home_team:
+                    continue
+                pitcher_info = g.get('pitcher_info', {}) if isinstance(g, dict) else {}
+                away_pitcher = (
+                    pitcher_info.get('away_pitcher_name')
+                    or g.get('away_probable_pitcher')
+                    or g.get('away_pitcher')
+                    or 'TBD'
+                )
+                home_pitcher = (
+                    pitcher_info.get('home_pitcher_name')
+                    or g.get('home_probable_pitcher')
+                    or g.get('home_pitcher')
+                    or 'TBD'
+                )
+                out.append({
+                    'game_id': g.get('game_pk') or g.get('game_id') or f"{away_team.replace(' ', '_')}_vs_{home_team.replace(' ', '_')}",
+                    'away_team': normalize_team_name(away_team),
+                    'home_team': normalize_team_name(home_team),
+                    'date': date_param,
+                    'away_pitcher': away_pitcher,
+                    'home_pitcher': home_pitcher,
+                    'predicted_away_score': None,
+                    'predicted_home_score': None,
+                    'predicted_total_runs': None,
+                    'away_win_probability': None,
+                    'home_win_probability': None,
+                })
+            except Exception:
+                continue
+        return out
+    except Exception:
+        return []
+
 def _build_home_snapshot() -> dict:
     """Build a fast snapshot for the home page using only local cached files.
     Avoids heavy engines and external calls to keep first render snappy.
@@ -7666,11 +7736,69 @@ def api_today_games_quick():
     Returns minimal enhanced_game-shaped objects to render cards quickly without heavy processing.
     """
     try:
+        t0 = time.time()
         date_param = request.args.get('date', get_business_date())
-        # Honor the requested date by pulling directly from unified cache
-        preds = _get_quick_predictions_for_date(date_param) or []
+        # Tiny cache for ultra-fast responses
+        try:
+            cached = cache_get('today_games_quick', {'date': date_param}, ttl_seconds=45)
+        except Exception:
+            cached = None
+        if cached is not None:
+            resp = jsonify(cached)
+            try:
+                resp.headers['X-Cache-Hit'] = '1'
+                resp.headers['Server-Timing'] = f"total;dur={int((time.time()-t0)*1000)}"
+            except Exception:
+                pass
+            return resp
+
         games = []
-        for g in preds:
+
+        # 1) Prefer local daily games file (no unified cache, no network)
+        try:
+            minimal_list = _load_daily_games_minimal(date_param)
+            if minimal_list:
+                preds = minimal_list
+            else:
+                preds = []
+        except Exception:
+            preds = []
+
+        # 2) If still empty, try fast live schedule (short-cached)
+        if not preds:
+            try:
+                live_games = _get_live_games_cached(date_param)
+                for lg in (live_games or []):
+                    try:
+                        a = normalize_team_name(lg.get('away_team') or '')
+                        h = normalize_team_name(lg.get('home_team') or '')
+                        if not a or not h:
+                            continue
+                        games.append({
+                            'game_id': lg.get('game_pk') or f"{a.replace(' ', '_')}_vs_{h.replace(' ', '_')}",
+                            'away_team': a,
+                            'home_team': h,
+                            'date': date_param,
+                            'away_pitcher': lg.get('away_pitcher') or 'TBD',
+                            'home_pitcher': lg.get('home_pitcher') or 'TBD',
+                            'predicted_away_score': None,
+                            'predicted_home_score': None,
+                            'predicted_total_runs': None,
+                            'away_win_probability': None,
+                            'home_win_probability': None,
+                        })
+                    except Exception:
+                        continue
+            except Exception:
+                pass
+
+        # 3) As a last resort, read unified cache (can be heavy); otherwise skip
+        if not games and not preds:
+            preds = _get_quick_predictions_for_date(date_param) or []
+
+        # Normalize prediction list into quick game objects
+        src_list = preds if preds else []
+        for g in src_list:
             try:
                 away = normalize_team_name(g.get('away_team') or g.get('away') or '')
                 home = normalize_team_name(g.get('home_team') or g.get('home') or '')
@@ -7780,13 +7908,24 @@ def api_today_games_quick():
                 })
             except Exception:
                 continue
-        return jsonify({
+        payload = {
             'success': True,
             'date': date_param,
             'games': games,
             'count': len(games),
             'archaeological_note': 'quick_snapshot'
-        })
+        }
+        try:
+            cache_set('today_games_quick', {'date': date_param}, payload)
+        except Exception:
+            pass
+        resp = jsonify(payload)
+        try:
+            resp.headers['X-Cache-Hit'] = '0'
+            resp.headers['Server-Timing'] = f"total;dur={int((time.time()-t0)*1000)}"
+        except Exception:
+            pass
+        return resp
     except Exception as e:
         logger.warning(f"api_today_games_quick failed: {e}")
         return jsonify({
