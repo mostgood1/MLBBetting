@@ -1612,7 +1612,11 @@
                     const uniqueGames = new Map();
                     
                     for (const game of data.games) {
-                        const gameKey = `${game.away_team}_${game.home_team}_${game.date}`;
+                        // Include game_pk (or DH game_number) in key to avoid collapsing doubleheaders
+                        const dhSuffix = game.game_pk
+                            ? `_${game.game_pk}`
+                            : (game.meta && game.meta.doubleheader && game.meta.game_number ? `_G${game.meta.game_number}` : '');
+                        const gameKey = `${game.away_team}_${game.home_team}_${game.date}${dhSuffix}`;
                         
                         // Only add if we haven't seen this game before
                         if (!uniqueGames.has(gameKey)) {
@@ -1722,7 +1726,11 @@
                 const completedGames = [];
                 const uniqueGames = new Map();
                 (data.games||[]).forEach(game => {
-                    const gameKey = `${game.away_team}_${game.home_team}_${game.date}`;
+                    // Include game_pk (or DH game_number) in key to avoid collapsing doubleheaders
+                    const dhSuffix = game.game_pk
+                        ? `_${game.game_pk}`
+                        : (game.meta && game.meta.doubleheader && game.meta.game_number ? `_G${game.meta.game_number}` : '');
+                    const gameKey = `${game.away_team}_${game.home_team}_${game.date}${dhSuffix}`;
                     if (uniqueGames.has(gameKey)) return;
                     uniqueGames.set(gameKey, true);
                     const ls = game.live_status || {};
@@ -1811,7 +1819,11 @@
                     const uniqueGames = new Map();
                     
                     for (const game of data.games) {
-                        const gameKey = `${game.away_team}_${game.home_team}_${game.date}`;
+                        // Include game_pk (or DH game_number) in key to avoid collapsing doubleheaders
+                        const dhSuffix = game.game_pk
+                            ? `_${game.game_pk}`
+                            : (game.meta && game.meta.doubleheader && game.meta.game_number ? `_G${game.meta.game_number}` : '');
+                        const gameKey = `${game.away_team}_${game.home_team}_${game.date}${dhSuffix}`;
                         
                         // Only add if we haven't seen this game before
                         if (!uniqueGames.has(gameKey)) {
