@@ -1770,6 +1770,9 @@
             
             if (games.length > 0) {
                 console.log(`Showing section: ${sectionPrefix}-section`);
+                // Remove hidden class that enforces display:none !important
+                try { section.classList.remove('hidden'); } catch(_) {}
+                // Also set display block for good measure
                 section.style.display = 'block';
                 container.innerHTML = '';
                 
@@ -1784,7 +1787,10 @@
                 try { rebuildAllGameCardPitcherProps(); } catch(_) {}
             } else {
                 console.log(`Hiding section: ${sectionPrefix}-section (no games)`);
+                // Ensure the section is hidden and cleared when empty
+                try { section.classList.add('hidden'); } catch(_) {}
                 section.style.display = 'none';
+                try { container.innerHTML = ''; } catch(_) {}
             }
         }
 
