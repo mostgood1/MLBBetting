@@ -313,13 +313,20 @@ class UltraFastSimEngine:
         self.away_scoring_boost = engine_params.get('away_scoring_boost', 0.99)
         self.bullpen_weight = engine_params.get('bullpen_weight', 0.15)
     
-    def get_team_multiplier_with_pitchers(self, away_team: str, home_team: str, game_date: str = None) -> Tuple[float, float]:
-        """Get run multipliers for both teams including pitcher quality with configurable parameters"""
+    def get_team_multiplier_with_pitchers(self, away_team: str, home_team: str, game_date: str = None,
+                                          away_pitcher: Optional[str] = None, home_pitcher: Optional[str] = None) -> Tuple[float, float]:
+        """Get run multipliers for both teams including pitcher quality with configurable parameters.
+        Allows explicit starter overrides so DH games with flipped starters produce distinct projections.
+        """
         away_strength = self.team_strengths.get(away_team, 0.0) + self.away_field_boost  # Apply away boost
         home_strength = self.team_strengths.get(home_team, 0.0) + self.home_field_advantage
         
-        # Get projected starters
-        away_starter, home_starter = self.get_matchup_starters(away_team, home_team, game_date)
+        # Get projected starters (prefer explicit overrides when provided)
+        if away_pitcher or home_pitcher:
+            away_starter = away_pitcher
+            home_starter = home_pitcher
+        else:
+            away_starter, home_starter = self.get_matchup_starters(away_team, home_team, game_date)
         
         # Get pitcher quality factors
         away_pitcher_factor = self.get_pitcher_quality_factor(home_starter)  # Home pitcher affects away scoring
@@ -409,8 +416,8 @@ class UltraFastSimEngine:
                                sim_count: int = 100, game_date: str = None,
                                away_pitcher: str = None, home_pitcher: str = None) -> List[FastGameResult]:
         """Ultra-fast vectorized simulation with realistic MLB variance"""
-        # Set consistent seed for stable predictions
-        seed_value = hash(f"{away_team}{home_team}{game_date or ''}") % 1000000
+        # Set consistent seed for stable predictions; include starters so DH games differ
+        seed_value = hash(f"{away_team}{home_team}{game_date or ''}{away_pitcher or ''}{home_pitcher or ''}") % 1000000
         np.random.seed(seed_value)
         random.seed(seed_value)
         
@@ -424,7 +431,10 @@ class UltraFastSimEngine:
         away_pitcher_factor = self.get_pitcher_quality_factor(away_starter)
         home_pitcher_factor = self.get_pitcher_quality_factor(home_starter)
         
-        away_mult, home_mult = self.get_team_multiplier_with_pitchers(away_team, home_team, game_date)
+        # Use multipliers that respect explicit starters so pitcher differences impact projections
+        away_mult, home_mult = self.get_team_multiplier_with_pitchers(
+            away_team, home_team, game_date, away_starter, home_starter
+        )
         
         # Poisson parameters using configurable base lambda
         away_lambda = self.base_lambda * away_mult
