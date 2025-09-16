@@ -7621,13 +7621,7 @@ def api_today_games():
             'debug_traceback': traceback.format_exc()
         })
 
-@app.route('/api/ping')
-def api_ping():
-    """Ultra-light reachability check. No external I/O."""
-    try:
-        return jsonify({'ok': True, 'ts': int(time.time()), 'version': 'ping-1'}), 200
-    except Exception:
-        return jsonify({'ok': False}), 500
+## Duplicate ping route removed; single definition exists near top of file
 
 @app.route('/api/diag')
 def api_diag():
