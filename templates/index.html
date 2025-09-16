@@ -1330,14 +1330,20 @@
         function updateGameCard(liveGame) {
             // Find the corresponding game card by composite ID using the selected date
             const dateStr = document.getElementById('game-date')?.value || '';
-            const compositeId = `${liveGame.away_team}_${liveGame.home_team}_${dateStr}`;
+            const compositeId = `${liveGame.away_team}_${liveGame.home_team}_${dateStr}${liveGame.game_pk ? '_' + liveGame.game_pk : ''}`;
             
             // Debug logging
             console.log(`🔍 Looking for live game: ${liveGame.away_team} @ ${liveGame.home_team}`);
             console.log(`   Status: ${liveGame.status}, Live: ${liveGame.is_live}, Scores: ${liveGame.away_score}-${liveGame.home_score}`);
             
-            // Primary: exact match on data-game-id
-            let card = document.querySelector(`[data-game-id="${compositeId}"]`);
+            // Primary: prefer lookup by game_pk for DH disambiguation
+            let card = null;
+            if (liveGame.game_pk) {
+                card = document.querySelector(`.game-card[data-game-pk="${String(liveGame.game_pk)}"]`);
+            }
+            if (!card) {
+                card = document.querySelector(`[data-game-id="${compositeId}"]`);
+            }
             
             // Fallback: match by explicit team attributes
             if (!card) {
@@ -1828,9 +1834,12 @@
         function createGameCard(game) {
             const card = document.createElement('div');
             card.className = 'game-card';
-            // Use a composite key that matches live-status lookups and add explicit team attributes
-            const compositeId = `${game.away_team}_${game.home_team}_${game.date}`;
+            // Use a composite key that matches live-status lookups and add explicit team attributes; include game_pk to disambiguate DH
+            const compositeId = `${game.away_team}_${game.home_team}_${game.date}${game.game_pk ? '_' + game.game_pk : ''}`;
             card.setAttribute('data-game-id', compositeId);
+            if (game.game_pk) {
+                card.setAttribute('data-game-pk', String(game.game_pk));
+            }
             card.setAttribute('data-away-team', (game.away_team || '').toLowerCase());
             card.setAttribute('data-home-team', (game.home_team || '').toLowerCase());
             // Open modal using already-loaded game data (faster, avoids API errors)
@@ -2008,6 +2017,7 @@
                         ` : `
                             ${displayTime ? `<div class=\"game-time\">${displayTime}</div>` : ''}
                             <span class=\"game-status-badge badge-${liveStatus.badge_class}\">${displayStatus}</span>
+                            ${game.doubleheader ? `<span class=\"game-status-badge badge-scheduled\" title=\"Doubleheader\">DH G${game.doubleheader_game_number || 1}</span>` : ''}
                         `}
                     </div>
                     <div class="header-right game-teams" style="justify-content: end;">

@@ -7535,22 +7535,43 @@ def api_today_games():
                 if len(live_game_list) > 1:
                     logger.info(f"🎯 DOUBLEHEADER DETECTED: {matchup_key} has {len(live_game_list)} games")
                     doubleheader_count += 1
-                    
+
+                    # If a base game exists for this matchup, annotate it as G1 with DH metadata
+                    if matchup_key in games_dict and live_game_list:
+                        try:
+                            base_game = games_dict.get(matchup_key, {})
+                            meta = dict(base_game.get('meta') or {})
+                            meta.update({
+                                'source': meta.get('source') or 'unified_or_fallback',
+                                'doubleheader': True,
+                                'game_number': 1,
+                                'game_pk': live_game_list[0].get('game_pk')
+                            })
+                            base_game['meta'] = meta
+                            if not base_game.get('game_time'):
+                                base_game['game_time'] = live_game_list[0].get('game_time') or live_game_list[0].get('gameDate')
+                            if not base_game.get('game_id'):
+                                base_game['game_id'] = live_game_list[0].get('game_pk') or base_game.get('game_id')
+                            games_dict[matchup_key] = base_game
+                        except Exception:
+                            pass
+
                     # If we only have one game in cache but multiple in live data, add the missing ones
                     if matchup_key in games_dict:
                         for i, live_game in enumerate(live_game_list):
                             if i == 0:
                                 continue  # Skip first game (already in cache)
-                            
+
                             # Create a unique key for the additional game
                             game_key = f"{matchup_key}_game_{i+1}"
                             logger.info(f"🎯 Adding doubleheader game: {game_key}")
-                            
+
                             # Create a cache-like entry for the additional game
                             additional_game = {
                                 'away_team': live_game.get('away_team', ''),
                                 'home_team': live_game.get('home_team', ''),
                                 'game_date': date_param,
+                                'game_time': live_game.get('game_time') or live_game.get('gameDate'),
                                 'game_id': live_game.get('game_pk', ''),
                                 'away_win_probability': 0.5,  # Default values
                                 'home_win_probability': 0.5,
@@ -7560,7 +7581,12 @@ def api_today_games():
                                     'home_pitcher_name': live_game.get('home_pitcher', 'TBD')
                                 },
                                 'comprehensive_details': {},
-                                'meta': {'source': 'live_data_doubleheader'}
+                                'meta': {
+                                    'source': 'live_data_doubleheader',
+                                    'doubleheader': True,
+                                    'game_number': i + 1,
+                                    'game_pk': live_game.get('game_pk')
+                                }
                             }
                             games_dict[game_key] = additional_game
             
@@ -7572,16 +7598,20 @@ def api_today_games():
         
         logger.info(f"Final game count after doubleheader check: {len(games_dict)}")
 
-        # Build a fast lookup map for live status to avoid per-game API calls
+        # Build fast lookup maps for live status (by matchup and by (matchup, game_pk))
         live_status_map = {}
+        live_status_by_pk = {}
         try:
             for lg in (live_games or []):
                 a = normalize_team_name(lg.get('away_team', ''))
                 h = normalize_team_name(lg.get('home_team', ''))
                 if a and h:
                     live_status_map[(a, h)] = lg
+                    pk = lg.get('game_pk') or lg.get('game_id')
+                    if pk:
+                        live_status_by_pk[(a, h, str(pk))] = lg
         except Exception:
-            live_status_map = {}
+            live_status_map, live_status_by_pk = {}, {}
         
         # Load pitcher projections helpers for PPO/pitch count surfacing
         try:
@@ -7752,8 +7782,16 @@ def api_today_games():
                     away_pitcher = "Wandy Peralta"
                     logger.info(f"🎯 FIXED: Overrode TBD to Wandy Peralta for Padres game")
             
-            # Get live status from pre-fetched schedule to avoid per-game API calls
-            live_status_data = live_status_map.get((away_team, home_team)) or {'status': 'Scheduled', 'is_final': False, 'is_live': False}
+            # Get live status; prefer exact (away,home,game_pk) match for DH
+            meta = game_data.get('meta') or {}
+            game_pk_hint = meta.get('game_pk') or game_data.get('game_id')
+            live_status_data = None
+            if game_pk_hint:
+                live_status_data = live_status_by_pk.get((away_team, home_team, str(game_pk_hint)))
+            if not live_status_data:
+                live_status_data = live_status_map.get((away_team, home_team))
+            if not live_status_data:
+                live_status_data = {'status': 'Scheduled', 'is_final': False, 'is_live': False}
             
             # CRITICAL FIX: Preserve correct pitcher data for finished/live games
             # Don't let live status override with TBD when we have real pitcher names
@@ -8478,6 +8516,27 @@ def api_today_games_quick():
                             qg['home_win_probability'] = round(float(hwp), 1)
                             qg.setdefault('win_probabilities', {})['home_prob'] = round(float(hwp)/100.0, 3)
 
+                        # If scores are still zero/empty but we have a total and win probabilities, derive approximate scores
+                        try:
+                            pa_cur = float(qg.get('predicted_away_score') or 0)
+                            ph_cur = float(qg.get('predicted_home_score') or 0)
+                            pt_cur = float(qg.get('predicted_total_runs') or 0)
+                            awp_cur = float(qg.get('away_win_probability') or 0)
+                            hwp_cur = float(qg.get('home_win_probability') or 0)
+                            if (pa_cur == 0 and ph_cur == 0) and pt_cur > 0:
+                                # Split total by a small bias from win probabilities
+                                if awp_cur <= 1 and hwp_cur <= 1 and (awp is not None or hwp is not None):
+                                    awp_cur = (awp or 0.5) * 100.0
+                                    hwp_cur = (hwp or 0.5) * 100.0
+                                base = pt_cur / 2.0
+                                bias = max(min((awp_cur - 50.0) * 0.01, 0.5), -0.5)
+                                pa_calc = max(1.0, base + bias)
+                                ph_calc = max(1.0, pt_cur - pa_calc)
+                                qg['predicted_away_score'] = round(pa_calc, 1)
+                                qg['predicted_home_score'] = round(ph_calc, 1)
+                        except Exception:
+                            pass
+
                     # Attach unified betting recommendations if present (value_bets array)
                     rec = recs_by_pair.get((_norm_team_name_for_key(away), _norm_team_name_for_key(home)))
                     if not rec:
@@ -8781,6 +8840,9 @@ def api_live_status():
                     'away_pitcher': live_status.get('away_pitcher') or game_data.get('away_pitcher'),
                     'home_pitcher': live_status.get('home_pitcher') or game_data.get('home_pitcher'),
                     'game_pk': live_status.get('game_pk'),
+                    # Doubleheader flags for UI disambiguation
+                    'doubleheader': bool((game_data.get('meta') or {}).get('doubleheader', False)),
+                    'doubleheader_game_number': (game_data.get('meta') or {}).get('game_number'),
                     # Live pitcher metrics if present in cache
                     'pitching_metrics': {
                         'away': {
