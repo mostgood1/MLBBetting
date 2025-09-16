@@ -275,6 +275,21 @@ except ImportError as e:
 
 app = Flask(__name__)
 
+# Production-leaning defaults for better performance on Render
+try:
+    # Disable template auto-reload and pretty JSON in production
+    if os.environ.get('FLASK_ENV', '').lower() != 'development':
+        app.config['TEMPLATES_AUTO_RELOAD'] = False
+        app.config['EXPLAIN_TEMPLATE_LOADING'] = False
+        app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+        app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 60 * 60 * 24 * 30  # 30 days for static files
+    # Explicit compression tuning
+    app.config.setdefault('COMPRESS_MIMETYPES', ['text/html', 'text/css', 'text/javascript', 'application/javascript', 'application/json', 'application/xml'])
+    app.config.setdefault('COMPRESS_LEVEL', 6)
+    app.config.setdefault('COMPRESS_BR_LEVEL', 5)
+except Exception:
+    pass
+
 # Basic per-request timing to surface backend duration to clients and logs
 @app.before_request
 def _start_timer():
@@ -297,6 +312,11 @@ def _add_no_cache_headers(response):
             response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
             response.headers['Pragma'] = 'no-cache'
             response.headers['Expires'] = '0'
+        elif p.startswith('/static/'):
+            # Aggressive caching for static assets; filenames should be content-hashed in future
+            response.headers['Cache-Control'] = 'public, max-age=2592000, immutable'  # 30 days
+            response.headers.pop('Pragma', None)
+            response.headers.pop('Expires', None)
         # Attach timing headers for observability
         try:
             start = getattr(g, '_request_start_ts', None)
