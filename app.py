@@ -142,6 +142,11 @@ logger = setup_safe_logging()
 # -------------------------------------------------------------
 # Fallback stubs for optional analytics components (prevent NameError if modules absent)
 # -------------------------------------------------------------
+
+# Process start timestamp for uptime diagnostics
+_PROCESS_START_TS = time.time()
+_PROCESS_START_ISO = datetime.utcnow().isoformat()
+
 if 'PERFORMANCE_TRACKING_AVAILABLE' not in globals():
     PERFORMANCE_TRACKING_AVAILABLE = False
 if 'redesigned_analytics' not in globals():
@@ -498,12 +503,20 @@ def api_warm():
                 try:
                     res = _do_warm(date_str, quick_only)
                     logger.info(f"/api/warm async completed: {res}")
+                    try:
+                        globals()['_LAST_WARM_RESULT'] = res
+                    except Exception:
+                        pass
                 except Exception as e:
                     logger.warning(f"/api/warm async failed: {e}")
             threading.Thread(target=_bg, daemon=True).start()
             return jsonify({'accepted': True, 'date': date_str, 'mode': 'async', 'ts': datetime.utcnow().isoformat()})
         else:
             result = _do_warm(date_str, quick_only)
+            try:
+                globals()['_LAST_WARM_RESULT'] = result
+            except Exception:
+                pass
             return jsonify(result)
     except Exception as e:
         logger.error(f"Error in /api/warm: {e}\n{traceback.format_exc()}")
@@ -590,6 +603,93 @@ def healthz():
         return jsonify({'ok': False, 'error': str(e)}), 500
 
 # (api_ping is defined once above; avoid duplicate registration)
+
+# Simple diagnostics endpoint to understand cold vs warm state quickly
+@app.route('/api/diag')
+def api_diag():
+    try:
+        now = time.time()
+        # Uptime
+        uptime_sec = None
+        try:
+            uptime_sec = round(max(0.0, now - (_PROCESS_START_TS or now)), 1)
+        except Exception:
+            uptime_sec = None
+
+        # Unified cache age
+        unified_age = None
+        try:
+            if _unified_cache_time:
+                unified_age = round(now - _unified_cache_time, 1)
+        except Exception:
+            pass
+
+        # Home snapshot
+        home_snap_age = None
+        try:
+            if _HOME_SNAPSHOT_TS:
+                home_snap_age = round(now - _HOME_SNAPSHOT_TS, 1)
+        except Exception:
+            pass
+
+        # Unified betting recommendations cache
+        unified_recs_age = None
+        unified_recs_count = None
+        try:
+            if _UNIFIED_RECS_TS:
+                unified_recs_age = round(now - _UNIFIED_RECS_TS, 1)
+            if isinstance(_UNIFIED_RECS_CACHE, dict):
+                # Try to infer count from keys if possible
+                games = _UNIFIED_RECS_CACHE.get('games') if _UNIFIED_RECS_CACHE else None
+                if isinstance(games, dict):
+                    unified_recs_count = len(games)
+                else:
+                    unified_recs_count = len(_UNIFIED_RECS_CACHE)
+        except Exception:
+            pass
+
+        # Last warm result summary
+        last_warm = globals().get('_LAST_WARM_RESULT')
+        last_warm_summary = None
+        try:
+            if isinstance(last_warm, dict):
+                last_warm_summary = {
+                    'date': last_warm.get('date'),
+                    'success': last_warm.get('success'),
+                    'total_duration_ms': last_warm.get('total_duration_ms'),
+                    'finished_at': last_warm.get('finished_at'),
+                    'steps': [
+                        { 'name': s.get('name'), 'ok': s.get('ok'), 'duration_ms': s.get('duration_ms') }
+                        for s in (last_warm.get('steps') or [])
+                    ][:10]
+                }
+        except Exception:
+            pass
+
+        # Environment flags
+        env = {
+            'is_render': bool(os.environ.get('RENDER') or os.environ.get('RENDER_SERVICE_ID')),
+            'flask_env': os.environ.get('FLASK_ENV'),
+        }
+
+        return jsonify({
+            'ok': True,
+            'process': {
+                'started_at': _PROCESS_START_ISO,
+                'uptime_seconds': uptime_sec
+            },
+            'caches': {
+                'unified_cache_age_s': unified_age,
+                'home_snapshot_age_s': home_snap_age,
+                'unified_recs_age_s': unified_recs_age,
+                'unified_recs_count_hint': unified_recs_count,
+            },
+            'last_warm': last_warm_summary,
+            'ts': datetime.utcnow().isoformat(),
+            'env': env
+        })
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
 
 # ----------------------------------------------------------------------------
 # ROI Metrics & Optimization History Endpoint
@@ -7983,35 +8083,7 @@ def api_today_games():
             'debug_traceback': traceback.format_exc()
         })
 
-## Duplicate ping route removed; single definition exists near top of file
-
-@app.route('/api/diag')
-def api_diag():
-    """Fast diagnostics endpoint to help debug slowness without heavy downstream calls."""
-    try:
-        t0 = time.time()
-        # Tiny internal checks only
-        info = {
-            'ok': True,
-            'ts': int(t0),
-            'python': sys.version.split()[0],
-            'pid': os.getpid(),
-            'cwd': os.getcwd(),
-        }
-        # Try a super-fast unified cache presence check
-        try:
-            uc = cache_get('unified_cache', {}, ttl_seconds=1)
-            info['unified_cache_cached'] = bool(uc)
-        except Exception:
-            info['unified_cache_cached'] = False
-        resp = jsonify(info)
-        try:
-            resp.headers['Server-Timing'] = f"total;dur={int((time.time()-t0)*1000)}"
-        except Exception:
-            pass
-        return resp
-    except Exception as e:
-        return jsonify({'ok': False, 'error': str(e)}), 500
+## Duplicate ping route removed; diagnostics route is defined near top of file
 
 @app.route('/api/today-games/quick')
 def api_today_games_quick():
