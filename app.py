@@ -379,6 +379,17 @@ def _warm_caches_async():
                         api_pitcher_props_unified()
                     except Exception:
                         pass
+                # Compute unified betting recs FIRST so quick snapshot includes value_bets on first paint
+                try:
+                    _get_unified_betting_recs_cached(timeout_sec=0.0, start_background_on_miss=False)
+                except Exception:
+                    pass
+                # Then warm the ultra-fast quick snapshot (now enriched with recs)
+                with app.test_request_context(f"/api/today-games/quick?date={date_str}"):
+                    try:
+                        api_today_games_quick()
+                    except Exception:
+                        pass
                 # Warm live-status (will use cached schedule and avoid heavy calls)
                 with app.test_request_context(f"/api/live-status?date={date_str}"):
                     try:
@@ -389,17 +400,6 @@ def _warm_caches_async():
                 with app.test_request_context(f"/api/today-games?date={date_str}"):
                     try:
                         api_today_games()
-                    except Exception:
-                        pass
-                # Kick off unified betting recs compute so first full page has recs
-                try:
-                    _get_unified_betting_recs_cached(timeout_sec=0.0, start_background_on_miss=True)
-                except Exception:
-                    pass
-                # Also warm the ultra-fast quick snapshot variant
-                with app.test_request_context(f"/api/today-games/quick?date={date_str}"):
-                    try:
-                        api_today_games_quick()
                     except Exception:
                         pass
                 # Warm betting guidance APIs to keep guidance page snappy
@@ -457,7 +457,10 @@ def api_warm():
             # Preload unified cache (disk -> memory)
             _time_step('load_unified_cache', lambda: load_unified_cache())
 
-            # Warm quick snapshot (always lightweight)
+            # Warm unified betting recommendations FIRST so quick snapshot can include value_bets
+            _time_step('unified-betting-recs', lambda: _get_unified_betting_recs_cached(timeout_sec=0.0, start_background_on_miss=False))
+
+            # Then warm quick snapshot (now can attach cached recs)
             _time_step('today-games-quick', lambda: _call_with_path(
                 f"/api/today-games/quick?date={date_str_inner}", api_today_games_quick
             ))
@@ -472,8 +475,6 @@ def api_warm():
                 _time_step('pitcher-props-unified', lambda: _call_with_path(
                     f"/api/pitcher-props/unified?date={date_str_inner}", api_pitcher_props_unified
                 ))
-                # Warm unified betting recommendations (synchronous compute into cache)
-                _time_step('unified-betting-recs', lambda: _get_unified_betting_recs_cached(timeout_sec=0.0, start_background_on_miss=False))
                 # Warm full today-games (heavier)
                 _time_step('today-games', lambda: _call_with_path(
                     f"/api/today-games?date={date_str_inner}", api_today_games
@@ -3135,6 +3136,11 @@ def home():
         # Also pre-load unified cache for downstream routes without blocking
         try:
             threading.Thread(target=load_unified_cache, daemon=True).start()
+        except Exception:
+            pass
+        # Kick unified betting recommendations compute in the background so quick snapshot can include value_bets
+        try:
+            threading.Thread(target=lambda: _get_unified_betting_recs_cached(timeout_sec=0.0, start_background_on_miss=True), daemon=True).start()
         except Exception:
             pass
 
@@ -8285,6 +8291,216 @@ def api_today_games_quick():
                 })
             except Exception:
                 continue
+
+        # Enrich quick snapshot with unified cache predictions and recommendations (fast, local-only)
+        try:
+            # Load unified cache (reads from disk/memory; very fast)
+            unified_cache = load_unified_cache()
+            predictions_by_date = (unified_cache or {}).get('predictions_by_date', {})
+            today_data = (predictions_by_date or {}).get(date_param, {})
+            unified_games = (today_data or {}).get('games', {})
+
+            # Try to fetch unified betting recommendations from cache without triggering heavy compute
+            try:
+                # Kick a background compute on miss to warm for subsequent calls, but do not block
+                unified_recs = _get_unified_betting_recs_cached(timeout_sec=0.0, start_background_on_miss=True) or {}
+            except Exception:
+                unified_recs = {}
+
+            # If unified recs cache is empty, briefly wait for background worker (opportunistic, max ~600ms)
+            if not unified_recs:
+                try:
+                    _t_wait = time.time()
+                    while (time.time() - _t_wait) < 0.6:
+                        if isinstance(globals().get('_UNIFIED_RECS_CACHE'), dict) and globals().get('_UNIFIED_RECS_CACHE'):
+                            unified_recs = globals()['_UNIFIED_RECS_CACHE']
+                            break
+                        time.sleep(0.06)
+                except Exception:
+                    pass
+
+            # If still empty, try to load today's betting file from disk (real-odds-based)
+            if not unified_recs:
+                try:
+                    from pathlib import Path as _P
+                    bets_path = _P(__file__).parent / 'data' / f"betting_recommendations_{date_param.replace('-', '_')}.json"
+                    if bets_path.exists():
+                        with open(bets_path, 'r', encoding='utf-8') as _bf:
+                            _bets = json.load(_bf) or {}
+                        # Normalize to a dict keyed by matchup
+                        _games = (_bets.get('games') or {}) if isinstance(_bets, dict) else {}
+                        tmp = {}
+                        for gk, gdata in _games.items():
+                            try:
+                                # Gather recommendations from all known shapes
+                                recs = []
+                                if isinstance(gdata.get('betting_recommendations'), dict):
+                                    for rtype, rec in (gdata.get('betting_recommendations') or {}).items():
+                                        if isinstance(rec, dict):
+                                            r = dict(rec)
+                                            r['type'] = r.get('type') or rtype
+                                            recs.append(r)
+                                recs += list(gdata.get('value_bets') or [])
+                                recs += list(gdata.get('recommendations') or [])
+                                tmp[gk] = {'value_bets': recs, 'summary': f"{len(recs)} opportunities"}
+                            except Exception:
+                                continue
+                        unified_recs = tmp
+                except Exception:
+                    pass
+
+            def _coerce_prob(p):
+                try:
+                    if p is None:
+                        return None
+                    # Accept fractions (0-1) or percents (0-100)
+                    return float(p) * 100.0 if float(p) <= 1.0 else float(p)
+                except Exception:
+                    return None
+
+            def _first(v, *more):
+                for x in (v,)+more:
+                    if x is not None:
+                        return x
+                return None
+
+            # Robust key normalization helpers
+            import re as _re
+            def _norm_team_name_for_key(s: str) -> str:
+                try:
+                    return _re.sub(r'[^a-z0-9]', '', (s or '').lower())
+                except Exception:
+                    return (s or '').lower()
+
+            def _parse_matchup_key(key: str):
+                try:
+                    k = str(key or '')
+                    k_space = k.replace('_', ' ')
+                    for sep in [' vs ', ' @ ', ' _vs_ ', '_vs_', ' vs_', '_vs ']:
+                        if sep in k_space:
+                            parts = k_space.split(sep)
+                            if len(parts) == 2:
+                                a = parts[0].strip(); h = parts[1].strip()
+                                return a, h
+                    # Fallback: try plain 'vs' without spaces
+                    if 'vs' in k_space:
+                        parts = k_space.split('vs')
+                        if len(parts) == 2:
+                            return parts[0].strip(), parts[1].strip()
+                    return None, None
+                except Exception:
+                    return None, None
+
+            # Build lookup maps by normalized (away, home) pair
+            unified_by_pair = {}
+            try:
+                for uk, ug in (unified_games or {}).items():
+                    try:
+                        a = ug.get('away_team') or _parse_matchup_key(uk)[0]
+                        h = ug.get('home_team') or _parse_matchup_key(uk)[1]
+                        if not a or not h:
+                            continue
+                        unified_by_pair[(_norm_team_name_for_key(a), _norm_team_name_for_key(h))] = ug
+                    except Exception:
+                        continue
+            except Exception:
+                pass
+
+            recs_by_pair = {}
+            try:
+                for rk, rv in (unified_recs or {}).items():
+                    try:
+                        a, h = _parse_matchup_key(rk)
+                        if not a or not h:
+                            # Try to read from rv if available
+                            a = rv.get('away_team') if isinstance(rv, dict) else None
+                            h = rv.get('home_team') if isinstance(rv, dict) else None
+                        if not a or not h:
+                            continue
+                        recs_by_pair[(_norm_team_name_for_key(a), _norm_team_name_for_key(h))] = rv
+                    except Exception:
+                        continue
+            except Exception:
+                pass
+
+            # Build a lookup from quick game_id (Away_vs_Home) to game object for fast updates
+            game_by_id = { (gi.get('game_id') or ''): gi for gi in games if isinstance(gi, dict) }
+            for gid, qg in list(game_by_id.items()):
+                try:
+                    if not gid:
+                        continue
+                    # Preferred: map by normalized (away, home)
+                    away = qg.get('away_team'); home = qg.get('home_team')
+                    ug = unified_by_pair.get((_norm_team_name_for_key(away), _norm_team_name_for_key(home)))
+                    if not ug:
+                        # Fallback to direct key lookups
+                        ug = unified_games.get(gid) or unified_games.get(gid.replace('_vs_', ' @ ')) or unified_games.get(gid.replace('_', ' ')) or unified_games.get(f"{away} vs {home}") or unified_games.get(f"{away} @ {home}")
+                    if ug:
+                        # Pull predictions from multiple possible structures
+                        preds = ug.get('predictions') or {}
+                        comp = ug.get('comprehensive_details') or {}
+                        score_pred = comp.get('score_prediction') or {}
+
+                        pa = _first(
+                            preds.get('predicted_away_score'),
+                            ug.get('predicted_away_score'),
+                            score_pred.get('away_score')
+                        )
+                        ph = _first(
+                            preds.get('predicted_home_score'),
+                            ug.get('predicted_home_score'),
+                            score_pred.get('home_score')
+                        )
+                        pt = _first(
+                            ug.get('predicted_total_runs'),
+                            preds.get('predicted_total_runs'),
+                            score_pred.get('total_runs')
+                        )
+                        awp = _coerce_prob(_first(preds.get('away_win_prob'), ug.get('away_win_probability')))
+                        hwp = _coerce_prob(_first(preds.get('home_win_prob'), ug.get('home_win_probability')))
+
+                        # Apply if available; avoid overwriting non-zero values with zeros
+                        if pa is not None and ph is not None:
+                            try:
+                                qg['predicted_away_score'] = round(float(pa), 1)
+                                qg['predicted_home_score'] = round(float(ph), 1)
+                            except Exception:
+                                pass
+                        if pt is not None:
+                            try:
+                                qg['predicted_total_runs'] = round(float(pt), 1)
+                            except Exception:
+                                pass
+                        if awp is not None:
+                            qg['away_win_probability'] = round(float(awp), 1)
+                            qg.setdefault('win_probabilities', {})['away_prob'] = round(float(awp)/100.0, 3)
+                        if hwp is not None:
+                            qg['home_win_probability'] = round(float(hwp), 1)
+                            qg.setdefault('win_probabilities', {})['home_prob'] = round(float(hwp)/100.0, 3)
+
+                    # Attach unified betting recommendations if present (value_bets array)
+                    rec = recs_by_pair.get((_norm_team_name_for_key(away), _norm_team_name_for_key(home)))
+                    if not rec:
+                        rec = unified_recs.get(gid) or unified_recs.get(gid.replace('_vs_', ' @ ')) or unified_recs.get(gid.replace('_', ' ')) or unified_recs.get(f"{away} vs {home}") or unified_recs.get(f"{away} @ {home}")
+                    if rec:
+                        # Support both direct value_bets and nested betting_recommendations
+                        if isinstance(rec, dict) and 'value_bets' in rec:
+                            qg['betting_recommendations'] = {
+                                'value_bets': rec.get('value_bets') or [],
+                                'summary': rec.get('summary') or f"{len(rec.get('value_bets') or [])} opportunities"
+                            }
+                        elif isinstance(rec, dict) and 'betting_recommendations' in rec:
+                            br = rec.get('betting_recommendations') or {}
+                            qg['betting_recommendations'] = {
+                                'value_bets': br.get('value_bets') or [],
+                                'summary': br.get('summary') or f"{len(br.get('value_bets') or [])} opportunities"
+                            }
+                except Exception:
+                    # Best-effort enrichment; ignore per-game failures
+                    continue
+        except Exception:
+            # If enrichment fails entirely, continue with plain snapshot
+            pass
         payload = {
             'success': True,
             'date': date_param,
