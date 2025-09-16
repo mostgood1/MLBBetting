@@ -4530,8 +4530,12 @@ def api_pitcher_props_unified():
 
         # Cache
         global _UNIFIED_PITCHER_CACHE
+        # Separate tiny cache for true-light payloads so we don't pollute the full cache
+        global _UNIFIED_PITCHER_CACHE_LIGHT
         if '_UNIFIED_PITCHER_CACHE' not in globals():
             _UNIFIED_PITCHER_CACHE = {}
+        if '_UNIFIED_PITCHER_CACHE_LIGHT' not in globals():
+            _UNIFIED_PITCHER_CACHE_LIGHT = {}
         now_ts = time.time()
         cached = _UNIFIED_PITCHER_CACHE.get(date_str)
         if cached and (now_ts - cached.get('ts', 0) < 15):
@@ -4572,18 +4576,47 @@ def api_pitcher_props_unified():
                 light_payload['data'] = slim_data
                 light_payload['meta'] = dict(light_payload.get('meta', {}))
                 light_payload['meta']['light_mode'] = True
-                return jsonify(light_payload)
-            return jsonify(payload)
+                resp = jsonify(light_payload)
+                try:
+                    resp.headers['X-Cache-Hit'] = '1'
+                    resp.headers['Server-Timing'] = f"total;dur={int((time.time()-t0)*1000)}"
+                except Exception:
+                    pass
+                return resp
+            resp = jsonify(payload)
+            try:
+                resp.headers['X-Cache-Hit'] = '1'
+                resp.headers['Server-Timing'] = f"total;dur={int((time.time()-t0)*1000)}"
+            except Exception:
+                pass
+            return resp
         timings['cache_check'] = round(time.time()-t0,3)
 
-        # Try to import heavy projection helpers; if unavailable, we'll degrade gracefully
-        try:
-            from generate_pitcher_prop_projections import project_pitcher, build_team_map, compute_ev, kelly_fraction
-            _proj_available = True
-        except Exception as _imp_err:
-            logger.warning(f"[UNIFIED] Projection module unavailable, serving lines-only payload: {_imp_err}")
-            _proj_available = False
-            project_pitcher = build_team_map = compute_ev = kelly_fraction = None  # type: ignore
+        # If light mode requested and no full cache hit, try returning a prebuilt true-light payload
+        if light_mode:
+            light_cached = _UNIFIED_PITCHER_CACHE_LIGHT.get(date_str)
+            if light_cached and (now_ts - light_cached.get('ts', 0) < 15):
+                payload = light_cached['payload']
+                resp = jsonify(payload)
+                try:
+                    resp.headers['X-Cache-Hit'] = '1'
+                    resp.headers['Server-Timing'] = f"total;dur={int((time.time()-t0)*1000)}"
+                except Exception:
+                    pass
+                return resp
+
+        # For light mode, we'll avoid importing heavy projection helpers unless needed
+        _proj_available = False
+        project_pitcher = build_team_map = compute_ev = kelly_fraction = None  # type: ignore
+        if not light_mode:
+            # Try to import heavy projection helpers; if unavailable, we'll degrade gracefully
+            try:
+                from generate_pitcher_prop_projections import project_pitcher, build_team_map, compute_ev, kelly_fraction
+                _proj_available = True
+            except Exception as _imp_err:
+                logger.warning(f"[UNIFIED] Projection module unavailable, serving lines-only payload: {_imp_err}")
+                _proj_available = False
+                project_pitcher = build_team_map = compute_ev = kelly_fraction = None  # type: ignore
 
         base_dir = os.path.join('data', 'daily_bovada')
         props_path = os.path.join(base_dir, f'bovada_pitcher_props_{safe_date}.json')
@@ -4680,7 +4713,7 @@ def api_pitcher_props_unified():
         else:
             stats_core = stats_doc
 
-        # Load live boxscore-derived pitcher stats for live pitch counts
+        # Load live boxscore-derived pitcher stats for live pitch counts (cheap local read)
         try:
             live_box = _load_boxscore_pitcher_stats(date_str)
         except Exception:
@@ -4709,8 +4742,28 @@ def api_pitcher_props_unified():
             except Exception as _e:
                 logger.warning(f"[UNIFIED] Could not build games_doc from MLB schedule: {_e}")
 
+        # Build team/opponent map
         t_team = time.time()
-        team_map = build_team_map(games_doc) if _proj_available else {}
+        team_map = {}
+        if _proj_available and not light_mode:
+            team_map = build_team_map(games_doc)  # type: ignore
+        else:
+            # Lightweight mapping: derive from games_doc without importing models
+            try:
+                candidates = games_doc if isinstance(games_doc, list) else (games_doc.get('games') or [])
+                if isinstance(candidates, dict):
+                    candidates = list(candidates.values())
+                for g in candidates or []:
+                    ap = (g.get('away_pitcher') or '').strip()
+                    hp = (g.get('home_pitcher') or '').strip()
+                    at = (g.get('away_team') or '').strip()
+                    ht = (g.get('home_team') or '').strip()
+                    if ap:
+                        team_map[normalize_name(ap)] = {'team': at, 'opponent': ht}
+                    if hp:
+                        team_map[normalize_name(hp)] = {'team': ht, 'opponent': at}
+            except Exception:
+                team_map = {}
         timings['build_team_map'] = round(time.time()-t_team,3)
 
         # Build allowed pitcher set from requested date's schedule to avoid cross-date mixing
@@ -4764,6 +4817,8 @@ def api_pitcher_props_unified():
                 _SCHED_LOCAL['games'] = []
                 return []
 
+        # Cap StatsAPI searches per request to avoid long-tail latency
+        _PID_SEARCH_BUDGET = {'remaining': 3}
         def _resolve_player_id_by_name(name):
             """Resolve MLBAM player id using cache, schedule, or StatsAPI search."""
             if not name:
@@ -4812,36 +4867,38 @@ def api_pitcher_props_unified():
                         return str(g['home_pitcher_id'])
             except Exception:
                 pass
+            # Limit outbound searches
             try:
-                # Cap outbound search attempts per request to avoid long tail latencies
-                import requests
-                url = "https://statsapi.mlb.com/api/v1/people"
-                # Reduce timeout to keep endpoint responsive on Render
-                resp = requests.get(url, params={'search': name}, timeout=6)
-                if resp.ok:
-                    data = resp.json() or {}
-                    people = data.get('people') or []
-                    best = None
-                    for p in people:
-                        full = (p.get('fullName') or '').strip()
-                        pos = ((p.get('primaryPosition') or {}) or {}).get('code')
-                        if full and _nn(full) == key:
-                            if pos == '1':
-                                best = p
-                                break
-                            best = best or p
-                    if not best:
+                if _PID_SEARCH_BUDGET['remaining'] > 0:
+                    import requests
+                    url = "https://statsapi.mlb.com/api/v1/people"
+                    # Reduce timeout to keep endpoint responsive on Render
+                    resp = requests.get(url, params={'search': name}, timeout=4)
+                    _PID_SEARCH_BUDGET['remaining'] -= 1
+                    if resp.ok:
+                        data = resp.json() or {}
+                        people = data.get('people') or []
+                        best = None
                         for p in people:
                             full = (p.get('fullName') or '').strip()
                             pos = ((p.get('primaryPosition') or {}) or {}).get('code')
-                            if pos == '1' and key in _nn(full):
-                                best = p
-                                break
-                    if best and best.get('id'):
-                        pid3 = str(best['id'])
-                        _PID_CACHE[key] = pid3
-                        _save_pid_cache()
-                        return pid3
+                            if full and _nn(full) == key:
+                                if pos == '1':
+                                    best = p
+                                    break
+                                best = best or p
+                        if not best:
+                            for p in people:
+                                full = (p.get('fullName') or '').strip()
+                                pos = ((p.get('primaryPosition') or {}) or {}).get('code')
+                                if pos == '1' and key in _nn(full):
+                                    best = p
+                                    break
+                        if best and best.get('id'):
+                            pid3 = str(best['id'])
+                            _PID_CACHE[key] = pid3
+                            _save_pid_cache()
+                            return pid3
             except Exception:
                 pass
             return None
@@ -4874,6 +4931,123 @@ def api_pitcher_props_unified():
                 pk = r.get('pitcher_key')
                 if pk:
                     recs_by_pitcher[pk] = r
+
+        # If light_mode, build a minimal payload without projections/EV for fast first paint
+        if light_mode:
+            t_light = time.time()
+            merged = {}
+            for raw_key, mkts in pitcher_props.items():
+                name_only = raw_key.split('(')[0].strip()
+                norm_key = normalize_name(name_only)
+                st = stats_by_name.get(norm_key, {})
+                team_info = team_map.get(norm_key, {'team': None, 'opponent': None})
+                # Augment with last-known lines if needed
+                augmented_mkts = dict(mkts)
+                try:
+                    lk = last_known_pitchers.get(norm_key, {})
+                    if isinstance(lk, dict):
+                        for mk, lk_info in lk.items():
+                            if mk not in augmented_mkts and isinstance(lk_info, dict) and lk_info.get('line') is not None:
+                                augmented_mkts[mk] = {
+                                    'line': lk_info.get('line'),
+                                    'over_odds': lk_info.get('over_odds'),
+                                    'under_odds': lk_info.get('under_odds'),
+                                    '_stale': True
+                                }
+                            elif mk in augmented_mkts and isinstance(augmented_mkts.get(mk), dict):
+                                if augmented_mkts[mk].get('line') is None and lk_info.get('line') is not None:
+                                    augmented_mkts[mk]['line'] = lk_info.get('line')
+                                    if 'over_odds' not in augmented_mkts[mk]:
+                                        augmented_mkts[mk]['over_odds'] = lk_info.get('over_odds')
+                                    if 'under_odds' not in augmented_mkts[mk]:
+                                        augmented_mkts[mk]['under_odds'] = lk_info.get('under_odds')
+                                    augmented_mkts[mk]['_stale'] = True
+                except Exception:
+                    pass
+                # Primary play from recommendations file
+                rec = recs_by_pitcher.get(norm_key)
+                primary_play = None
+                try:
+                    if rec and isinstance(rec.get('plays'), list) and rec['plays']:
+                        plays_all = rec['plays']
+                        conf_rank = {'HIGH': 3, 'MEDIUM': 2, 'LOW': 1}
+                        best = max(
+                            plays_all,
+                            key=lambda p: (
+                                conf_rank.get(str(p.get('confidence','')).upper(), 0),
+                                abs(p.get('edge') or 0)
+                            )
+                        )
+                        primary_play = {
+                            'market': best.get('market'),
+                            'side': (best.get('side') or '').upper() or None,
+                            'edge': best.get('edge'),
+                            'line': best.get('line'),
+                            'kelly_fraction': best.get('kelly_fraction'),
+                            'selected_ev': best.get('selected_ev'),
+                            'p_over': best.get('p_over'),
+                            'over_odds': best.get('over_odds'),
+                            'under_odds': best.get('under_odds')
+                        }
+                except Exception:
+                    primary_play = None
+                display_name = (st.get('name') if isinstance(st, dict) else None) or name_only
+                try:
+                    if isinstance(display_name, str):
+                        display_name = ' '.join([w.capitalize() if not w.isupper() else w for w in display_name.split()])
+                except Exception:
+                    pass
+                original_id = (st.get('player_id') if isinstance(st, dict) else None) or (st.get('id') if isinstance(st, dict) else None)
+                headshot_url = None
+                if original_id:
+                    headshot_url = f"https://img.mlbstatic.com/mlb-photos/image/upload/w_120,q_auto:best/v1/people/{original_id}/headshot/67/current"
+                team_name_for_logo = team_info.get('team')
+                team_logo = get_team_logo_url(team_name_for_logo) if team_name_for_logo else None
+                opponent_logo = get_team_logo_url(team_info.get('opponent')) if team_info.get('opponent') else None
+                merged[norm_key] = {
+                    'raw_key': raw_key,
+                    'display_name': display_name,
+                    'player_id': original_id,
+                    'mlb_player_id': None,  # skipped in light path to avoid lookups
+                    'headshot_url': headshot_url,
+                    'team_logo': team_logo,
+                    'opponent_logo': opponent_logo,
+                    'lines': augmented_mkts,
+                    'markets': { mk: { 'line': (info or {}).get('line'), 'over_odds': (info or {}).get('over_odds'), 'under_odds': (info or {}).get('under_odds') } for mk, info in (augmented_mkts or {}).items() if isinstance(info, dict) },
+                    'plays': primary_play,
+                    'team': team_name_for_logo,
+                    'opponent': team_info.get('opponent'),
+                    'normalized': norm_key,
+                    'pitch_count': None,
+                    'live_pitches': (live_box.get(norm_key, {}) or {}).get('pitches')
+                }
+            payload = {
+                'success': True,
+                'date': date_str,
+                'meta': {
+                    'pitchers': len(merged),
+                    'generated_at': _now_local().isoformat(),
+                    'markets_total': sum(len((v.get('markets') or {})) for v in merged.values()),
+                    'requested_date': date_str,
+                    'source_date': date_str,
+                    'source_file': os.path.join('data','daily_bovada', f'bovada_pitcher_props_{safe_date}.json'),
+                    'light_mode': True
+                },
+                'data': merged
+            }
+            if want_timings:
+                timings['total'] = round(time.time()-t0,3)
+                timings['build_light'] = round(time.time()-t_light,3)
+                payload['meta']['timings'] = timings
+            # Cache only in the light cache to avoid blocking full-build hydration later
+            _UNIFIED_PITCHER_CACHE_LIGHT[date_str] = {'ts': now_ts, 'payload': payload}
+            resp = jsonify(payload)
+            try:
+                resp.headers['X-Cache-Hit'] = '0'
+                resp.headers['Server-Timing'] = f"total;dur={int((time.time()-t0)*1000)}"
+            except Exception:
+                pass
+            return resp
 
         merged = {}
         t_loop = time.time()
@@ -5188,7 +5362,13 @@ def api_pitcher_props_unified():
         if want_timings:
             payload['meta']['timings'] = timings
         _UNIFIED_PITCHER_CACHE[date_str] = {'ts': now_ts, 'payload': payload}
-        return jsonify(payload)
+        resp = jsonify(payload)
+        try:
+            resp.headers['X-Cache-Hit'] = '0'
+            resp.headers['Server-Timing'] = f"total;dur={int((time.time()-t0)*1000)}"
+        except Exception:
+            pass
+        return resp
     except Exception as e:
         debug_mode = request.args.get('debug') in ('1','true','yes')
         tb_txt = traceback.format_exc()
@@ -5267,6 +5447,8 @@ def api_pitcher_props_refresh():
     try:
         if '_UNIFIED_PITCHER_CACHE' in globals():
             _UNIFIED_PITCHER_CACHE.pop(biz_today, None)  # type: ignore
+        if '_UNIFIED_PITCHER_CACHE_LIGHT' in globals():
+            _UNIFIED_PITCHER_CACHE_LIGHT.pop(biz_today, None)  # type: ignore
     except Exception:
         pass
     # Also invalidate broader unified cache (predictions) if exists so any dependent summaries refresh

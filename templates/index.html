@@ -1462,6 +1462,28 @@
             // Proactive quick-snapshot fallback if first paint takes too long
             let usedQuickFallback = false;
             let paintedQuick = false;
+            // Start an immediate quick snapshot fetch in parallel for fastest first paint
+            if (options.quickFirst) {
+                try {
+                    const quickUrl = `/api/today-games/quick?date=${encodeURIComponent(date||'')}`;
+                    const quickPromise = fetchWithTimeout(quickUrl, {}, 3000);
+                    quickPromise.then(async (q) => {
+                        try {
+                            if (paintedQuick) return;
+                            if (!q || !q.ok) return;
+                            const snap = await q.json();
+                            if (snap && snap.success && Array.isArray(snap.games) && snap.games.length) {
+                                usedQuickFallback = true;
+                                paintedQuick = true;
+                                hydrateFromTodayGames(snap, container);
+                                clearTimeout(slowTimer); clearTimeout(watchdog);
+                                try { window.__PERF.mark && window.__PERF.mark('quick_painted'); } catch(_){}
+                                console.info('[QUICK] painted immediate snapshot');
+                            }
+                        } catch(_){}
+                    }).catch(()=>{});
+                } catch(_){}
+            }
             const quickPaintTimer = setTimeout(async () => {
                 try {
                     if (paintedQuick) return;
