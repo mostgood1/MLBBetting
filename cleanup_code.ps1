@@ -3,7 +3,8 @@
 
 param(
     [switch]$DryRun = $false,
-    [switch]$Verbose = $false
+    [switch]$Verbose = $false,
+    [switch]$Force = $false
 )
 
 Write-Host "MLB Betting System Code Cleanup" -ForegroundColor Green
@@ -39,6 +40,12 @@ $filesToRemove = @(
     "clean_debug.json"
 )
 
+# Also remove temp scratch artifacts safely
+$tempGlobs = @(
+    "tmp_*",
+    "*.bak"
+)
+
 # Files to potentially remove (let user decide)
 $questionableFiles = @(
     # Old analysis scripts that might still be useful
@@ -61,8 +68,8 @@ $questionableDocs = @(
     "RENDER_FULL_FUNCTIONALITY_STATUS.md"
 )
 
-# Directories to clean up (remove empty __pycache__ dirs)
-$pyCache = Get-ChildItem -Recurse -Directory -Name "__pycache__"
+# Directories to clean up (remove __pycache__ dirs)
+$pyCache = Get-ChildItem -Recurse -Directory -Filter "__pycache__" | Select-Object -ExpandProperty FullName
 
 Write-Host "`nFiles to be removed:" -ForegroundColor Yellow
 $actualFilesToRemove = @()
@@ -72,6 +79,16 @@ foreach ($file in $filesToRemove) {
         $sizeKB = [math]::Round($fileInfo.Length / 1KB, 1)
         Write-Host "  X $file ($sizeKB KB)" -ForegroundColor Red
         $actualFilesToRemove += $file
+    }
+}
+
+# Expand temp globs
+foreach ($glob in $tempGlobs) {
+    Get-ChildItem -Path $glob -ErrorAction SilentlyContinue | ForEach-Object {
+        $file = $_.FullName
+        $sizeKB = [math]::Round(($_.Length) / 1KB, 1)
+        Write-Host "  X $($_.Name) ($sizeKB KB)" -ForegroundColor Red
+        $actualFilesToRemove += $_.FullName
     }
 }
 
@@ -98,9 +115,7 @@ foreach ($file in $questionableDocs) {
 }
 
 Write-Host "`nPython cache directories to remove:" -ForegroundColor Yellow
-foreach ($dir in $pyCache) {
-    Write-Host "  DIR $dir" -ForegroundColor Cyan
-}
+foreach ($dir in $pyCache) { Write-Host "  DIR $dir" -ForegroundColor Cyan }
 
 # Count total files
 $totalFiles = $actualFilesToRemove.Count + $pyCache.Count
@@ -112,7 +127,8 @@ foreach ($file in $actualFilesToRemove) {
 }
 
 Write-Host "`nSummary:" -ForegroundColor Green
-Write-Host "  Files to remove: $($actualFilesToRemove.Count)"
+Write-Host "  Files to remove: $($actualFilesToRemove.Count) (tracked items)"
+Write-Host "  Total candidates (incl. caches): $totalFiles"
 Write-Host "  Cache dirs to remove: $($pyCache.Count)"  
 Write-Host "  Total space to reclaim: $([math]::Round($totalSizeKB, 1)) KB"
 
@@ -135,11 +151,15 @@ if ($actualFilesToRemove.Count -eq 0 -and $pyCache.Count -eq 0) {
 }
 
 # Confirm removal
-Write-Host "`nDo you want to proceed with removing these files? (y/N): " -ForegroundColor Yellow -NoNewline
-$confirmation = Read-Host
-if ($confirmation -ne 'y' -and $confirmation -ne 'Y') {
-    Write-Host "Cleanup cancelled." -ForegroundColor Red
-    exit 0
+if (-not $Force) {
+    Write-Host "`nDo you want to proceed with removing these files? (y/N): " -ForegroundColor Yellow -NoNewline
+    $confirmation = Read-Host
+    if ($confirmation -ne 'y' -and $confirmation -ne 'Y') {
+        Write-Host "Cleanup cancelled." -ForegroundColor Red
+        exit 0
+    }
+} else {
+    Write-Host "`nForce mode enabled: proceeding without prompt." -ForegroundColor Yellow
 }
 
 Write-Host "`nStarting cleanup..." -ForegroundColor Green

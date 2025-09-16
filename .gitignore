@@ -106,3 +106,7 @@ cleanup-*/
 
 # Secrets
 secrets/
+
+# Temporary scratch artifacts
+tmp_*
+*.bak
