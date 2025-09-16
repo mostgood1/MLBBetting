@@ -7785,13 +7785,24 @@ def api_today_games():
             # Get live status; prefer exact (away,home,game_pk) match for DH
             meta = game_data.get('meta') or {}
             game_pk_hint = meta.get('game_pk') or game_data.get('game_id')
+            is_doubleheader = bool(meta.get('doubleheader'))
             live_status_data = None
+            live_status_source = 'none'
             if game_pk_hint:
                 live_status_data = live_status_by_pk.get((away_team, home_team, str(game_pk_hint)))
-            if not live_status_data:
-                live_status_data = live_status_map.get((away_team, home_team))
+                if live_status_data:
+                    live_status_source = 'by_pk'
+            # IMPORTANT: For doubleheaders, do NOT fall back to generic matchup-level status,
+            # which can cause both games to share the same pitchers. Only use matchup fallback
+            # when not a DH or when explicitly missing DH metadata.
+            if not live_status_data and not is_doubleheader:
+                ls = live_status_map.get((away_team, home_team))
+                if ls:
+                    live_status_data = ls
+                    live_status_source = 'by_matchup'
             if not live_status_data:
                 live_status_data = {'status': 'Scheduled', 'is_final': False, 'is_live': False}
+                live_status_source = 'default'
             
             # CRITICAL FIX: Preserve correct pitcher data for finished/live games
             # Don't let live status override with TBD when we have real pitcher names
@@ -7803,15 +7814,21 @@ def api_today_games():
                 if home_pitcher != 'TBD':
                     logger.info(f"🎯 PRESERVING home pitcher for finished/live game: {home_pitcher}")
             else:
-                # For scheduled games, allow live status to update pitcher info if available
-                live_away_pitcher = live_status_data.get('away_pitcher')
-                live_home_pitcher = live_status_data.get('home_pitcher')
-                if live_away_pitcher and live_away_pitcher != 'TBD':
-                    away_pitcher = live_away_pitcher
-                    logger.info(f"🔄 UPDATED away pitcher from live status: {away_pitcher}")
-                if live_home_pitcher and live_home_pitcher != 'TBD':
-                    home_pitcher = live_home_pitcher
-                    logger.info(f"🔄 UPDATED home pitcher from live status: {home_pitcher}")
+                # For scheduled games, allow live status to update pitcher info ONLY when
+                # the live status comes from an exact game_pk match. This avoids DH games
+                # inheriting the same matchup-level pitchers.
+                if live_status_source == 'by_pk':
+                    live_away_pitcher = live_status_data.get('away_pitcher')
+                    live_home_pitcher = live_status_data.get('home_pitcher')
+                    if live_away_pitcher and live_away_pitcher != 'TBD':
+                        away_pitcher = live_away_pitcher
+                        logger.info(f"🔄 UPDATED away pitcher from live status (by_pk): {away_pitcher}")
+                    if live_home_pitcher and live_home_pitcher != 'TBD':
+                        home_pitcher = live_home_pitcher
+                        logger.info(f"🔄 UPDATED home pitcher from live status (by_pk): {home_pitcher}")
+                else:
+                    if is_doubleheader:
+                        logger.info("🛡️ DH safeguard: Skipping matchup-level pitcher override to keep per-game starters distinct")
             
             # Compute projected pitch counts and attach live metrics
             def _proj_pitch_metrics(name: str, team: str, opp: str):
