@@ -7947,8 +7947,14 @@ def api_today_games():
                 home_win_prob_final *= 100
             
             # Create enhanced game object with proper structure for template
+            # Derive DH metadata and game_pk for UI disambiguation
+            dh_meta = game_data.get('meta') or {}
+            game_pk_top = (dh_meta.get('game_pk') or game_data.get('game_id') or live_status_data.get('game_pk'))
+
             enhanced_game = {
                 'game_id': game_key,
+                # Surface game_pk at top-level so the frontend can disambiguate DH cards
+                'game_pk': str(game_pk_top) if game_pk_top is not None else None,
                 'away_team': away_team,
                 'home_team': home_team,
                 'away_logo': get_team_logo_url(away_team),
@@ -8042,6 +8048,10 @@ def api_today_games():
                     'best_bet': None,
                     'summary': 'No strong opportunities identified'
                 }),
+
+                # Doubleheader flags for UI (badge and uniqueness)
+                'doubleheader': bool(dh_meta.get('doubleheader', False)),
+                'doubleheader_game_number': dh_meta.get('game_number'),
                 
                 # Live status object for template compatibility
                 'live_status': {
@@ -8184,6 +8194,7 @@ def api_today_games_quick():
                                     continue
                                 gs.append({
                                     'game_id': lg.get('game_pk') or f"{a.replace(' ', '_')}_vs_{h.replace(' ', '_')}",
+                                    'game_pk': lg.get('game_pk'),
                                     'away_team': a,
                                     'home_team': h,
                                     'date': date_param,
@@ -8478,6 +8489,7 @@ def api_today_games_quick():
                         preds = ug.get('predictions') or {}
                         comp = ug.get('comprehensive_details') or {}
                         score_pred = comp.get('score_prediction') or {}
+                        meta_u = ug.get('meta') or {}
 
                         pa = _first(
                             preds.get('predicted_away_score'),
@@ -8509,6 +8521,19 @@ def api_today_games_quick():
                                 qg['predicted_total_runs'] = round(float(pt), 1)
                             except Exception:
                                 pass
+                        # Propagate identifiers and DH metadata to quick snapshot for disambiguation
+                        try:
+                            if ug.get('game_id') and not qg.get('game_id'):
+                                qg['game_id'] = ug.get('game_id')
+                            if ug.get('game_pk') and not qg.get('game_pk'):
+                                qg['game_pk'] = ug.get('game_pk')
+                            if isinstance(meta_u, dict):
+                                if meta_u.get('doubleheader'):
+                                    qg['doubleheader'] = True
+                                    if meta_u.get('game_number') is not None:
+                                        qg['doubleheader_game_number'] = meta_u.get('game_number')
+                        except Exception:
+                            pass
                         if awp is not None:
                             qg['away_win_probability'] = round(float(awp), 1)
                             qg.setdefault('win_probabilities', {})['away_prob'] = round(float(awp)/100.0, 3)
