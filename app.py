@@ -1016,6 +1016,12 @@ def _load_daily_games_minimal(date_param: str) -> list:
         ]
         data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
         candidates = [os.path.join(data_dir, f"games_{v}.json") for v in date_variants]
+        # Also consider root-level convenience files if present (used in some deploys)
+        repo_root = os.path.dirname(os.path.abspath(__file__))
+        candidates.extend([
+            os.path.join(repo_root, '_today_games.json'),
+            os.path.join(repo_root, 'today_games.json'),
+        ])
         games_list = None
         for p in candidates:
             if os.path.exists(p):
@@ -7940,6 +7946,8 @@ def api_today_games_quick():
     try:
         t0 = time.time()
         date_param = request.args.get('date', get_business_date())
+        # Optional flag to ensure this endpoint never hits network (used by warmers)
+        no_network = request.args.get('no_network') == '1'
         # Tiny cache for ultra-fast responses
         try:
             cached = cache_get('today_games_quick', {'date': date_param}, ttl_seconds=45)
@@ -7966,31 +7974,51 @@ def api_today_games_quick():
         except Exception:
             preds = []
 
-        # 2) If still empty, try fast live schedule (short-cached)
-        if not preds:
+        # 2) If still empty, try fast live schedule (short-cached) with a hard cap; skip if no_network
+        if not preds and not no_network:
             try:
-                live_games = _get_live_games_cached(date_param)
-                for lg in (live_games or []):
+                # Run live fetch in a background thread with a tiny timeout to avoid blocking cold starts
+                result_box = {'games': None}
+                done = threading.Event()
+
+                def _worker():
                     try:
-                        a = normalize_team_name(lg.get('away_team') or '')
-                        h = normalize_team_name(lg.get('home_team') or '')
-                        if not a or not h:
-                            continue
-                        games.append({
-                            'game_id': lg.get('game_pk') or f"{a.replace(' ', '_')}_vs_{h.replace(' ', '_')}",
-                            'away_team': a,
-                            'home_team': h,
-                            'date': date_param,
-                            'away_pitcher': lg.get('away_pitcher') or 'TBD',
-                            'home_pitcher': lg.get('home_pitcher') or 'TBD',
-                            'predicted_away_score': None,
-                            'predicted_home_score': None,
-                            'predicted_total_runs': None,
-                            'away_win_probability': None,
-                            'home_win_probability': None,
-                        })
-                    except Exception:
-                        continue
+                        live_games_local = _get_live_games_cached(date_param)
+                        gs = []
+                        for lg in (live_games_local or []):
+                            try:
+                                a = normalize_team_name(lg.get('away_team') or '')
+                                h = normalize_team_name(lg.get('home_team') or '')
+                                if not a or not h:
+                                    continue
+                                gs.append({
+                                    'game_id': lg.get('game_pk') or f"{a.replace(' ', '_')}_vs_{h.replace(' ', '_')}",
+                                    'away_team': a,
+                                    'home_team': h,
+                                    'date': date_param,
+                                    'away_pitcher': lg.get('away_pitcher') or 'TBD',
+                                    'home_pitcher': lg.get('home_pitcher') or 'TBD',
+                                    'predicted_away_score': None,
+                                    'predicted_home_score': None,
+                                    'predicted_total_runs': None,
+                                    'away_win_probability': None,
+                                    'home_win_probability': None,
+                                })
+                            except Exception:
+                                continue
+                        result_box['games'] = gs
+                    finally:
+                        try:
+                            done.set()
+                        except Exception:
+                            pass
+
+                t = threading.Thread(target=_worker, daemon=True)
+                t.start()
+                t.join(timeout=0.45)  # hard cap ~450ms
+                if done.is_set() and result_box.get('games') is not None:
+                    games.extend(result_box['games'])
+                # else: skip to next step without blocking
             except Exception:
                 pass
 

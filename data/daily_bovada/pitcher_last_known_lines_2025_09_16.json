@@ -1,8 +1,8 @@
 {
   "date": "2025-09-16",
-  "retrieved_at": "2025-09-16T15:38:15.145296",
-  "pitcher_props": {
-    "jake irvin (was)": {
+  "updated_at": "2025-09-16T10:12:32.999796-05:00",
+  "pitchers": {
+    "jake irvin": {
       "strikeouts": {
         "line": 3.5,
         "over_odds": "+110",
@@ -29,7 +29,7 @@
         "under_odds": "-160"
       }
     },
-    "jose suarez (laa)": {
+    "jose suarez": {
       "strikeouts": {
         "line": 3.5,
         "over_odds": "-130",
@@ -51,7 +51,7 @@
         "under_odds": "-140"
       }
     },
-    "cade horton (chc)": {
+    "cade horton": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "+110",
@@ -73,7 +73,7 @@
         "under_odds": "-140"
       }
     },
-    "paul skenes (pit)": {
+    "paul skenes": {
       "strikeouts": {
         "line": 6.5,
         "over_odds": "-150",
@@ -95,7 +95,7 @@
         "under_odds": "-220"
       }
     },
-    "casey mize (det)": {
+    "casey mize": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "+110",
@@ -122,7 +122,7 @@
         "under_odds": "-105"
       }
     },
-    "joey cantillo (cle)": {
+    "joey cantillo": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "+115",
@@ -176,7 +176,7 @@
         "under_odds": "-200"
       }
     },
-    "jeffrey springs (ath)": {
+    "jeffrey springs": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "-120",
@@ -203,9 +203,7 @@
         "under_odds": "-170"
       }
     },
-    "mackenzie gore (was)": {},
-    "chris sale (atl)": {},
-    "clay holmes (nym)": {
+    "clay holmes": {
       "strikeouts": {
         "line": 3.5,
         "over_odds": "+125",
@@ -232,7 +230,7 @@
         "under_odds": "-105"
       }
     },
-    "michael king (sd)": {
+    "michael king": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "-135",
@@ -259,7 +257,7 @@
         "under_odds": "-200"
       }
     },
-    "jose berrios (tor)": {
+    "jose berrios": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "+115",
@@ -286,7 +284,7 @@
         "under_odds": "-105"
       }
     },
-    "ryan pepiot (tb)": {
+    "ryan pepiot": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "+130",
@@ -313,7 +311,7 @@
         "under_odds": "+115"
       }
     },
-    "dean kremer (bal)": {
+    "dean kremer": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "EVEN",
@@ -340,7 +338,7 @@
         "under_odds": "-180"
       }
     },
-    "shane smith (cws)": {
+    "shane smith": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "+105",
@@ -367,7 +365,7 @@
         "under_odds": "-145"
       }
     },
-    "caden dana (laa)": {
+    "caden dana": {
       "strikeouts": {
         "line": 3.5,
         "over_odds": "-165",
@@ -394,7 +392,7 @@
         "under_odds": "-130"
       }
     },
-    "freddy peralta (mil)": {
+    "freddy peralta": {
       "strikeouts": {
         "line": 8.5,
         "over_odds": "+110",
@@ -421,7 +419,7 @@
         "under_odds": "-115"
       }
     },
-    "cam schlittler (nyy)": {
+    "cam schlittler": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "-130",
@@ -448,7 +446,7 @@
         "under_odds": "-115"
       }
     },
-    "zebby matthews (min)": {
+    "zebby matthews": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "EVEN",
@@ -475,7 +473,7 @@
         "under_odds": "+130"
       }
     },
-    "logan gilbert (sea)": {
+    "logan gilbert": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "-120",
@@ -502,7 +500,7 @@
         "under_odds": "+105"
       }
     },
-    "michael wacha (kc)": {
+    "michael wacha": {
       "strikeouts": {
         "line": 3.5,
         "over_odds": "-160",
@@ -529,7 +527,7 @@
         "under_odds": "-180"
       }
     },
-    "andrew abbott (cin)": {
+    "andrew abbott": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "+120",
@@ -556,7 +554,7 @@
         "under_odds": "+140"
       }
     },
-    "michael mcgreevy (stl)": {
+    "michael mcgreevy": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "+125",
@@ -590,7 +588,7 @@
         "under_odds": "EVEN"
       }
     },
-    "merrill kelly (tex)": {
+    "merrill kelly": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "-160",
@@ -617,7 +615,7 @@
         "under_odds": "+145"
       }
     },
-    "eury perez (mia)": {
+    "eury perez": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "-110",
@@ -644,7 +642,7 @@
         "under_odds": "-130"
       }
     },
-    "kyle freeland (col)": {
+    "kyle freeland": {
       "strikeouts": {
         "line": 3.5,
         "over_odds": "-135",
@@ -671,7 +669,7 @@
         "under_odds": "-125"
       }
     },
-    "eduardo rodriguez (ari)": {
+    "eduardo rodriguez": {
       "strikeouts": {
         "line": 4.5,
         "over_odds": "-160",
@@ -693,7 +691,7 @@
         "under_odds": "-115"
       }
     },
-    "cristopher sanchez (phi)": {
+    "cristopher sanchez": {
       "strikeouts": {
         "line": 5.5,
         "over_odds": "+110",
@@ -720,15 +718,12 @@
         "under_odds": "+130"
       }
     },
-    "shohei ohtani (lad)": {
+    "shohei ohtani": {
       "walks": {
         "line": 1.5,
         "over_odds": "+130",
         "under_odds": "-170"
       }
-    },
-    "michael mcgree": {},
-    "pitcher2": {}
-  },
-  "event_count": 46
+    }
+  }
 }

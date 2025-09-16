@@ -7,13 +7,14 @@ services:
     runtime: python
     pythonVersion: "3.11.9"
     buildCommand: bash build.sh
-  startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 210 --max-requests 1000
+  startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --max-requests 1000 --preload
+  healthCheckPath: /api/diag
     # Note: No persistent disk on web to avoid shadowing repo 'data' folder with empty volume.
     # The app reads git-tracked daily files immediately after deploy. A separate worker can
     # maintain a disk if needed for persistence.
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.9
+        value: "3.11.9"
       - key: FLASK_ENV
         value: production
       - key: WEATHER_API_KEY
@@ -22,6 +23,10 @@ services:
         value: "."
       - key: PYTHONUNBUFFERED
         value: "1"
+      - key: ENABLE_PERIODIC_WARM
+        value: "1"
+      - key: PERIODIC_WARM_INTERVAL_SECONDS
+        value: "480"
       # IMPORTANT: Set the same token value here and on the worker service
       - key: PITCHER_SSE_INGEST_TOKEN
         value: REPLACE_IN_RENDER_UI
@@ -36,7 +41,7 @@ services:
     startCommand: python continuous_pitcher_props_updater.py
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.9
+        value: "3.11.9"
       - key: PYTHONPATH
         value: "."
       - key: PYTHONUNBUFFERED
