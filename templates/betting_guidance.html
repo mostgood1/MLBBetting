@@ -5,38 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Betting Guidance - Kelly Recommendations</title>
   <link rel="icon" href="/static/favicon.ico" />
+  <link rel="stylesheet" href="/static/css/utilities.css" />
   <style>
     /* Base layout */
     body { font-family: Inter, Segoe UI, Arial, sans-serif; background:#0b1e39; color:#e5e7eb; margin:0; }
     .container { max-width:1200px; margin:0 auto; padding:24px; }
-    .card { background:#fff; color:#111; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:18px; }
+  /* card style comes from utilities.css when used as a light card; keeping here for this page layout specifics only if needed */
     h1 { color:#163a6b; }
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:16px; }
     /* Stat tiles sit on light background, enforce dark text for contrast */
     .stat { background:#f8fbff; color:#163a6b; border:1px solid #e2ecf7; border-radius:12px; padding:16px; text-align:center; }
     .stat .num { font-size:28px; font-weight:700; color:#163a6b; }
-    .badge { padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700; }
-    .badge.HIGH { background:#16a34a; color:#fff; }
-    .badge.MEDIUM { background:#2563eb; color:#fff; }
-    .badge.LOW { background:#eab308; color:#111; }
-    .muted { color:#666; font-size:13px; }
-  .btn { background:#163a6b; color:#fff; padding:10px 16px; border:none; border-radius:10px; cursor:pointer; text-decoration:none; display:inline-block; }
-  .btn.secondary { background:#2a74dc; }
+    /* badge/button/muted now come from utilities.css */
   .input { padding:8px 10px; border-radius:8px; border:1px solid #cfe1f8; }
-  .table { width:100%; border-collapse: collapse; }
-  .table th, .table td { border-bottom:1px solid #eee; padding:10px; text-align:left; }
-  .table-wrap { width:100%; overflow-x:auto; }
-  /* Utilities */
-  .row-between { display:flex; justify-content: space-between; align-items:center; }
-  .toolbar { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
-  .toolbar.wrap { flex-wrap:wrap; }
-  .mt-8 { margin-top:8px; }
-  .mt-10 { margin-top:10px; }
-  .mt-16 { margin-top:16px; }
-  .mt-18 { margin-top:18px; }
-  .mb-4 { margin-bottom:4px; }
-  .mb-8 { margin-bottom:8px; }
-  .heading-tight { margin:8px 0; }
+  /* table styles are consolidated into utilities.css */
+  /* utilities are provided by utilities.css */
     /* Responsive enhancements */
     @media (max-width: 700px){
       body { font-size:14px; }

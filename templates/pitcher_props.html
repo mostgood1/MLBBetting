@@ -7,6 +7,7 @@
   <!-- Prefetch home and quick snapshot so returning is instant, even on Render cold starts -->
   <link rel="prefetch" href="/">
   <link rel="prefetch" href="/api/today-games/quick?no_network=1">
+  <link rel="stylesheet" href="/static/css/utilities.css" />
   <style>
     body { font-family: Segoe UI, Arial, sans-serif; background: #0b1220; color: #e5f2ff; margin: 0; }
     .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
@@ -14,15 +15,8 @@
     input, button { padding: 8px 10px; border-radius: 8px; border: 1px solid #263655; background: #0f1a2e; color: #e5f2ff; }
     button { background: #18b7a0; border-color: #18b7a0; cursor: pointer; font-weight: 600; }
     button:hover { background: #10a38e; }
-    /* Utilities */
-    .link-back { text-decoration:none; color:#18b7a0; font-weight:700; }
-    .h1-tight { margin:0 6px 0 2px; }
-    .btn-blue { background:#2563eb; border-color:#2563eb; }
-    .minw-140 { min-width:140px; display:inline-block; }
-    .mb-8 { margin-bottom:8px; }
-    .legend { font-size:11px; line-height:1.4; margin:-4px 0 12px; background:rgba(255,255,255,0.04); padding:8px 10px; border:1px solid rgba(255,255,255,0.08); border-radius:8px; }
-    .fw-700 { font-weight:700; }
-    .model-banner { margin-top:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.12); display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  /* Utilities moved to utilities.css */
+  .legend { font-size:11px; line-height:1.4; margin:-4px 0 12px; background:rgba(255,255,255,0.04); padding:8px 10px; border:1px solid rgba(255,255,255,0.08); border-radius:8px; }
   .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
   @media (max-width: 760px){ .grid { grid-template-columns: 1fr; gap: 12px; } }
     .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px; }
