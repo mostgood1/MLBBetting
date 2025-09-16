@@ -7288,6 +7288,12 @@ def api_today_games():
         t_start = time.time()
         # Get date from request parameter (defaults to business date)
         date_param = request.args.get('date', get_business_date())
+        # Heavy mode toggle: when enabled or for doubleheaders, run full per-game simulations
+        heavy_mode = str(request.args.get('heavy', '')).lower() in ('1', 'true', 'yes', 'heavy')
+        try:
+            sim_count_override = int(request.args.get('sim_count')) if request.args.get('sim_count') else None
+        except Exception:
+            sim_count_override = None
         logger.info(f"API today-games called for date: {date_param}")
 
         # Ultra-lightweight cache to reduce repeated heavy work
@@ -7301,6 +7307,8 @@ def api_today_games():
             try:
                 resp.headers['X-Cache-Hit'] = '1'
                 resp.headers['Server-Timing'] = f"total;dur={int((time.time()-t_start)*1000)}"
+                if heavy_mode:
+                    resp.headers['X-Heavy-Mode'] = '1'
             except Exception:
                 pass
             return resp
@@ -7501,7 +7509,7 @@ def api_today_games():
         games_dict = today_data.get('games', {})
         logger.info(f"Found {len(games_dict)} games for {date_param}")
         
-        # Check for doubleheaders and add missing games from live data
+        # Check for doubleheaders and add/match missing games using robust normalized keys
         try:
             live_games = _get_live_games_cached(date_param)
             # Build a map of probable pitchers by normalized matchup to fill TBDs later
@@ -7517,29 +7525,174 @@ def api_today_games():
                         }
             except Exception as _:
                 probable_by_matchup = {}
-            
-            # Group live games by team matchup
-            live_matchups = {}
-            for live_game in (live_games or []):
-                away_team = live_game.get('away_team', '')
-                home_team = live_game.get('home_team', '')
-                matchup_key = f"{away_team}_vs_{home_team}"
-                
-                if matchup_key not in live_matchups:
-                    live_matchups[matchup_key] = []
-                live_matchups[matchup_key].append(live_game)
-            
-            # Check for doubleheaders (multiple games same matchup)
-            doubleheader_count = 0
-            for matchup_key, live_game_list in live_matchups.items():
-                if len(live_game_list) > 1:
-                    logger.info(f"🎯 DOUBLEHEADER DETECTED: {matchup_key} has {len(live_game_list)} games")
-                    doubleheader_count += 1
 
-                    # If a base game exists for this matchup, annotate it as G1 with DH metadata
-                    if matchup_key in games_dict and live_game_list:
+            # Group live games by normalized (away, home) pair
+            from collections import defaultdict as _dd
+            live_matchups_by_pair = _dd(list)
+            for lg in (live_games or []):
+                a = normalize_team_name(lg.get('away_team', ''))
+                h = normalize_team_name(lg.get('home_team', ''))
+                if not a or not h:
+                    continue
+                live_matchups_by_pair[(a, h)].append(lg)
+
+            # Build games_dict index by normalized (away, home)
+            games_keys_by_pair = _dd(list)
+            for k, g in (games_dict or {}).items():
+                try:
+                    ga = normalize_team_name(g.get('away_team', ''))
+                    gh = normalize_team_name(g.get('home_team', ''))
+                    if ga and gh:
+                        games_keys_by_pair[(ga, gh)].append(k)
+                except Exception:
+                    continue
+
+            # First, annotate existing duplicate matchups in games_dict as DH and align to live list if present
+            for pair, keys in list(games_keys_by_pair.items()):
+                if len(keys) > 1:
+                    a_norm, h_norm = pair
+                    logger.info(f"🎯 DOUBLEHEADER (from cache duplicates): {a_norm} vs {h_norm} has {len(keys)} entries")
+                    # Sort keys by game_time if available for stability
+                    try:
+                        keys_sorted = sorted(keys, key=lambda kk: (games_dict.get(kk, {}).get('game_time') or ''))
+                    except Exception:
+                        keys_sorted = list(keys)
+                    live_list = live_matchups_by_pair.get(pair) or []
+                    # Sort live list by game_time as well
+                    try:
+                        live_sorted = sorted(live_list, key=lambda lg: (lg.get('game_time') or lg.get('gameDate') or ''))
+                    except Exception:
+                        live_sorted = list(live_list)
+                    # Use first as base for predictions copy
+                    base_g = games_dict.get(keys_sorted[0], {})
+                    base_preds = {
+                        'away_win_probability': base_g.get('away_win_probability'),
+                        'home_win_probability': base_g.get('home_win_probability'),
+                        'predicted_total_runs': base_g.get('predicted_total_runs'),
+                    }
+                    # Helper to derive a base total from multiple possible sources
+                    def _derive_base_total(bg: dict) -> float:
                         try:
-                            base_game = games_dict.get(matchup_key, {})
+                            pt = (
+                                bg.get('predicted_total_runs') or
+                                (bg.get('predictions') or {}).get('predicted_total_runs') or
+                                ((bg.get('comprehensive_details') or {}).get('total_runs_prediction') or {}).get('predicted_total') or
+                                ((bg.get('predicted_away_score') or 0) + (bg.get('predicted_home_score') or 0))
+                            )
+                            return float(pt or 0)
+                        except Exception:
+                            return 0.0
+
+                    base_total_val = _derive_base_total(base_g)
+                    # Capture base pitchers and base scores if available
+                    base_pi = dict((base_g.get('pitcher_info') or {}))
+                    base_ap = (base_pi.get('away_pitcher_name') or '').strip()
+                    base_hp = (base_pi.get('home_pitcher_name') or '').strip()
+                    base_pred_obj = dict(base_g.get('predictions') or {})
+                    base_away_score = base_g.get('predicted_away_score') or base_pred_obj.get('predicted_away_score')
+                    base_home_score = base_g.get('predicted_home_score') or base_pred_obj.get('predicted_home_score')
+                    for i, kk in enumerate(keys_sorted):
+                        try:
+                            g = games_dict.get(kk, {})
+                            meta = dict(g.get('meta') or {})
+                            meta.update({'doubleheader': True, 'game_number': i + 1})
+                            # Align to live entry when available (distinct pitchers and game_pk)
+                            if i < len(live_sorted):
+                                lg = live_sorted[i]
+                                meta['game_pk'] = lg.get('game_pk')
+                                if not g.get('game_time'):
+                                    g['game_time'] = lg.get('game_time') or lg.get('gameDate')
+                                if not g.get('game_id'):
+                                    g['game_id'] = lg.get('game_pk') or g.get('game_id')
+                                # Update pitchers from matching live game to avoid sharing
+                                pi = dict(g.get('pitcher_info') or {})
+                                if lg.get('away_pitcher'):
+                                    pi['away_pitcher_name'] = lg.get('away_pitcher')
+                                if lg.get('home_pitcher'):
+                                    pi['home_pitcher_name'] = lg.get('home_pitcher')
+                                g['pitcher_info'] = pi
+                            # Ensure predictions exist for all DH entries
+                            if (not g.get('predicted_total_runs')):
+                                g['predicted_total_runs'] = base_preds.get('predicted_total_runs') or base_total_val or 9.0
+                            # Determine if starters are flipped vs base game
+                            pi_curr = dict(g.get('pitcher_info') or {})
+                            ap = (pi_curr.get('away_pitcher_name') or '').strip()
+                            hp = (pi_curr.get('home_pitcher_name') or '').strip()
+                            starters_flipped = bool(base_ap and base_hp and ap == base_hp and hp == base_ap)
+                            # Copy or swap win probabilities
+                            if starters_flipped:
+                                # Swap away/home probabilities and scores if present
+                                awp = base_preds.get('away_win_probability')
+                                hwp = base_preds.get('home_win_probability')
+                                if g.get('away_win_probability') in [None, 0] and hwp is not None:
+                                    g['away_win_probability'] = hwp
+                                if g.get('home_win_probability') in [None, 0] and awp is not None:
+                                    g['home_win_probability'] = awp
+                                # Swap nested predictions
+                                bp = dict(base_pred_obj)
+                                if bp:
+                                    awpf = bp.get('away_win_prob'); hwpf = bp.get('home_win_prob')
+                                    if awpf is not None or hwpf is not None:
+                                        g.setdefault('predictions', {})
+                                        g['predictions']['away_win_prob'] = hwpf if hwpf is not None else awpf
+                                        g['predictions']['home_win_prob'] = awpf if awpf is not None else hwpf
+                                # Swap scores if the base had them
+                                if base_away_score is not None and base_home_score is not None:
+                                    g['predicted_away_score'] = base_home_score
+                                    g['predicted_home_score'] = base_away_score
+                                elif not g.get('predictions') and base_g.get('predictions'):
+                                    g['predictions'] = dict(base_g.get('predictions'))
+                            else:
+                                if (g.get('away_win_probability') in [None, 0]) and base_preds.get('away_win_probability'):
+                                    g['away_win_probability'] = base_preds['away_win_probability']
+                                if (g.get('home_win_probability') in [None, 0]) and base_preds.get('home_win_probability'):
+                                    g['home_win_probability'] = base_preds['home_win_probability']
+                                # Copy nested predictions object if missing
+                                if not g.get('predictions') and base_g.get('predictions'):
+                                    g['predictions'] = base_g.get('predictions')
+                            # Heuristic: adjust win probabilities when starters differ using pitcher quality factors (if engine available)
+                            try:
+                                if prediction_engine:
+                                    # Base pitcher factors
+                                    b_apf = prediction_engine.get_pitcher_quality_factor(base_ap) if base_ap else 1.0
+                                    b_hpf = prediction_engine.get_pitcher_quality_factor(base_hp) if base_hp else 1.0
+                                    # Current pitcher factors
+                                    capf = prediction_engine.get_pitcher_quality_factor(ap) if ap else b_apf
+                                    chpf = prediction_engine.get_pitcher_quality_factor(hp) if hp else b_hpf
+                                    base_diff = float(b_apf) - float(b_hpf)
+                                    curr_diff = float(capf) - float(chpf)
+                                    delta = (curr_diff - base_diff) * 12.0  # scale to percentage points
+                                    # Only adjust if we have sensible base probabilities
+                                    if isinstance(g.get('away_win_probability'), (int, float)) and isinstance(g.get('home_win_probability'), (int, float)):
+                                        awp = float(g.get('away_win_probability') or 0)
+                                        hwp = float(g.get('home_win_probability') or 0)
+                                        awp2 = max(5.0, min(95.0, awp + delta))
+                                        hwp2 = max(5.0, min(95.0, 100.0 - awp2))
+                                        g['away_win_probability'] = round(awp2, 1)
+                                        g['home_win_probability'] = round(hwp2, 1)
+                                        # Mirror in nested predictions if present
+                                        if isinstance(g.get('predictions'), dict):
+                                            g['predictions']['away_win_prob'] = round(awp2, 1)
+                                            g['predictions']['home_win_prob'] = round(hwp2, 1)
+                            except Exception:
+                                pass
+
+                            g['meta'] = meta
+                            games_dict[kk] = g
+                        except Exception:
+                            continue
+
+            # Next, for pairs where live shows DH but cache has only one, add the missing games
+            doubleheader_count = 0
+            for (a_norm, h_norm), live_game_list in list(live_matchups_by_pair.items()):
+                if len(live_game_list) > 1:
+                    # Determine a base key present in games_dict for this pair
+                    existing_keys = games_keys_by_pair.get((a_norm, h_norm)) or []
+                    # If we have at least one existing game, annotate it as game 1
+                    if existing_keys:
+                        try:
+                            base_key = existing_keys[0]
+                            base_game = games_dict.get(base_key, {})
                             meta = dict(base_game.get('meta') or {})
                             meta.update({
                                 'source': meta.get('source') or 'unified_or_fallback',
@@ -7552,47 +7705,113 @@ def api_today_games():
                                 base_game['game_time'] = live_game_list[0].get('game_time') or live_game_list[0].get('gameDate')
                             if not base_game.get('game_id'):
                                 base_game['game_id'] = live_game_list[0].get('game_pk') or base_game.get('game_id')
-                            games_dict[matchup_key] = base_game
+                            games_dict[base_key] = base_game
                         except Exception:
                             pass
 
-                    # If we only have one game in cache but multiple in live data, add the missing ones
-                    if matchup_key in games_dict:
-                        for i, live_game in enumerate(live_game_list):
-                            if i == 0:
-                                continue  # Skip first game (already in cache)
+                    # Add additional games as needed
+                    existing_count = len(existing_keys)
+                    # Prepare base values from existing base game if available
+                    base_game = games_dict.get(existing_keys[0], {}) if existing_keys else {}
+                    try:
+                        base_total_val = (
+                            base_game.get('predicted_total_runs') or
+                            (base_game.get('predictions') or {}).get('predicted_total_runs') or
+                            ((base_game.get('comprehensive_details') or {}).get('total_runs_prediction') or {}).get('predicted_total') or
+                            ((base_game.get('predicted_away_score') or 0) + (base_game.get('predicted_home_score') or 0)) or
+                            9.0
+                        )
+                    except Exception:
+                        base_total_val = 9.0
+                    base_away_wp = base_game.get('away_win_probability') or (base_game.get('predictions') or {}).get('away_win_prob') or 0.5
+                    base_home_wp = base_game.get('home_win_probability') or (base_game.get('predictions') or {}).get('home_win_prob') or 0.5
+                    base_pi = dict((base_game.get('pitcher_info') or {}))
+                    base_ap = (base_pi.get('away_pitcher_name') or '').strip()
+                    base_hp = (base_pi.get('home_pitcher_name') or '').strip()
+                    base_away_score = base_game.get('predicted_away_score')
+                    base_home_score = base_game.get('predicted_home_score')
+                    for i, lg in enumerate(live_game_list):
+                        # Skip any live entries that are already represented in cache
+                        if i < existing_count:
+                            continue
+                        # Build a consistent underscore key for the matchup
+                        base_matchup_key = f"{a_norm.replace(' ', '_')}_vs_{h_norm.replace(' ', '_')}"
+                        # Assign next sequential game number after existing ones
+                        next_num = i + 1
+                        if existing_count >= 1:
+                            next_num = existing_count + (i - existing_count) + 1
+                        game_key = f"{base_matchup_key}_game_{next_num}"
+                        if game_key in games_dict:
+                            continue
+                        logger.info(f"🎯 Adding doubleheader game: {game_key}")
+                        # Determine if starters are flipped relative to base
+                        lg_ap = (lg.get('away_pitcher') or '').strip()
+                        lg_hp = (lg.get('home_pitcher') or '').strip()
+                        starters_flipped = bool(base_ap and base_hp and lg_ap == base_hp and lg_hp == base_ap)
 
-                            # Create a unique key for the additional game
-                            game_key = f"{matchup_key}_game_{i+1}"
-                            logger.info(f"🎯 Adding doubleheader game: {game_key}")
-
-                            # Create a cache-like entry for the additional game
-                            additional_game = {
-                                'away_team': live_game.get('away_team', ''),
-                                'home_team': live_game.get('home_team', ''),
-                                'game_date': date_param,
-                                'game_time': live_game.get('game_time') or live_game.get('gameDate'),
-                                'game_id': live_game.get('game_pk', ''),
-                                'away_win_probability': 0.5,  # Default values
-                                'home_win_probability': 0.5,
-                                'predicted_total_runs': 9.0,
-                                'pitcher_info': {
-                                    'away_pitcher_name': live_game.get('away_pitcher', 'TBD'),
-                                    'home_pitcher_name': live_game.get('home_pitcher', 'TBD')
-                                },
-                                'comprehensive_details': {},
-                                'meta': {
-                                    'source': 'live_data_doubleheader',
-                                    'doubleheader': True,
-                                    'game_number': i + 1,
-                                    'game_pk': live_game.get('game_pk')
+                        additional_game = {
+                            'away_team': lg.get('away_team', a_norm),
+                            'home_team': lg.get('home_team', h_norm),
+                            'game_date': date_param,
+                            'game_time': lg.get('game_time') or lg.get('gameDate'),
+                            'game_id': lg.get('game_pk', ''),
+                            'away_win_probability': (float(base_home_wp) if starters_flipped else float(base_away_wp)) if existing_keys else 0.5,
+                            'home_win_probability': (float(base_away_wp) if starters_flipped else float(base_home_wp)) if existing_keys else 0.5,
+                            'predicted_total_runs': float(base_total_val) if existing_keys else 9.0,
+                            'pitcher_info': {
+                                'away_pitcher_name': lg.get('away_pitcher', 'TBD'),
+                                'home_pitcher_name': lg.get('home_pitcher', 'TBD')
+                            },
+                            'comprehensive_details': {},
+                            'predictions': (
+                                {
+                                    'away_win_prob': float(base_home_wp) if starters_flipped else float(base_away_wp),
+                                    'home_win_prob': float(base_away_wp) if starters_flipped else float(base_home_wp),
+                                    'predicted_total_runs': float(base_total_val)
+                                } if existing_keys else {
+                                    'away_win_prob': 0.5,
+                                    'home_win_prob': 0.5,
+                                    'predicted_total_runs': 9.0
                                 }
+                            ),
+                            'meta': {
+                                'source': 'live_data_doubleheader',
+                                'doubleheader': True,
+                                'game_number': next_num,
+                                'game_pk': lg.get('game_pk')
                             }
-                            games_dict[game_key] = additional_game
-            
+                        }
+                        # If base scores are present and starters flipped, swap them
+                        if existing_keys and starters_flipped and base_away_score is not None and base_home_score is not None:
+                            additional_game['predicted_away_score'] = base_home_score
+                            additional_game['predicted_home_score'] = base_away_score
+                        # Heuristic: adjust win probabilities based on pitcher factors relative to base when available
+                        try:
+                            if existing_keys and prediction_engine:
+                                b_apf = prediction_engine.get_pitcher_quality_factor(base_ap) if base_ap else 1.0
+                                b_hpf = prediction_engine.get_pitcher_quality_factor(base_hp) if base_hp else 1.0
+                                capf = prediction_engine.get_pitcher_quality_factor(lg_ap) if lg_ap else b_apf
+                                chpf = prediction_engine.get_pitcher_quality_factor(lg_hp) if lg_hp else b_hpf
+                                base_diff = float(b_apf) - float(b_hpf)
+                                curr_diff = float(capf) - float(chpf)
+                                delta = (curr_diff - base_diff) * 12.0
+                                awp = float(additional_game.get('away_win_probability') or 0)
+                                awp2 = max(5.0, min(95.0, awp + delta))
+                                hwp2 = max(5.0, min(95.0, 100.0 - awp2))
+                                additional_game['away_win_probability'] = round(awp2, 1)
+                                additional_game['home_win_probability'] = round(hwp2, 1)
+                                if isinstance(additional_game.get('predictions'), dict):
+                                    additional_game['predictions']['away_win_prob'] = round(awp2, 1)
+                                    additional_game['predictions']['home_win_prob'] = round(hwp2, 1)
+                        except Exception:
+                            pass
+
+                        games_dict[game_key] = additional_game
+                        doubleheader_count += 1
+
             if doubleheader_count > 0:
                 logger.info(f"🎯 DOUBLEHEADER SUMMARY: Added {doubleheader_count} additional games for doubleheaders")
-                
+
         except Exception as e:
             logger.warning(f"⚠️ Could not check for doubleheaders: {e}")
         
@@ -7901,6 +8120,46 @@ def api_today_games():
             away_pitch_metrics = _proj_pitch_metrics(away_pitcher, away_team, home_team)
             home_pitch_metrics = _proj_pitch_metrics(home_pitcher, home_team, away_team)
 
+            # HEAVY PREDICTION PATH: For DH games or when explicitly requested, run full simulations per game
+            try:
+                if prediction_engine and (heavy_mode or is_doubleheader):
+                    sim_params = (prediction_engine.config or {}).get('simulation_parameters', {}) if hasattr(prediction_engine, 'config') else {}
+                    sim_count = sim_count_override or sim_params.get('detailed_sim_count', 5000)
+                    results_pitch = prediction_engine.simulate_game_vectorized(
+                        away_team, home_team, int(sim_count), date_param, away_pitcher, home_pitcher
+                    )
+                    # simulate_game_vectorized returns (results, pitcher_info)
+                    if isinstance(results_pitch, tuple) and len(results_pitch) >= 1:
+                        results = results_pitch[0]
+                        if results:
+                            total = len(results)
+                            home_wins = sum(1 for r in results if getattr(r, 'home_wins', False))
+                            sum_away = sum(getattr(r, 'away_score', 0) for r in results)
+                            sum_home = sum(getattr(r, 'home_score', 0) for r in results)
+                            sum_total = sum(getattr(r, 'total_runs', (getattr(r, 'away_score', 0)+getattr(r, 'home_score', 0))) for r in results)
+                            avg_away = round(float(sum_away) / float(total), 1) if total else 0.0
+                            avg_home = round(float(sum_home) / float(total), 1) if total else 0.0
+                            avg_total = round(float(sum_total) / float(total), 1) if total else 0.0
+                            home_wp = round((float(home_wins) / float(total)) * 100.0, 1) if total else 50.0
+                            away_wp = round(100.0 - home_wp, 1)
+                            # Write back into game_data predictions so downstream uses the heavy results
+                            game_data.setdefault('predictions', {})
+                            game_data['predictions'].update({
+                                'predicted_away_score': avg_away,
+                                'predicted_home_score': avg_home,
+                                'predicted_total_runs': avg_total,
+                                'away_win_prob': round(away_wp, 1),
+                                'home_win_prob': round(home_wp, 1)
+                            })
+                            game_data['predicted_away_score'] = avg_away
+                            game_data['predicted_home_score'] = avg_home
+                            game_data['predicted_total_runs'] = avg_total
+                            game_data['away_win_probability'] = away_wp
+                            game_data['home_win_probability'] = home_wp
+                            logger.info(f"🧠 HEAVY PRED: {away_team} @ {home_team} ({'DH' if is_doubleheader else 'single'}) -> {avg_away}-{avg_home} total {avg_total} | away_wp {away_wp} home_wp {home_wp} [sim:{sim_count}]")
+            except Exception as _he:
+                logger.warning(f"Heavy prediction path failed for {away_team} @ {home_team}: {_he}")
+
             # Extract prediction data with fallback handling for nested structure
             predictions = game_data.get('predictions', {})
             
@@ -8138,6 +8397,8 @@ def api_today_games():
             resp.headers['Server-Timing'] = \
                 f"unified_cache;dur={uc_ms},lines;dur={lines_ms},recs;dur={recs_ms},total;dur={total_ms}"
             resp.headers['X-Cache-Hit'] = '0'
+            if heavy_mode:
+                resp.headers['X-Heavy-Mode'] = '1'
         except Exception:
             pass
         return resp
