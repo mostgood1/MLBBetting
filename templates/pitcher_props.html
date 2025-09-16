@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pitcher Props</title>
+  <!-- Prefetch home and quick snapshot so returning is instant, even on Render cold starts -->
+  <link rel="prefetch" href="/">
+  <link rel="prefetch" href="/api/today-games/quick?no_network=1">
   <style>
     body { font-family: Segoe UI, Arial, sans-serif; background: #0b1220; color: #e5f2ff; margin: 0; }
     .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
@@ -65,7 +68,7 @@
 <body>
   <div class="container">
     <div class="toolbar">
-      <a href="/" style="text-decoration:none; color:#18b7a0; font-weight:700">← Back</a>
+      <a href="/" onclick="if(history.length>1){history.back();return false;}" style="text-decoration:none; color:#18b7a0; font-weight:700">← Back</a>
       <h1 style="margin:0 6px 0 2px;">Pitcher Props</h1>
       <div class="status-dot" id="sseDot" title="Props stream status"></div>
     </div>
@@ -90,6 +93,14 @@
   </div>
 
   <script>
+    // Register service worker for improved cold-start navigation
+    try { if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(()=>{}); } } catch(_){}
+    // Proactively warm the home quick snapshot so Back is instant
+    try {
+      window.addEventListener('DOMContentLoaded', () => {
+        try { fetch(`/api/today-games/quick?no_network=1&t=${Date.now()}`, { keepalive: true, credentials: 'same-origin' }).catch(()=>{}); } catch(_){}
+      });
+    } catch(_){}
     const norm = s => (s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
     const PC_BAD_THRESHOLD = 95;
     function updatePcBadge(el, v){

@@ -9,7 +9,7 @@ Restored from archaeological recovery with enhanced features:
 - Real-time game data integration
 """
 
-from flask import Flask, request, jsonify, render_template, redirect, url_for, g
+from flask import Flask, request, jsonify, render_template, redirect, url_for, g, send_from_directory
 from typing import Any, Dict, Optional
 import json
 import os
@@ -346,6 +346,20 @@ print("DEBUG: Flask app successfully created - all routes will now register prop
 
 print("DEBUG: Successfully defined Flask app")
 
+# Service worker static route (scope at root)
+@app.route('/sw.js')
+def service_worker_js():
+    try:
+        return send_from_directory('static', 'sw.js', mimetype='application/javascript')
+    except Exception as e:
+        # Return a minimal no-op SW if static file missing
+        resp = app.response_class(
+            response="self.addEventListener('install',()=>self.skipWaiting()); self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));",
+            status=200,
+            mimetype='application/javascript'
+        )
+        return resp
+
 # Warm critical caches shortly after startup to reduce first-hit latency (non-blocking)
 def _warm_caches_async():
     try:
@@ -372,6 +386,11 @@ def _warm_caches_async():
                         api_today_games()
                     except Exception:
                         pass
+                # Kick off unified betting recs compute so first full page has recs
+                try:
+                    _get_unified_betting_recs_cached(timeout_sec=0.0, start_background_on_miss=True)
+                except Exception:
+                    pass
                 # Also warm the ultra-fast quick snapshot variant
                 with app.test_request_context(f"/api/today-games/quick?date={date_str}"):
                     try:
@@ -448,6 +467,8 @@ def api_warm():
                 _time_step('pitcher-props-unified', lambda: _call_with_path(
                     f"/api/pitcher-props/unified?date={date_str_inner}", api_pitcher_props_unified
                 ))
+                # Warm unified betting recommendations (synchronous compute into cache)
+                _time_step('unified-betting-recs', lambda: _get_unified_betting_recs_cached(timeout_sec=0.0, start_background_on_miss=False))
                 # Warm full today-games (heavier)
                 _time_step('today-games', lambda: _call_with_path(
                     f"/api/today-games?date={date_str_inner}", api_today_games
@@ -1290,16 +1311,63 @@ def _get_unified_betting_recs_with_timeout(timeout_sec: float = 2.5) -> dict:
     """Call get_app_betting_recommendations with a soft timeout to keep /api/today-games responsive.
     Returns only the raw unified recommendations dict; empty dict on timeout/error.
     """
+    # Deprecated path kept for backward compatibility. Now proxies to cached getter below.
     try:
-        result_box = {'data': {}}
+        return _get_unified_betting_recs_cached(timeout_sec=timeout_sec)
+    except Exception as e:
+        logger.warning(f"_get_unified_betting_recs_with_timeout failed: {e}")
+        return {}
+
+# In-process cache for unified betting recommendations so cold starts don't lose work
+_UNIFIED_RECS_CACHE = None  # type: ignore[var-annotated]
+_UNIFIED_RECS_TS = 0.0
+UNIFIED_RECS_TTL_SECONDS = 180  # refresh every 3 minutes by default
+
+def _compute_unified_betting_recs() -> dict:
+    """Compute unified betting recommendations synchronously and return raw dict."""
+    try:
+        from app_betting_integration import get_app_betting_recommendations
+        raw_recs, _ = get_app_betting_recommendations()
+        return raw_recs if isinstance(raw_recs, dict) else {}
+    except Exception as e:
+        logger.warning(f"compute unified betting recs failed: {e}")
+        return {}
+
+def _get_unified_betting_recs_cached(timeout_sec: float = 2.5, start_background_on_miss: bool = True) -> dict:
+    """Return unified betting recs from a short-lived in-process cache.
+    - If fresh cache exists, return immediately.
+    - Otherwise, start a background compute and wait up to timeout_sec for first result.
+      If it doesn't finish in time, return {} but keep computing so next call is warm.
+    """
+    global _UNIFIED_RECS_CACHE, _UNIFIED_RECS_TS
+    try:
+        now = time.time()
+        # Serve fresh cache if available
+        if _UNIFIED_RECS_CACHE is not None and (now - _UNIFIED_RECS_TS) < UNIFIED_RECS_TTL_SECONDS:
+            return _UNIFIED_RECS_CACHE
+
+        result_box = {'data': None}
         done = threading.Event()
 
         def _worker():
             try:
-                from app_betting_integration import get_app_betting_recommendations
-                raw_recs, _ = get_app_betting_recommendations()
-                if isinstance(raw_recs, dict):
-                    result_box['data'] = raw_recs
+                data = _compute_unified_betting_recs()
+                result_box['data'] = data
+                # Persist to cache even if caller already returned
+                try:
+                    if isinstance(data, dict) and data:
+                        _cache = data
+                    else:
+                        _cache = data or {}
+                    # update globals
+                    nonlocal now
+                    # recompute now to freshness at write time
+                    ts_now = time.time()
+                    # assign
+                    globals()['_UNIFIED_RECS_CACHE'] = _cache
+                    globals()['_UNIFIED_RECS_TS'] = ts_now
+                except Exception as ce:
+                    logger.debug(f"unified recs cache store skipped: {ce}")
             except Exception as _e:
                 logger.warning(f"unified betting recs worker error: {_e}")
             finally:
@@ -1308,15 +1376,22 @@ def _get_unified_betting_recs_with_timeout(timeout_sec: float = 2.5) -> dict:
                 except Exception:
                     pass
 
-        t = threading.Thread(target=_worker, daemon=True)
-        t.start()
-        t.join(timeout=timeout_sec)
-        if not done.is_set():
-            logger.info(f"⏱️ Unified betting recs timed out after {timeout_sec}s; continuing without them")
+        if start_background_on_miss:
+            t = threading.Thread(target=_worker, daemon=True)
+            t.start()
+            t.join(timeout=timeout_sec)
+            if done.is_set() and isinstance(result_box.get('data'), dict):
+                return result_box.get('data') or {}
+            logger.info(f"⏱️ Unified betting recs still computing after {timeout_sec}s; returning empty for now (will be cached when ready)")
             return {}
-        return result_box.get('data') or {}
+        else:
+            # Synchronous path (used by warmers)
+            data = _compute_unified_betting_recs()
+            _UNIFIED_RECS_CACHE = data or {}
+            _UNIFIED_RECS_TS = time.time()
+            return _UNIFIED_RECS_CACHE
     except Exception as e:
-        logger.warning(f"_get_unified_betting_recs_with_timeout failed: {e}")
+        logger.warning(f"_get_unified_betting_recs_cached failed: {e}")
         return {}
 
 def extract_real_total_line(real_lines, game_key="Unknown"):
@@ -7143,13 +7218,13 @@ def api_today_games():
             real_betting_lines = None
             lines_ms = -1
 
-        # Unified betting recommendations with soft timeout; skip legacy loader here to keep latency low
+        # Unified betting recommendations with soft timeout backed by cache; keeps latency low on cold starts
         betting_recommendations = {'games': {}}  # placeholder for downstream shape
-        logger.info("🎯 Loading unified betting recommendations for API (soft timeout)...")
+        logger.info("🎯 Loading unified betting recommendations for API (soft timeout + cache)...")
         t_recs = time.time()
-        unified_betting_recommendations = _get_unified_betting_recs_with_timeout(timeout_sec=2.5)
+        unified_betting_recommendations = _get_unified_betting_recs_cached(timeout_sec=2.5)
         recs_ms = int((time.time()-t_recs)*1000)
-        logger.info(f"✅ Unified betting recs ready: {len(unified_betting_recommendations) if hasattr(unified_betting_recommendations,'keys') else 0} games (may be 0 on timeout)")
+        logger.info(f"✅ Unified betting recs (cached) ready: {len(unified_betting_recommendations) if hasattr(unified_betting_recommendations,'keys') else 0} games (0 means still warming)")
 
         logger.info(f"Loaded cache with keys: {list(unified_cache.keys())[:5]}...")  # Show first 5 keys
         

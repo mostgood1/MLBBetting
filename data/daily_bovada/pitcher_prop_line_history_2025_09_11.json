@@ -27,6 +27,15 @@
       "pitcher": "john_doe",
       "type": "line_initial",
       "under_odds": -110
+    },
+    {
+      "date": "2025-09-11",
+      "line": 4.5,
+      "market": "strikeouts",
+      "over_odds": -110,
+      "pitcher": "john_doe",
+      "type": "line_initial",
+      "under_odds": -110
     }
   ]
 }

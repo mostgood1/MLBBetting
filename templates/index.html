@@ -807,6 +807,7 @@
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            try { if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(()=>{}); } } catch(_){}
             document.getElementById('game-date').value = localDateString;
             loadSummary();
             // Quick-first: paint ultra-fast snapshot, then hydrate full data
@@ -826,6 +827,18 @@
             
             // Update dashboard stats every 2 minutes
             setInterval(loadLiveDashboardStats, 120000);
+        });
+
+        // On back/forward cache restore, skip heavy reloads and just tick live once
+        window.addEventListener('pageshow', function(e){
+            try {
+                if (e && e.persisted) {
+                    console.info('[NAV] bfcache restore detected — skipping heavy re-fetch');
+                    // Ensure live updates interval is running, and do a single lightweight update
+                    try { startLiveUpdates(); } catch(_){}
+                    try { setTimeout(updateLiveGames, 500); } catch(_){}
+                }
+            } catch(_){}
         });
 
         // 🔥 LIVE DASHBOARD STATS WIDGET
