@@ -4288,6 +4288,27 @@ def api_pitcher_props_live_stats():
         date_str = request.args.get('date') or get_business_date()
         name_filter = (request.args.get('name') or '').strip().lower()
         box = _load_boxscore_pitcher_stats(date_str) or {}
+        # Optional gate: by default, only return stats for pitchers whose games are live to avoid pregame leakage
+        only_live = (request.args.get('only_live') or '1') in ('1','true','yes')
+        live_names: set[str] = set()
+        live_ids: set[str] = set()
+        if only_live:
+            try:
+                from live_mlb_data import LiveMLBData as _LMD_gate
+                _api = _LMD_gate()
+                eg = _api.get_enhanced_games_data(date_str) or []
+                for g in eg:
+                    if g.get('is_live'):
+                        ap = normalize_name((g.get('away_pitcher') or '').strip())
+                        hp = normalize_name((g.get('home_pitcher') or '').strip())
+                        if ap: live_names.add(ap)
+                        if hp: live_names.add(hp)
+                        apid = g.get('away_pitcher_id') or g.get('away_pitcher_mlb_id')
+                        hpid = g.get('home_pitcher_id') or g.get('home_pitcher_mlb_id')
+                        if apid: live_ids.add(str(apid))
+                        if hpid: live_ids.add(str(hpid))
+            except Exception:
+                pass
         # Build today's probable pitcher name/id sets to focus live stats on relevant starters
         target_names: set[str] = set()
         target_ids: set[str] = set()
@@ -4470,11 +4491,16 @@ def api_pitcher_props_live_stats():
         for nk, dv in out.items():
             nr = _normalize_rec(dv or {})
             if nr:
+                # If only_live is set, restrict to pitchers whose games are live
+                if only_live and (nk not in live_names):
+                    continue
                 norm_out[nk] = nr
         norm_by_id: Dict[str, Dict[str, Any]] = {}
         for pid, dv in out_by_id.items():
             nr = _normalize_rec(dv or {})
             if nr:
+                if only_live and (pid not in live_ids):
+                    continue
                 norm_by_id[pid] = nr
 
         return jsonify({'success': True, 'date': date_str, 'count': len(norm_out), 'live_stats': norm_out, 'live_stats_by_id': norm_by_id})
@@ -4929,6 +4955,25 @@ def api_pitcher_props_unified():
             except Exception as _e:
                 logger.warning(f"[UNIFIED] Could not build games_doc from MLB schedule: {_e}")
 
+        # Determine which pitchers' games are currently live to avoid pregame stat leakage in UI
+        t_status = time.time()
+        live_pitchers: set[str] = set()
+        try:
+            from live_mlb_data import LiveMLBData as _LMD_for_status
+            _status_api = _LMD_for_status()
+            _enh_games = _status_api.get_enhanced_games_data(date_str) or []
+            for g in _enh_games:
+                if g.get('is_live'):
+                    ap = normalize_name((g.get('away_pitcher') or '').strip())
+                    hp = normalize_name((g.get('home_pitcher') or '').strip())
+                    if ap:
+                        live_pitchers.add(ap)
+                    if hp:
+                        live_pitchers.add(hp)
+        except Exception:
+            live_pitchers = set()
+        timings['load_live_status'] = round(time.time()-t_status,3)
+
         # Build team/opponent map
         t_team = time.time()
         team_map = {}
@@ -5126,6 +5171,9 @@ def api_pitcher_props_unified():
             for raw_key, mkts in pitcher_props.items():
                 name_only = raw_key.split('(')[0].strip()
                 norm_key = normalize_name(name_only)
+                # Restrict to pitchers scheduled for the requested date when available
+                if allowed_nks and (norm_key not in allowed_nks):
+                    continue
                 st = stats_by_name.get(norm_key, {})
                 team_info = team_map.get(norm_key, {'team': None, 'opponent': None})
                 # Augment with last-known lines if needed
@@ -5206,7 +5254,7 @@ def api_pitcher_props_unified():
                     'opponent': team_info.get('opponent'),
                     'normalized': norm_key,
                     'pitch_count': None,
-                    'live_pitches': (live_box.get(norm_key, {}) or {}).get('pitches')
+                    'live_pitches': ((live_box.get(norm_key, {}) or {}).get('pitches') if (norm_key in live_pitchers) else None)
                 }
             payload = {
                 'success': True,
@@ -5393,7 +5441,7 @@ def api_pitcher_props_unified():
                 'opponent': opponent,
                 'normalized': norm_key,
                 'pitch_count': proj.get('pitch_count') if proj else None,
-                'live_pitches': (live_box.get(norm_key, {}) or {}).get('pitches')
+                'live_pitches': ((live_box.get(norm_key, {}) or {}).get('pitches') if (norm_key in live_pitchers) else None)
             }
 
         # Also include projection-only bundles for pitchers in today's games who have no lines
@@ -5468,7 +5516,7 @@ def api_pitcher_props_unified():
                     'opponent': opponent,
                     'normalized': nk,
                     'pitch_count': proj.get('pitch_count') if proj else None,
-                    'live_pitches': (live_box.get(nk, {}) or {}).get('pitches')
+                    'live_pitches': ((live_box.get(nk, {}) or {}).get('pitches') if (nk in live_pitchers) else None)
                 }
         except Exception:
             pass
