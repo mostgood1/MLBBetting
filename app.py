@@ -9427,63 +9427,94 @@ def api_single_prediction(away_team, home_team):
         
         # Load additional factor data for comprehensive modal display
         try:
-            # Load team strengths
-            team_strengths = {}
+            # Normalizer for robust team name matching
+            import unicodedata as _ud
+            def _norm_name(s: str) -> str:
+                try:
+                    return ''.join(ch for ch in _ud.normalize('NFD', str(s)) if _ud.category(ch) != 'Mn')\
+                        .lower().replace('&', 'and')\
+                        .replace('.', ' ').replace('-', ' ').replace("'", '')
+                except Exception:
+                    return str(s).lower().strip()
+
+            # Load team strengths (normalize keys)
+            team_strengths_map: dict[str, float] = {}
             try:
-                with open('data/master_team_strength.json', 'r') as f:
-                    team_strengths = json.load(f)
+                with open('data/master_team_strength.json', 'r', encoding='utf-8') as f:
+                    ts_raw = json.load(f)
+                for k, v in (ts_raw or {}).items():
+                    team_strengths_map[_norm_name(k)] = float(v)
             except (FileNotFoundError, json.JSONDecodeError):
                 logger.warning("Could not load team strengths for modal")
             
-            # Load bullpen data
-            bullpen_factors = {}
+            # Load bullpen data (normalize keys and compute rating)
+            bullpen_map: dict[str, dict] = {}
             try:
-                with open('data/bullpen_stats.json', 'r') as f:
+                with open('data/bullpen_stats.json', 'r', encoding='utf-8') as f:
                     bullpen_data = json.load(f)
-                    for team, stats in bullpen_data.items():
-                        quality = stats.get('quality_factor', 1.0)
-                        if quality >= 1.2:
-                            rating = "Elite"
-                        elif quality >= 1.05:
-                            rating = "Good"
-                        elif quality >= 0.95:
-                            rating = "Average"
-                        else:
-                            rating = "Below Average"
-                        bullpen_factors[team] = {
-                            'rating': rating,
-                            'quality_factor': quality,
-                            'era': stats.get('era', 4.0),
-                            'save_rate': stats.get('save_rate', 0.75)
-                        }
+                for team, stats in (bullpen_data or {}).items():
+                    quality = float(stats.get('quality_factor', 1.0) or 1.0)
+                    if quality >= 1.2:
+                        rating = "Elite"
+                    elif quality >= 1.05:
+                        rating = "Good"
+                    elif quality >= 0.95:
+                        rating = "Average"
+                    else:
+                        rating = "Below Average"
+                    bullpen_map[_norm_name(team)] = {
+                        'rating': rating,
+                        'quality_factor': quality,
+                        'era': stats.get('weighted_era') or stats.get('era', 4.0),
+                        'save_rate': stats.get('save_rate', 0.75)
+                    }
             except (FileNotFoundError, json.JSONDecodeError):
                 logger.warning("Could not load bullpen data for modal")
             
-            # Load weather/park factors for today
+            # Load weather/park factors for the requested date (not server 'now')
             weather_factors = {}
             try:
-                today = datetime.now().strftime('%Y-%m-%d')
-                weather_file = f'data/park_weather_factors_{today.replace("-", "_")}.json'
-                with open(weather_file, 'r') as f:
-                    weather_data = json.load(f)
-                    # Find weather for this game's teams (use home team's park)
-                    if 'teams' in weather_data and home_team in weather_data['teams']:
-                        team_data = weather_data['teams'][home_team]
+                # Prefer the requested prediction date
+                wf_date = str(date_param)
+                weather_file = f'data/park_weather_factors_{wf_date.replace("-", "_")}.json'
+                weather_data = None
+                try:
+                    with open(weather_file, 'r', encoding='utf-8') as f:
+                        weather_data = json.load(f)
+                except (FileNotFoundError, json.JSONDecodeError):
+                    # Fallback: try the latest available file if exact date not found
+                    try:
+                        from pathlib import Path as _P
+                        data_dir = _P(__file__).parent / 'data'
+                        latest = None
+                        for p in sorted(data_dir.glob('park_weather_factors_2025_*.json'), reverse=True):
+                            latest = p
+                            break
+                        if latest:
+                            with open(latest, 'r', encoding='utf-8') as f:
+                                weather_data = json.load(f)
+                    except Exception:
+                        weather_data = None
+                if weather_data and isinstance(weather_data, dict) and 'teams' in weather_data:
+                    # Build normalized lookup by team name
+                    tmap = { _norm_name(k): v for k, v in weather_data['teams'].items() }
+                    td = tmap.get(_norm_name(home_team))
+                    if td:
                         weather_factors = {
-                            'temperature': team_data.get('weather', {}).get('temperature', 'N/A'),
-                            'wind_speed': team_data.get('weather', {}).get('wind_speed', 'N/A'),
-                            'weather_condition': team_data.get('weather', {}).get('conditions', 'N/A'),
-                            'park_factor': team_data.get('park_factor', 1.0),
-                            'total_runs_factor': team_data.get('total_factor', 1.0),
-                            'stadium_name': team_data.get('stadium_name', 'Unknown'),
-                            'humidity': team_data.get('weather', {}).get('humidity', 'N/A')
+                            'temperature': td.get('weather', {}).get('temperature', 'N/A'),
+                            'wind_speed': td.get('weather', {}).get('wind_speed', 'N/A'),
+                            'weather_condition': td.get('weather', {}).get('conditions', 'N/A'),
+                            'park_factor': td.get('park_factor', 1.0),
+                            'total_runs_factor': td.get('total_factor', 1.0),
+                            'stadium_name': td.get('stadium_name', td.get('park_info', {}).get('name', 'Unknown')),
+                            'humidity': td.get('weather', {}).get('humidity', 'N/A')
                         }
-            except (FileNotFoundError, json.JSONDecodeError):
+            except Exception:
                 logger.warning("Could not load weather/park factors for modal")
         except Exception as e:
             logger.warning(f"Error loading additional factor data: {e}")
-            team_strengths = {}
-            bullpen_factors = {}
+            team_strengths_map = {}
+            bullpen_map = {}
             weather_factors = {}
 
         # -----------------------------
@@ -9639,12 +9670,12 @@ def api_single_prediction(away_team, home_team):
             # Add comprehensive factor data for modal display
             'factors': {
                 'team_strengths': {
-                    'away_strength': team_strengths.get(away_team, 0.0),
-                    'home_strength': team_strengths.get(home_team, 0.0)
+                    'away_strength': team_strengths_map.get(_norm_name(away_team), 0.0),
+                    'home_strength': team_strengths_map.get(_norm_name(home_team), 0.0)
                 },
                 'bullpen_quality': {
-                    'away_bullpen': bullpen_factors.get(away_team, {'rating': 'Unknown', 'quality_factor': 1.0}),
-                    'home_bullpen': bullpen_factors.get(home_team, {'rating': 'Unknown', 'quality_factor': 1.0})
+                    'away_bullpen': bullpen_map.get(_norm_name(away_team), {'rating': 'Unknown', 'quality_factor': 1.0}),
+                    'home_bullpen': bullpen_map.get(_norm_name(home_team), {'rating': 'Unknown', 'quality_factor': 1.0})
                 },
                 'weather_park': weather_factors,
                 'pitcher_factors': {
@@ -9659,6 +9690,23 @@ def api_single_prediction(away_team, home_team):
         # Add Team Form (Last 10) and Head-to-Head using recent final scores if available
         try:
             finals = _collect_final_scores_recent()
+            # Fallback: enrich with historical cache if present and finals is sparse
+            if not finals or len(finals) < 20:
+                try:
+                    with open('data/historical_final_scores_cache.json', 'r', encoding='utf-8') as f:
+                        hist = json.load(f)
+                    if isinstance(hist, list):
+                        for it in hist:
+                            if it.get('away_team') and it.get('home_team') and (it.get('away_score') is not None) and (it.get('home_score') is not None):
+                                finals.append({
+                                    'date': it.get('date') or '',
+                                    'away_team': it.get('away_team'),
+                                    'home_team': it.get('home_team'),
+                                    'away_score': it.get('away_score'),
+                                    'home_score': it.get('home_score')
+                                })
+                except Exception as _he:
+                    logger.debug(f"No historical_final_scores_cache fallback used: {_he}")
             if finals:
                 tf_away = _team_form_for(away_team, finals, limit=10)
                 tf_home = _team_form_for(home_team, finals, limit=10)
