@@ -9785,6 +9785,84 @@ def initialize_system():
 # ================================================================================
 # HISTORICAL ANALYSIS MOVED TO DEDICATED APP (historical_analysis_app.py)
 # ================================================================================
+# Lightweight diagnostics for modal sources (to validate Render data availability)
+@app.route('/api/debug/modal-sources')
+def debug_modal_sources():
+    try:
+        away = request.args.get('away') or ''
+        home = request.args.get('home') or ''
+        date_param = request.args.get('date', get_business_date())
+        import unicodedata as _ud
+        from pathlib import Path as _P
+        def _norm_name(s: str) -> str:
+            try:
+                return ''.join(ch for ch in _ud.normalize('NFD', str(s)) if _ud.category(ch) != 'Mn')\
+                    .lower().replace('&', 'and')\
+                    .replace('.', ' ').replace('-', ' ').replace("'", '')
+            except Exception:
+                return str(s).lower().strip()
+        n_away = _norm_name(away)
+        n_home = _norm_name(home)
+        droot = _P(__file__).parent / 'data'
+        # Team strengths
+        ts_path = droot / 'master_team_strength.json'
+        ts_ok = ts_path.exists()
+        ts_has_away = False
+        ts_has_home = False
+        if ts_ok:
+            try:
+                with open(ts_path, 'r', encoding='utf-8') as f:
+                    ts = json.load(f)
+                tmap = { _norm_name(k): v for k, v in (ts or {}).items() }
+                ts_has_away = n_away in tmap
+                ts_has_home = n_home in tmap
+            except Exception:
+                ts_ok = False
+        # Bullpen
+        bp_path = droot / 'bullpen_stats.json'
+        bp_ok = bp_path.exists()
+        bp_has_away = False
+        bp_has_home = False
+        if bp_ok:
+            try:
+                with open(bp_path, 'r', encoding='utf-8') as f:
+                    bp = json.load(f)
+                bmap = { _norm_name(k): v for k, v in (bp or {}).items() }
+                bp_has_away = n_away in bmap
+                bp_has_home = n_home in bmap
+            except Exception:
+                bp_ok = False
+        # Weather
+        wf_primary = droot / f"park_weather_factors_{str(date_param).replace('-', '_')}.json"
+        wf_primary_ok = wf_primary.exists()
+        wf_fallback = None
+        wf_fallback_ok = False
+        if not wf_primary_ok:
+            try:
+                latest = None
+                for p in sorted(droot.glob('park_weather_factors_2025_*.json'), reverse=True):
+                    latest = p
+                    break
+                if latest:
+                    wf_fallback = latest.name
+                    wf_fallback_ok = True
+            except Exception:
+                pass
+        # Finals
+        finals_files = list(sorted([p.name for p in droot.glob('final_scores_2025_*.json')]))
+        hist_cache = droot / 'historical_final_scores_cache.json'
+        resp = {
+            'success': True,
+            'input': {'away': away, 'home': home, 'date': date_param, 'n_away': n_away, 'n_home': n_home},
+            'team_strengths': {'exists': ts_ok, 'has_away': ts_has_away, 'has_home': ts_has_home, 'path': str(ts_path)},
+            'bullpen': {'exists': bp_ok, 'has_away': bp_has_away, 'has_home': bp_has_home, 'path': str(bp_path)},
+            'weather_files': {'primary': str(wf_primary), 'primary_exists': wf_primary_ok, 'fallback': wf_fallback, 'fallback_used': (not wf_primary_ok and wf_fallback_ok)},
+            'finals': {'files_count': len(finals_files), 'first3': finals_files[:3], 'hist_cache_exists': hist_cache.exists(), 'hist_cache_path': str(hist_cache)}
+        }
+        return jsonify(resp)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # The historical analysis endpoints have been moved to a dedicated Flask app
 # running on port 5001 to avoid route conflicts and improve maintainability.
 # Access historical analysis at: http://localhost:5001
