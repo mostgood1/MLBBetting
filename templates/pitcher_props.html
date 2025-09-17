@@ -83,6 +83,11 @@
       <button type="button" id="forceRefreshBtn" class="btn-blue">Force Lines Refresh</button>
       <span id="refreshStatus" class="muted minw-140"></span>
     </div>
+    <div class="toolbar wrap gap-12 items-center" id="progressBar">
+      <div class="muted" id="propsProgress">Props coverage: —%</div>
+      <div class="muted" id="propsNextEta"></div>
+      <div class="muted" id="propsUpdatedAt"></div>
+    </div>
     <div id="meta" class="muted mb-8">Loading...</div>
     <div class="muted legend">
       <strong>Legend:</strong> Edge color (green &gt;=1.0, amber &gt;=0.6, blue &gt;=0.3). ▲ / ▼ arrow shows model lean (over/under). <span class="fw-700">stale</span> badge = line carried from earlier snapshot. Kelly = recommended stake % of bankroll (raw Kelly, un-capped). EV = expected value of selected side. Live deltas color green when the live stat favors the recommended side.
@@ -415,6 +420,29 @@
       }catch(_){ }
     }
 
+    async function pollPropsProgress(){
+      try{
+        const resp = await fetch(`/api/props/progress?t=${Date.now()}`);
+        if(!resp.ok) return;
+        const payload = await resp.json();
+        if(!payload || !payload.success) return;
+        const d = payload.data || {};
+        const pct = (typeof d.coverage_percent === 'number') ? d.coverage_percent.toFixed(1) : '—';
+        const eta = d.next_run_eta ? new Date(d.next_run_eta).toLocaleTimeString() : '';
+        const upd = d.updated_at ? new Date(d.updated_at).toLocaleTimeString() : '';
+        const covEl = document.getElementById('propsProgress');
+        const etaEl = document.getElementById('propsNextEta');
+        const updEl = document.getElementById('propsUpdatedAt');
+        if(covEl){
+          const covered = d.covered_pitchers ?? '—';
+          const total = d.total_pitchers ?? '—';
+          covEl.textContent = `Props coverage: ${pct}% (${covered}/${total})`;
+        }
+        if(etaEl){ etaEl.textContent = eta ? `Next run ~ ${eta}` : ''; }
+        if(updEl){ updEl.textContent = upd ? `Updated ${upd}` : ''; }
+      }catch(_){ }
+    }
+
     function classifyDelta(mk, delta, side){
       const abs = Math.abs(Number(delta) || 0);
       // Market-specific sensitivity (in stat units)
@@ -626,6 +654,10 @@
   try{ if(window._lsTimer) clearInterval(window._lsTimer); }catch(_){ }
   window._lsTimer = setInterval(pollLiveStats, 15000);
   setTimeout(pollLiveStats, 1200);
+  // Progress polling every 25s
+  try{ if(window._ppTimer) clearInterval(window._ppTimer); }catch(_){ }
+  window._ppTimer = setInterval(pollPropsProgress, 25000);
+  setTimeout(pollPropsProgress, 800);
   // Force refresh button logic
   try{
     const fBtn = document.getElementById('forceRefreshBtn');
