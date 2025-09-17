@@ -68,6 +68,7 @@
     <div class="card mt-18" id="top-picks-card">
       <h2>Top Picks Today</h2>
       <div class="muted mb-8">Highest confidence and EV at a glance.</div>
+      <div id="top-picks-note" class="muted"></div>
       <div id="top-picks"></div>
     </div>
 
@@ -85,6 +86,7 @@
     <div class="card">
       <h2>Today’s Recommendations (All)</h2>
       <div class="muted mb-8">Sorted by confidence, then EV. EV shown as percentage.</div>
+      <div id="today-note" class="muted"></div>
       <div id="today"></div>
       <div class="mt-16">
         <h3 class="heading-tight">Today Recap</h3>
@@ -326,13 +328,13 @@
       }
     }
     async function loadToday(){
-      // Use the new endpoint to fetch ALL recommendations from today's betting_recommendations file
-      const today = todayISO();
-      let data={};
-      try{
-        const res = await fetchWithTimeout(`/api/betting-recommendations/date/${today}` , {}, 15000);
-        if(res.ok){ data = await res.json(); } else { data = {}; }
-      }catch(_){ data={}; }
+      // Fetch recommendations for today or fallback to latest available date
+      const noteEl = document.getElementById('today-note');
+      if(noteEl) noteEl.textContent = '';
+      const { dateUsed, data } = await fetchRecsForDateOrFallback();
+      if(noteEl && dateUsed !== todayISO()){
+        noteEl.textContent = `Using latest available date: ${dateUsed}`;
+      }
       const div = document.getElementById('today');
       const recs = data.recommendations || [];
       if(!recs.length){ div.innerHTML='<div class="muted">No recommendations available.</div>'; return; }
@@ -397,20 +399,19 @@
         rows.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td></tr>`).join('') +
       '</tbody></table></div>';
 
-      // Build Today Recap KPIs based on THESE recs only (so counts match what you see)
-  await loadTodayRecap(rows.map(r=> r._orig));
+    // Build Today Recap KPIs based on THESE recs only (so counts match what you see) and the date used
+  await loadTodayRecap(rows.map(r=> r._orig), dateUsed);
     }
 
     async function loadTopPicksToday(){
-      const today = todayISO();
       const cont = document.getElementById('top-picks');
+      const noteEl = document.getElementById('top-picks-note');
       if(cont && (!cont.innerHTML || !cont.innerHTML.trim())){
         cont.innerHTML = '<div class="muted">Loading top picks…</div>';
       }
       try{
-        const res = await fetchWithTimeout(`/api/betting-recommendations/date/${today}`, {}, 12000);
-        if(!res.ok){ if(cont) cont.innerHTML='<div class="muted">No picks available.</div>'; return; }
-        const data = await res.json();
+        const { dateUsed, data } = await fetchRecsForDateOrFallback();
+        if(noteEl){ noteEl.textContent = (dateUsed !== todayISO()) ? (`Using latest available date: ${dateUsed}`) : ''; }
         const recs = data.recommendations || [];
         const confOrder = c => ({'HIGH':3,'MEDIUM':2,'LOW':1}[String(c||'').toUpperCase()]||0);
         const buildBet = (r)=>{
@@ -569,12 +570,44 @@
     }
     function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
   function yesterdayISO(){ const d=new Date(); d.setDate(d.getDate()-1); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+  // Helper: fetch today's recommendations or fallback to latest available historical date
+  async function fetchRecsForDateOrFallback(){
+    const today = todayISO();
+    // Try today first
+    try{
+      const res = await fetchWithTimeout(`/api/betting-recommendations/date/${today}`, {}, 12000);
+      if(res.ok){
+        const j = await res.json();
+        if(Array.isArray(j.recommendations) && j.recommendations.length){
+          return { dateUsed: today, data: j, fallback: false };
+        }
+      }
+    }catch(_){ /* ignore and fallback */ }
+    // Fallback to the latest available historical date
+    try{
+      const dres = await fetchWithTimeout('/api/historical-analysis/available-dates', {}, 12000);
+      if(dres.ok){
+        const jd = await dres.json();
+        const arr = (jd.dates || jd.available_dates || []).slice();
+        if(arr.length){
+          arr.sort();
+          const latest = arr[arr.length - 1];
+          const r2 = await fetchWithTimeout(`/api/betting-recommendations/date/${latest}`, {}, 12000);
+          if(r2.ok){
+            const j2 = await r2.json();
+            return { dateUsed: latest, data: j2, fallback: latest !== today };
+          }
+        }
+      }
+    }catch(_){ /* ignore */ }
+    return { dateUsed: today, data: { recommendations: [] }, fallback: true };
+  }
   // Kelly details now live on the dedicated page via link above
-  async function loadTodayRecap(recs){
+  async function loadTodayRecap(recs, dateForRecap){
       const grid = document.getElementById('today-kpis'); grid.innerHTML='';
       try{
         // Pull historical analysis for today to evaluate correctness using final scores (and evaluated maps)
-  const res = await fetchWithTimeout(`/api/historical-analysis/date/${todayISO()}`, {}, 10000);
+  const res = await fetchWithTimeout(`/api/historical-analysis/date/${(dateForRecap || todayISO())}`, {}, 10000);
         if(!res.ok){
           // If historical API not available for today yet, show neutral tiles based on rec count only
           const tiles=[

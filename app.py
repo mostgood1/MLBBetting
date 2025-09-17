@@ -11574,6 +11574,46 @@ def api_betting_recommendations_by_date(date_iso):
                     if rl and isinstance(rl, dict) and rl.get('recommendation'):
                         rec_text = rl.get('recommendation', '')
                         add_rec(gkey, away, home, 'run_line', rec_text, odds=None, confidence=rl.get('confidence'), expected_value=rl.get('expected_value'))
+
+                # Case 3: value_bets array (common in our generated files)
+                vb_list = g.get('value_bets')
+                if isinstance(vb_list, list) and vb_list:
+                    for vb in vb_list:
+                        try:
+                            rec_type = str(vb.get('type') or '').lower() or 'other'
+                            rec_text = vb.get('recommendation') or vb.get('pick') or ''
+                            odds = vb.get('american_odds')
+                            ev = vb.get('expected_value')
+                            conf = vb.get('confidence')
+                            # Prefer explicit odds; fall back to lines map if totals and side is implied in text
+                            if odds in (None, ''):
+                                if rec_type.startswith('total') or (isinstance(rec_text, str) and rec_text.strip().upper().startswith(('OVER', 'UNDER'))):
+                                    up = rec_text.strip().upper()
+                                    if up.startswith('OVER'):
+                                        odds = (lines.get('over_odds') if isinstance(lines, dict) else None)
+                                    elif up.startswith('UNDER'):
+                                        odds = (lines.get('under_odds') if isinstance(lines, dict) else None)
+                                elif rec_type.startswith('moneyline') and isinstance(lines, dict):
+                                    if away and isinstance(rec_text, str) and away in rec_text:
+                                        odds = lines.get('away_ml')
+                                    elif home and isinstance(rec_text, str) and home in rec_text:
+                                        odds = lines.get('home_ml')
+                            item = {
+                                'game': f"{away} @ {home}" if away and home else gkey,
+                                'type': rec_type,
+                                'recommendation': rec_text,
+                                'odds': odds,
+                                'american_odds': odds,
+                                'confidence': conf,
+                                'expected_value': ev,
+                                'away_team': away,
+                                'home_team': home,
+                                'betting_line': vb.get('betting_line'),
+                                'total_line': vb.get('betting_line'),
+                            }
+                            recs.append(item)
+                        except Exception as _e:
+                            logger.debug(f"Skip malformed value_bet in {gkey}: {_e}")
             except Exception as ge:
                 logger.warning(f"Failed to parse recommendations for game {gkey}: {ge}")
 
