@@ -1,4 +1,20 @@
 {
-  "updated": "2025-09-13T20:26:01.287466",
-  "markets": {}
+  "updated": "2025-09-17T15:48:16.512936",
+  "markets": {
+    "strikeouts": {
+      "avg_abs_error": 3.0,
+      "suggested_std": 3.5,
+      "sample_size": 1
+    },
+    "hits_allowed": {
+      "avg_abs_error": 6.4,
+      "suggested_std": 3.5,
+      "sample_size": 1
+    },
+    "earned_runs": {
+      "avg_abs_error": 3.5,
+      "suggested_std": 3.5,
+      "sample_size": 1
+    }
+  }
 }

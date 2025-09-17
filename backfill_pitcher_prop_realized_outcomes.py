@@ -154,43 +154,73 @@ def process_day(date_str: str, realized_doc: dict, dry_run: bool=False):
 
     pitcher_props = props.get('pitcher_props', {}) if isinstance(props, dict) else {}
     rec_list = recs.get('recommendations', []) if isinstance(recs, dict) else []
-    # Map pitcher->market->line for quick lookup
+    # Map pitcher->market->line for quick lookup from props
     lines = {}
     for p_key, mkts in pitcher_props.items():
         for mk, mv in mkts.items():
             if isinstance(mv, dict) and mv.get('line') is not None:
                 lines.setdefault(p_key, {})[mk] = mv.get('line')
 
-    # Build outcomes per recommendation (avoid duplicates)
+    # Build outcomes per recommendation; support both per-play and per-pitcher schemas
     for r in rec_list:
-        p_name = normalize_name(r.get('pitcher') or r.get('name') or '')
-        mk = r.get('market')
-        if mk not in MARKETS:
-            continue
-        key = (p_name, mk, date_str)
-        # Skip if already present
-        if any((o.get('pitcher_key'), o.get('market'), o.get('date')) == key for o in realized_doc.get('pitcher_market_outcomes', [])):
-            continue
-        line = None
-        if p_name in lines and mk in lines[p_name]:
-            line = lines[p_name][mk]
-        # Actual
-        bs = box_pitch.get(p_name, {})
-        actual = bs.get(mk)
-        # For outs could be None; we already normalized
-        outcome = {
-            'date': date_str,
-            'pitcher_key': p_name,
-            'market': mk,
-            'line': line,
-            'actual': actual,
-            'proj': r.get('proj_value'),
-            'side': r.get('side'),
-            'edge': r.get('edge'),
-            'odds_over': r.get('over_odds'),
-            'odds_under': r.get('under_odds')
-        }
-        realized_doc.setdefault('pitcher_market_outcomes', []).append(outcome)
+        # Case A: current schema (one entry per pitcher, plays list inside)
+        if isinstance(r, dict) and isinstance(r.get('plays'), list):
+            p_name = normalize_name(r.get('pitcher') or r.get('pitcher_key') or r.get('name') or '')
+            if not p_name:
+                continue
+            for play in r.get('plays', []):
+                mk = play.get('market')
+                if mk not in MARKETS:
+                    continue
+                key = (p_name, mk, date_str)
+                if any((o.get('pitcher_key'), o.get('market'), o.get('date')) == key for o in realized_doc.get('pitcher_market_outcomes', [])):
+                    continue
+                # Prefer play line, fallback to props map
+                line = play.get('line')
+                if line is None and p_name in lines and mk in lines[p_name]:
+                    line = lines[p_name][mk]
+                bs = box_pitch.get(p_name, {})
+                actual = bs.get(mk)
+                outcome = {
+                    'date': date_str,
+                    'pitcher_key': p_name,
+                    'market': mk,
+                    'line': line,
+                    'actual': actual,
+                    'proj': play.get('proj'),
+                    'side': play.get('side'),
+                    'edge': play.get('edge'),
+                    'odds_over': play.get('over_odds'),
+                    'odds_under': play.get('under_odds')
+                }
+                realized_doc.setdefault('pitcher_market_outcomes', []).append(outcome)
+        else:
+            # Case B: legacy per-play schema
+            p_name = normalize_name(r.get('pitcher') or r.get('name') or '')
+            mk = r.get('market')
+            if mk not in MARKETS:
+                continue
+            key = (p_name, mk, date_str)
+            if any((o.get('pitcher_key'), o.get('market'), o.get('date')) == key for o in realized_doc.get('pitcher_market_outcomes', [])):
+                continue
+            line = None
+            if p_name in lines and mk in lines[p_name]:
+                line = lines[p_name][mk]
+            bs = box_pitch.get(p_name, {})
+            actual = bs.get(mk)
+            outcome = {
+                'date': date_str,
+                'pitcher_key': p_name,
+                'market': mk,
+                'line': line,
+                'actual': actual,
+                'proj': r.get('proj_value') or r.get('proj'),
+                'side': r.get('side'),
+                'edge': r.get('edge'),
+                'odds_over': r.get('over_odds'),
+                'odds_under': r.get('under_odds')
+            }
+            realized_doc.setdefault('pitcher_market_outcomes', []).append(outcome)
 
 
 def main():
