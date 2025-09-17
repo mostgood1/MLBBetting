@@ -1272,5 +1272,57 @@
     "outcome": "pending",
     "profit_loss": 0.0,
     "roi": 0.0
+  },
+  {
+    "date": "2025-09-17",
+    "game": "Atlanta Braves vs Washington Nationals",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.5",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -106,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-17",
+    "game": "Seattle Mariners vs Kansas City Royals",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 9.0",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -101,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-17",
+    "game": "Los Angeles Angels vs Milwaukee Brewers",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.5",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -111,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-17",
+    "game": "Miami Marlins vs Colorado Rockies",
+    "bet_type": "Over/Under",
+    "bet_details": "Under 10.5",
+    "confidence": 0.202,
+    "kelly_percentage": 20.2,
+    "recommended_bet": 80,
+    "odds": -110,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
   }
 ]
