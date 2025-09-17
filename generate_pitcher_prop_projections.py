@@ -16,6 +16,10 @@ except Exception:
 
 DEFAULT_EDGE_THRESHOLD = float(os.environ.get('PITCHER_PROPS_EDGE_THRESHOLD', 0.5))
 DEFAULT_PITCHES_PER_OUT = 5.1
+BLEND_KS = float(os.environ.get('PITCHER_PROPS_BLEND_KS', 0.35))  # weight toward market line for strikeouts
+BLEND_OUTS = float(os.environ.get('PITCHER_PROPS_BLEND_OUTS', 0.25))  # weight toward market line for outs
+SKEW_SCALE_KS = float(os.environ.get('PITCHER_PROPS_SKEW_SCALE_KS', 0.6))  # how much to adjust line toward favored side
+SKEW_SCALE_OUTS = float(os.environ.get('PITCHER_PROPS_SKEW_SCALE_OUTS', 0.4))
 
 # Enhanced pitch count modeling parameters
 RECENT_WINDOW_INNINGS = 30  # innings for weighted recent form if available
@@ -149,6 +153,67 @@ def project_pitcher(pitcher: str, stats: Dict[str, Any], opponent: str | None = 
                     base['pitch_count'] = round(base['outs'] * ppo, 0)
     except Exception:
         # If anything goes wrong, keep heuristic base
+        pass
+
+    # Market-informed blending: pull projections modestly toward market lines with odds skew
+    try:
+        if isinstance(lines, dict) and lines:
+            # Helper to compute over probability from American odds
+            def _prob(v):
+                try:
+                    if v is None:
+                        return None
+                    return american_to_prob(v)
+                except Exception:
+                    return None
+            # Strikeouts
+            mkt = lines.get('strikeouts') if isinstance(lines.get('strikeouts'), dict) else None
+            if mkt and 'line' in mkt and base.get('strikeouts') is not None:
+                try:
+                    line_val = float(mkt.get('line'))
+                    p_over = _prob(mkt.get('over_odds'))
+                    p_under = _prob(mkt.get('under_odds'))
+                    skew = 0.0
+                    if p_over is not None and p_under is not None:
+                        # Normalize to sum to ~1 in case of vig
+                        s = p_over + p_under
+                        if s > 0:
+                            p_over_n = p_over / s
+                            skew = p_over_n - 0.5
+                    target = line_val + (skew * SKEW_SCALE_KS)
+                    w = max(0.0, min(1.0, BLEND_KS))
+                    base['strikeouts'] = round((1-w) * float(base['strikeouts']) + w * target, 2)
+                except Exception:
+                    pass
+            # Outs
+            mkt = lines.get('outs') if isinstance(lines.get('outs'), dict) else None
+            if mkt and 'line' in mkt and base.get('outs') is not None:
+                try:
+                    line_val = float(mkt.get('line'))
+                    p_over = _prob(mkt.get('over_odds'))
+                    p_under = _prob(mkt.get('under_odds'))
+                    skew = 0.0
+                    if p_over is not None and p_under is not None:
+                        s = p_over + p_under
+                        if s > 0:
+                            p_over_n = p_over / s
+                            skew = p_over_n - 0.5
+                    target = line_val + (skew * SKEW_SCALE_OUTS)
+                    w = max(0.0, min(1.0, BLEND_OUTS))
+                    base['outs'] = round((1-w) * float(base['outs']) + w * target, 2)
+                except Exception:
+                    pass
+            # Recompute pitch_count after outs blending using best available ppo estimate
+            try:
+                ppo = DEFAULT_PITCHES_PER_OUT
+                pitches_thrown = float(stats.get('pitches_thrown') or 0)
+                ip = float(stats.get('innings_pitched') or 0)
+                if pitches_thrown > 0 and ip > 0:
+                    ppo = max(MIN_PITCHES_PER_OUT, min(MAX_PITCHES_PER_OUT, pitches_thrown/(ip*3)))
+                base['pitch_count'] = round(base.get('outs', outs) * ppo, 0)
+            except Exception:
+                pass
+    except Exception:
         pass
 
     return base
@@ -366,7 +431,7 @@ def main():
                 'projections': proj,
                 'plays': plays
             })
-    payload = {'date': date_str,'generated_at': datetime.utcnow().isoformat(),'edge_threshold_used': DEFAULT_EDGE_THRESHOLD,'kelly_cap': KELLY_CAP,'count': len(recommendations),'recommendations': recommendations}
+    payload = {'date': date_str,'generated_at': datetime.utcnow().isoformat(),'edge_threshold_used': DEFAULT_EDGE_THRESHOLD,'kelly_cap': KELLY_CAP,'blend': {'ks': BLEND_KS, 'outs': BLEND_OUTS, 'skew_scale_ks': SKEW_SCALE_KS, 'skew_scale_outs': SKEW_SCALE_OUTS},'count': len(recommendations),'recommendations': recommendations}
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, 'w', encoding='utf-8') as f:
         json.dump(payload, f, indent=2)
