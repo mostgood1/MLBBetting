@@ -768,6 +768,352 @@ def api_roi_metrics():
         'latest_weekly_comparison': latest_cmp
     })
 
+# ----------------------------------------------------------------------------
+# Rolling ROI Metrics (real-time, file-based) Endpoint
+# ----------------------------------------------------------------------------
+@app.route('/api/optimization/roi-metrics/rolling')
+def api_roi_metrics_rolling():
+    """Compute rolling ROI over the last N days using per-day recommendations
+    and final scores on disk. Defaults: days=7, exclude today.
+
+    Response mirrors the shape consumed by the UI roi-metrics panel:
+      { success, timestamp, roi_metrics: { by_confidence, stake_model, kelly_comparison=None }, window }
+    """
+    try:
+        from datetime import datetime as _dt
+        days = int(request.args.get('days', '7'))
+        include_today = str(request.args.get('include_today', '0')) in ('1', 'true', 'yes')
+        end_date = request.args.get('end_date')  # YYYY-MM-DD optional
+
+        data_dir = os.path.join(os.path.dirname(__file__), 'data')
+
+        # Discover available dates from betting_recommendations_*.json on disk
+        dates: list[str] = []
+        try:
+            for name in os.listdir(data_dir):
+                if not name.startswith('betting_recommendations_') or not name.endswith('.json'):
+                    continue
+                base = name.replace('betting_recommendations_', '').replace('.json', '')
+                if base.endswith('_enhanced'):
+                    base = base[:-len('_enhanced')]
+                if len(base) == 10 and base[4] == '_' and base[7] == '_':
+                    dates.append(base.replace('_', '-'))
+        except Exception:
+            pass
+        dates = sorted(set(dates))
+        if not dates:
+            return jsonify({'success': True, 'timestamp': datetime.now().isoformat(), 'roi_metrics': None, 'window': {'dates_used': []}, 'message': 'No dates found'}), 200
+
+        # Choose end date and window
+        todayS = _dt.utcnow().strftime('%Y-%m-%d')
+        if not end_date:
+            # Pick the latest date <= today (or strictly < today if include_today=False)
+            end_date = dates[-1]
+            if not include_today and end_date >= todayS:
+                # Find the last date strictly before today
+                for d in reversed(dates):
+                    if d < todayS:
+                        end_date = d
+                        break
+        # Collect last N dates up to end_date
+        sel = [d for d in dates if d <= end_date]
+        if not sel:
+            return jsonify({'success': True, 'timestamp': datetime.now().isoformat(), 'roi_metrics': None, 'window': {'dates_used': []}, 'message': 'No dates in window'}), 200
+        selected = sel[-days:]
+
+        # Helpers: odds parsing and rec parsing
+        def parse_american_odds(od):
+            try:
+                if od is None:
+                    return -110
+                if isinstance(od, (int, float)):
+                    return int(od)
+                s = str(od).strip().replace('−', '-')
+                if not s:
+                    return -110
+                if s.startswith('+'):
+                    s = s[1:]
+                return int(float(s))
+            except Exception:
+                return -110
+
+        def parse_side_line(txt: str):
+            if not txt:
+                return (None, None)
+            low = str(txt).lower().strip()
+            side = 'OVER' if 'over' in low or low.startswith('o') else ('UNDER' if 'under' in low or low.startswith('u') else None)
+            # first number occurrence
+            import re
+            m = re.search(r"(\d+\.?\d*)", low)
+            line = float(m.group(1)) if m else None
+            return (side, line)
+
+        def norm_team(s: str):
+            import re
+            return re.sub(r'[^a-z0-9]', '', str(s or '').lower())
+
+        # Load final scores for a date (merge same-day + prev + next)
+        def load_final_scores_for_date(d: str):
+            def read_fs(dd: str):
+                try:
+                    safe = dd.replace('-', '_')
+                    p = os.path.join(data_dir, f'final_scores_{safe}.json')
+                    if not os.path.exists(p):
+                        return []
+                    with open(p, 'r', encoding='utf-8') as f:
+                        obj = json.load(f)
+                    if isinstance(obj, dict):
+                        return list(obj.values())
+                    if isinstance(obj, list):
+                        return obj
+                except Exception:
+                    return []
+                return []
+            from datetime import timedelta
+            items = []
+            items.extend(read_fs(d))
+            try:
+                dt = _dt.strptime(d, '%Y-%m-%d')
+                nextd = (dt + timedelta(days=1)).strftime('%Y-%m-%d')
+                prevd = (dt - timedelta(days=1)).strftime('%Y-%m-%d')
+                items.extend(read_fs(nextd))
+                items.extend(read_fs(prevd))
+            except Exception:
+                pass
+            # Build map keyed by both display and normalized
+            mp = {}
+            for s in items:
+                try:
+                    away = s.get('away_team_display') or s.get('away_team')
+                    home = s.get('home_team_display') or s.get('home_team')
+                    a = s.get('away_score'); h = s.get('home_score')
+                    if away and home and a is not None and h is not None:
+                        key = f"{away} @ {home}"
+                        mp[key] = {'away_team': away, 'home_team': home, 'away_score': float(a), 'home_score': float(h)}
+                        nkey = f"{norm_team(away)}@{norm_team(home)}"
+                        mp[nkey] = mp[key]
+                except Exception:
+                    pass
+            return mp
+
+        # Load recommendations for a given date (file-based; parses value_bets and others)
+        def load_recs_for_date(d: str):
+            safe = d.replace('-', '_')
+            paths = [
+                os.path.join(data_dir, f'betting_recommendations_{safe}.json'),
+                os.path.join(data_dir, f'betting_recommendations_{safe}_enhanced.json'),
+            ]
+            fp = None
+            for p in paths:
+                if os.path.exists(p):
+                    fp = p; break
+            if not fp:
+                return []
+            try:
+                with open(fp, 'r', encoding='utf-8') as f:
+                    payload = json.load(f)
+                games = payload.get('games', {}) if isinstance(payload, dict) else {}
+            except Exception:
+                return []
+            out = []
+            for gkey, g in games.items():
+                try:
+                    away = g.get('away_team'); home = g.get('home_team')
+                    # unified recommendations list
+                    if isinstance(g.get('recommendations'), list):
+                        for r in g['recommendations']:
+                            out.append({
+                                'game': f"{away} @ {home}" if away and home else gkey,
+                                'type': str(r.get('type') or r.get('bet_type') or '').lower() or 'other',
+                                'recommendation': r.get('recommendation') or r.get('pick') or '',
+                                'american_odds': r.get('american_odds') or r.get('odds'),
+                                'confidence': r.get('confidence'),
+                                'expected_value': r.get('expected_value'),
+                                'away_team': away, 'home_team': home,
+                                'betting_line': r.get('betting_line') or r.get('line') or r.get('total_line')
+                            })
+                    # structured betting_recommendations
+                    br = g.get('betting_recommendations')
+                    if isinstance(br, dict):
+                        ml = br.get('moneyline')
+                        if isinstance(ml, dict) and ml.get('recommendation') not in (None, 'PASS'):
+                            out.append({
+                                'game': f"{away} @ {home}" if away and home else gkey,
+                                'type': 'moneyline',
+                                'recommendation': ml.get('recommendation') or '',
+                                'american_odds': ml.get('american_odds') or ml.get('odds'),
+                                'confidence': ml.get('confidence'),
+                                'expected_value': ml.get('expected_value'),
+                                'away_team': away, 'home_team': home
+                            })
+                        tr = br.get('total_runs')
+                        if isinstance(tr, dict) and tr.get('recommendation') not in (None, 'PASS'):
+                            out.append({
+                                'game': f"{away} @ {home}",
+                                'type': 'total',
+                                'recommendation': tr.get('recommendation') or '',
+                                'american_odds': tr.get('american_odds') or tr.get('odds'),
+                                'confidence': tr.get('confidence'),
+                                'expected_value': tr.get('expected_value'),
+                                'away_team': away, 'home_team': home,
+                                'betting_line': tr.get('betting_line') or tr.get('line') or tr.get('total_line')
+                            })
+                        rl = br.get('run_line')
+                        if isinstance(rl, dict) and rl.get('recommendation'):
+                            out.append({
+                                'game': f"{away} @ {home}",
+                                'type': 'run_line',
+                                'recommendation': rl.get('recommendation') or '',
+                                'american_odds': rl.get('american_odds') or rl.get('odds'),
+                                'confidence': rl.get('confidence'),
+                                'expected_value': rl.get('expected_value'),
+                                'away_team': away, 'home_team': home,
+                                'betting_line': rl.get('betting_line') or rl.get('line')
+                            })
+                    # value_bets list
+                    vb = g.get('value_bets')
+                    if isinstance(vb, list):
+                        for r in vb:
+                            out.append({
+                                'game': f"{away} @ {home}" if away and home else gkey,
+                                'type': str(r.get('type') or '').lower() or 'other',
+                                'recommendation': r.get('recommendation') or r.get('pick') or '',
+                                'american_odds': r.get('american_odds') or r.get('odds'),
+                                'confidence': r.get('confidence'),
+                                'expected_value': r.get('expected_value'),
+                                'away_team': away, 'home_team': home,
+                                'betting_line': r.get('betting_line') or r.get('line') or r.get('total_line')
+                            })
+                except Exception:
+                    continue
+            return out
+
+        # Aggregate
+        stake_by_conf = {'HIGH': 100.0, 'MEDIUM': 50.0, 'LOW': 25.0}
+        buckets = {
+            'HIGH': {'bets':0,'wins':0,'losses':0,'pushes':0,'total_stake':0.0,'total_profit':0.0},
+            'MEDIUM': {'bets':0,'wins':0,'losses':0,'pushes':0,'total_stake':0.0,'total_profit':0.0},
+            'LOW': {'bets':0,'wins':0,'losses':0,'pushes':0,'total_stake':0.0,'total_profit':0.0}
+        }
+        total = {'bets':0,'wins':0,'losses':0,'pushes':0,'total_stake':0.0,'total_profit':0.0}
+
+        for d in selected:
+            fs_map = load_final_scores_for_date(d)
+            recs = load_recs_for_date(d)
+            for r in recs:
+                try:
+                    game = r.get('game') or f"{r.get('away_team','')} @ {r.get('home_team','')}"
+                    ngame = f"{norm_team(r.get('away_team'))}@{norm_team(r.get('home_team'))}" if r.get('away_team') and r.get('home_team') else None
+                    rtype = str(r.get('type') or '').lower()
+                    if rtype.startswith('total'):
+                        side, line = parse_side_line(r.get('recommendation'))
+                        if line is None:
+                            for k in ('betting_line','total_line','line'):
+                                if r.get(k) is not None:
+                                    try:
+                                        line = float(r.get(k)); break
+                                    except Exception:
+                                        pass
+                        fs = fs_map.get(game) or (ngame and fs_map.get(ngame))
+                        correct = None
+                        if fs and side and line is not None:
+                            tot = float(fs['away_score']) + float(fs['home_score'])
+                            if abs(tot - float(line)) < 1e-9:
+                                correct = 'PUSH'
+                            else:
+                                correct = (tot > float(line)) if side == 'OVER' else (tot < float(line))
+                    elif rtype.startswith('moneyline') or rtype=='ml':
+                        pick = str(r.get('recommendation') or '').strip()
+                        away = r.get('away_team'); home = r.get('home_team')
+                        fs = fs_map.get(game) or (ngame and fs_map.get(ngame))
+                        correct = None
+                        if fs and (away or home) and pick:
+                            low = pick.lower()
+                            side = None
+                            if away and away.lower() in low:
+                                side = 'AWAY'
+                            elif home and home.lower() in low:
+                                side = 'HOME'
+                            if side:
+                                winner = 'AWAY' if float(fs['away_score']) > float(fs['home_score']) else 'HOME'
+                                correct = (side == winner)
+                    else:
+                        # Skip run_line/other for now if we can't unambiguously evaluate
+                        correct = None
+
+                    conf = str(r.get('confidence') or '').upper()
+                    if conf not in stake_by_conf:
+                        # map common lower-case to buckets; default LOW if unknown
+                        if conf in ('HIGH','MEDIUM','LOW'):
+                            pass
+                        else:
+                            conf = 'LOW'
+                    stake = stake_by_conf.get(conf, 25.0)
+                    odds = parse_american_odds(r.get('american_odds') or r.get('odds'))
+
+                    # Count only evaluated outcomes; pushes affect stake but not wins/losses
+                    if correct is None:
+                        continue
+                    total['bets'] += 1
+                    buckets[conf]['bets'] += 1
+                    if correct == 'PUSH':
+                        buckets[conf]['pushes'] += 1
+                        total['pushes'] += 1
+                        # No profit/loss change, but we won't add stake either for a push at settle
+                        continue
+                    # Resolved W/L affects stake/profit
+                    buckets[conf]['total_stake'] += stake
+                    total['total_stake'] += stake
+                    if correct is True:
+                        buckets[conf]['wins'] += 1
+                        total['wins'] += 1
+                        profit = (stake * odds/100.0) if odds > 0 else (stake * 100.0/abs(odds))
+                        buckets[conf]['total_profit'] += profit
+                        total['total_profit'] += profit
+                    else:
+                        buckets[conf]['losses'] += 1
+                        total['losses'] += 1
+                        buckets[conf]['total_profit'] -= stake
+                        total['total_profit'] -= stake
+                except Exception:
+                    continue
+
+        # Compute ROI/Efficiency
+        def finalize(b):
+            stake = b['total_stake']
+            b['roi'] = (b['total_profit']/stake) if stake else 0.0
+            try:
+                import math
+                b['efficiency'] = (b['total_profit'] / math.sqrt(stake)) if stake else 0.0
+            except Exception:
+                b['efficiency'] = 0.0
+            return b
+
+        for k in list(buckets.keys()):
+            buckets[k] = finalize(buckets[k])
+        total = finalize(total)
+
+        roi_metrics = {
+            'by_confidence': {
+                'high': buckets['HIGH'],
+                'medium': buckets['MEDIUM'],
+                'low': buckets['LOW']
+            },
+            'stake_model': {'high': 100.0, 'medium': 50.0, 'low': 25.0},
+            'overall': total,
+            'kelly_comparison': None
+        }
+        window = {
+            'days': days,
+            'end_date': end_date,
+            'include_today': include_today,
+            'dates_used': selected
+        }
+        return jsonify({'success': True, 'timestamp': datetime.now().isoformat(), 'roi_metrics': roi_metrics, 'window': window, 'source': 'rolling'}), 200
+    except Exception as e:
+        logger.error(f"rolling roi-metrics error: {e}\n{traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # Lightweight debug endpoint to inspect presence of data files (useful on Render)
 @app.route('/api/debug-data-files')
 def api_debug_data_files():
@@ -4926,7 +5272,11 @@ def api_pitcher_props_unified():
             logger.warning(f"[UNIFIED] Fallback search for Bovada props failed: {_e}")
 
 
-        
+        # Determine whether we're using a true fallback props source (older date or different file)
+        try:
+            using_fallback_props = bool(source_file and os.path.abspath(source_file) != os.path.abspath(props_path)) or (source_date != requested_date)
+        except Exception:
+            using_fallback_props = (source_date != requested_date)
         # Load stats doc regardless of fallback outcome
         t_stats = time.time()
         stats_doc = _load_json(stats_path, {})
@@ -5169,17 +5519,100 @@ def api_pitcher_props_unified():
                     stats_by_name[normalize_name(pname)] = pdata
 
         recs_by_pitcher = {}
+        recs_by_pitcher_norm = {}
         rec_doc = _load_json(rec_path, {})
         if isinstance(rec_doc, dict):
             for r in (rec_doc.get('recommendations') or []):
                 pk = r.get('pitcher_key')
                 if pk:
                     recs_by_pitcher[pk] = r
+                    try:
+                        _nk = normalize_name(pk.split('(')[0].strip())
+                        if _nk:
+                            recs_by_pitcher_norm[_nk] = r
+                    except Exception:
+                        pass
+        # Fallback: if no recs and allow_fallback=1, try latest recommendations file on disk
+        try:
+            if (not recs_by_pitcher) and (request.args.get('allow_fallback') == '1') and os.path.isdir(base_dir):
+                rec_cands = sorted(
+                    [os.path.join(base_dir, f) for f in os.listdir(base_dir) if f.startswith('pitcher_prop_recommendations_') and f.endswith('.json')],
+                    key=lambda p: os.path.getmtime(p), reverse=True
+                )
+                for fp in rec_cands:
+                    try:
+                        _doc = _load_json(fp, {})
+                        tmp = {}
+                        if isinstance(_doc, dict):
+                            for r in (_doc.get('recommendations') or []):
+                                pk = r.get('pitcher_key')
+                                if pk:
+                                    tmp[pk] = r
+                        if tmp:
+                            recs_by_pitcher = tmp
+                            # rebuild normalized index
+                            recs_by_pitcher_norm = {}
+                            try:
+                                for k, rv in tmp.items():
+                                    _nk = normalize_name(str(k).split('(')[0].strip())
+                                    if _nk:
+                                        recs_by_pitcher_norm[_nk] = rv
+                            except Exception:
+                                pass
+                            logger.info(f"[UNIFIED] Using fallback recommendations file: {fp}")
+                            break
+                    except Exception:
+                        continue
+        except Exception:
+            pass
+        # Fallback: if no last-known lines and allow_fallback=1, try latest last-known file on disk
+        try:
+            if (not last_known_pitchers) and (request.args.get('allow_fallback') == '1') and os.path.isdir(base_dir):
+                lk_cands = sorted(
+                    [os.path.join(base_dir, f) for f in os.listdir(base_dir) if f.startswith('pitcher_last_known_lines_') and f.endswith('.json')],
+                    key=lambda p: os.path.getmtime(p), reverse=True
+                )
+                for fp in lk_cands:
+                    try:
+                        _doc = _load_json(fp, {})
+                        tmp = _doc.get('pitchers', {}) if isinstance(_doc, dict) else {}
+                        if tmp:
+                            last_known_pitchers = tmp
+                            logger.info(f"[UNIFIED] Using fallback last-known lines file: {fp}")
+                            break
+                    except Exception:
+                        continue
+        except Exception:
+            pass
+
+        # If schedule-derived allowed set excludes everything from available lines/recs, only disable the filter
+        # when we're actually using a fallback props source. For same-day data, keep the strict filter to avoid
+        # showing yesterday/irrelevant pitchers.
+        try:
+            if allowed_nks:
+                sample_names = set()
+                for raw_key in (pitcher_props or {}).keys():
+                    name_only = raw_key.split('(')[0].strip()
+                    sample_names.add(normalize_name(name_only))
+                if not sample_names:
+                    for nk in (last_known_pitchers or {}).keys():
+                        sample_names.add(normalize_name(nk))
+                    for nk in (recs_by_pitcher or {}).keys():
+                        sample_names.add(normalize_name(nk))
+                if sample_names and not (sample_names & allowed_nks):
+                    if using_fallback_props:
+                        logger.warning(f"[UNIFIED] Schedule-vs-lines mismatch for {date_str} with fallback props; disabling allowed filter")
+                        allowed_nks = set()
+                    else:
+                        logger.warning(f"[UNIFIED] Schedule-vs-lines mismatch for {date_str}; keeping strict filter (may yield empty Spotlight)")
+        except Exception:
+            pass
 
         # If light_mode, build a minimal payload without projections/EV for fast first paint
         if light_mode:
             t_light = time.time()
             merged = {}
+            _synthesized = False
             for raw_key, mkts in pitcher_props.items():
                 name_only = raw_key.split('(')[0].strip()
                 norm_key = normalize_name(name_only)
@@ -5188,6 +5621,9 @@ def api_pitcher_props_unified():
                     continue
                 st = stats_by_name.get(norm_key, {})
                 team_info = team_map.get(norm_key, {'team': None, 'opponent': None})
+                # For same-day (non-fallback) data, require a team mapping; this prevents yesterday/irrelevant names
+                if (not using_fallback_props) and (not allowed_nks) and (not team_info.get('team')):
+                    continue
                 # Augment with last-known lines if needed
                 augmented_mkts = dict(mkts)
                 try:
@@ -5212,7 +5648,7 @@ def api_pitcher_props_unified():
                 except Exception:
                     pass
                 # Primary play from recommendations file
-                rec = recs_by_pitcher.get(norm_key)
+                rec = recs_by_pitcher_norm.get(norm_key) or recs_by_pitcher.get(norm_key)
                 primary_play = None
                 try:
                     if rec and isinstance(rec.get('plays'), list) and rec['plays']:
@@ -5268,6 +5704,106 @@ def api_pitcher_props_unified():
                     'pitch_count': None,
                     'live_pitches': ((live_box.get(norm_key, {}) or {}).get('pitches') if (norm_key in live_pitchers) else None)
                 }
+            # If no current lines produced entries, try to synthesize from last-known + recommendations
+            try:
+                if not merged:
+                    candidate_nks = set()
+                    try:
+                        for nk in (last_known_pitchers or {}).keys():
+                            candidate_nks.add(nk)
+                    except Exception:
+                        pass
+                    try:
+                        for nk in (recs_by_pitcher or {}).keys():
+                            candidate_nks.add(nk)
+                    except Exception:
+                        pass
+                    out_count = 0
+                    for nk in candidate_nks:
+                        if allowed_nks and (nk not in allowed_nks):
+                            continue
+                        try:
+                            st = stats_by_name.get(nk, {})
+                            team_info = team_map.get(nk, {'team': None, 'opponent': None})
+                            # For same-day (non-fallback) synthesis, still require a team mapping to avoid wrong-day names
+                            if (not using_fallback_props) and (not team_info.get('team')):
+                                continue
+                            lines_map = last_known_pitchers.get(nk, {}) if isinstance(last_known_pitchers, dict) else {}
+                            # Build plays from recs when available
+                            rec = recs_by_pitcher_norm.get(nk) or recs_by_pitcher.get(nk)
+                            primary_play = None
+                            if rec and isinstance(rec.get('plays'), list) and rec['plays']:
+                                plays_all = rec['plays']
+                                conf_rank = {'HIGH': 3, 'MEDIUM': 2, 'LOW': 1}
+                                best = max(
+                                    plays_all,
+                                    key=lambda p: (
+                                        conf_rank.get(str(p.get('confidence','')).upper(), 0),
+                                        abs(p.get('edge') or 0)
+                                    )
+                                )
+                                primary_play = {
+                                    'market': best.get('market'),
+                                    'side': (best.get('side') or '').upper() or None,
+                                    'edge': best.get('edge'),
+                                    'line': best.get('line'),
+                                    'kelly_fraction': best.get('kelly_fraction'),
+                                    'selected_ev': best.get('selected_ev'),
+                                    'p_over': best.get('p_over'),
+                                    'over_odds': best.get('over_odds'),
+                                    'under_odds': best.get('under_odds')
+                                }
+                            # Skip entries that have neither lines nor plays
+                            if not lines_map and not primary_play:
+                                continue
+                            display_name = (st.get('name') if isinstance(st, dict) else None) or nk
+                            try:
+                                if isinstance(display_name, str):
+                                    display_name = ' '.join([w.capitalize() if not w.isupper() else w for w in display_name.split()])
+                            except Exception:
+                                pass
+                            original_id = (st.get('player_id') if isinstance(st, dict) else None) or (st.get('id') if isinstance(st, dict) else None)
+                            headshot_url = None
+                            if original_id:
+                                headshot_url = f"https://img.mlbstatic.com/mlb-photos/image/upload/w_120,q_auto:best/v1/people/{original_id}/headshot/67/current"
+                            team_logo = get_team_logo_url(team_info.get('team')) if team_info.get('team') else None
+                            opponent_logo = get_team_logo_url(team_info.get('opponent')) if team_info.get('opponent') else None
+                            slim_mkts = {}
+                            try:
+                                for mk, info in (lines_map or {}).items():
+                                    if isinstance(info, dict):
+                                        slim_mkts[mk] = {
+                                            'line': info.get('line'),
+                                            'over_odds': info.get('over_odds'),
+                                            'under_odds': info.get('under_odds')
+                                        }
+                            except Exception:
+                                slim_mkts = {}
+                            merged[nk] = {
+                                'raw_key': nk,
+                                'display_name': display_name,
+                                'mlb_player_id': None,
+                                'headshot_url': headshot_url,
+                                'team_logo': team_logo,
+                                'opponent_logo': opponent_logo,
+                                'plays': primary_play,
+                                'lines': lines_map,
+                                'markets': slim_mkts,
+                                'team': team_info.get('team'),
+                                'opponent': team_info.get('opponent'),
+                                'pitch_count': None,
+                                'live_pitches': None
+                            }
+                            out_count += 1
+                            _synthesized = True
+                            if out_count >= 24:
+                                break
+                        except Exception:
+                            # Skip problematic entries and continue synthesizing others
+                            continue
+            except Exception:
+                pass
+
             payload = {
                 'success': True,
                 'date': date_str,
@@ -5276,9 +5812,10 @@ def api_pitcher_props_unified():
                     'generated_at': _now_local().isoformat(),
                     'markets_total': sum(len((v.get('markets') or {})) for v in merged.values()),
                     'requested_date': date_str,
-                    'source_date': date_str,
-                    'source_file': os.path.join('data','daily_bovada', f'bovada_pitcher_props_{safe_date}.json'),
-                    'light_mode': True
+                    'source_date': source_date,
+                    'source_file': source_file or os.path.join('data','daily_bovada', f'bovada_pitcher_props_{safe_date}.json'),
+                    'light_mode': True,
+                    'synthesized': _synthesized
                 },
                 'data': merged
             }
@@ -5295,6 +5832,10 @@ def api_pitcher_props_unified():
             except Exception:
                 pass
             return resp
+        
+        # If we got here, light_mode was False; no change below. However, if light_mode path above would have yielded an empty dataset
+        # due to missing current lines, we still want Spotlight to have entries. To support that without changing the full path,
+        # we enriched the light-mode path to include last-known lines. The frontend now requests allow_fallback=1, so light-mode should populate.
 
         merged = {}
         t_loop = time.time()
@@ -9893,54 +10434,64 @@ def test_proxy():
 @app.route('/api/historical-analysis/available-dates')
 def proxy_available_dates():
     """Proxy route to forward requests to historical analysis app"""
+    remote_dates: list[str] = []
+    local_dates: list[str] = []
+    scan_dates: list[str] = []
+    # Try remote service
     try:
-        # Use a very short timeout; we have robust local fallbacks
         response = requests.get('http://localhost:5001/api/available-dates', timeout=1.5)
-        return jsonify(response.json()), response.status_code
+        if response.ok:
+            try:
+                rj = response.json()
+                rd = rj.get('dates') or rj.get('available_dates') or []
+                if isinstance(rd, list):
+                    remote_dates = [str(d) for d in rd]
+            except Exception:
+                pass
     except Exception as e:
         logger.error(f"Failed to proxy available-dates request: {e}")
-        # Fallback: compute available dates locally if analyzer is available
-        try:
-            analyzer = get_or_create_historical_analyzer()
-            if analyzer:
-                dates = analyzer.get_available_dates() or []
-                return jsonify({
-                    'success': True,
-                    'dates': dates,
-                    'count': len(dates),
-                    'message': f'Found {len(dates)} dates (local fallback)'
-                }), 200
-        except Exception as _e:
-            logger.error(f"Local fallback failed for available-dates: {_e}")
-        # Last-resort fallback: scan data files for betting_recommendations_*.json
-        try:
-            data_dir = Path(__file__).parent / 'data'
-            dates: list[str] = []
-            if data_dir.exists():
-                for p in data_dir.glob('betting_recommendations_*.json'):
-                    base = p.stem  # betting_recommendations_YYYY_MM_DD[_enhanced]
-                    name_part = base.replace('betting_recommendations_', '')
-                    # Strip trailing _enhanced if present
-                    if name_part.endswith('_enhanced'):
-                        name_part = name_part[:-len('_enhanced')]
-                    # Expect YYYY_MM_DD; normalize to YYYY-MM-DD
-                    if len(name_part) == 10 and name_part[4] == '_' and name_part[7] == '_':
-                        dates.append(name_part.replace('_', '-'))
-            dates = sorted(set(dates))
-            if dates:
-                return jsonify({
-                    'success': True,
-                    'dates': dates,
-                    'count': len(dates),
-                    'message': f'Found {len(dates)} dates (file scan fallback)'
-                }), 200
-        except Exception as _e2:
-            logger.error(f"File-scan fallback failed for available-dates: {_e2}")
+    # Try local analyzer
+    try:
+        analyzer = get_or_create_historical_analyzer()
+        if analyzer:
+            local_dates = analyzer.get_available_dates() or []
+    except Exception as _e:
+        logger.error(f"Local fallback failed for available-dates: {_e}")
+    # File scan for rec files
+    try:
+        data_dir = Path(__file__).parent / 'data'
+        if data_dir.exists():
+            for p in data_dir.glob('betting_recommendations_*.json'):
+                base = p.stem  # betting_recommendations_YYYY_MM_DD[_enhanced]
+                name_part = base.replace('betting_recommendations_', '')
+                # Strip trailing _enhanced if present
+                if name_part.endswith('_enhanced'):
+                    name_part = name_part[:-len('_enhanced')]
+                # Expect YYYY_MM_DD; normalize to YYYY-MM-DD
+                if len(name_part) == 10 and name_part[4] == '_' and name_part[7] == '_':
+                    scan_dates.append(name_part.replace('_', '-'))
+    except Exception as _e2:
+        logger.error(f"File-scan fallback failed for available-dates: {_e2}")
+
+    # Merge all sources into a unified, sorted unique list
+    merged = sorted(set([*remote_dates, *local_dates, *scan_dates]))
+    if merged:
         return jsonify({
-            'success': False,
-            'error': 'Historical analysis service unavailable',
-            'message': 'Make sure historical_analysis_app.py is running on port 5001'
-        }), 503
+            'success': True,
+            'dates': merged,
+            'count': len(merged),
+            'sources': {
+                'remote_count': len(set(remote_dates)),
+                'local_count': len(set(local_dates)),
+                'scan_count': len(set(scan_dates))
+            },
+            'message': 'Union of available dates from remote/local/scan'
+        }), 200
+    return jsonify({
+        'success': False,
+        'error': 'No dates available',
+        'message': 'No available dates from remote, local, or scan'
+    }), 503
 
 @app.route('/api/historical-analysis/cumulative')
 def proxy_cumulative():
@@ -12461,6 +13012,74 @@ def monitoring_history():
             'error': str(e)
         })
 
+@app.route('/api/props/progress')
+def api_props_progress():
+    """Expose progress of the continuous pitcher props updater.
+
+    Primary source: data/daily_bovada/props_progress.json (concise summary written each loop).
+    Fallback: latest data/daily_bovada/pitcher_props_progress_<date>.json.
+    """
+    try:
+        base = Path('data') / 'daily_bovada'
+        summary_path = base / 'props_progress.json'
+        if summary_path.exists():
+            doc = _read_json_safe(str(summary_path)) or {}
+            return jsonify({'success': True, 'source': 'summary', 'data': doc})
+        # Fallback: find latest dated file
+        candidates = sorted(base.glob('pitcher_props_progress_*.json'))
+        if candidates:
+            latest = candidates[-1]
+            doc = _read_json_safe(str(latest)) or {}
+            # Normalize to a slim view
+            cov = (doc.get('coverage') or {})
+            # Normalize timestamps to UTC-Z if present without tz
+            def _norm_ts(v):
+                try:
+                    if not v:
+                        return None
+                    # If already has Z or timezone offset, return as-is
+                    s = str(v)
+                    if s.endswith('Z') or ('+' in s and len(s) >= 20):
+                        return s
+                    # Attempt parse and convert to Z
+                    from datetime import datetime, timezone
+                    dt = datetime.fromisoformat(s)
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=timezone.utc)
+                    else:
+                        dt = dt.astimezone(timezone.utc)
+                    return dt.isoformat().replace('+00:00','Z')
+                except Exception:
+                    return str(v)
+            slim = {
+                'date': doc.get('date'),
+                'updated_at': _norm_ts(doc.get('timestamp')),
+                'iteration': doc.get('iteration'),
+                'coverage_percent': round(float(cov.get('percent') or 0.0), 1),
+                'covered_pitchers': cov.get('covered_pitchers'),
+                'total_pitchers': cov.get('total_pitchers'),
+                'all_games_started': bool(doc.get('all_games_started')),
+                'active_game_count': doc.get('active_game_count'),
+                'next_run_eta': _norm_ts(doc.get('next_run_eta')),
+                'last_git_push': _norm_ts(doc.get('last_git_push'))
+            }
+            return jsonify({'success': True, 'source': 'dated-fallback', 'data': slim})
+        return jsonify({'success': True, 'source': 'none', 'data': {
+            'date': get_business_date(),
+            'updated_at': None,
+            'iteration': 0,
+            'coverage_percent': 0.0,
+            'covered_pitchers': 0,
+            'total_pitchers': 0,
+            'all_games_started': False,
+            'active_game_count': 0,
+            'next_run_eta': None,
+            'last_git_push': None
+        }})
+    except Exception as e:
+        logger.error(f"Error in /api/props/progress: {e}\n{traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 if __name__ == '__main__':
     logger.info("🏆 MLB Prediction System Starting")
     logger.info("🏺 Archaeological Data Recovery: COMPLETE")
@@ -12518,55 +13137,6 @@ if __name__ == '__main__':
     debug_mode = os.environ.get('FLASK_ENV') != 'production'
     logger.info(f"🚀 Starting MLB Betting App on port {port} (debug: {debug_mode})")
     app.run(debug=debug_mode, host='0.0.0.0', port=port)
-
-@app.route('/api/props/progress')
-def api_props_progress():
-    """Expose progress of the continuous pitcher props updater.
-
-    Primary source: data/daily_bovada/props_progress.json (concise summary written each loop).
-    Fallback: latest data/daily_bovada/pitcher_props_progress_<date>.json.
-    """
-    try:
-        base = Path('data') / 'daily_bovada'
-        summary_path = base / 'props_progress.json'
-        if summary_path.exists():
-            doc = _read_json_safe(str(summary_path)) or {}
-            return jsonify({'success': True, 'source': 'summary', 'data': doc})
-        # Fallback: find latest dated file
-        candidates = sorted(base.glob('pitcher_props_progress_*.json'))
-        if candidates:
-            latest = candidates[-1]
-            doc = _read_json_safe(str(latest)) or {}
-            # Normalize to a slim view
-            cov = (doc.get('coverage') or {})
-            slim = {
-                'date': doc.get('date'),
-                'updated_at': doc.get('timestamp'),
-                'iteration': doc.get('iteration'),
-                'coverage_percent': round(float(cov.get('percent') or 0.0), 1),
-                'covered_pitchers': cov.get('covered_pitchers'),
-                'total_pitchers': cov.get('total_pitchers'),
-                'all_games_started': bool(doc.get('all_games_started')),
-                'active_game_count': doc.get('active_game_count'),
-                'next_run_eta': None,
-                'last_git_push': None
-            }
-            return jsonify({'success': True, 'source': 'dated-fallback', 'data': slim})
-        return jsonify({'success': True, 'source': 'none', 'data': {
-            'date': get_business_date(),
-            'updated_at': None,
-            'iteration': 0,
-            'coverage_percent': 0.0,
-            'covered_pitchers': 0,
-            'total_pitchers': 0,
-            'all_games_started': False,
-            'active_game_count': 0,
-            'next_run_eta': None,
-            'last_git_push': None
-        }})
-    except Exception as e:
-        logger.error(f"Error in /api/props/progress: {e}\n{traceback.format_exc()}")
-        return jsonify({'success': False, 'error': str(e)}), 500
 
 # Add API test route for debugging (top-level, not nested in another function)
 @app.route('/api-test')

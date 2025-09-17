@@ -428,8 +428,17 @@
         if(!payload || !payload.success) return;
         const d = payload.data || {};
         const pct = (typeof d.coverage_percent === 'number') ? d.coverage_percent.toFixed(1) : '—';
-        const eta = d.next_run_eta ? new Date(d.next_run_eta).toLocaleTimeString() : '';
-        const upd = d.updated_at ? new Date(d.updated_at).toLocaleTimeString() : '';
+        const normZ = (s) => {
+          try{
+            if(!s) return null;
+            const t = String(s);
+            // If already has timezone designator, use as-is
+            if(/Z$|[+\-]\d{2}:?\d{2}$/.test(t)) return t;
+            return t + 'Z';
+          }catch(_){ return s; }
+        };
+        const eta = d.next_run_eta ? new Date(normZ(d.next_run_eta)).toLocaleTimeString() : '';
+        const upd = d.updated_at ? new Date(normZ(d.updated_at)).toLocaleTimeString() : '';
         const covEl = document.getElementById('propsProgress');
         const etaEl = document.getElementById('propsNextEta');
         const updEl = document.getElementById('propsUpdatedAt');

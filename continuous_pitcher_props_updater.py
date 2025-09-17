@@ -61,7 +61,7 @@ import time
 import traceback
 import subprocess
 import gzip
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Tuple, Optional
 from math import pow
 
@@ -273,7 +273,7 @@ def calibration_pass():
     For each market: compute absolute error distribution from projections stored in recommendation files vs. realized.
     """
     try:
-        meta = {'updated_at': datetime.utcnow().isoformat(), 'markets': {}}
+        meta = {'updated_at': datetime.now(timezone.utc).isoformat().replace('+00:00','Z'), 'markets': {}}
         # Aggregate errors
         # Scan recommendation files (recent 30 days)
         rec_files = sorted([f for f in os.listdir(os.path.join('data','daily_bovada')) if f.startswith('pitcher_prop_recommendations_')])[-30:]
@@ -476,7 +476,7 @@ def main():
                 elif changed and not prev_mk and new_line is not None:
                     # First time we've seen this market -> broadcast initial snapshot so frontend can display without waiting for movement
                     initial_events.append({
-                        'ts': datetime.utcnow().isoformat(),
+                        'ts': datetime.now(timezone.utc).isoformat().replace('+00:00','Z'),
                         'pitcher': p_key,
                         'market': mk,
                         'line': new_line,
@@ -497,7 +497,7 @@ def main():
             os.makedirs(os.path.dirname(lk_path), exist_ok=True)
             doc = {
                 'date': date_str,
-                'updated_at': datetime.utcnow().isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat().replace('+00:00','Z'),
                 'pitchers': previous_lines_snapshot
             }
             tmp = lk_path + '.tmp'
@@ -547,10 +547,10 @@ def main():
                     try:
                         from app import broadcast_pitcher_update  # type: ignore
                         for pk, deltas in dist_changes.items():
-                            payload = {'type':'distribution_update','pitcher': pk, 'deltas': deltas, 'date': date_str, 'ts': datetime.utcnow().isoformat()}
+                            payload = {'type':'distribution_update','pitcher': pk, 'deltas': deltas, 'date': date_str, 'ts': datetime.now(timezone.utc).isoformat().replace('+00:00','Z')}
                             broadcast_pitcher_update(payload)
                         try:
-                            ok = bridge_send([{'type':'distribution_update','pitcher': pk, 'deltas': deltas, 'date': date_str, 'ts': datetime.utcnow().isoformat()} for pk, deltas in dist_changes.items()])
+                            ok = bridge_send([{'type':'distribution_update','pitcher': pk, 'deltas': deltas, 'date': date_str, 'ts': datetime.now(timezone.utc).isoformat().replace('+00:00','Z')} for pk, deltas in dist_changes.items()])
                             if not ok:
                                 print("[PitcherPropsUpdater] Bridge relay failed for distribution_update events")
                         except Exception as _e:
@@ -611,7 +611,7 @@ def main():
                     if dist_changed:
                         try:
                             from app import broadcast_pitcher_update  # type: ignore
-                            broadcast_pitcher_update({'type': 'distribution_rebuild', 'date': date_str, 'ts': datetime.utcnow().isoformat()})
+                            broadcast_pitcher_update({'type': 'distribution_rebuild', 'date': date_str, 'ts': datetime.now(timezone.utc).isoformat().replace('+00:00','Z')})
                         except Exception:
                             pass
                     try:
@@ -666,7 +666,7 @@ def main():
 
         progress_doc = {
             'date': date_str,
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat().replace('+00:00','Z'),
             'iteration': iteration,
             'coverage': {
                 'covered_pitchers': covered,
@@ -696,7 +696,7 @@ def main():
             'total_pitchers': total,
             'all_games_started': progress_doc['all_games_started'],
             'active_game_count': progress_doc['active_game_count'],
-            'last_git_push': datetime.utcfromtimestamp(last_git_push_ts).isoformat() if last_git_push_ts else None
+            'last_git_push': (datetime.fromtimestamp(last_git_push_ts, tz=timezone.utc).isoformat().replace('+00:00','Z') if last_git_push_ts else None)
         }
         # Will add next_run_eta below once target_sleep is defined
 
@@ -752,8 +752,8 @@ def main():
 
         # finalize next_run_eta and write concise summary
         try:
-            eta = datetime.utcnow() + timedelta(seconds=int(target_sleep))
-            progress_summary['next_run_eta'] = eta.isoformat()
+            eta = datetime.now(timezone.utc) + timedelta(seconds=int(target_sleep))
+            progress_summary['next_run_eta'] = eta.isoformat().replace('+00:00','Z')
         except Exception:
             progress_summary['next_run_eta'] = None
         write_progress_summary(progress_summary)

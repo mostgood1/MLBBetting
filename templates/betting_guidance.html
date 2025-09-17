@@ -61,7 +61,8 @@
 
   <div class="card mt-18" id="roi-metrics-card">
     <h2>Recent ROI & Efficiency</h2>
-    <div class="muted mb-8">Derived from latest weekly retune (rolling 7-day window). Efficiency = profit / sqrt(total stake). Kelly comparison uses recorded Kelly bet sizes vs fixed_stake model.</div>
+    <div class="muted mb-8" id="roi-subtitle">Rolling last 7 days (excl. today). Efficiency = profit / sqrt(total stake). Kelly comparison shown when available.</div>
+    <div class="muted" id="roi-window-note"></div>
     <div id="roi-metrics-content" class="grid"></div>
   </div>
 
@@ -282,48 +283,68 @@
     }
 
     async function loadROIMetricsPanel(){
+      const cont = document.getElementById('roi-metrics-content');
+      const sub = document.getElementById('roi-subtitle');
+      const note = document.getElementById('roi-window-note');
       try{
-        // Slightly longer timeout; retry once on abort
+        // Try rolling endpoint first (fresh 7-day), exclude today for stability
         let res;
         try{
-          res = await fetchWithTimeout('/api/optimization/roi-metrics', {}, 15000);
+          res = await fetchWithTimeout('/api/optimization/roi-metrics/rolling?days=7&include_today=false', {}, 15000);
         }catch(e){
           if(e && (e.name === 'AbortError' || String(e).includes('aborted'))){
-            res = await fetchWithTimeout('/api/optimization/roi-metrics', {}, 15000);
+            res = await fetchWithTimeout('/api/optimization/roi-metrics/rolling?days=7&include_today=false', {}, 15000);
           } else { throw e; }
         }
-        const data = await res.json();
-        const cont = document.getElementById('roi-metrics-content');
+        let data = await res.json();
+        // Fall back to snapshot if rolling missing
+        if(!data || !data.roi_metrics){
+          const snapRes = await fetchWithTimeout('/api/optimization/roi-metrics', {}, 12000);
+          if(snapRes.ok){ data = await snapRes.json(); }
+        }
         cont.innerHTML='';
-        if(!data.roi_metrics){ cont.innerHTML='<div class="muted">No ROI metrics available yet.</div>'; return; }
+        if(!data || !data.roi_metrics){ cont.innerHTML='<div class="muted">No ROI metrics available yet.</div>'; return; }
+        // Update subtitle and window note based on source
+        const isRolling = (data && (data.source === 'rolling' || data.window));
+        if(sub){ sub.textContent = isRolling ? 'Rolling last 7 days (excl. today). Efficiency = profit / sqrt(total stake). Kelly comparison shown when available.' : 'Weekly snapshot from latest retune. Efficiency = profit / sqrt(total stake).'; }
+        if(note){
+          if(isRolling && data.window && Array.isArray(data.window.dates_used) && data.window.dates_used.length){
+            const ds = data.window.dates_used; note.textContent = `Window: ${ds[0]} → ${ds[ds.length-1]}`;
+          } else if(data.latest_weekly_comparison && data.latest_weekly_comparison.window){
+            const w = data.latest_weekly_comparison.window; if(w.start && w.end){ note.textContent = `Snapshot window: ${w.start} → ${w.end}`; } else { note.textContent = ''; }
+          } else { note.textContent = ''; }
+        }
         const rm = data.roi_metrics;
-        // Build cards for each confidence
         const confMap = rm.by_confidence || {};
         Object.entries(confMap).forEach(([conf,vals])=>{
-          const eff = vals.total_stake>0 ? (vals.total_profit/Math.sqrt(vals.total_stake)) : 0;
+          const stake = Number(vals.total_stake||0);
+          const profit = Number(vals.total_profit||0);
+          const roi = stake>0 ? (profit/stake) : (Number(vals.roi)||0);
+          const eff = stake>0 ? (profit/Math.sqrt(stake)) : 0;
           const div=document.createElement('div'); div.className='stat';
-          div.innerHTML = `<div class='num'>${(vals.roi*100).toFixed(1)}%</div>
-            <div class='muted'>${conf.toUpperCase()} ROI</div>
-            <div class='muted'>Profit $${vals.total_profit.toFixed(2)} / Stake $${vals.total_stake.toFixed(0)}</div>
-            <div class='muted'>Eff: ${eff.toFixed(3)} | W:${vals.wins} L:${vals.losses} P:${vals.pushes}</div>`;
+          div.innerHTML = `<div class='num'>${(roi*100).toFixed(1)}%</div>
+            <div class='muted'>${String(conf).toUpperCase()} ROI</div>
+            <div class='muted'>Profit $${profit.toFixed(2)} / Stake $${stake.toFixed(0)}</div>
+            <div class='muted'>Eff: ${eff.toFixed(3)} | W:${vals.wins||0} L:${vals.losses||0} P:${vals.pushes||0}</div>`;
           cont.appendChild(div);
         });
         // Kelly vs Fixed Stake summary if present
         if(rm.kelly_comparison){
           const kc = rm.kelly_comparison;
-            const div=document.createElement('div'); div.className='stat';
-            div.style.background='#eef7ff';
-            div.innerHTML = `<div class='num'>Kelly vs Fixed</div>
-              <div class='muted'>Kelly ROI: ${(kc.kelly_roi*100).toFixed(1)}% ($${kc.kelly_profit.toFixed(2)})</div>
-              <div class='muted'>Fixed ROI: ${(kc.fixed_roi*100).toFixed(1)}% ($${kc.fixed_profit.toFixed(2)})</div>
-              <div class='muted'>Edge: ${( (kc.kelly_roi-kc.fixed_roi)*100).toFixed(1)} pts</div>`;
-            cont.appendChild(div);
+          const div=document.createElement('div'); div.className='stat';
+          div.style.background='#eef7ff';
+          const kROI = Number(kc.kelly_roi||0), fROI = Number(kc.fixed_roi||0);
+          const kP = Number(kc.kelly_profit||0), fP = Number(kc.fixed_profit||0);
+          div.innerHTML = `<div class='num'>Kelly vs Fixed</div>
+            <div class='muted'>Kelly ROI: ${(kROI*100).toFixed(1)}% ($${kP.toFixed(2)})</div>
+            <div class='muted'>Fixed ROI: ${(fROI*100).toFixed(1)}% ($${fP.toFixed(2)})</div>
+            <div class='muted'>Edge: ${((kROI - fROI)*100).toFixed(1)} pts</div>`;
+          cont.appendChild(div);
         }
       }catch(e){
         console.error('ROI metrics panel error', e);
-        const cont = document.getElementById('roi-metrics-content');
         if(cont && (!cont.innerHTML || !cont.innerHTML.trim())){
-          cont.innerHTML = '<div class="muted">ROI metrics failed to load. Check /api/optimization/roi-metrics and /api/debug-data-files.</div>';
+          cont.innerHTML = '<div class="muted">ROI metrics failed to load. Check /api/optimization/roi-metrics/rolling and /api/debug-data-files.</div>';
         }
       }
     }
@@ -466,8 +487,11 @@
         const pct = (Number(d.coverage_percent)||0).toFixed(0);
         const el = document.getElementById('props-coverage');
         if(el){
+          const normZ = (s)=>{ try{ if(!s) return null; const t=String(s); if(/Z$|[+\-]\d{2}:?\d{2}$/.test(t)) return t; return t+'Z'; }catch(_){ return s; } };
           let txt = `Props coverage: ${pct}%`;
           if(d.all_games_started) txt += ' • all games started';
+          const upd = d.updated_at ? new Date(normZ(d.updated_at)).toLocaleTimeString() : '';
+          if(upd) txt += ` • Updated ${upd}`;
           el.textContent = txt;
         }
       }catch(_){ /* ignore */ }
@@ -478,39 +502,63 @@
       if(cont && (!cont.innerHTML || !cont.innerHTML.trim())){
         cont.innerHTML = '<div class="muted">Loading props…</div>';
       }
-      try{
-        const res = await fetchWithTimeout('/api/pitcher-props/unified?light=1', {}, 15000);
-        if(!res.ok){ if(cont) cont.innerHTML = '<div class="muted">Props unavailable.</div>'; return; }
-        const j = await res.json();
-        const data = (j && j.data) || {};
+      // Helper to build table HTML from unified props payload
+      const buildRows = (j)=>{
+        const dataObj = (j && j.data && typeof j.data==='object') ? j.data : {};
+        // Some versions may return an array under `items`
+        const vals = Array.isArray(j?.items) ? j.items : Object.values(dataObj || {});
         const rows = [];
-        Object.values(data).forEach(v=>{
+        for(const v of vals){
           try{
-            const p = v.plays;
-            if(!p) return;
-            // Choose odds based on side
-            let odds = null;
-            if(String(p.side||'').toUpperCase()==='OVER') odds = p.over_odds ?? (v.markets?.[p.market]?.over_odds);
-            else if(String(p.side||'').toUpperCase()==='UNDER') odds = p.under_odds ?? (v.markets?.[p.market]?.under_odds);
+            const p = v && v.plays ? v.plays : null;
+            if(!p) continue;
+            const side = String(p.side||'').toUpperCase();
+            const mk = p.market;
+            let odds = null, line = null;
+            const markets = (v && v.markets && typeof v.markets==='object') ? v.markets : null;
+            const mkObj = (markets && mk && markets[mk]) ? markets[mk] : null;
+            if(side==='OVER') odds = (p.over_odds!=null ? p.over_odds : (mkObj ? mkObj.over_odds : null));
+            else if(side==='UNDER') odds = (p.under_odds!=null ? p.under_odds : (mkObj ? mkObj.under_odds : null));
+            line = (p.line!=null ? p.line : (mkObj ? mkObj.line : null));
             const kelly = Number(p.kelly_fraction||0);
             const edge = Number(p.edge||0);
             rows.push({
-              name: v.display_name || v.raw_key || 'Pitcher',
-              team: v.team || '',
-              opp: v.opponent || '',
-              market: p.market,
-              side: (p.side||'').toUpperCase(),
-              line: (p.line!=null ? p.line : (v.markets?.[p.market]?.line)),
+              name: (v && (v.display_name||v.raw_key)) || 'Pitcher',
+              team: (v && v.team) || '',
+              opp: (v && v.opponent) || '',
+              market: mk,
+              side,
+              line,
               edge,
               kelly,
               odds
             });
           }catch(_){ /* ignore row errors */ }
-        });
+        }
         rows.sort((a,b)=> (Number(b.kelly)-Number(a.kelly)) || (Math.abs(Number(b.edge))-Math.abs(Number(a.edge))));
+        return rows;
+      };
+      try{
+        // 1) Try strict today-only (no fallback)
+        let res = await fetchWithTimeout('/api/pitcher-props/unified?light=1', {}, 15000);
+        if(!res.ok){
+          // If the strict call fails, try fallback immediately
+          res = await fetchWithTimeout('/api/pitcher-props/unified?light=1&allow_fallback=1', {}, 15000);
+        }
+        let j = null;
+        try { j = await res.json(); } catch(_){ j = null; }
+        let meta = (j && typeof j.meta==='object') ? j.meta : {};
+        let rows = j ? buildRows(j) : [];
+        // If no rows from strict today-only, try a labeled fallback
+        if(!rows.length){
+          try{
+            const fres = await fetchWithTimeout('/api/pitcher-props/unified?light=1&allow_fallback=1', {}, 15000);
+            if(fres.ok){ const fj = await fres.json(); meta = (fj && typeof fj.meta==='object') ? fj.meta : {}; rows = buildRows(fj); }
+          }catch(_){ /* ignore */ }
+        }
         const top = rows.slice(0, 8);
         if(!top.length){ cont.innerHTML = '<div class="muted">No standout props at the moment.</div>'; return; }
-        const html = '<div class="table-wrap"><table class="table">'
+        let html = '<div class="table-wrap"><table class="table">'
           + '<thead><tr><th>Pitcher</th><th>Matchup</th><th>Market</th><th>Side</th><th>Line</th><th>Edge</th><th>Kelly</th><th>Odds</th></tr></thead><tbody>'
           + top.map(r=>`<tr>
               <td>${r.name}</td>
@@ -523,8 +571,13 @@
               <td>${r.odds!=null ? r.odds : ''}</td>
             </tr>`).join('')
           + '</tbody></table></div>';
+        // Small source note if we ended up using fallback
+        if(meta && (meta.synthesized || (meta.source_date && meta.requested_date && meta.source_date!==meta.requested_date))){
+          const src = meta.source_date||meta.requested_date||'';
+          html += `<div class="muted mt-6">Using fallback data${src?` • source date ${src}`:''}</div>`;
+        }
         cont.innerHTML = html;
-      }catch(e){ if(cont) cont.innerHTML = '<div class="muted">Failed to load props spotlight.</div>'; }
+      }catch(_e){ if(cont) cont.innerHTML = '<div class="muted">Failed to load props spotlight.</div>'; }
     }
     async function loadAvailableDates(){
       try{
@@ -536,8 +589,13 @@
   // Sort dates ascending to keep behavior stable, then select the latest
   dates.sort();
   dates.forEach(dt=>{ const o=document.createElement('option'); o.value=dt; o.textContent=dt; sel.appendChild(o); });
-  // Auto-select most recent date
-  if(dates.length){ sel.value = dates[dates.length-1]; }
+  // Auto-select previous day by default when available (avoid showing "today" settlements early)
+  if(dates.length){
+    const todayS = todayISO();
+    let def = dates[dates.length-1];
+    for(let i=dates.length-1;i>=0;i--){ if(dates[i] < todayS){ def = dates[i]; break; } }
+    sel.value = def;
+  }
 
   // Populate range selectors
   const rs = document.getElementById('range-start');
@@ -548,18 +606,23 @@
     const o2=document.createElement('option'); o2.value=dt; o2.textContent=dt; re.appendChild(o2);
   });
   if(dates.length){
-    // Default to current month range if available
+    // Default to current month range, but end at previous day when available
     const now = new Date();
     const z = n=>String(n).padStart(2,'0');
     const prefix = `${now.getFullYear()}-${z(now.getMonth()+1)}-`;
     const monthDates = dates.filter(d=> d.startsWith(prefix));
+    const todayS = todayISO();
+    const lastBeforeToday = (arr)=>{
+      for(let i=arr.length-1;i>=0;i--){ if(arr[i] < todayS) return arr[i]; }
+      return arr.length ? arr[arr.length-1] : null;
+    };
     if(monthDates.length){
       rs.value = monthDates[0];
-      re.value = monthDates[monthDates.length-1];
+      re.value = lastBeforeToday(monthDates) || monthDates[monthDates.length-1];
     } else {
       // Fallback to full available range
       rs.value = dates[0];
-      re.value = dates[dates.length-1];
+      re.value = lastBeforeToday(dates) || dates[dates.length-1];
     }
   }
 
@@ -1161,7 +1224,9 @@
           return;
         }
         const datesData = await datesRes.json();
-        const allDates = (datesData.dates || datesData.available_dates || []).filter(d=> d>=start && d<=end);
+        // Use union list from backend, but still guard
+        const unionDates = (datesData.dates || datesData.available_dates || []);
+        const allDates = unionDates.filter(d=> d>=start && d<=end);
         if(!allDates.length){
           if(rangeGrid) rangeGrid.innerHTML='';
           if(rangeRecs) rangeRecs.innerHTML='<div class="muted">No data in selected range.</div>';
@@ -1170,12 +1235,31 @@
 
     // Parallel fetch of day analyses for evaluated correctness and final scores
     const dayAnalyses = await Promise.all(allDates.map(async d=>{
+          // Always carry the date forward; fill data with minimal scaffolding if analyzer is missing
           try{
             const r = await fetchWithTimeout(`/api/historical-analysis/date/${d}`, {}, 10000);
-            if(!r.ok) return { date: d, data: null };
-            const j = await r.json();
-            return { date: d, data: (j && j.data ? j.data : j) };
-          }catch(_){ return { date: d, data: null }; }
+            if(r.ok){
+              const j = await r.json();
+              return { date: d, data: (j && j.data ? j.data : j) };
+            }
+          }catch(_){ /* proceed to lightweight fallback for this date */ }
+          // Lightweight fallback: try to load per-day recommendations and final scores directly
+          let recs = [];
+          try{
+            const recRes = await fetchWithTimeout(`/api/betting-recommendations/date/${d}`, {}, 7000);
+            if(recRes.ok){ const recData = await recRes.json(); recs = recData.recommendations || []; }
+          }catch(_){ /* ignore */ }
+          // Try to fetch final scores for this date
+          let finalScores = [];
+          try{
+            const fsRes = await fetchWithTimeout(`/api/historical-analysis/final-scores/${d}`, {}, 6000);
+            if(fsRes.ok){ const fsData = await fsRes.json(); const fs = fsData.final_scores || {}; finalScores = Object.values(fs); }
+          }catch(_){ /* ignore */ }
+          // If we have at least recs or fs, return a minimal shape to allow range aggregation to proceed
+          if(recs.length || finalScores.length){
+            return { date: d, data: { betting_recommendations: { recommendations_evaluated: [] }, game_cards: [], roi_analysis: { game_results: finalScores.map(s=>({ away_team: s.away_team_display||s.away_team, home_team: s.home_team_display||s.home_team, final_score: `${s.away_score}-${s.home_score}` })) }, _light_recs: recs } };
+          }
+          return { date: d, data: null };
         }));
 
   // Build KPI aggregation and rows list
@@ -1183,7 +1267,7 @@
         for (const entry of dayAnalyses){
           if(!entry || !entry.data) continue;
           const data = entry.data;
-          // Use evaluated recs when available; else fall back to cards
+          // Use evaluated recs when available; else fall back to cards; else use lightweight per-day recs if present
           const evals = (data.betting_recommendations && data.betting_recommendations.recommendations_evaluated) || [];
           const cards = data.game_cards || [];
           const finalScores = new Map();
@@ -1229,12 +1313,14 @@
             }catch(_){ }
           });
 
-          // Try to fetch per-day recommendations (primary source for list)
-          let recs = [];
-          try{
-            const recRes = await fetchWithTimeout(`/api/betting-recommendations/date/${entry.date}`, {}, 9000);
-            if(recRes.ok){ const recData = await recRes.json(); recs = recData.recommendations || []; }
-          }catch(_){ /* ignore */ }
+          // Try to fetch per-day recommendations (primary source for list); re-use lightweight if already present
+          let recs = Array.isArray(data._light_recs) ? data._light_recs.slice() : [];
+          if(!recs.length){
+            try{
+              const recRes = await fetchWithTimeout(`/api/betting-recommendations/date/${entry.date}`, {}, 9000);
+              if(recRes.ok){ const recData = await recRes.json(); recs = recData.recommendations || []; }
+            }catch(_){ /* ignore */ }
+          }
           const currentDate = entry.date;
           const addRow = (game, typeNorm, pick, odds, conf, ev, lineHint=null, extraFields={})=>{
             // typeNorm must already be one of: total | moneyline | run_line | other
