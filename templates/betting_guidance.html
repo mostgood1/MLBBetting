@@ -65,6 +65,22 @@
     <div id="roi-metrics-content" class="grid"></div>
   </div>
 
+    <div class="card mt-18" id="top-picks-card">
+      <h2>Top Picks Today</h2>
+      <div class="muted mb-8">Highest confidence and EV at a glance.</div>
+      <div id="top-picks"></div>
+    </div>
+
+
+    <div class="card mt-18" id="props-spotlight-card">
+      <div class="row-between">
+        <h2>Pitcher Props Spotlight</h2>
+        <div class="muted" id="props-coverage">Props coverage: —</div>
+      </div>
+      <div class="muted mb-8">Top edges and Kelly sizing from today’s props (lightweight view). For full details, see the <a href="/pitcher-props">Pitcher Props</a> page.</div>
+      <div id="props-spotlight"></div>
+    </div>
+
 
     <div class="card">
       <h2>Today’s Recommendations (All)</h2>
@@ -383,6 +399,131 @@
 
       // Build Today Recap KPIs based on THESE recs only (so counts match what you see)
   await loadTodayRecap(rows.map(r=> r._orig));
+    }
+
+    async function loadTopPicksToday(){
+      const today = todayISO();
+      const cont = document.getElementById('top-picks');
+      if(cont && (!cont.innerHTML || !cont.innerHTML.trim())){
+        cont.innerHTML = '<div class="muted">Loading top picks…</div>';
+      }
+      try{
+        const res = await fetchWithTimeout(`/api/betting-recommendations/date/${today}`, {}, 12000);
+        if(!res.ok){ if(cont) cont.innerHTML='<div class="muted">No picks available.</div>'; return; }
+        const data = await res.json();
+        const recs = data.recommendations || [];
+        const confOrder = c => ({'HIGH':3,'MEDIUM':2,'LOW':1}[String(c||'').toUpperCase()]||0);
+        const buildBet = (r)=>{
+          let type = String(r.type||'').toLowerCase();
+          if(type==='over/under' || type.startsWith('total')) type='total';
+          if(type==='ml' || type.startsWith('moneyline')) type='moneyline';
+          if(type.startsWith('run')) type='run_line';
+          const pickRaw = (r.recommendation!=null && String(r.recommendation).trim()!=='' ? r.recommendation : (r.pick!=null ? r.pick : r.side)) || '';
+          const typeLabel = String(type||'').replace('_',' ').toUpperCase();
+          if(type==='total'){
+            let side=null, line=null;
+            const p1 = parseSideLine(String(pickRaw)); if(p1.side) side=p1.side; if(p1.line!=null) line=Number(p1.line);
+            if(line==null && r.betting_line!=null) line = Number(r.betting_line);
+            if(line==null && r.line!=null) line = Number(r.line);
+            if(line==null && r.total_line!=null) line = Number(r.total_line);
+            if(!side){ const p2 = parseSideLine(String(r.side||r.pick||'')); if(p2.side) side=p2.side; if(p2.line!=null && line==null) line=Number(p2.line); }
+            return `${typeLabel} ${side||''} ${line!=null? String(line): ''}`.trim().replace(/\s+/g,' ');
+          }
+          if(type==='moneyline'){
+            const pickTxt = String(pickRaw||'').trim();
+            return (typeLabel + (pickTxt ? (' ' + pickTxt) : '')).trim();
+          }
+          const pickTxt = String(pickRaw||'').trim();
+          return (typeLabel + (pickTxt ? (' ' + pickTxt) : '')).trim();
+        };
+        const rows = recs
+          .filter(r=>{ const t=String(r.type||'').toLowerCase(); const txt=String(r.recommendation||r.pick||r.side||'').toLowerCase(); if(t==='none') return false; if(!txt) return false; if(txt==='none' || txt.includes('no recommendation')) return false; return true; })
+          .map(r=>({
+            game: r.game || `${r.away_team||''} @ ${r.home_team||''}`,
+            bet: buildBet(r),
+            odds: (r.american_odds ?? r.odds),
+            conf: String(r.confidence||'').toUpperCase(),
+            ev: r.expected_value
+          }));
+        rows.sort((a,b)=> confOrder(b.conf)-confOrder(a.conf) || (Number(b.ev||0)-Number(a.ev||0)));
+        const top = rows.slice(0,5);
+        if(!top.length){ cont.innerHTML = '<div class="muted">No picks available.</div>'; return; }
+        cont.innerHTML = '<div class="table-wrap"><table class="table compact">'
+          + '<thead><tr><th>Game</th><th>Bet</th><th>Odds</th><th>Conf</th><th>EV</th></tr></thead><tbody>'
+          + top.map(r=>`<tr><td>${r.game}</td><td>${r.bet}</td><td>${r.odds ?? ''}</td><td><span class="badge ${r.conf}">${r.conf}</span></td><td>${fmtEV(r.ev)}</td></tr>`).join('')
+          + '</tbody></table></div>';
+      }catch(_){ if(cont) cont.innerHTML = '<div class="muted">Unable to load top picks.</div>'; }
+    }
+
+    // --- Props Spotlight (lightweight) ---
+    async function loadPropsCoverageChip(){
+      try{
+        const res = await fetchWithTimeout('/api/props/progress', {}, 8000);
+        if(!res.ok) return;
+        const j = await res.json();
+        const d = (j && j.data) || {};
+        const pct = (Number(d.coverage_percent)||0).toFixed(0);
+        const el = document.getElementById('props-coverage');
+        if(el){
+          let txt = `Props coverage: ${pct}%`;
+          if(d.all_games_started) txt += ' • all games started';
+          el.textContent = txt;
+        }
+      }catch(_){ /* ignore */ }
+    }
+
+    async function loadPropsSpotlight(){
+      const cont = document.getElementById('props-spotlight');
+      if(cont && (!cont.innerHTML || !cont.innerHTML.trim())){
+        cont.innerHTML = '<div class="muted">Loading props…</div>';
+      }
+      try{
+        const res = await fetchWithTimeout('/api/pitcher-props/unified?light=1', {}, 15000);
+        if(!res.ok){ if(cont) cont.innerHTML = '<div class="muted">Props unavailable.</div>'; return; }
+        const j = await res.json();
+        const data = (j && j.data) || {};
+        const rows = [];
+        Object.values(data).forEach(v=>{
+          try{
+            const p = v.plays;
+            if(!p) return;
+            // Choose odds based on side
+            let odds = null;
+            if(String(p.side||'').toUpperCase()==='OVER') odds = p.over_odds ?? (v.markets?.[p.market]?.over_odds);
+            else if(String(p.side||'').toUpperCase()==='UNDER') odds = p.under_odds ?? (v.markets?.[p.market]?.under_odds);
+            const kelly = Number(p.kelly_fraction||0);
+            const edge = Number(p.edge||0);
+            rows.push({
+              name: v.display_name || v.raw_key || 'Pitcher',
+              team: v.team || '',
+              opp: v.opponent || '',
+              market: p.market,
+              side: (p.side||'').toUpperCase(),
+              line: (p.line!=null ? p.line : (v.markets?.[p.market]?.line)),
+              edge,
+              kelly,
+              odds
+            });
+          }catch(_){ /* ignore row errors */ }
+        });
+        rows.sort((a,b)=> (Number(b.kelly)-Number(a.kelly)) || (Math.abs(Number(b.edge))-Math.abs(Number(a.edge))));
+        const top = rows.slice(0, 8);
+        if(!top.length){ cont.innerHTML = '<div class="muted">No standout props at the moment.</div>'; return; }
+        const html = '<div class="table-wrap"><table class="table">'
+          + '<thead><tr><th>Pitcher</th><th>Matchup</th><th>Market</th><th>Side</th><th>Line</th><th>Edge</th><th>Kelly</th><th>Odds</th></tr></thead><tbody>'
+          + top.map(r=>`<tr>
+              <td>${r.name}</td>
+              <td>${r.team ? r.team : ''}${r.opp ? (' vs ' + r.opp) : ''}</td>
+              <td>${r.market||''}</td>
+              <td>${r.side||''}</td>
+              <td>${r.line!=null ? r.line : ''}</td>
+              <td>${(Number.isFinite(r.edge)? r.edge.toFixed(2) : '')}</td>
+              <td>${(Number.isFinite(r.kelly)? (r.kelly*100).toFixed(1)+'%' : '')}</td>
+              <td>${r.odds!=null ? r.odds : ''}</td>
+            </tr>`).join('')
+          + '</tbody></table></div>';
+        cont.innerHTML = html;
+      }catch(e){ if(cont) cont.innerHTML = '<div class="muted">Failed to load props spotlight.</div>'; }
     }
     async function loadAvailableDates(){
       try{
@@ -1201,7 +1342,11 @@
   levelGridR.innerHTML = levelStatsR;
       }catch(e){ console.warn('Failed to load range performance', e); }
     }
-    loadPerformance(); loadToday(); loadAvailableDates();
+  loadPerformance(); loadTopPicksToday(); loadToday(); loadAvailableDates(); loadPropsSpotlight(); loadPropsCoverageChip();
+
+  // Gentle polling to keep props coverage fresh; spotlight refresh every ~2 minutes
+  setInterval(loadPropsCoverageChip, 30000);
+  setInterval(loadPropsSpotlight, 120000);
 
   // Pitcher props snapshot/recap/reconciliation removed
 
