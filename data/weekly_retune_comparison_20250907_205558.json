@@ -1,0 +1,28 @@
+{
+  "window_start": "2025-08-31",
+  "window_end": "2025-09-06",
+  "previous": {
+    "optimization_date": "2025-09-07T20:27:24.525276",
+    "games_analyzed": 1,
+    "home_accuracy": 1.0,
+    "total_runs_mae": 1.4000000000000004,
+    "scoring_bias": 1.4000000000000004,
+    "home_bias": -0.45499999999999996,
+    "base_lambda": null,
+    "home_field_advantage": null,
+    "total_scoring_adjustment": null,
+    "run_environment": null
+  },
+  "new": {
+    "optimization_date": "2025-09-07T20:55:58.363967",
+    "games_analyzed": 87,
+    "home_accuracy": 0.42528735632183906,
+    "total_runs_mae": 3.9804597701149427,
+    "scoring_bias": -0.7137931034482747,
+    "home_bias": 0.13702298850574718,
+    "base_lambda": null,
+    "home_field_advantage": null,
+    "total_scoring_adjustment": null,
+    "run_environment": null
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "Tampa Bay Rays_vs_Chicago Cubs": {
+    "away_team": "Tampa Bay Rays",
+    "home_team": "Chicago Cubs",
+    "away_score": 4,
+    "home_score": 6,
+    "total_runs": 10,
+    "winner": "home",
+    "game_pk": 776352,
+    "is_final": true
+  },
+  "Pittsburgh Pirates_vs_Washington Nationals": {
+    "away_team": "Pittsburgh Pirates",
+    "home_team": "Washington Nationals",
+    "away_score": 5,
+    "home_score": 6,
+    "total_runs": 11,
+    "winner": "home",
+    "game_pk": 776351,
+    "is_final": true
+  },
+  "Kansas City Royals_vs_Philadelphia Phillies": {
+    "away_team": "Kansas City Royals",
+    "home_team": "Philadelphia Phillies",
+    "away_score": 2,
+    "home_score": 8,
+    "total_runs": 10,
+    "winner": "home",
+    "game_pk": 776354,
+    "is_final": true
+  },
+  "Baltimore Orioles_vs_Toronto Blue Jays": {
+    "away_team": "Baltimore Orioles",
+    "home_team": "Toronto Blue Jays",
+    "away_score": 1,
+    "home_score": 6,
+    "total_runs": 7,
+    "winner": "home",
+    "game_pk": 776353,
+    "is_final": true
+  },
+  "Texas Rangers_vs_New York Mets": {
+    "away_team": "Texas Rangers",
+    "home_team": "New York Mets",
+    "away_score": 8,
+    "home_score": 3,
+    "total_runs": 11,
+    "winner": "away",
+    "game_pk": 776359,
+    "is_final": true
+  },
+  "Chicago White Sox_vs_Cleveland Guardians": {
+    "away_team": "Chicago White Sox",
+    "home_team": "Cleveland Guardians",
+    "away_score": 0,
+    "home_score": 4,
+    "total_runs": 4,
+    "winner": "home",
+    "game_pk": 776361,
+    "is_final": true
+  },
+  "Detroit Tigers_vs_Miami Marlins": {
+    "away_team": "Detroit Tigers",
+    "home_team": "Miami Marlins",
+    "away_score": 2,
+    "home_score": 8,
+    "total_runs": 10,
+    "winner": "home",
+    "game_pk": 776366,
+    "is_final": true
+  },
+  "Houston Astros_vs_Atlanta Braves": {
+    "away_team": "Houston Astros",
+    "home_team": "Atlanta Braves",
+    "away_score": 11,
+    "home_score": 3,
+    "total_runs": 14,
+    "winner": "away",
+    "game_pk": 776360,
+    "is_final": true
+  }
+}

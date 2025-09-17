@@ -1,0 +1,152 @@
+{
+  "St. Louis Cardinals_vs_Cincinnati Reds": {
+    "away_team": "St. Louis Cardinals",
+    "home_team": "Cincinnati Reds",
+    "away_score": 7,
+    "home_score": 5,
+    "total_runs": 12,
+    "winner": "away",
+    "game_pk": 776551,
+    "is_final": true
+  },
+  "Tampa Bay Rays_vs_Washington Nationals": {
+    "away_team": "Tampa Bay Rays",
+    "home_team": "Washington Nationals",
+    "away_score": 4,
+    "home_score": 1,
+    "total_runs": 5,
+    "winner": "away",
+    "game_pk": 776545,
+    "is_final": true
+  },
+  "Atlanta Braves_vs_Philadelphia Phillies": {
+    "away_team": "Atlanta Braves",
+    "home_team": "Philadelphia Phillies",
+    "away_score": 1,
+    "home_score": 2,
+    "total_runs": 3,
+    "winner": "home",
+    "game_pk": 776552,
+    "is_final": true
+  },
+  "Milwaukee Brewers_vs_Toronto Blue Jays": {
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Toronto Blue Jays",
+    "away_score": 7,
+    "home_score": 2,
+    "total_runs": 9,
+    "winner": "away",
+    "game_pk": 776546,
+    "is_final": true
+  },
+  "Pittsburgh Pirates_vs_Boston Red Sox": {
+    "away_team": "Pittsburgh Pirates",
+    "home_team": "Boston Red Sox",
+    "away_score": 4,
+    "home_score": 2,
+    "total_runs": 6,
+    "winner": "away",
+    "game_pk": 776549,
+    "is_final": true
+  },
+  "Seattle Mariners_vs_Cleveland Guardians": {
+    "away_team": "Seattle Mariners",
+    "home_team": "Cleveland Guardians",
+    "away_score": 4,
+    "home_score": 5,
+    "total_runs": 9,
+    "winner": "home",
+    "game_pk": 776547,
+    "is_final": true
+  },
+  "Miami Marlins_vs_New York Mets": {
+    "away_team": "Miami Marlins",
+    "home_team": "New York Mets",
+    "away_score": 9,
+    "home_score": 19,
+    "total_runs": 28,
+    "winner": "home",
+    "game_pk": 776548,
+    "is_final": true
+  },
+  "New York Yankees_vs_Chicago White Sox": {
+    "away_team": "New York Yankees",
+    "home_team": "Chicago White Sox",
+    "away_score": 10,
+    "home_score": 2,
+    "total_runs": 12,
+    "winner": "away",
+    "game_pk": 776544,
+    "is_final": true
+  },
+  "Los Angeles Angels_vs_Houston Astros": {
+    "away_team": "Los Angeles Angels",
+    "home_team": "Houston Astros",
+    "away_score": 0,
+    "home_score": 2,
+    "total_runs": 2,
+    "winner": "home",
+    "game_pk": 776543,
+    "is_final": true
+  },
+  "Detroit Tigers_vs_Kansas City Royals": {
+    "away_team": "Detroit Tigers",
+    "home_team": "Kansas City Royals",
+    "away_score": 5,
+    "home_score": 3,
+    "total_runs": 8,
+    "winner": "away",
+    "game_pk": 776540,
+    "is_final": true
+  },
+  "San Diego Padres_vs_Minnesota Twins": {
+    "away_team": "San Diego Padres",
+    "home_team": "Minnesota Twins",
+    "away_score": 4,
+    "home_score": 7,
+    "total_runs": 11,
+    "winner": "home",
+    "game_pk": 776541,
+    "is_final": true
+  },
+  "Chicago Cubs_vs_Colorado Rockies": {
+    "away_team": "Chicago Cubs",
+    "home_team": "Colorado Rockies",
+    "away_score": 11,
+    "home_score": 7,
+    "total_runs": 18,
+    "winner": "away",
+    "game_pk": 776542,
+    "is_final": true
+  },
+  "Texas Rangers_vs_Oakland Athletics": {
+    "away_team": "Texas Rangers",
+    "home_team": "Oakland Athletics",
+    "away_score": 5,
+    "home_score": 2,
+    "total_runs": 7,
+    "winner": "away",
+    "game_pk": 776538,
+    "is_final": true
+  },
+  "Arizona Diamondbacks_vs_Los Angeles Dodgers": {
+    "away_team": "Arizona Diamondbacks",
+    "home_team": "Los Angeles Dodgers",
+    "away_score": 3,
+    "home_score": 0,
+    "total_runs": 3,
+    "winner": "away",
+    "game_pk": 776534,
+    "is_final": true
+  },
+  "Baltimore Orioles_vs_San Francisco Giants": {
+    "away_team": "Baltimore Orioles",
+    "home_team": "San Francisco Giants",
+    "away_score": 8,
+    "home_score": 15,
+    "total_runs": 23,
+    "winner": "home",
+    "game_pk": 776533,
+    "is_final": true
+  }
+}

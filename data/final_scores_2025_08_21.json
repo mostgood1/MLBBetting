@@ -1,0 +1,92 @@
+{
+  "Oakland Athletics_vs_Minnesota Twins": {
+    "away_team": "Oakland Athletics",
+    "home_team": "Minnesota Twins",
+    "away_score": 8,
+    "home_score": 3,
+    "total_runs": 11,
+    "winner": "away",
+    "game_pk": 776653,
+    "is_final": true
+  },
+  "Texas Rangers_vs_Kansas City Royals": {
+    "away_team": "Texas Rangers",
+    "home_team": "Kansas City Royals",
+    "away_score": 4,
+    "home_score": 6,
+    "total_runs": 10,
+    "winner": "home",
+    "game_pk": 776657,
+    "is_final": true
+  },
+  "Milwaukee Brewers_vs_Chicago Cubs": {
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Chicago Cubs",
+    "away_score": 4,
+    "home_score": 1,
+    "total_runs": 5,
+    "winner": "away",
+    "game_pk": 776651,
+    "is_final": true
+  },
+  "Los Angeles Dodgers_vs_Colorado Rockies": {
+    "away_team": "Los Angeles Dodgers",
+    "home_team": "Colorado Rockies",
+    "away_score": 9,
+    "home_score": 5,
+    "total_runs": 14,
+    "winner": "away",
+    "game_pk": 776644,
+    "is_final": true
+  },
+  "New York Mets_vs_Washington Nationals": {
+    "away_team": "New York Mets",
+    "home_team": "Washington Nationals",
+    "away_score": 3,
+    "home_score": 9,
+    "total_runs": 12,
+    "winner": "home",
+    "game_pk": 776650,
+    "is_final": true
+  },
+  "San Francisco Giants_vs_San Diego Padres": {
+    "away_team": "San Francisco Giants",
+    "home_team": "San Diego Padres",
+    "away_score": 4,
+    "home_score": 8,
+    "total_runs": 12,
+    "winner": "home",
+    "game_pk": 776642,
+    "is_final": true
+  },
+  "Houston Astros_vs_Baltimore Orioles": {
+    "away_team": "Houston Astros",
+    "home_team": "Baltimore Orioles",
+    "away_score": 7,
+    "home_score": 2,
+    "total_runs": 9,
+    "winner": "away",
+    "game_pk": 776655,
+    "is_final": true
+  },
+  "Boston Red Sox_vs_New York Yankees": {
+    "away_team": "Boston Red Sox",
+    "home_team": "New York Yankees",
+    "away_score": 6,
+    "home_score": 3,
+    "total_runs": 9,
+    "winner": "away",
+    "game_pk": 776654,
+    "is_final": true
+  },
+  "St. Louis Cardinals_vs_Tampa Bay Rays": {
+    "away_team": "St. Louis Cardinals",
+    "home_team": "Tampa Bay Rays",
+    "away_score": 7,
+    "home_score": 4,
+    "total_runs": 11,
+    "winner": "away",
+    "game_pk": 776631,
+    "is_final": true
+  }
+}

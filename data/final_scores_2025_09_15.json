@@ -1,0 +1,92 @@
+{
+  "Chicago Cubs_vs_Pittsburgh Pirates": {
+    "away_team": "Chicago Cubs",
+    "home_team": "Pittsburgh Pirates",
+    "away_score": 4,
+    "home_score": 0,
+    "total_runs": 4,
+    "winner": "away",
+    "game_pk": 776318,
+    "is_final": true
+  },
+  "Atlanta Braves_vs_Washington Nationals": {
+    "away_team": "Atlanta Braves",
+    "home_team": "Washington Nationals",
+    "away_score": 11,
+    "home_score": 3,
+    "total_runs": 14,
+    "winner": "away",
+    "game_pk": 776315,
+    "is_final": true
+  },
+  "Toronto Blue Jays_vs_Tampa Bay Rays": {
+    "away_team": "Toronto Blue Jays",
+    "home_team": "Tampa Bay Rays",
+    "away_score": 2,
+    "home_score": 1,
+    "total_runs": 3,
+    "winner": "away",
+    "game_pk": 776316,
+    "is_final": true
+  },
+  "Baltimore Orioles_vs_Chicago White Sox": {
+    "away_team": "Baltimore Orioles",
+    "home_team": "Chicago White Sox",
+    "away_score": 4,
+    "home_score": 1,
+    "total_runs": 5,
+    "winner": "away",
+    "game_pk": 776314,
+    "is_final": true
+  },
+  "New York Yankees_vs_Minnesota Twins": {
+    "away_team": "New York Yankees",
+    "home_team": "Minnesota Twins",
+    "away_score": 0,
+    "home_score": 7,
+    "total_runs": 7,
+    "winner": "home",
+    "game_pk": 776313,
+    "is_final": true
+  },
+  "Cincinnati Reds_vs_St. Louis Cardinals": {
+    "away_team": "Cincinnati Reds",
+    "home_team": "St. Louis Cardinals",
+    "away_score": 11,
+    "home_score": 6,
+    "total_runs": 17,
+    "winner": "away",
+    "game_pk": 776312,
+    "is_final": true
+  },
+  "Texas Rangers_vs_Houston Astros": {
+    "away_team": "Texas Rangers",
+    "home_team": "Houston Astros",
+    "away_score": 3,
+    "home_score": 6,
+    "total_runs": 9,
+    "winner": "home",
+    "game_pk": 776319,
+    "is_final": true
+  },
+  "San Francisco Giants_vs_Arizona Diamondbacks": {
+    "away_team": "San Francisco Giants",
+    "home_team": "Arizona Diamondbacks",
+    "away_score": 1,
+    "home_score": 8,
+    "total_runs": 9,
+    "winner": "home",
+    "game_pk": 776309,
+    "is_final": true
+  },
+  "Philadelphia Phillies_vs_Los Angeles Dodgers": {
+    "away_team": "Philadelphia Phillies",
+    "home_team": "Los Angeles Dodgers",
+    "away_score": 6,
+    "home_score": 5,
+    "total_runs": 11,
+    "winner": "away",
+    "game_pk": 776311,
+    "is_final": true
+  }
+}

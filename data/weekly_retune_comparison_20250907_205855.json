@@ -1,0 +1,115 @@
+{
+  "window_start": "2025-08-31",
+  "window_end": "2025-09-06",
+  "previous": {
+    "optimization_date": "2025-09-07T20:58:44.430633",
+    "games_analyzed": 87,
+    "home_accuracy": 0.42528735632183906,
+    "total_runs_mae": 3.9804597701149427,
+    "scoring_bias": -0.7137931034482747,
+    "home_bias": 0.13702298850574718,
+    "base_lambda": null,
+    "home_field_advantage": null,
+    "total_scoring_adjustment": null,
+    "run_environment": null
+  },
+  "new": {
+    "optimization_date": "2025-09-07T20:58:55.678140",
+    "games_analyzed": 87,
+    "home_accuracy": 0.42528735632183906,
+    "total_runs_mae": 3.9804597701149427,
+    "scoring_bias": -0.7137931034482747,
+    "home_bias": 0.13702298850574718,
+    "base_lambda": null,
+    "home_field_advantage": null,
+    "total_scoring_adjustment": null,
+    "run_environment": null
+  },
+  "roi_metrics": {
+    "by_confidence": {
+      "medium": {
+        "bets": 16,
+        "wins": 7,
+        "losses": 9,
+        "pushes": 0,
+        "total_stake": 800.0,
+        "total_profit": -136.36825236017322,
+        "roi": -0.1705
+      },
+      "low": {
+        "bets": 23,
+        "wins": 13,
+        "losses": 7,
+        "pushes": 3,
+        "total_stake": 575.0,
+        "total_profit": 131.57936175150746,
+        "roi": 0.2288
+      },
+      "high": {
+        "bets": 19,
+        "wins": 10,
+        "losses": 7,
+        "pushes": 2,
+        "total_stake": 1900.0,
+        "total_profit": 203.24134687135415,
+        "roi": 0.107
+      }
+    },
+    "by_type_confidence": {
+      "total": {
+        "medium": {
+          "bets": 16,
+          "wins": 7,
+          "losses": 9,
+          "pushes": 0,
+          "total_stake": 800.0,
+          "total_profit": -136.36825236017322,
+          "roi": -0.1705
+        },
+        "low": {
+          "bets": 22,
+          "wins": 12,
+          "losses": 7,
+          "pushes": 3,
+          "total_stake": 550.0,
+          "total_profit": 100.82936175150748,
+          "roi": 0.1833
+        },
+        "high": {
+          "bets": 19,
+          "wins": 10,
+          "losses": 7,
+          "pushes": 2,
+          "total_stake": 1900.0,
+          "total_profit": 203.24134687135415,
+          "roi": 0.107
+        }
+      },
+      "moneyline": {
+        "low": {
+          "bets": 1,
+          "wins": 1,
+          "losses": 0,
+          "pushes": 0,
+          "total_stake": 25.0,
+          "total_profit": 30.75,
+          "roi": 1.23
+        }
+      }
+    },
+    "stake_model": {
+      "high": 100.0,
+      "medium": 50.0,
+      "low": 25.0
+    },
+    "days": [
+      "2025-08-31",
+      "2025-09-01",
+      "2025-09-02",
+      "2025-09-03",
+      "2025-09-04",
+      "2025-09-05",
+      "2025-09-06"
+    ]
+  }
+}

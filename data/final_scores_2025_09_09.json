@@ -1,0 +1,92 @@
+{
+  "Pittsburgh Pirates_vs_Baltimore Orioles": {
+    "away_team": "Pittsburgh Pirates",
+    "home_team": "Baltimore Orioles",
+    "away_score": 2,
+    "home_score": 3,
+    "total_runs": 5,
+    "winner": "home",
+    "game_pk": 776401,
+    "is_final": true
+  },
+  "Kansas City Royals_vs_Cleveland Guardians": {
+    "away_team": "Kansas City Royals",
+    "home_team": "Cleveland Guardians",
+    "away_score": 0,
+    "home_score": 2,
+    "total_runs": 2,
+    "winner": "home",
+    "game_pk": 776403,
+    "is_final": true
+  },
+  "Washington Nationals_vs_Miami Marlins": {
+    "away_team": "Washington Nationals",
+    "home_team": "Miami Marlins",
+    "away_score": 7,
+    "home_score": 5,
+    "total_runs": 12,
+    "winner": "away",
+    "game_pk": 776397,
+    "is_final": true
+  },
+  "New York Mets_vs_Philadelphia Phillies": {
+    "away_team": "New York Mets",
+    "home_team": "Philadelphia Phillies",
+    "away_score": 3,
+    "home_score": 9,
+    "total_runs": 12,
+    "winner": "home",
+    "game_pk": 776404,
+    "is_final": true
+  },
+  "Detroit Tigers_vs_New York Yankees": {
+    "away_team": "Detroit Tigers",
+    "home_team": "New York Yankees",
+    "away_score": 12,
+    "home_score": 2,
+    "total_runs": 14,
+    "winner": "away",
+    "game_pk": 776398,
+    "is_final": true
+  },
+  "Houston Astros_vs_Toronto Blue Jays": {
+    "away_team": "Houston Astros",
+    "home_team": "Toronto Blue Jays",
+    "away_score": 3,
+    "home_score": 4,
+    "total_runs": 7,
+    "winner": "home",
+    "game_pk": 776393,
+    "is_final": true
+  },
+  "Chicago Cubs_vs_Atlanta Braves": {
+    "away_team": "Chicago Cubs",
+    "home_team": "Atlanta Braves",
+    "away_score": 6,
+    "home_score": 1,
+    "total_runs": 7,
+    "winner": "away",
+    "game_pk": 776402,
+    "is_final": true
+  },
+  "Tampa Bay Rays_vs_Chicago White Sox": {
+    "away_team": "Tampa Bay Rays",
+    "home_team": "Chicago White Sox",
+    "away_score": 5,
+    "home_score": 4,
+    "total_runs": 9,
+    "winner": "away",
+    "game_pk": 776388,
+    "is_final": true
+  },
+  "Milwaukee Brewers_vs_Texas Rangers": {
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Texas Rangers",
+    "away_score": 4,
+    "home_score": 5,
+    "total_runs": 9,
+    "winner": "home",
+    "game_pk": 776395,
+    "is_final": true
+  }
+}
