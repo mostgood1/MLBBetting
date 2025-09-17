@@ -64,3 +64,4 @@
 .link-back { text-decoration:none; color:#18b7a0; font-weight:700; }
 .h1-tight { margin:0 6px 0 2px; }
 .model-banner { margin-top:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.12); display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.props-chip { background: rgba(79,209,199,0.12); border:1px solid rgba(79,209,199,0.35); padding:4px 8px; border-radius: 999px; font-weight:700; }

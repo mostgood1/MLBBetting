@@ -587,6 +587,9 @@
         <div class="games-section">
             <div class="games-header">
                 <h2>Today's MLB Games</h2>
+                <div class="muted props-chip" id="props-coverage-chip">
+                    Props: —%
+                </div>
                 <div class="date-selector">
                     <label for="game-date" class="hidden">Game date</label>
                     <input type="date" id="game-date" class="hidden" title="Game date" />
@@ -638,6 +641,25 @@
     </div>
 
     <script>
+        // Tiny poller for props coverage chip
+        async function _pollPropsCoverageChip(){
+            try{
+                const r = await fetch('/api/props/progress?t=' + Date.now());
+                if(!r.ok) return;
+                const js = await r.json().catch(()=>({}));
+                if(!js || !js.success) return;
+                const d = js.data || {};
+                const pct = (typeof d.coverage_percent === 'number') ? d.coverage_percent.toFixed(1) : null;
+                const chip = document.getElementById('props-coverage-chip');
+                if(chip){ chip.textContent = pct!=null ? `Props: ${pct}%` : 'Props: —%'; }
+            }catch(_){ }
+        }
+        try{
+            window.addEventListener('DOMContentLoaded', ()=>{
+                _pollPropsCoverageChip();
+                setInterval(_pollPropsCoverageChip, 30000);
+            });
+        }catch(_){ }
         // --- Lightweight Performance Instrumentation (dev-friendly) ---
         (function initPerf(){
             try {
