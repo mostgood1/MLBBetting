@@ -12473,6 +12473,12 @@ if __name__ == '__main__':
     
     # Enhanced monitoring system start (removed backup route that was causing 404 conflicts)
 
+    # Start Flask app (ensure server actually runs when invoking app.py directly)
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV') != 'production'
+    logger.info(f"🚀 Starting MLB Betting App on port {port} (debug: {debug_mode})")
+    app.run(debug=debug_mode, host='0.0.0.0', port=port)
+
 @app.route('/api/props/progress')
 def api_props_progress():
     """Expose progress of the continuous pitcher props updater.
@@ -12521,15 +12527,8 @@ def api_props_progress():
     except Exception as e:
         logger.error(f"Error in /api/props/progress: {e}\n{traceback.format_exc()}")
         return jsonify({'success': False, 'error': str(e)}), 500
-    
-    # Add API test route for debugging
-    @app.route('/api-test')
-    def api_test_route():
-        return render_template('api_test.html')
-    
-    # Use Render's PORT environment variable or default to 5000 for local development
-    port = int(os.environ.get('PORT', 5000))
-    debug_mode = os.environ.get('FLASK_ENV') != 'production'
-    
-    logger.info(f"🚀 Starting MLB Betting App on port {port} (debug: {debug_mode})")
-    app.run(debug=debug_mode, host='0.0.0.0', port=port)
+
+# Add API test route for debugging (top-level, not nested in another function)
+@app.route('/api-test')
+def api_test_route():
+    return render_template('api_test.html')
