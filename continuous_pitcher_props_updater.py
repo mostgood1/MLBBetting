@@ -62,7 +62,7 @@ import traceback
 import subprocess
 import gzip
 from datetime import datetime, timedelta
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Optional
 from math import pow
 
 from fetch_bovada_pitcher_props import main as fetch_props_main
@@ -75,7 +75,7 @@ except Exception:
 
 # Lazy import to avoid circular startup cost if MLB API unavailable briefly
 _live_data_mod = None
-AUTO_GIT = os.environ.get('PITCHER_PROPS_AUTO_GIT','0') == '1'
+AUTO_GIT = os.environ.get('PITCHER_PROPS_AUTO_GIT','0') == '1' or os.environ.get('AUTO_GIT','0') == '1'
 
 
 def load_live_games(date_str: str):
@@ -142,6 +142,19 @@ def write_progress(date_str: str, progress: Dict[str, Any]):
     try:
         with open(tmp_path, 'w', encoding='utf-8') as f:
             json.dump(progress, f, indent=2)
+        os.replace(tmp_path, out_path)
+    except Exception:
+        pass
+
+def write_progress_summary(progress_summary: Dict[str, Any]):
+    """Write a concise, date-agnostic progress summary for frontend polling.
+    Path: data/daily_bovada/props_progress.json
+    """
+    out_path = os.path.join('data', 'daily_bovada', 'props_progress.json')
+    tmp_path = out_path + '.tmp'
+    try:
+        with open(tmp_path, 'w', encoding='utf-8') as f:
+            json.dump(progress_summary, f, indent=2)
         os.replace(tmp_path, out_path)
     except Exception:
         pass
@@ -343,6 +356,7 @@ def main():
     last_fetch_time = None
     previous_summary = {}
     previous_lines_snapshot: Dict[str, Dict[str, Dict[str, float]]] = {}
+    last_git_push_ts: Optional[float] = None
 
     def load_line_history_path(date_str: str) -> str:
         # Precompute date tag to keep f-string simple and robust
@@ -625,9 +639,20 @@ def main():
             # Optional git commit for remote sync (Render) if enabled
             if AUTO_GIT:
                 try:
-                    subprocess.run(["git","add","data/daily_bovada"], check=False)
-                    subprocess.run(["git","commit","-m", f"auto: update pitcher props {date_str} iteration {iteration}"], check=False)
-                    subprocess.run(["git","push"], check=False)
+                    # Rate-limit pushes to at most once per 60 seconds
+                    now_ts = time.time()
+                    if (last_git_push_ts is None) or ((now_ts - last_git_push_ts) >= 60):
+                        # Stage only daily_bovada changes
+                        subprocess.run(["git","add","data/daily_bovada"], check=False)
+                        # Commit only if there are staged changes
+                        commit = subprocess.run(["git","diff","--cached","--quiet"], check=False)
+                        if commit.returncode != 0:
+                            subprocess.run(["git","commit","-m", f"auto: pitcher props sync {date_str} iter {iteration}"], check=False)
+                            subprocess.run(["git","push"], check=False)
+                            last_git_push_ts = now_ts
+                        else:
+                            # Nothing new to commit
+                            pass
                 except Exception as e:
                     print(f"[PitcherPropsUpdater] Git push failed: {e}")
 
@@ -654,6 +679,26 @@ def main():
             'active_game_count': len(games),
         }
         write_progress(date_str, progress_doc)
+        # Also write a concise shared progress summary file for the site
+        try:
+            next_sleep = None
+            # Estimate next run ETA based on chosen target_sleep below (approx)
+            # We'll recompute once target_sleep is decided.
+        except Exception:
+            next_sleep = None
+
+        progress_summary = {
+            'date': date_str,
+            'updated_at': progress_doc['timestamp'],
+            'iteration': iteration,
+            'coverage_percent': round(pct, 1),
+            'covered_pitchers': covered,
+            'total_pitchers': total,
+            'all_games_started': progress_doc['all_games_started'],
+            'active_game_count': progress_doc['active_game_count'],
+            'last_git_push': datetime.utcfromtimestamp(last_git_push_ts).isoformat() if last_git_push_ts else None
+        }
+        # Will add next_run_eta below once target_sleep is defined
 
         previous_summary = summary
 
@@ -704,6 +749,14 @@ def main():
                 target_sleep = min(target_sleep, fast_interval)
         except Exception:
             pass
+
+        # finalize next_run_eta and write concise summary
+        try:
+            eta = datetime.utcnow() + timedelta(seconds=int(target_sleep))
+            progress_summary['next_run_eta'] = eta.isoformat()
+        except Exception:
+            progress_summary['next_run_eta'] = None
+        write_progress_summary(progress_summary)
 
         print(f"[PitcherPropsUpdater] Sleeping {target_sleep}s...")
         time.sleep(target_sleep)

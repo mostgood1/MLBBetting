@@ -138,6 +138,16 @@ def setup_safe_logging():
     return logging.getLogger(__name__)
 
 logger = setup_safe_logging()
+# ---------------------------------------------
+# Small JSON file helper
+# ---------------------------------------------
+def _read_json_safe(path: str):
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return None
+
 
 # -------------------------------------------------------------
 # Fallback stubs for optional analytics components (prevent NameError if modules absent)
@@ -4915,6 +4925,8 @@ def api_pitcher_props_unified():
         except Exception as _e:
             logger.warning(f"[UNIFIED] Fallback search for Bovada props failed: {_e}")
 
+
+        
         # Load stats doc regardless of fallback outcome
         t_stats = time.time()
         stats_doc = _load_json(stats_path, {})
@@ -12460,6 +12472,55 @@ if __name__ == '__main__':
             logger.error(f"❌ Failed to start monitoring: {e}")
     
     # Enhanced monitoring system start (removed backup route that was causing 404 conflicts)
+
+@app.route('/api/props/progress')
+def api_props_progress():
+    """Expose progress of the continuous pitcher props updater.
+
+    Primary source: data/daily_bovada/props_progress.json (concise summary written each loop).
+    Fallback: latest data/daily_bovada/pitcher_props_progress_<date>.json.
+    """
+    try:
+        base = Path('data') / 'daily_bovada'
+        summary_path = base / 'props_progress.json'
+        if summary_path.exists():
+            doc = _read_json_safe(str(summary_path)) or {}
+            return jsonify({'success': True, 'source': 'summary', 'data': doc})
+        # Fallback: find latest dated file
+        candidates = sorted(base.glob('pitcher_props_progress_*.json'))
+        if candidates:
+            latest = candidates[-1]
+            doc = _read_json_safe(str(latest)) or {}
+            # Normalize to a slim view
+            cov = (doc.get('coverage') or {})
+            slim = {
+                'date': doc.get('date'),
+                'updated_at': doc.get('timestamp'),
+                'iteration': doc.get('iteration'),
+                'coverage_percent': round(float(cov.get('percent') or 0.0), 1),
+                'covered_pitchers': cov.get('covered_pitchers'),
+                'total_pitchers': cov.get('total_pitchers'),
+                'all_games_started': bool(doc.get('all_games_started')),
+                'active_game_count': doc.get('active_game_count'),
+                'next_run_eta': None,
+                'last_git_push': None
+            }
+            return jsonify({'success': True, 'source': 'dated-fallback', 'data': slim})
+        return jsonify({'success': True, 'source': 'none', 'data': {
+            'date': get_business_date(),
+            'updated_at': None,
+            'iteration': 0,
+            'coverage_percent': 0.0,
+            'covered_pitchers': 0,
+            'total_pitchers': 0,
+            'all_games_started': False,
+            'active_game_count': 0,
+            'next_run_eta': None,
+            'last_git_push': None
+        }})
+    except Exception as e:
+        logger.error(f"Error in /api/props/progress: {e}\n{traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
     
     # Add API test route for debugging
     @app.route('/api-test')
