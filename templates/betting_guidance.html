@@ -66,6 +66,12 @@
     <div id="roi-metrics-content" class="grid"></div>
   </div>
 
+  <div class="card mt-18" id="roi-diagnostics">
+    <h2>ROI Data Diagnostics</h2>
+    <div class="muted mb-8">Quick server-side checks to verify required files are available.</div>
+    <div id="roi-diag-status" class="muted">Running diagnostics…</div>
+  </div>
+
     <div class="card mt-18" id="top-picks-card">
       <h2>Top Picks Today</h2>
       <div class="muted mb-8">Highest confidence and EV at a glance.</div>
@@ -346,6 +352,35 @@
         if(cont && (!cont.innerHTML || !cont.innerHTML.trim())){
           cont.innerHTML = '<div class="muted">ROI metrics failed to load. Check /api/optimization/roi-metrics/rolling and /api/debug-data-files.</div>';
         }
+      }
+    }
+
+    // --- ROI diagnostics panel ---
+    async function loadRoiDiagnostics(){
+      const el = document.getElementById('roi-diag-status');
+      if(!el) return;
+      try{
+        // Fetch rolling ROI to see dates used
+        const r = await fetchWithTimeout('/api/optimization/roi-metrics/rolling?days=7&include_today=false', {}, 12000);
+        const rolling = r.ok ? await r.json() : null;
+        const datesUsed = rolling && rolling.window && Array.isArray(rolling.window.dates_used) ? rolling.window.dates_used : [];
+        const latestEnd = rolling && rolling.window ? rolling.window.end_date : null;
+        const hasMetrics = !!(rolling && rolling.roi_metrics);
+        // Fetch debug-data-files to confirm presence of required files
+        const d = await fetchWithTimeout('/api/debug-data-files', {}, 12000);
+        const dbg = d.ok ? await d.json() : null;
+        const files = (dbg && Array.isArray(dbg.files)) ? dbg.files : [];
+        const hasAnyRecs = files.some(f => typeof f.name === 'string' && f.name.startsWith('betting_recommendations_'));
+        const hasAnyFinals = files.some(f => typeof f.name === 'string' && f.name.startsWith('final_scores_'));
+        // Build concise status
+        const parts = [];
+        parts.push(`Rolling ROI: ${hasMetrics ? 'OK' : 'Missing'}`);
+        if(datesUsed && datesUsed.length){ parts.push(`Dates used: ${datesUsed[0]} → ${datesUsed[datesUsed.length-1]}`); }
+        if(latestEnd){ parts.push(`End date: ${latestEnd}`); }
+        parts.push(`Files: recs ${hasAnyRecs ? 'present' : 'missing'}, finals ${hasAnyFinals ? 'present' : 'missing'}`);
+        el.textContent = parts.join(' | ');
+      }catch(e){
+        el.textContent = 'Diagnostics failed to run';
       }
     }
     async function loadToday(){
@@ -629,6 +664,7 @@
   // Auto-load Day and Range sections now that selectors are populated
   try { await loadDayPerformance(); } catch(_) {}
   try { await loadRangePerformance(); } catch(_) {}
+  try { await loadRoiDiagnostics(); } catch(_) {}
       }catch(e){ console.warn('Failed to load available dates', e); }
     }
     function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
@@ -646,21 +682,13 @@
         }
       }
     }catch(_){ /* ignore and fallback */ }
-    // Fallback to the latest available historical date
+    // Fallback to the latest available recommendations directly from disk
     try{
-      const dres = await fetchWithTimeout('/api/historical-analysis/available-dates', {}, 12000);
-      if(dres.ok){
-        const jd = await dres.json();
-        const arr = (jd.dates || jd.available_dates || []).slice();
-        if(arr.length){
-          arr.sort();
-          const latest = arr[arr.length - 1];
-          const r2 = await fetchWithTimeout(`/api/betting-recommendations/date/${latest}`, {}, 12000);
-          if(r2.ok){
-            const j2 = await r2.json();
-            return { dateUsed: latest, data: j2, fallback: latest !== today };
-          }
-        }
+      const r2 = await fetchWithTimeout('/api/betting-recommendations/latest', {}, 12000);
+      if(r2.ok){
+        const j2 = await r2.json();
+        const used = j2.date_used || today;
+        return { dateUsed: used, data: { recommendations: j2.recommendations || [] }, fallback: used !== today };
       }
     }catch(_){ /* ignore */ }
     return { dateUsed: today, data: { recommendations: [] }, fallback: true };

@@ -859,6 +859,28 @@ def api_roi_metrics_rolling():
                     safe = dd.replace('-', '_')
                     p = os.path.join(data_dir, f'final_scores_{safe}.json')
                     if not os.path.exists(p):
+                        # Fallback: use historical_final_scores_cache.json if available
+                        try:
+                            cache_path = os.path.join(data_dir, 'historical_final_scores_cache.json')
+                            if os.path.exists(cache_path):
+                                with open(cache_path, 'r', encoding='utf-8') as cf:
+                                    h = json.load(cf)
+                                day_map = h.get(dd)
+                                if isinstance(day_map, dict):
+                                    out = []
+                                    for _k, v in day_map.items():
+                                        try:
+                                            out.append({
+                                                'away_team': v.get('away_team'),
+                                                'home_team': v.get('home_team'),
+                                                'away_score': v.get('away_score'),
+                                                'home_score': v.get('home_score')
+                                            })
+                                        except Exception:
+                                            continue
+                                    return out
+                        except Exception:
+                            pass
                         return []
                     with open(p, 'r', encoding='utf-8') as f:
                         obj = json.load(f)
@@ -12239,6 +12261,142 @@ def api_betting_recommendations_by_date(date_iso):
         return jsonify({'success': True, 'date': safe_date, 'recommendations': recs})
     except Exception as e:
         logger.error(f"Error in betting recommendations by date: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Convenience endpoint: return the latest available recommendations on disk
+@app.route('/api/betting-recommendations/latest')
+def api_betting_recommendations_latest():
+    """Find the most recent betting_recommendations_YYYY_MM_DD*.json on disk
+    and return its flattened recommendations, plus the date used.
+
+    Response shape matches /api/betting-recommendations/date, with an added
+    field "date_used" in ISO (YYYY-MM-DD).
+    """
+    try:
+        data_dir = Path(__file__).parent / 'data'
+        if not data_dir.exists():
+            return jsonify({'success': True, 'date_used': None, 'recommendations': []})
+        # Discover available rec files
+        dates: list[str] = []
+        for p in data_dir.glob('betting_recommendations_*.json'):
+            base = p.stem  # betting_recommendations_YYYY_MM_DD[_enhanced]
+            name_part = base.replace('betting_recommendations_', '')
+            if name_part.endswith('_enhanced'):
+                name_part = name_part[:-len('_enhanced')]
+            if len(name_part) == 10 and name_part[4] == '_' and name_part[7] == '_':
+                dates.append(name_part.replace('_', '-'))
+        dates = sorted(set(dates))
+        if not dates:
+            return jsonify({'success': True, 'date_used': None, 'recommendations': []})
+        latest = dates[-1]
+        # Open latest file directly
+        safe_date = latest.replace('-', '_')
+        cand_files = [
+            data_dir / f'betting_recommendations_{safe_date}.json',
+            data_dir / f'betting_recommendations_{safe_date}_enhanced.json',
+        ]
+        fp = next((p for p in cand_files if p.exists()), None)
+        if not fp:
+            return jsonify({'success': True, 'date_used': latest, 'recommendations': []})
+        with open(fp, 'r', encoding='utf-8') as f:
+            payload = json.load(f)
+        games = payload.get('games', {}) if isinstance(payload, dict) else {}
+        recs = []
+        for gkey, g in games.items():
+            try:
+                away = g.get('away_team')
+                home = g.get('home_team')
+                lines = g.get('betting_lines') or {}
+                # unified list
+                if isinstance(g.get('recommendations'), list):
+                    for r in g['recommendations']:
+                        rec_type = str(r.get('type') or r.get('bet_type') or '').lower()
+                        rec_text = r.get('recommendation') or r.get('pick') or ''
+                        odds = None
+                        if rec_type.startswith('moneyline') or rec_text.endswith(' ML') or ' ML' in rec_text:
+                            side_ml = None
+                            if away and away in rec_text:
+                                side_ml = 'away'
+                            elif home and home in rec_text:
+                                side_ml = 'home'
+                            if side_ml == 'away':
+                                odds = lines.get('away_ml')
+                            elif side_ml == 'home':
+                                odds = lines.get('home_ml')
+                        elif rec_type.startswith('total') or (isinstance(rec_text, str) and rec_text.strip().upper().startswith(('OVER', 'UNDER'))):
+                            up = str(rec_text).strip().upper()
+                            if up.startswith('OVER'):
+                                odds = lines.get('over_odds')
+                            elif up.startswith('UNDER'):
+                                odds = lines.get('under_odds')
+                        recs.append({
+                            'game': f"{away} @ {home}" if away and home else gkey,
+                            'type': rec_type,
+                            'recommendation': rec_text,
+                            'odds': odds,
+                            'american_odds': odds,
+                            'confidence': (r.get('confidence') if isinstance(r, dict) else None),
+                            'expected_value': (r.get('expected_value') if isinstance(r, dict) else None),
+                            'away_team': away,
+                            'home_team': home,
+                        })
+                # structured recs
+                br = g.get('betting_recommendations')
+                if isinstance(br, dict):
+                    ml = br.get('moneyline')
+                    if isinstance(ml, dict) and ml.get('recommendation') not in (None, 'PASS'):
+                        recs.append({
+                            'game': f"{away} @ {home}" if away and home else gkey,
+                            'type': 'moneyline',
+                            'recommendation': ml.get('recommendation') or '',
+                            'american_odds': ml.get('american_odds') or ml.get('odds'),
+                            'confidence': ml.get('confidence'),
+                            'expected_value': ml.get('expected_value'),
+                            'away_team': away, 'home_team': home
+                        })
+                    tr = br.get('total_runs')
+                    if isinstance(tr, dict) and tr.get('recommendation') not in (None, 'PASS'):
+                        recs.append({
+                            'game': f"{away} @ {home}",
+                            'type': 'total',
+                            'recommendation': tr.get('recommendation') or '',
+                            'american_odds': tr.get('american_odds') or tr.get('odds'),
+                            'confidence': tr.get('confidence'),
+                            'expected_value': tr.get('expected_value'),
+                            'away_team': away, 'home_team': home,
+                            'betting_line': tr.get('betting_line') or tr.get('line') or tr.get('total_line')
+                        })
+                    rl = br.get('run_line')
+                    if isinstance(rl, dict) and rl.get('recommendation'):
+                        recs.append({
+                            'game': f"{away} @ {home}",
+                            'type': 'run_line',
+                            'recommendation': rl.get('recommendation') or '',
+                            'american_odds': rl.get('american_odds') or rl.get('odds'),
+                            'confidence': rl.get('confidence'),
+                            'expected_value': rl.get('expected_value'),
+                            'away_team': away, 'home_team': home,
+                            'betting_line': rl.get('betting_line') or rl.get('line')
+                        })
+                # value_bets
+                vb = g.get('value_bets')
+                if isinstance(vb, list):
+                    for r in vb:
+                        recs.append({
+                            'game': f"{away} @ {home}" if away and home else gkey,
+                            'type': str(r.get('type') or '').lower() or 'other',
+                            'recommendation': r.get('recommendation') or r.get('pick') or '',
+                            'american_odds': r.get('american_odds') or r.get('odds'),
+                            'confidence': r.get('confidence'),
+                            'expected_value': r.get('expected_value'),
+                            'away_team': away, 'home_team': home,
+                            'betting_line': r.get('betting_line') or r.get('line') or r.get('total_line')
+                        })
+            except Exception:
+                continue
+        return jsonify({'success': True, 'date_used': latest, 'recommendations': recs})
+    except Exception as e:
+        logger.error(f"Error in api_betting_recommendations_latest: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 def initialize_system():
