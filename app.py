@@ -5977,6 +5977,37 @@ def api_pitcher_props_unified():
                     }
             except Exception:
                 primary_play = None
+            # Fallback: synthesize a primary play from markets_out when recs missing
+            if (primary_play is None) and markets_out:
+                try:
+                    best = None
+                    for mk, info in (markets_out or {}).items():
+                        if not isinstance(info, dict):
+                            continue
+                        ko = float(info.get('kelly_over') or 0)
+                        ku = float(info.get('kelly_under') or 0)
+                        side = 'OVER' if ko >= ku else 'UNDER'
+                        k = ko if ko >= ku else ku
+                        edge = info.get('edge')
+                        line = info.get('line')
+                        over_odds = info.get('over_odds')
+                        under_odds = info.get('under_odds')
+                        cand = {
+                            'market': mk,
+                            'side': side,
+                            'edge': edge,
+                            'line': line,
+                            'kelly_fraction': k,
+                            'selected_ev': (info.get('ev_over') if side=='OVER' else info.get('ev_under')),
+                            'p_over': info.get('p_over'),
+                            'over_odds': over_odds,
+                            'under_odds': under_odds
+                        }
+                        if (best is None) or (k > (best.get('kelly_fraction') or 0)) or (k == (best.get('kelly_fraction') or 0) and abs((edge or 0)) > abs((best.get('edge') or 0))):
+                            best = cand
+                    primary_play = best
+                except Exception:
+                    primary_play = None
 
             display_name = (st.get('name') if isinstance(st, dict) else None) or name_only
             try:

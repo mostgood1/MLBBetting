@@ -99,18 +99,6 @@
         <h3 class="heading-tight">Today Recap</h3>
         <div class="grid" id="today-kpis"></div>
       </div>
-    </div>
-
-  <!-- Pitcher props sections removed for performance -->
-
-    <div class="card">
-      <h2>Historical Day Performance</h2>
-      <div class="toolbar">
-        <label for="hist-day" class="muted">Select day:</label>
-        <select id="hist-day" class="input"></select>
-        <button class="btn" onclick="loadDayPerformance()">Load</button>
-      </div>
-      <div class="grid" id="day-grid"></div>
   <div class="muted mt-8 mb-4">By Confidence (variable stake)</div>
   <div class="grid" id="day-level-grid"></div>
       <div class="mt-16">
@@ -119,8 +107,7 @@
       </div>
     </div>
 
-    <div class="card">
-      <h2>Historical Performance (Date Range)</h2>
+  <div class="card">
       <div class="muted mb-8">Select a window to see cumulative performance over time.</div>
       <div class="toolbar wrap">
         <label for="range-start" class="muted">Start date:</label>
@@ -137,8 +124,7 @@
         <div id="range-recs"></div>
       </div>
     </div>
-
-  <!-- Pitcher prop reconciliation removed -->
+          
   </div>
 
   <script>
@@ -146,8 +132,8 @@
     async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
       const controller = new AbortController();
       const id = setTimeout(() => { try { controller.abort('timeout'); } catch(_) { controller.abort(); } }, timeoutMs);
-      try {
-        const bust = url.includes('?') ? `&_=${Date.now()}` : `?_=${Date.now()}`;
+      const bust = url.includes('?') ? `&_=${Date.now()}` : `?_=${Date.now()}`;
+      try{
         return await fetch(url + bust, { ...options, signal: controller.signal });
       } finally {
         clearTimeout(id);
@@ -540,17 +526,34 @@
       // Helper to build table HTML from unified props payload
       const buildRows = (j)=>{
         const dataObj = (j && j.data && typeof j.data==='object') ? j.data : {};
-        // Some versions may return an array under `items`
         const vals = Array.isArray(j?.items) ? j.items : Object.values(dataObj || {});
         const rows = [];
         for(const v of vals){
           try{
-            const p = v && v.plays ? v.plays : null;
+            // Prefer explicit primary play; else synthesize from markets (highest Kelly)
+            let p = v && v.plays ? v.plays : null;
+            const markets = (v && v.markets && typeof v.markets==='object') ? v.markets : null;
+            if(!p && markets){
+              let best = null;
+              for(const [mkKey, info] of Object.entries(markets)){
+                if(!info || typeof info!=='object') continue;
+                const ko = Number(info.kelly_over||0);
+                const ku = Number(info.kelly_under||0);
+                const sideSynth = (ko>=ku) ? 'OVER' : 'UNDER';
+                const kSynth = Math.max(ko, ku);
+                const lineSynth = (info.line!=null ? info.line : null);
+                const edgeSynth = (Number.isFinite(info.edge) ? Number(info.edge) : null);
+                const cand = {market: mkKey, side: sideSynth, kelly_fraction: kSynth, line: lineSynth, edge: edgeSynth, over_odds: info.over_odds, under_odds: info.under_odds};
+                if(!best || (kSynth > (best.kelly_fraction||0)) || (kSynth===(best.kelly_fraction||0) && Math.abs(edgeSynth||0) > Math.abs(best.edge||0))){
+                  best = cand;
+                }
+              }
+              if(best){ p = best; }
+            }
             if(!p) continue;
             const side = String(p.side||'').toUpperCase();
             const mk = p.market;
             let odds = null, line = null;
-            const markets = (v && v.markets && typeof v.markets==='object') ? v.markets : null;
             const mkObj = (markets && mk && markets[mk]) ? markets[mk] : null;
             if(side==='OVER') odds = (p.over_odds!=null ? p.over_odds : (mkObj ? mkObj.over_odds : null));
             else if(side==='UNDER') odds = (p.under_odds!=null ? p.under_odds : (mkObj ? mkObj.under_odds : null));
@@ -574,24 +577,27 @@
         return rows;
       };
       try{
-        // 1) Try strict today-only (no fallback)
         let res = await fetchWithTimeout('/api/pitcher-props/unified?light=1', {}, 15000);
         if(!res.ok){
-          // If the strict call fails, try fallback immediately
           res = await fetchWithTimeout('/api/pitcher-props/unified?light=1&allow_fallback=1', {}, 15000);
         }
         let j = null;
         try { j = await res.json(); } catch(_){ j = null; }
         let meta = (j && typeof j.meta==='object') ? j.meta : {};
         let rows = j ? buildRows(j) : [];
-        // If no rows from strict today-only, try a labeled fallback
         if(!rows.length){
           try{
             const fres = await fetchWithTimeout('/api/pitcher-props/unified?light=1&allow_fallback=1', {}, 15000);
             if(fres.ok){ const fj = await fres.json(); meta = (fj && typeof fj.meta==='object') ? fj.meta : {}; rows = buildRows(fj); }
           }catch(_){ /* ignore */ }
         }
-        const top = rows.slice(0, 8);
+        if(!rows.length){
+          try{
+            const fullRes = await fetchWithTimeout('/api/pitcher-props/unified', {}, 20000);
+            if(fullRes.ok){ const fullJ = await fullRes.json(); meta = (fullJ && typeof fullJ.meta==='object') ? fullJ.meta : meta; rows = buildRows(fullJ); }
+          }catch(_){ /* ignore */ }
+        }
+        const top = rows.slice(0, 10);
         if(!top.length){ cont.innerHTML = '<div class="muted">No standout props at the moment.</div>'; return; }
         let html = '<div class="table-wrap"><table class="table">'
           + '<thead><tr><th>Pitcher</th><th>Matchup</th><th>Market</th><th>Side</th><th>Line</th><th>Edge</th><th>Kelly</th><th>Odds</th></tr></thead><tbody>'
@@ -606,7 +612,6 @@
               <td>${r.odds!=null ? r.odds : ''}</td>
             </tr>`).join('')
           + '</tbody></table></div>';
-        // Small source note if we ended up using fallback
         if(meta && (meta.synthesized || (meta.source_date && meta.requested_date && meta.source_date!==meta.requested_date))){
           const src = meta.source_date||meta.requested_date||'';
           html += `<div class="muted mt-6">Using fallback data${src?` • source date ${src}`:''}</div>`;
