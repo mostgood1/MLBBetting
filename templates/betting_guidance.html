@@ -611,11 +611,12 @@
           }catch(_){ return false; }
         };
         let html = '<div class="table-wrap"><table class="table">'
-          + '<thead><tr><th>Pitcher</th><th>Matchup</th><th>Market</th><th>Side</th><th>Line</th><th>Edge</th><th>Kelly</th><th>Odds</th><th></th></tr></thead><tbody>'
+          + '<thead><tr><th>Pitcher</th><th>Matchup</th><th>Market</th><th>Side</th><th>Line</th><th>Edge</th><th>Kelly</th><th>Odds</th><th></th><th></th></tr></thead><tbody>'
           + top.map(r=>{
               const badges = [];
               if(isSynth) badges.push('<span class="badge muted">SYNTH</span>');
               if(staleFor(r)) badges.push('<span class="badge muted">STALE</span>');
+              const q = new URLSearchParams({ player: r.name||'', market: r.market||'' }).toString();
               return `<tr>
                 <td>${r.name}</td>
                 <td>${r.team ? r.team : ''}${r.opp ? (' vs ' + r.opp) : ''}</td>
@@ -626,6 +627,7 @@
                 <td>${(Number.isFinite(r.kelly)? (r.kelly*100).toFixed(1)+'%' : '')}</td>
                 <td>${r.odds!=null ? r.odds : ''}</td>
                 <td>${badges.join(' ')}</td>
+                <td><a class="btn-link" href="/pitcher-props?${q}" title="Open in Props">Open</a></td>
               </tr>`;
             }).join('')
           + '</tbody></table></div>';

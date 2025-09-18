@@ -68,6 +68,13 @@
     .live-pc { margin-left: auto; margin-right: 2px; padding: 3px 8px; border-radius: 999px; background: rgba(24,183,160,0.18); border: 1px solid rgba(24,183,160,0.42); font-size: 0.78rem; font-weight: 900; color: #c3f0e7; }
     .card-header { position: relative; }
     .live-pc.bad { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.38); color: #ffd1d1; }
+    /* Deep link focus styles */
+    .card.focus-ring { box-shadow: 0 0 0 2px rgba(79,209,199,0.9), 0 0 0 5px rgba(79,209,199,0.25); }
+    .row.row-focus { outline: 2px solid #4fd1c7; outline-offset: 2px; }
+    /* Focus banner */
+    .focus-banner { display: none; margin-top:-4px; margin-bottom:8px; padding:8px 10px; border:1px solid rgba(255,255,255,0.22); border-radius:8px; background:rgba(255,255,255,0.06); }
+    .focus-banner.show { display: block; }
+    .btn-clear-focus { margin-left:10px; padding:4px 8px; border-radius:6px; border:1px solid #cfe1f8; background: transparent; color:#eaf4ff; cursor:pointer; }
   </style>
 </head>
 <body>
@@ -89,6 +96,10 @@
       <div class="muted" id="propsUpdatedAt"></div>
     </div>
     <div id="meta" class="muted mb-8">Loading...</div>
+    <div id="focusBanner" class="muted focus-banner">
+      <span id="focusText"></span>
+      <button id="clearFocusBtn" type="button" class="btn-clear-focus">Clear focus</button>
+    </div>
     <div class="muted legend">
       <strong>Legend:</strong> Edge color (green &gt;=1.0, amber &gt;=0.6, blue &gt;=0.3). ▲ / ▼ arrow shows model lean (over/under). <span class="fw-700">stale</span> badge = line carried from earlier snapshot. Kelly = recommended stake % of bankroll (raw Kelly, un-capped). EV = expected value of selected side. Live deltas color green when the live stat favors the recommended side.
     </div>
@@ -112,6 +123,52 @@
       });
     } catch(_){}
     const norm = s => (s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    let __DEEPLINK_TARGET = null; // { pid?:string, player?:string, market?:string }
+    function parseDeepLink(){
+      try{
+        const sp = new URLSearchParams(location.search||'');
+        const pid = sp.get('pid');
+        const player = sp.get('player');
+        const market = sp.get('market');
+        const t = {};
+        if(pid) t.pid = String(pid);
+        if(player) t.player = String(player);
+        if(market) t.market = String(market);
+        __DEEPLINK_TARGET = (Object.keys(t).length? t : null);
+      }catch(_){ __DEEPLINK_TARGET = null; }
+    }
+    function scrollToTargetIfAny(){
+      try{
+        if(!__DEEPLINK_TARGET) return;
+        let card = null;
+        if(__DEEPLINK_TARGET.pid){
+          card = document.querySelector(`.card[data-pid="${CSS.escape(String(__DEEPLINK_TARGET.pid))}"]`);
+        }
+        if(!card && __DEEPLINK_TARGET.player){
+          const key = norm(__DEEPLINK_TARGET.player);
+          card = document.querySelector(`.card[data-pitcher="${CSS.escape(key)}"]`);
+        }
+        if(!card) return;
+        card.scrollIntoView({behavior:'smooth', block:'start'});
+        card.classList.add('focus-ring');
+        setTimeout(()=> card.classList.remove('focus-ring'), 2000);
+        if(__DEEPLINK_TARGET.market){
+          const row = card.querySelector(`.row[data-market="${CSS.escape(__DEEPLINK_TARGET.market)}"]`);
+          if(row){ row.classList.add('row-focus'); setTimeout(()=> row.classList.remove('row-focus'), 3000); }
+        }
+        // Show focus banner
+        try{
+          const ft = document.getElementById('focusText');
+          const bn = document.getElementById('focusBanner');
+          const nameTxt = (card.querySelector('.pitcher-name')?.textContent||'').trim();
+          const mk = __DEEPLINK_TARGET.market || '';
+          if(ft && bn){
+            ft.textContent = `Focused: ${nameTxt}${mk?` — ${mk}`:''}`;
+            bn.classList.add('show');
+          }
+        }catch(_){ }
+      }catch(_){ /* noop */ }
+    }
     const PC_BAD_THRESHOLD = 95;
     function updatePcBadge(el, v){
       if(!el) return;
@@ -144,7 +201,7 @@
       return '';
     }
 
-    function renderCards(data){
+  function renderCards(data){
       const grid = document.getElementById('grid');
       grid.innerHTML = '';
       const isLight = !!((data && data.meta && data.meta.light_mode));
@@ -315,6 +372,8 @@
         }
         grid.appendChild(card);
       }
+      // After DOM is built, perform deep link scroll/highlight once
+      scrollToTargetIfAny();
     }
 
     // Recompute projection box border class and arrow when line moves
@@ -642,6 +701,8 @@
 
     let _pcTimer;
     window.addEventListener('DOMContentLoaded', ()=>{
+  // parse deep link early
+  parseDeepLink();
   // initial load
   loadUnified(); loadDiagnostics(); startSSE();
   // wire refresh after DOM is ready
@@ -717,6 +778,28 @@
     window._autoLinesTimer = setInterval(maybeAutoRefresh, 30000); // check every 30s
     setTimeout(maybeAutoRefresh, 5000);
   })();
+  // Clear focus behavior
+  try{
+    const btn = document.getElementById('clearFocusBtn');
+    if(btn){
+      btn.addEventListener('click', ()=>{
+        try{
+          // Hide banner
+          const bn = document.getElementById('focusBanner'); if(bn) bn.classList.remove('show');
+          __DEEPLINK_TARGET = null;
+          // Remove any temporary highlights if present
+          document.querySelectorAll('.card.focus-ring').forEach(el=> el.classList.remove('focus-ring'));
+          document.querySelectorAll('.row.row-focus').forEach(el=> el.classList.remove('row-focus'));
+          // Clean URL (remove query params) without reload
+          const url = new URL(window.location.href);
+          url.searchParams.delete('player');
+          url.searchParams.delete('pid');
+          url.searchParams.delete('market');
+          window.history.replaceState({}, '', url.pathname + (url.searchParams.toString()?('?'+url.searchParams.toString()):''));
+        }catch(_){ }
+      });
+    }
+  }catch(_){ }
     });
   </script>
 </body>
