@@ -6246,8 +6246,75 @@ def api_pitcher_props_refresh():
         _unified_cache_time = None
     except Exception:
         pass
+    # Optional: push updated data to git if requested and allowed by env
+    push_requested = False
+    try:
+        push_requested = bool((request.json or {}).get('push') if request.is_json else (request.form.get('push') in ('1','true','True')))
+    except Exception:
+        try:
+            push_requested = request.args.get('push') in ('1','true','True')
+        except Exception:
+            push_requested = False
     duration = round(time.time() - started, 2)
     success = results.get('fetch_props') or results.get('generate_recommendations')
+    push_result = None
+    if success and push_requested:
+        # Check env toggles
+        allow_push_env = os.environ.get('PITCHER_GIT_PUSH_ENABLED') or os.environ.get('AUTO_GIT_PUSH_ENABLED')
+        disabled = os.environ.get('AUTO_GIT_PUSH_DISABLED')
+        if disabled and str(disabled).lower() in ('1','true','yes','y'):
+            errors.append('git_push: disabled by AUTO_GIT_PUSH_DISABLED env')
+        elif not allow_push_env or str(allow_push_env).lower() in ('0','false','no','n'):
+            errors.append('git_push: not enabled (set PITCHER_GIT_PUSH_ENABLED=1)')
+        else:
+            try:
+                import subprocess as _sp
+                safe_date = biz_today.replace('-', '_')
+                # Ensure we are inside a git repo
+                try:
+                    chk = _sp.run(['git','rev-parse','--is-inside-work-tree'], capture_output=True, text=True, check=True)
+                    if str(chk.stdout).strip().lower() != 'true':
+                        raise RuntimeError('not a git work tree')
+                except Exception as e_g:
+                    raise RuntimeError(f'git check failed: {e_g}')
+                # Optionally set author
+                user_name = os.environ.get('GIT_AUTHOR_NAME') or os.environ.get('GIT_COMMITTER_NAME')
+                user_email = os.environ.get('GIT_AUTHOR_EMAIL') or os.environ.get('GIT_COMMITTER_EMAIL')
+                if user_name:
+                    _sp.run(['git','config','user.name', user_name], check=False)
+                if user_email:
+                    _sp.run(['git','config','user.email', user_email], check=False)
+                # Add updated files for today's date in data/daily_bovada
+                patterns = [
+                    os.path.join('data','daily_bovada', f'*{safe_date}*.json'),
+                ]
+                # Use shell to expand globs on Windows PowerShell is different; leverage Python to enumerate
+                to_add = []
+                try:
+                    import glob as _glob
+                    for pat in patterns:
+                        to_add.extend(_glob.glob(pat))
+                except Exception:
+                    pass
+                if not to_add:
+                    # Nothing obvious; skip add
+                    push_result = {'added': 0, 'committed': False, 'pushed': False, 'note': 'no files matched'}
+                else:
+                    _sp.run(['git','add'] + to_add, check=False)
+                    # Only commit if there are staged or modified files
+                    status = _sp.run(['git','status','--porcelain'], capture_output=True, text=True, check=False)
+                    if status.stdout.strip():
+                        msg = f"Automation: pitcher props update {biz_today}"
+                        _sp.run(['git','commit','-m', msg], check=False)
+                        # Push best-effort
+                        p = _sp.run(['git','push'], capture_output=True, text=True, check=False)
+                        push_result = {'added': len(to_add), 'committed': True, 'pushed': p.returncode==0, 'stdout': p.stdout[-2000:], 'stderr': p.stderr[-2000:]}
+                    else:
+                        push_result = {'added': len(to_add), 'committed': False, 'pushed': False, 'note': 'no changes to commit'}
+            except Exception as e_push:
+                errors.append(f'git_push: {e_push}')
+    
+    # ----- finalize -----
     if success:
         _PITCHER_REFRESH_LAST = now_t
     payload = {
@@ -6256,7 +6323,8 @@ def api_pitcher_props_refresh():
         'duration_sec': duration,
         'results': results,
         'errors': errors,
-        'message': 'Refreshed' if success else 'Refresh failed'
+        'message': 'Refreshed' if success else 'Refresh failed',
+        'git_push': push_result
     }
     status_code = 200 if success else 500
     return jsonify(payload), status_code

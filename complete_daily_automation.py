@@ -245,6 +245,40 @@ def complete_daily_automation():
     else:
         logger.warning("⚠️ Pitcher prop projections script not found")
     
+    # Retry props fetch/generate if empty (Bovada can lag early morning)
+    try:
+        import json as _json, time as _time
+        props_dir = data_dir / 'daily_bovada'
+        props_dir.mkdir(parents=True, exist_ok=True)
+        props_path = props_dir / f"bovada_pitcher_props_{today_underscore}.json"
+
+        def _props_empty(p: Path) -> bool:
+            try:
+                if not p.exists() or p.stat().st_size == 0:
+                    return True
+                with p.open('r', encoding='utf-8') as f:
+                    j = _json.load(f)
+                m = j.get('pitcher_props') if isinstance(j, dict) else None
+                return not (isinstance(m, dict) and len(m) > 0)
+            except Exception:
+                return True
+
+        if _props_empty(props_path):
+            logger.info("⏳ Props file empty after initial pass; retrying fetch/generate up to 2 more times...")
+            for attempt in (2, 3):
+                _time.sleep(45)
+                if bovada_script.exists():
+                    run_script(bovada_script, f"[Retry {attempt}] Fetch Bovada Pitcher Props", logger, 180)
+                if pitcher_prop_proj_script.exists():
+                    run_script(pitcher_prop_proj_script, f"[Retry {attempt}] Generate Pitcher Prop Projections", logger, 180)
+                if not _props_empty(props_path):
+                    logger.info(f"✅ Props populated on retry {attempt}")
+                    break
+            else:
+                logger.warning("⚠️ Props still empty after retries; frontend will rely on manual/continuous refresh.")
+    except Exception as e:
+        logger.debug(f"Props retry guard failed: {e}")
+    
     # Update team strengths (affects predictions)
     logger.info("🏟️ Updating team strength ratings...")
     team_updater = base_dir / "weekly_team_updater.py"

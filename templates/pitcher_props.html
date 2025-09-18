@@ -675,7 +675,7 @@
       if(!fBtn) return; const prev = fBtn.textContent; fBtn.disabled=true; fBtn.textContent='Refreshing…'; statusEl.textContent='';
       try{
         const date = document.getElementById('date').value;
-        const r = await fetch('/api/pitcher-props/refresh', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({date})});
+  const r = await fetch('/api/pitcher-props/refresh', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({date, push:true})});
         const js = await r.json().catch(()=>({}));
         if (r.ok && js.success){ statusEl.textContent='Refreshed'; await loadUnified(); }
         else statusEl.textContent = 'Refresh failed';
@@ -684,6 +684,39 @@
     }
     if(fBtn) fBtn.addEventListener('click', doForce);
   }catch(_){ }
+
+  // Auto-refresh odds while markets are empty (gentle backoff, capped)
+  (function setupAutoLinesRefresh(){
+    let lastTry = 0;
+    let tries = 0;
+    const MAX_TRIES = 6;          // at most 6 auto refresh attempts
+    const BASE_MS = 60000;        // 1 min base
+    async function maybeAutoRefresh(){
+      try{
+        const meta = (window.__UNIFIED && window.__UNIFIED.meta) || (window.__UNIFIED_LIGHT && window.__UNIFIED_LIGHT.meta) || {};
+        const total = Number(meta.markets_total || 0);
+        const pitchers = Number(meta.pitchers || 0);
+        // only try if we have pitchers rendered but no odds yet
+        if(pitchers>0 && total===0 && tries<MAX_TRIES){
+          const now = Date.now();
+          const gap = BASE_MS * Math.min(1 + tries, 5); // backoff: 1m,2m,3m,4m,5m
+          if(now - lastTry >= gap){
+            lastTry = now; tries += 1;
+            const date = document.getElementById('date').value;
+            try {
+              const r = await fetch('/api/pitcher-props/refresh', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({date, push:true})});
+              if(r.ok){
+                try { await loadUnified(true); } catch(_){ }
+              }
+            } catch(_){ }
+          }
+        }
+      }catch(_){ }
+    }
+    try{ if(window._autoLinesTimer) clearInterval(window._autoLinesTimer); }catch(_){}
+    window._autoLinesTimer = setInterval(maybeAutoRefresh, 30000); // check every 30s
+    setTimeout(maybeAutoRefresh, 5000);
+  })();
     });
   </script>
 </body>
