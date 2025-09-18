@@ -13337,6 +13337,36 @@ def api_props_progress():
         logger.error(f"Error in /api/props/progress: {e}\n{traceback.format_exc()}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/props/spotlight-health')
+def api_props_spotlight_health():
+    """Return lightweight info about the current Spotlight: pitcher count and whether synthesis was used.
+
+    Uses the unified light cache if available to avoid recomputation. If no cache yet, returns available=False.
+    """
+    try:
+        date_str = request.args.get('date') or get_business_date()
+        light = None
+        try:
+            if '_UNIFIED_PITCHER_CACHE_LIGHT' in globals():
+                light = (_UNIFIED_PITCHER_CACHE_LIGHT or {}).get(date_str)
+        except Exception:
+            light = None
+        if light and isinstance(light, dict) and light.get('payload'):
+            payload = light['payload']
+            meta = payload.get('meta') or {}
+            return jsonify({
+                'success': True,
+                'available': True,
+                'date': payload.get('date') or date_str,
+                'pitchers': meta.get('pitchers'),
+                'synthesized': bool(meta.get('synthesized')),
+                'source_date': meta.get('source_date'),
+                'requested_date': meta.get('requested_date')
+            })
+        return jsonify({'success': True, 'available': False, 'date': date_str})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 if __name__ == '__main__':
     logger.info("🏆 MLB Prediction System Starting")
     logger.info("🏺 Archaeological Data Recovery: COMPLETE")

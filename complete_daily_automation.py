@@ -251,6 +251,7 @@ def complete_daily_automation():
         props_dir = data_dir / 'daily_bovada'
         props_dir.mkdir(parents=True, exist_ok=True)
         props_path = props_dir / f"bovada_pitcher_props_{today_underscore}.json"
+        last_known_path = props_dir / f"pitcher_last_known_lines_{today_underscore}.json"
 
         def _props_empty(p: Path) -> bool:
             try:
@@ -276,6 +277,48 @@ def complete_daily_automation():
                     break
             else:
                 logger.warning("⚠️ Props still empty after retries; frontend will rely on manual/continuous refresh.")
+        # Seed last-known snapshot if present props but missing/empty last-known
+        def _last_known_empty(p: Path) -> bool:
+            try:
+                if not p.exists() or p.stat().st_size == 0:
+                    return True
+                with p.open('r', encoding='utf-8') as f:
+                    j = _json.load(f)
+                m = j.get('pitchers') if isinstance(j, dict) else None
+                return not (isinstance(m, dict) and len(m) > 0)
+            except Exception:
+                return True
+        try:
+            if not _props_empty(props_path) and _last_known_empty(last_known_path):
+                with props_path.open('r', encoding='utf-8') as f:
+                    pdoc = _json.load(f) or {}
+                pitchers = pdoc.get('pitcher_props') or {}
+                out = {'date': today, 'updated_at': datetime.now().isoformat(), 'pitchers': {}}
+                for raw_key, mkts in (pitchers.items() if isinstance(pitchers, dict) else []):
+                    try:
+                        name_only = str(raw_key).split('(')[0].strip()
+                        nk = name_only.lower()
+                        mkout = {}
+                        if isinstance(mkts, dict):
+                            for mk, info in mkts.items():
+                                if isinstance(info, dict) and (info.get('line') is not None):
+                                    mkout[mk] = {
+                                        'line': info.get('line'),
+                                        'over_odds': info.get('over_odds'),
+                                        'under_odds': info.get('under_odds')
+                                    }
+                        if mkout:
+                            out['pitchers'][nk] = mkout
+                    except Exception:
+                        continue
+                if out['pitchers']:
+                    tmp = last_known_path.with_suffix('.json.tmp')
+                    with tmp.open('w', encoding='utf-8') as f:
+                        _json.dump(out, f, ensure_ascii=False, indent=2)
+                    tmp.replace(last_known_path)
+                    logger.info(f"🧭 Seeded last-known snapshot: {last_known_path.name} with {len(out['pitchers'])} pitchers")
+        except Exception as se:
+            logger.debug(f"Last-known seeding skipped: {se}")
     except Exception as e:
         logger.debug(f"Props retry guard failed: {e}")
     

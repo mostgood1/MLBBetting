@@ -599,18 +599,35 @@
         }
         const top = rows.slice(0, 10);
         if(!top.length){ cont.innerHTML = '<div class="muted">No standout props at the moment.</div>'; return; }
+        // Helper to annotate synthesized and stale
+        const isSynth = !!(meta && (meta.synthesized===true));
+        const staleFor = (r)=>{
+          try{
+            const lines = (j && j.data && j.data[r.name?.toLowerCase?.()]) ? j.data[r.name.toLowerCase()] : null;
+            const mkey = r.market;
+            // Prefer explicit stale flag from lines map when available
+            const ln = (lines && lines.lines && mkey && lines.lines[mkey]) ? lines.lines[mkey] : null;
+            return !!(ln && ln._stale===true);
+          }catch(_){ return false; }
+        };
         let html = '<div class="table-wrap"><table class="table">'
-          + '<thead><tr><th>Pitcher</th><th>Matchup</th><th>Market</th><th>Side</th><th>Line</th><th>Edge</th><th>Kelly</th><th>Odds</th></tr></thead><tbody>'
-          + top.map(r=>`<tr>
-              <td>${r.name}</td>
-              <td>${r.team ? r.team : ''}${r.opp ? (' vs ' + r.opp) : ''}</td>
-              <td>${r.market||''}</td>
-              <td>${r.side||''}</td>
-              <td>${r.line!=null ? r.line : ''}</td>
-              <td>${(Number.isFinite(r.edge)? r.edge.toFixed(2) : '')}</td>
-              <td>${(Number.isFinite(r.kelly)? (r.kelly*100).toFixed(1)+'%' : '')}</td>
-              <td>${r.odds!=null ? r.odds : ''}</td>
-            </tr>`).join('')
+          + '<thead><tr><th>Pitcher</th><th>Matchup</th><th>Market</th><th>Side</th><th>Line</th><th>Edge</th><th>Kelly</th><th>Odds</th><th></th></tr></thead><tbody>'
+          + top.map(r=>{
+              const badges = [];
+              if(isSynth) badges.push('<span class="badge muted">SYNTH</span>');
+              if(staleFor(r)) badges.push('<span class="badge muted">STALE</span>');
+              return `<tr>
+                <td>${r.name}</td>
+                <td>${r.team ? r.team : ''}${r.opp ? (' vs ' + r.opp) : ''}</td>
+                <td>${r.market||''}</td>
+                <td>${r.side||''}</td>
+                <td>${r.line!=null ? r.line : ''}</td>
+                <td>${(Number.isFinite(r.edge)? r.edge.toFixed(2) : '')}</td>
+                <td>${(Number.isFinite(r.kelly)? (r.kelly*100).toFixed(1)+'%' : '')}</td>
+                <td>${r.odds!=null ? r.odds : ''}</td>
+                <td>${badges.join(' ')}</td>
+              </tr>`;
+            }).join('')
           + '</tbody></table></div>';
         if(meta && (meta.synthesized || (meta.source_date && meta.requested_date && meta.source_date!==meta.requested_date))){
           const src = meta.source_date||meta.requested_date||'';
@@ -670,6 +687,23 @@
   try { await loadDayPerformance(); } catch(_) {}
   try { await loadRangePerformance(); } catch(_) {}
   try { await loadRoiDiagnostics(); } catch(_) {}
+  // Also show spotlight health
+  try {
+    const sh = await fetchWithTimeout('/api/props/spotlight-health', {}, 6000);
+    if(sh.ok){
+      const sj = await sh.json();
+      const el = document.getElementById('roi-diag-status');
+      if(el){
+        const prev = el.innerHTML || el.textContent || '';
+        if(sj.available){
+          const syn = sj.synthesized ? 'yes' : 'no';
+          el.innerHTML = `${prev}<br/><span class="muted">Spotlight rows: ${sj.pitchers ?? '?'} • synthesized: ${syn}${sj.source_date && sj.requested_date && sj.source_date!==sj.requested_date ? (' • source ' + sj.source_date) : ''}</span>`;
+        } else {
+          el.innerHTML = `${prev}<br/><span class="muted">Spotlight cache: not yet built</span>`;
+        }
+      }
+    }
+  } catch(_) {}
       }catch(e){ console.warn('Failed to load available dates', e); }
     }
     function todayISO(){ const d=new Date(); const z=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
