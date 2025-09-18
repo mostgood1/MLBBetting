@@ -1,0 +1,76 @@
+{
+  "date": "2025-09-18",
+  "fetched_at": "2025-09-18T08:22:07.872639",
+  "games": [
+    {
+      "away_team": "Cleveland Guardians",
+      "home_team": "Detroit Tigers",
+      "away_pitcher": "Tanner Bibee",
+      "home_pitcher": "Tarik Skubal",
+      "game_key": "Cleveland Guardians @ Detroit Tigers"
+    },
+    {
+      "away_team": "San Diego Padres",
+      "home_team": "New York Mets",
+      "away_pitcher": "Randy V\u00e1squez",
+      "home_pitcher": "Jonah Tong",
+      "game_key": "San Diego Padres @ New York Mets"
+    },
+    {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Tampa Bay Rays",
+      "away_pitcher": "Chris Bassitt",
+      "home_pitcher": "Shane Baz",
+      "game_key": "Toronto Blue Jays @ Tampa Bay Rays"
+    },
+    {
+      "away_team": "Athletics",
+      "home_team": "Boston Red Sox",
+      "away_pitcher": "J.T. Ginn",
+      "home_pitcher": "Brayan Bello",
+      "game_key": "Athletics @ Boston Red Sox"
+    },
+    {
+      "away_team": "Seattle Mariners",
+      "home_team": "Kansas City Royals",
+      "away_pitcher": "Luis Castillo",
+      "home_pitcher": "Stephen Kolek",
+      "game_key": "Seattle Mariners @ Kansas City Royals"
+    },
+    {
+      "away_team": "Miami Marlins",
+      "home_team": "Colorado Rockies",
+      "away_pitcher": "Sandy Alcantara",
+      "home_pitcher": "Tanner Gordon",
+      "game_key": "Miami Marlins @ Colorado Rockies"
+    },
+    {
+      "away_team": "Chicago Cubs",
+      "home_team": "Cincinnati Reds",
+      "away_pitcher": "TBD",
+      "home_pitcher": "Hunter Greene",
+      "game_key": "Chicago Cubs @ Cincinnati Reds"
+    },
+    {
+      "away_team": "New York Yankees",
+      "home_team": "Baltimore Orioles",
+      "away_pitcher": "Max Fried",
+      "home_pitcher": "Cade Povich",
+      "game_key": "New York Yankees @ Baltimore Orioles"
+    },
+    {
+      "away_team": "Los Angeles Angels",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": "Yusei Kikuchi",
+      "home_pitcher": "Quinn Priester",
+      "game_key": "Los Angeles Angels @ Milwaukee Brewers"
+    },
+    {
+      "away_team": "San Francisco Giants",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Logan Webb",
+      "home_pitcher": "Yoshinobu Yamamoto",
+      "game_key": "San Francisco Giants @ Los Angeles Dodgers"
+    }
+  ]
+}

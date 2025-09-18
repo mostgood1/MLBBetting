@@ -1,0 +1,92 @@
+{
+  "events_count": 30,
+  "sample": [
+    {
+      "event_id": "15950676",
+      "event": "Cleveland Guardians @ Detroit Tigers",
+      "markets": [
+        "Player to Hit a Home Run in the Game",
+        "To Hit a Home Run / Game Winner Parlay",
+        "Player to Record a Hit"
+      ]
+    },
+    {
+      "event_id": "15952455",
+      "event": "San Diego Padres @ New York Mets",
+      "markets": [
+        "Player to Hit a Home Run in the Game",
+        "To Hit a Home Run / Game Winner Parlay",
+        "Player to Record a Hit"
+      ]
+    },
+    {
+      "event_id": "15952454",
+      "event": "Toronto Blue Jays @ Tampa Bay Rays",
+      "markets": [
+        "Player to Hit a Home Run in the Game",
+        "To Hit a Home Run / Game Winner Parlay",
+        "Player to Record a Hit"
+      ]
+    },
+    {
+      "event_id": "15953053",
+      "event": "Athletics @ Boston Red Sox",
+      "markets": [
+        "Player to Hit a Home Run in the Game",
+        "To Hit a Home Run / Game Winner Parlay",
+        "Player to Record a Hit"
+      ]
+    },
+    {
+      "event_id": "15953056",
+      "event": "Seattle Mariners @ Kansas City Royals",
+      "markets": [
+        "Player to Hit a Home Run in the Game",
+        "To Hit a Home Run / Game Winner Parlay",
+        "Player to Record a Hit"
+      ]
+    },
+    {
+      "event_id": "15953835",
+      "event": "Miami Marlins @ Colorado Rockies",
+      "markets": [
+        "Player to Hit a Home Run in the Game",
+        "Player to Record a Hit"
+      ]
+    },
+    {
+      "event_id": "15952656",
+      "event": "Chicago Cubs @ Cincinnati Reds",
+      "markets": [
+        "Total Hits, Runs and Errors"
+      ]
+    },
+    {
+      "event_id": "15953836",
+      "event": "New York Yankees @ Baltimore Orioles",
+      "markets": [
+        "Player to Hit a Home Run in the Game",
+        "To Hit a Home Run / Game Winner Parlay",
+        "Player to Record a Hit"
+      ]
+    },
+    {
+      "event_id": "15953055",
+      "event": "Los Angeles Angels @ Milwaukee Brewers",
+      "markets": [
+        "Player to Hit a Home Run in the Game",
+        "To Hit a Home Run / Game Winner Parlay",
+        "Player to Record a Hit"
+      ]
+    },
+    {
+      "event_id": "15950675",
+      "event": "San Francisco Giants @ Los Angeles Dodgers",
+      "markets": [
+        "Player to Hit a Home Run in the Game",
+        "To Hit a Home Run / Game Winner Parlay",
+        "Player to Record a Hit"
+      ]
+    }
+  ]
+}
