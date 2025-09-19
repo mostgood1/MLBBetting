@@ -99,7 +99,14 @@
         <h3 class="heading-tight">Today Recap</h3>
         <div class="grid" id="today-kpis"></div>
       </div>
-  <div class="muted mt-8 mb-4">By Confidence (variable stake)</div>
+      <!-- Day selector toolbar (added) -->
+      <div class="toolbar wrap mt-16">
+        <label for="hist-day" class="muted">Select day:</label>
+        <select id="hist-day" class="input"></select>
+        <button class="btn" onclick="loadDayPerformance()">Load Day</button>
+      </div>
+
+      <div class="muted mt-8 mb-4">By Confidence (variable stake)</div>
   <div class="grid" id="day-level-grid"></div>
       <div class="mt-16">
         <h3 class="heading-tight">Recommendations for Selected Day</h3>
@@ -642,19 +649,22 @@
       try{
         const res=await fetchWithTimeout('/api/historical-analysis/available-dates', {}, 12000);
         const data=await res.json();
-  const sel=document.getElementById('hist-day'); sel.innerHTML='';
-  // Historical proxy returns { dates: [...] }
-  const dates = (data.dates || data.available_dates || []);
-  // Sort dates ascending to keep behavior stable, then select the latest
-  dates.sort();
-  dates.forEach(dt=>{ const o=document.createElement('option'); o.value=dt; o.textContent=dt; sel.appendChild(o); });
-  // Auto-select previous day by default when available (avoid showing "today" settlements early)
-  if(dates.length){
-    const todayS = todayISO();
-    let def = dates[dates.length-1];
-    for(let i=dates.length-1;i>=0;i--){ if(dates[i] < todayS){ def = dates[i]; break; } }
-    sel.value = def;
-  }
+        const sel=document.getElementById('hist-day');
+        // Historical proxy returns { dates: [...] }
+        const dates = (data.dates || data.available_dates || []);
+        // Sort dates ascending to keep behavior stable, then select the latest
+        dates.sort();
+        if(sel){
+          sel.innerHTML='';
+          dates.forEach(dt=>{ const o=document.createElement('option'); o.value=dt; o.textContent=dt; sel.appendChild(o); });
+          // Auto-select previous day by default when available (avoid showing "today" settlements early)
+          if(dates.length){
+            const todayS = todayISO();
+            let def = dates[dates.length-1];
+            for(let i=dates.length-1;i>=0;i--){ if(dates[i] < todayS){ def = dates[i]; break; } }
+            sel.value = def;
+          }
+        }
 
   // Populate range selectors
   const rs = document.getElementById('range-start');
@@ -1516,7 +1526,6 @@
   ].forEach(t=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML=`<div class='num'>${t.val}</div><div class='muted'>${t.label}</div>`; grid.appendChild(d); });
 
   // Render by-confidence KPIs for range
-  const levelGridR = document.getElementById('range-level-grid');
   const levelStatsR = [
     { key:'HIGH', label:'High' },
     { key:'MEDIUM', label:'Medium' },
