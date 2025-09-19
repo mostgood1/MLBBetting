@@ -1,7 +1,7 @@
 {
   "date": "2025-09-19",
-  "retrieved_at": "2025-09-19T16:11:01.348769",
-  "pitcher_props": {
+  "updated_at": "2025-09-19T11:11:16.933995",
+  "pitchers": {
     "luis severino": {
       "strikeouts": {
         "line": 4.5,
@@ -22,29 +22,7 @@
         "line": 15.5,
         "over_odds": 115,
         "under_odds": -155
-      },
-      "strikeouts_alts": [
-        {
-          "threshold": 3,
-          "odds": -750
-        },
-        {
-          "threshold": 4,
-          "odds": -250
-        },
-        {
-          "threshold": 6,
-          "odds": 225
-        },
-        {
-          "threshold": 7,
-          "odds": 470
-        },
-        {
-          "threshold": 8,
-          "odds": 700
-        }
-      ]
+      }
     },
     "mitch keller": {
       "strikeouts": {
@@ -66,33 +44,7 @@
         "line": 17.5,
         "over_odds": -120,
         "under_odds": -120
-      },
-      "strikeouts_alts": [
-        {
-          "threshold": 3,
-          "odds": -1400
-        },
-        {
-          "threshold": 4,
-          "odds": -370
-        },
-        {
-          "threshold": 6,
-          "odds": 155
-        },
-        {
-          "threshold": 7,
-          "odds": 320
-        },
-        {
-          "threshold": 8,
-          "odds": 640
-        },
-        {
-          "threshold": 9,
-          "odds": 870
-        }
-      ]
+      }
     },
     "bryce elder": {
       "strikeouts": {
@@ -114,29 +66,7 @@
         "line": 17.5,
         "over_odds": 115,
         "under_odds": -155
-      },
-      "strikeouts_alts": [
-        {
-          "threshold": 3,
-          "odds": -800
-        },
-        {
-          "threshold": 4,
-          "odds": -280
-        },
-        {
-          "threshold": 6,
-          "odds": 200
-        },
-        {
-          "threshold": 7,
-          "odds": 400
-        },
-        {
-          "threshold": 8,
-          "odds": 630
-        }
-      ]
+      }
     },
     "charlie morton": {
       "strikeouts": {
@@ -158,33 +88,7 @@
         "line": 15.5,
         "over_odds": 160,
         "under_odds": -230
-      },
-      "strikeouts_alts": [
-        {
-          "threshold": 3,
-          "odds": -1100
-        },
-        {
-          "threshold": 4,
-          "odds": -340
-        },
-        {
-          "threshold": 6,
-          "odds": 175
-        },
-        {
-          "threshold": 7,
-          "odds": 360
-        },
-        {
-          "threshold": 8,
-          "odds": 750
-        },
-        {
-          "threshold": 9,
-          "odds": 980
-        }
-      ]
+      }
     },
     "nick lodolo": {
       "strikeouts": {
@@ -206,33 +110,7 @@
         "line": 16.5,
         "over_odds": -105,
         "under_odds": -135
-      },
-      "strikeouts_alts": [
-        {
-          "threshold": 3,
-          "odds": -2000
-        },
-        {
-          "threshold": 4,
-          "odds": -550
-        },
-        {
-          "threshold": 6,
-          "odds": 120
-        },
-        {
-          "threshold": 7,
-          "odds": 230
-        },
-        {
-          "threshold": 8,
-          "odds": 470
-        },
-        {
-          "threshold": 9,
-          "odds": 700
-        }
-      ]
+      }
     },
     "shota imanaga": {
       "strikeouts": {
@@ -254,33 +132,7 @@
         "line": 17.5,
         "over_odds": -115,
         "under_odds": -125
-      },
-      "strikeouts_alts": [
-        {
-          "threshold": 3,
-          "odds": -1500
-        },
-        {
-          "threshold": 4,
-          "odds": -400
-        },
-        {
-          "threshold": 6,
-          "odds": 140
-        },
-        {
-          "threshold": 7,
-          "odds": 300
-        },
-        {
-          "threshold": 8,
-          "odds": 630
-        },
-        {
-          "threshold": 9,
-          "odds": 860
-        }
-      ]
+      }
     },
     "trevor rogers": {
       "strikeouts": {

@@ -236,12 +236,75 @@ def complete_daily_automation():
     else:
         logger.warning("⚠️ Bovada pitcher props script not found")
 
-    # NEW: Generate pitcher prop projections & recommendations
+    # NEW: Daily pitcher props model retraining BEFORE generating projections
+    logger.info("🧪 STEP 2.6: Daily Pitcher Props Model Retraining")
+    # 1) Build enriched projection features for today (used by historical dataset)
+    proj_features_script = base_dir / "pitcher_projections.py"
+    if proj_features_script.exists():
+        run_script(proj_features_script, "Build Pitcher Projection Features (today)", logger, 420)
+    else:
+        logger.warning("⚠️ pitcher_projections.py not found - dataset may miss today's features")
+
+    # 2) Update historical dataset from daily snapshots
+    hist_dataset_script = base_dir / "historical_pitcher_prop_dataset.py"
+    if hist_dataset_script.exists():
+        run_script(hist_dataset_script, "Update Historical Pitcher Props Dataset", logger, 180)
+    else:
+        logger.warning("⚠️ historical_pitcher_prop_dataset.py not found - skipping dataset append")
+
+    # 3) Try to ingest outcomes into dataset CSV and augment targets
+    upd_outcomes_script = base_dir / "update_pitcher_prop_outcomes.py"
+    if upd_outcomes_script.exists():
+        run_script(upd_outcomes_script, "Update Pitcher Prop Outcomes (box scores)", logger, 300)
+    else:
+        logger.info("ℹ️ update_pitcher_prop_outcomes.py not found - relying on realized_results file if present")
+
+    augment_targets_script = base_dir / "training" / "augment_with_outcomes.py"
+    if augment_targets_script.exists():
+        run_script(augment_targets_script, "Augment Dataset With Targets", logger, 180)
+    else:
+        logger.warning("⚠️ training/augment_with_outcomes.py not found - training may fallback to projections as targets")
+
+    # 4) Train pitcher models (scikit-learn). If deps missing, script will exit gracefully.
+    train_pitcher_models_script = base_dir / "training" / "train_pitcher_models.py"
+    latest_models_version = None
+    if train_pitcher_models_script.exists():
+        ok_train = run_script(train_pitcher_models_script, "Train Pitcher Prop Models", logger, 900)
+        # Promote latest trained version for runtime if available
+        try:
+            models_root = base_dir / 'models' / 'pitcher_props'
+            if models_root.exists():
+                # Find newest version dir by mtime
+                subdirs = [p for p in models_root.iterdir() if p.is_dir()]
+                if subdirs:
+                    subdirs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+                    latest_dir = subdirs[0]
+                    meta = latest_dir / 'metadata.json'
+                    ver = None
+                    if meta.exists():
+                        import json
+                        with meta.open('r', encoding='utf-8') as f:
+                            mdoc = json.load(f) or {}
+                            ver = mdoc.get('version')
+                    if not ver:
+                        ver = latest_dir.name
+                    promoted = models_root / 'promoted.json'
+                    with promoted.open('w', encoding='utf-8') as f:
+                        import json
+                        json.dump({'version': ver, 'path': latest_dir.name, 'promoted_at': datetime.now().isoformat()}, f, indent=2)
+                    latest_models_version = ver
+                    logger.info(f"🏷️ Promoted pitcher models version: {ver}")
+        except Exception as e:
+            logger.warning(f"⚠️ Could not promote latest pitcher models: {e}")
+    else:
+        logger.info("ℹ️ training/train_pitcher_models.py not found - skipping training step")
+
+    # 5) Now generate pitcher prop projections & recommendations (will use models if available)
     logger.info("📐 Generating pitcher prop projections & recommendations...")
     pitcher_prop_proj_script = base_dir / "generate_pitcher_prop_projections.py"
     success_pitcher_prop_recs = False
     if pitcher_prop_proj_script.exists():
-        success_pitcher_prop_recs = run_script(pitcher_prop_proj_script, "Generate Pitcher Prop Projections", logger, 180)
+        success_pitcher_prop_recs = run_script(pitcher_prop_proj_script, "Generate Pitcher Prop Projections", logger, 240)
     else:
         logger.warning("⚠️ Pitcher prop projections script not found")
     
@@ -396,6 +459,24 @@ def complete_daily_automation():
     
     if success3:
         logger.info(f"✅ Betting lines fetched successfully ({step_duration:.1f}s)")
+
+    # Step 3.5: Daily games model retuning before generating predictions
+    logger.info("\n🧪 STEP 3.5: Daily Games Model Retuning")
+    retuner_script = base_dir / "comprehensive_model_retuner.py"
+    if retuner_script.exists():
+        # Run a shorter window retune daily (e.g., last 7-10 days)
+        retune_ok = run_script(retuner_script, "Run Comprehensive Model Retuner (daily)", logger, 900)
+        # Sync the optimized config to engine's default read path if present
+        try:
+            src_cfg = base_dir / 'data' / 'comprehensive_optimized_config.json'
+            dst_cfg = base_dir / 'data' / 'optimized_config.json'
+            if src_cfg.exists():
+                shutil.copy2(src_cfg, dst_cfg)
+                logger.info("🔄 Synced comprehensive_optimized_config.json -> optimized_config.json for engine usage")
+        except Exception as e:
+            logger.warning(f"⚠️ Could not sync optimized config for engine: {e}")
+    else:
+        logger.info("ℹ️ comprehensive_model_retuner.py not found - skipping daily retune")
     
     # Step 4: Generate Today's Predictions
     logger.info("\n🎯 STEP 4: Generating Today's Predictions")
