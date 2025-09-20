@@ -115,7 +115,12 @@
 
   <script>
     // Register service worker for improved cold-start navigation
-  try { if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js?v=3').catch(()=>{}); } } catch(_){}
+    try {
+      const usp = new URLSearchParams(location.search);
+      if (!usp.has('no_sw')) {
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js?v=3').catch(()=>{}); }
+      }
+    } catch(_){}
     // Proactively warm the home quick snapshot so Back is instant
     try {
       window.addEventListener('DOMContentLoaded', () => {

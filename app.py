@@ -365,7 +365,13 @@ print("DEBUG: Successfully defined Flask app")
 @app.route('/sw.js')
 def service_worker_js():
     try:
-        return send_from_directory('static', 'sw.js', mimetype='application/javascript')
+        resp = send_from_directory('static', 'sw.js', mimetype='application/javascript')
+        # Prevent intermediaries from caching the service worker; SW updates rely on fresh fetches
+        resp.cache_control.no_store = True
+        resp.cache_control.max_age = 0
+        resp.headers['Pragma'] = 'no-cache'
+        resp.headers['Expires'] = '0'
+        return resp
     except Exception as e:
         # Return a minimal no-op SW if static file missing
         resp = app.response_class(
