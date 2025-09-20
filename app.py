@@ -5152,7 +5152,8 @@ def api_pitcher_props_unified():
                             line = info.get('line')
                             oo = info.get('over_odds')
                             uo = info.get('under_odds')
-                            if line is not None or oo is not None or uo is not None:
+                            # Only include markets that have a usable betting line
+                            if line is not None:
                                 slim_mkts[mk] = {'line': line, 'over_odds': oo, 'under_odds': uo}
                     except Exception:
                         slim_mkts = {}
@@ -5734,7 +5735,8 @@ def api_pitcher_props_unified():
                     'team_logo': team_logo,
                     'opponent_logo': opponent_logo,
                     'lines': augmented_mkts,
-                    'markets': { mk: { 'line': (info or {}).get('line'), 'over_odds': (info or {}).get('over_odds'), 'under_odds': (info or {}).get('under_odds') } for mk, info in (augmented_mkts or {}).items() if isinstance(info, dict) },
+                    # Only include markets that have a usable betting line
+                    'markets': { mk: { 'line': (info or {}).get('line'), 'over_odds': (info or {}).get('over_odds'), 'under_odds': (info or {}).get('under_odds') } for mk, info in (augmented_mkts or {}).items() if isinstance(info, dict) and (info or {}).get('line') is not None },
                     'plays': primary_play,
                     'team': team_name_for_logo,
                     'opponent': team_info.get('opponent'),
@@ -5809,7 +5811,7 @@ def api_pitcher_props_unified():
                             slim_mkts = {}
                             try:
                                 for mk, info in (lines_map or {}).items():
-                                    if isinstance(info, dict):
+                                    if isinstance(info, dict) and info.get('line') is not None:
                                         slim_mkts[mk] = {
                                             'line': info.get('line'),
                                             'over_odds': info.get('over_odds'),
@@ -6425,7 +6427,8 @@ def api_pitcher_props_unified():
                         line = info.get('line')
                         oo = info.get('over_odds')
                         uo = info.get('under_odds')
-                        if line is not None or oo is not None or uo is not None:
+                        # Only include markets that have a usable betting line
+                        if line is not None:
                             slim_mkts[mk] = {'line': line, 'over_odds': oo, 'under_odds': uo}
                 except Exception:
                     slim_mkts = {}

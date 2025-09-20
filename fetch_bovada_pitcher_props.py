@@ -148,6 +148,21 @@ def fetch_raw_events() -> List[Dict[str, Any]]:
 def parse_pitcher_props(events: List[Dict[str, Any]]) -> Dict[str, Any]:
     pitcher_props: Dict[str, Dict[str, Any]] = {}
     unmatched_strikeout_markets = []  # instrumentation for debugging missing K lines
+
+    def _american_to_int(a: Any) -> int:
+        """Parse Bovada 'american' odds into an int for comparisons. Treat 'EVEN' as +100.
+        If parsing fails, return 0 so selection logic remains stable.
+        """
+        try:
+            if a is None:
+                return 0
+            s = str(a).strip().upper()
+            if s in ("EVEN", "EV"):
+                return 100
+            # Bovada sometimes includes leading '+'
+            return int(s.replace('+',''))
+        except Exception:
+            return 0
     for ev in events:
         display_groups = ev.get('displayGroups', []) or []
         for dg in display_groups:
@@ -256,16 +271,64 @@ def parse_pitcher_props(events: List[Dict[str, Any]]) -> Dict[str, Any]:
                             if under_odds is not None:
                                 entry[stat_key]['under_odds'] = under_odds
                     else:
-                        alt_list = entry.setdefault('strikeouts_alts', [])
+                        # Group alternate strikeouts by threshold and pair Over/Under odds per threshold
+                        alt_map: Dict[float, Dict[str, Any]] = {}
                         for oc in outcomes:
                             price = oc.get('price', {}) or {}
                             raw_line = price.get('handicap') or oc.get('handicap')
-                            odds = price.get('american') or price.get('price')
+                            side = str(oc.get('description', '')).strip().lower()
+                            if raw_line is None:
+                                continue
                             try:
-                                if raw_line is not None:
-                                    alt_list.append({'threshold': float(raw_line), 'odds': odds})
+                                thr = float(raw_line)
                             except Exception:
                                 continue
+                            entry_at_thr = alt_map.setdefault(thr, {})
+                            american = price.get('american') or price.get('price')
+                            if side == 'over':
+                                entry_at_thr['over_odds'] = american
+                            elif side == 'under':
+                                entry_at_thr['under_odds'] = american
+                        # Persist a structured alts list for later consumers (sorted by threshold)
+                        alt_list_struct = []
+                        for thr in sorted(alt_map.keys()):
+                            info = alt_map[thr]
+                            alt_list_struct.append({
+                                'threshold': thr,
+                                'over_odds': info.get('over_odds'),
+                                'under_odds': info.get('under_odds')
+                            })
+                        entry['strikeouts_alts'] = alt_list_struct
+                        # If we don't have a base strikeouts line yet, derive one from alts by choosing a balanced threshold
+                        base = entry.get('strikeouts') if isinstance(entry.get('strikeouts'), dict) else None
+                        need_base = (base is None) or (base.get('line') is None)
+                        if need_base and alt_map:
+                            # Prefer thresholds that have both Over and Under odds; choose the one closest to EVEN pricing
+                            candidates = []
+                            for thr, info in alt_map.items():
+                                oo = info.get('over_odds'); uo = info.get('under_odds')
+                                if oo is None or uo is None:
+                                    continue
+                                diff = abs(abs(_american_to_int(oo)) - abs(_american_to_int(uo)))
+                                candidates.append((diff, thr, oo, uo))
+                            chosen = None
+                            if candidates:
+                                candidates.sort(key=lambda x: (x[0], x[1]))  # minimal odds imbalance, then lower threshold
+                                _, thr, oo, uo = candidates[0]
+                                chosen = (thr, oo, uo)
+                            else:
+                                # Fallback: take the median threshold with whatever odds are present
+                                thrs = sorted(alt_map.keys())
+                                mid_thr = thrs[len(thrs)//2]
+                                info = alt_map[mid_thr]
+                                chosen = (mid_thr, info.get('over_odds'), info.get('under_odds'))
+                            if chosen:
+                                thr, oo, uo = chosen
+                                entry['strikeouts'] = {'line': thr}
+                                if oo is not None:
+                                    entry['strikeouts']['over_odds'] = oo
+                                if uo is not None:
+                                    entry['strikeouts']['under_odds'] = uo
                 except Exception as e:
                     logger.debug(f"Market parse error {mk_desc}: {e}")
     # Write unmatched strikeout market hints for today's date if any (helps adapt parser quickly)
@@ -403,7 +466,8 @@ def main() -> bool:
                                         take_prev = True
                             except Exception:
                                 take_prev = True
-                            if take_prev and isinstance(prev_info, dict):
+                            # Only retain previous snapshot if it actually had a usable betting line
+                            if take_prev and isinstance(prev_info, dict) and prev_info.get('line') is not None:
                                 # Mark as stale to indicate it originated from an earlier snapshot today
                                 prev_copy = dict(prev_info)
                                 prev_copy.setdefault('_stale', True)
