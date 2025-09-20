@@ -754,13 +754,29 @@
     let tries = 0;
     const MAX_TRIES = 6;          // at most 6 auto refresh attempts
     const BASE_MS = 60000;        // 1 min base
+    function staleRatio(){
+      try{
+        const src = (window.__UNIFIED && window.__UNIFIED.data) || (window.__UNIFIED_LIGHT && window.__UNIFIED_LIGHT.data) || {};
+        const arr = Object.values(src||{});
+        if(!arr.length) return 0;
+        let staleCount = 0;
+        for(const b of arr){
+          const lines = (b && b.lines) || {};
+          const anyStale = Object.values(lines||{}).some(v => v && v._stale);
+          if(anyStale) staleCount += 1;
+        }
+        return staleCount / arr.length;
+      }catch(_){ return 0; }
+    }
     async function maybeAutoRefresh(){
       try{
         const meta = (window.__UNIFIED && window.__UNIFIED.meta) || (window.__UNIFIED_LIGHT && window.__UNIFIED_LIGHT.meta) || {};
         const total = Number(meta.markets_total || 0);
         const pitchers = Number(meta.pitchers || 0);
-        // only try if we have pitchers rendered but no odds yet
-        if(pitchers>0 && total===0 && tries<MAX_TRIES){
+        const sRatio = staleRatio();
+        const staleHeavy = (pitchers>0 && sRatio >= 0.7);
+        // Try if we have pitchers but either no odds yet or stale-heavy view
+        if(pitchers>0 && (total===0 || staleHeavy) && tries<MAX_TRIES){
           const now = Date.now();
           const gap = BASE_MS * Math.min(1 + tries, 5); // backoff: 1m,2m,3m,4m,5m
           if(now - lastTry >= gap){
@@ -769,7 +785,7 @@
             try {
               const r = await fetch('/api/pitcher-props/refresh', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({date, push:true})});
               if(r.ok){
-                try { await loadUnified(true); } catch(_){ }
+                try { await loadUnified(false, true); } catch(_){ }
               }
             } catch(_){ }
           }
