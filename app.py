@@ -5924,50 +5924,51 @@ def api_pitcher_props_unified():
                 pass
 
             for market_key, info in augmented_mkts.items():
+                # Always include a market row when we have a betting line, even if projections aren't available yet.
                 if not isinstance(info, dict):
                     continue
                 line_val = info.get('line')
                 if line_val is None:
                     continue
-                proj_val = proj.get(market_key)
-                if proj_val is None:
-                    continue
                 over_odds = info.get('over_odds')
                 under_odds = info.get('under_odds')
-                if _proj_available:
-                    p_over, ev_over, ev_under = compute_ev(proj_val, line_val, market_key, over_odds, under_odds, norm_key)
-                    edge = proj_val - line_val
-                    k_over = k_under = 0.0
-                    if p_over is not None:
-                        if over_odds:
-                            k_over = kelly_fraction(p_over, over_odds)
-                        if under_odds:
-                            k_under = kelly_fraction(1 - p_over, under_odds)
-                    markets_out[market_key] = {
-                        'line': line_val,
-                        'proj': proj_val,
-                        'edge': round(edge, 2),
-                        'p_over': round(p_over, 3) if p_over is not None else None,
-                        'ev_over': round(ev_over, 3) if ev_over is not None else None,
-                        'ev_under': round(ev_under, 3) if ev_under is not None else None,
-                        'kelly_over': round(k_over, 4),
-                        'kelly_under': round(k_under, 4),
-                        'over_odds': over_odds,
-                        'under_odds': under_odds
-                    }
-                else:
-                    markets_out[market_key] = {
-                        'line': line_val,
-                        'proj': proj_val,
-                        'edge': None,
-                        'p_over': None,
-                        'ev_over': None,
-                        'ev_under': None,
-                        'kelly_over': 0.0,
-                        'kelly_under': 0.0,
-                        'over_odds': over_odds,
-                        'under_odds': under_odds
-                    }
+                proj_val = (proj.get(market_key) if isinstance(proj, dict) else None)
+
+                # Base entry with line/odds; projection-derived fields may be filled below
+                entry = {
+                    'line': line_val,
+                    'proj': proj_val,
+                    'edge': None,
+                    'p_over': None,
+                    'ev_over': None,
+                    'ev_under': None,
+                    'kelly_over': 0.0,
+                    'kelly_under': 0.0,
+                    'over_odds': over_odds,
+                    'under_odds': under_odds
+                }
+                if _proj_available and (proj_val is not None):
+                    try:
+                        p_over, ev_over, ev_under = compute_ev(proj_val, line_val, market_key, over_odds, under_odds, norm_key)
+                        edge = proj_val - line_val
+                        k_over = k_under = 0.0
+                        if p_over is not None:
+                            if over_odds:
+                                k_over = kelly_fraction(p_over, over_odds)
+                            if under_odds:
+                                k_under = kelly_fraction(1 - p_over, under_odds)
+                        entry.update({
+                            'edge': round(edge, 2),
+                            'p_over': round(p_over, 3) if p_over is not None else None,
+                            'ev_over': round(ev_over, 3) if ev_over is not None else None,
+                            'ev_under': round(ev_under, 3) if ev_under is not None else None,
+                            'kelly_over': round(k_over, 4),
+                            'kelly_under': round(k_under, 4)
+                        })
+                    except Exception:
+                        # If EV/Kelly calculation fails, still return the base line/odds
+                        pass
+                markets_out[market_key] = entry
 
             rec = recs_by_pitcher.get(norm_key)
             primary_play = None
@@ -6069,6 +6070,160 @@ def api_pitcher_props_unified():
                 'live_pitches': ((live_box.get(norm_key, {}) or {}).get('pitches') if (norm_key in live_pitchers) else None)
             }
 
+        # If no entries were produced from current props, synthesize from last-known + recommendations
+        try:
+            if not merged:
+                candidate_nks = set()
+                try:
+                    for nk in (last_known_pitchers or {}).keys():
+                        candidate_nks.add(nk)
+                except Exception:
+                    pass
+                try:
+                    # recs_by_pitcher may be keyed by normalized or raw; include both
+                    for nk in (recs_by_pitcher_norm or {}).keys():
+                        candidate_nks.add(nk)
+                    for nk in (recs_by_pitcher or {}).keys():
+                        candidate_nks.add(normalize_name(str(nk).split('(')[0].strip()))
+                except Exception:
+                    pass
+                out_count = 0
+                for nk in candidate_nks:
+                    if allowed_nks and (nk not in allowed_nks):
+                        continue
+                    try:
+                        st = stats_by_name.get(nk, {})
+                        team_info = team_map.get(nk, {'team': None, 'opponent': None})
+                        opponent = team_info.get('opponent') if _proj_available else None
+                        # For same-day (non-fallback) synthesis, still require a team mapping to avoid wrong-day names
+                        if (not using_fallback_props) and (not team_info.get('team')):
+                            continue
+                        # Compute projections if available
+                        proj = (project_pitcher(nk, st if st else {'name': nk, 'team': team_info.get('team')}, opponent, lines=(last_known_pitchers.get(nk, {}) or {})) if _proj_available else {})
+                        lines_map = last_known_pitchers.get(nk, {}) if isinstance(last_known_pitchers, dict) else {}
+                        # Build markets from lines_map; include EV/Kelly when proj available
+                        markets_out = {}
+                        try:
+                            for mk, info in (lines_map or {}).items():
+                                if not isinstance(info, dict):
+                                    continue
+                                line_val = info.get('line')
+                                if line_val is None:
+                                    continue
+                                over_odds = info.get('over_odds')
+                                under_odds = info.get('under_odds')
+                                proj_val = (proj.get(mk) if isinstance(proj, dict) else None)
+                                entry = {
+                                    'line': line_val,
+                                    'proj': proj_val,
+                                    'edge': None,
+                                    'p_over': None,
+                                    'ev_over': None,
+                                    'ev_under': None,
+                                    'kelly_over': 0.0,
+                                    'kelly_under': 0.0,
+                                    'over_odds': over_odds,
+                                    'under_odds': under_odds
+                                }
+                                if _proj_available and (proj_val is not None):
+                                    try:
+                                        p_over, ev_over, ev_under = compute_ev(proj_val, line_val, mk, over_odds, under_odds, nk)
+                                        edge = proj_val - line_val
+                                        k_over = k_under = 0.0
+                                        if p_over is not None:
+                                            if over_odds:
+                                                k_over = kelly_fraction(p_over, over_odds)
+                                            if under_odds:
+                                                k_under = kelly_fraction(1 - p_over, under_odds)
+                                        entry.update({
+                                            'edge': round(edge, 2),
+                                            'p_over': round(p_over, 3) if p_over is not None else None,
+                                            'ev_over': round(ev_over, 3) if ev_over is not None else None,
+                                            'ev_under': round(ev_under, 3) if ev_under is not None else None,
+                                            'kelly_over': round(k_over, 4),
+                                            'kelly_under': round(k_under, 4)
+                                        })
+                                    except Exception:
+                                        pass
+                                markets_out[mk] = entry
+                        except Exception:
+                            markets_out = {}
+
+                        # Build primary play from recs when available
+                        rec = (recs_by_pitcher_norm.get(nk) if isinstance(recs_by_pitcher_norm, dict) else None) or (recs_by_pitcher.get(nk) if isinstance(recs_by_pitcher, dict) else None)
+                        primary_play = None
+                        plays_all = None
+                        try:
+                            if rec and isinstance(rec.get('plays'), list) and rec['plays']:
+                                plays_all = rec['plays']
+                                conf_rank = {'HIGH': 3, 'MEDIUM': 2, 'LOW': 1}
+                                best = max(
+                                    rec['plays'],
+                                    key=lambda p: (
+                                        conf_rank.get(str(p.get('confidence','')).upper(), 0),
+                                        abs(p.get('edge') or 0)
+                                    )
+                                )
+                                primary_play = {
+                                    'market': best.get('market'),
+                                    'side': (best.get('side') or '').upper() or None,
+                                    'edge': best.get('edge'),
+                                    'line': best.get('line'),
+                                    'kelly_fraction': best.get('kelly_fraction'),
+                                    'selected_ev': best.get('selected_ev'),
+                                    'p_over': best.get('p_over'),
+                                    'over_odds': best.get('over_odds'),
+                                    'under_odds': best.get('under_odds')
+                                }
+                        except Exception:
+                            primary_play = None
+
+                        display_name = (st.get('name') if isinstance(st, dict) else None) or nk
+                        try:
+                            if isinstance(display_name, str):
+                                display_name = ' '.join([w.capitalize() if not w.isupper() else w for w in display_name.split()])
+                        except Exception:
+                            pass
+                        original_id = (st.get('player_id') if isinstance(st, dict) else None) or (st.get('id') if isinstance(st, dict) else None)
+                        mlb_player_id = None
+                        try:
+                            mlb_player_id = _resolve_player_id_by_name(display_name)
+                        except Exception:
+                            mlb_player_id = None
+                        headshot_url = None
+                        use_id_for_photo = mlb_player_id or original_id
+                        if use_id_for_photo:
+                            headshot_url = f"https://img.mlbstatic.com/mlb-photos/image/upload/w_120,q_auto:best/v1/people/{use_id_for_photo}/headshot/67/current"
+                        team_name_for_logo = team_info.get('team')
+                        team_logo = get_team_logo_url(team_name_for_logo) if team_name_for_logo else None
+                        opponent_logo = get_team_logo_url(opponent) if opponent else None
+                        merged[nk] = {
+                            'raw_key': nk,
+                            'display_name': display_name,
+                            'player_id': original_id,
+                            'mlb_player_id': mlb_player_id,
+                            'headshot_url': headshot_url,
+                            'team_logo': team_logo,
+                            'opponent_logo': opponent_logo,
+                            'lines': lines_map,
+                            'simple_projection': proj,
+                            'markets': markets_out,
+                            'plays': primary_play,
+                            'plays_all': plays_all,
+                            'team': team_name_for_logo,
+                            'opponent': opponent,
+                            'normalized': nk,
+                            'pitch_count': proj.get('pitch_count') if isinstance(proj, dict) else None,
+                            'live_pitches': ((live_box.get(nk, {}) or {}).get('pitches') if (nk in live_pitchers) else None)
+                        }
+                        out_count += 1
+                        if out_count >= 28:
+                            break
+                    except Exception:
+                        continue
+        except Exception:
+            pass
+
         # Also include projection-only bundles for pitchers in today's games who have no lines
         try:
             def _iter_game_pitchers(gdoc):
@@ -6169,6 +6324,73 @@ def api_pitcher_props_unified():
                 empty_payload['meta']['timings'] = timings
             _UNIFIED_PITCHER_CACHE[date_str] = {'ts': now_ts, 'payload': empty_payload}
             return jsonify(empty_payload)
+
+        # Post-process: if any bundle has zero markets (e.g., scheduled-only entry), try to backfill
+        # from last-known lines so the full payload hydrates lines instead of wiping them.
+        try:
+            for nk, bundle in list(merged.items()):
+                mkts = bundle.get('markets') or {}
+                if mkts:
+                    continue
+                lk = last_known_pitchers.get(nk, {}) if isinstance(last_known_pitchers, dict) else {}
+                if not lk:
+                    continue
+                # Copy into lines with _stale flag; build markets entries; compute EV/Kelly if projections exist
+                lines_map = dict(bundle.get('lines') or {})
+                new_mkts = {}
+                proj = bundle.get('simple_projection') or {}
+                for mk, info in (lk or {}).items():
+                    if not isinstance(info, dict):
+                        continue
+                    line_val = info.get('line')
+                    if line_val is None:
+                        continue
+                    # Update lines map for stale marker
+                    lines_map[mk] = {
+                        'line': line_val,
+                        'over_odds': info.get('over_odds'),
+                        'under_odds': info.get('under_odds'),
+                        '_stale': True
+                    }
+                    proj_val = (proj.get(mk) if isinstance(proj, dict) else None)
+                    entry = {
+                        'line': line_val,
+                        'proj': proj_val,
+                        'edge': None,
+                        'p_over': None,
+                        'ev_over': None,
+                        'ev_under': None,
+                        'kelly_over': 0.0,
+                        'kelly_under': 0.0,
+                        'over_odds': info.get('over_odds'),
+                        'under_odds': info.get('under_odds')
+                    }
+                    if _proj_available and (proj_val is not None):
+                        try:
+                            p_over, ev_over, ev_under = compute_ev(proj_val, line_val, mk, info.get('over_odds'), info.get('under_odds'), nk)
+                            edge = proj_val - line_val
+                            k_over = k_under = 0.0
+                            if p_over is not None:
+                                if info.get('over_odds'):
+                                    k_over = kelly_fraction(p_over, info.get('over_odds'))
+                                if info.get('under_odds'):
+                                    k_under = kelly_fraction(1 - p_over, info.get('under_odds'))
+                            entry.update({
+                                'edge': round(edge, 2),
+                                'p_over': round(p_over, 3) if p_over is not None else None,
+                                'ev_over': round(ev_over, 3) if ev_over is not None else None,
+                                'ev_under': round(ev_under, 3) if ev_under is not None else None,
+                                'kelly_over': round(k_over, 4),
+                                'kelly_under': round(k_under, 4)
+                            })
+                        except Exception:
+                            pass
+                    new_mkts[mk] = entry
+                if new_mkts:
+                    bundle['markets'] = new_mkts
+                    bundle['lines'] = lines_map
+        except Exception:
+            pass
 
         payload = {
             'success': True,
