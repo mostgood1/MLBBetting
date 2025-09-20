@@ -820,7 +820,7 @@
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            try { if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(()=>{}); } } catch(_){}
+            try { if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js?v=3').catch(()=>{}); } } catch(_){}
             document.getElementById('game-date').value = localDateString;
             loadSummary();
             // Quick-first: paint ultra-fast snapshot, then hydrate full data
