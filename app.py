@@ -5155,6 +5155,17 @@ def api_pitcher_props_unified():
                             # Only include markets that have a usable betting line
                             if line is not None:
                                 slim_mkts[mk] = {'line': line, 'over_odds': oo, 'under_odds': uo}
+                        # Fallback: if no market lines, synthesize from recommended play when available
+                        if not slim_mkts:
+                            p = v.get('plays') or {}
+                            if isinstance(p, dict) and p.get('market') and (p.get('line') is not None):
+                                mk = str(p.get('market'))
+                                slim_mkts[mk] = {
+                                    'line': p.get('line'),
+                                    'over_odds': p.get('over_odds'),
+                                    'under_odds': p.get('under_odds'),
+                                    '_from': 'recs'
+                                }
                     except Exception:
                         slim_mkts = {}
                     slim_data[k] = {
@@ -5726,6 +5737,20 @@ def api_pitcher_props_unified():
                 team_name_for_logo = team_info.get('team')
                 team_logo = get_team_logo_url(team_name_for_logo) if team_name_for_logo else None
                 opponent_logo = get_team_logo_url(team_info.get('opponent')) if team_info.get('opponent') else None
+                # Build slim markets (only entries with a usable line)
+                slim_mkts = { mk: { 'line': (info or {}).get('line'), 'over_odds': (info or {}).get('over_odds'), 'under_odds': (info or {}).get('under_odds') } for mk, info in (augmented_mkts or {}).items() if isinstance(info, dict) and (info or {}).get('line') is not None }
+                # Fallback: if no market lines detected but we have a recommended play line, synthesize one from recs
+                try:
+                    if (not slim_mkts) and primary_play and primary_play.get('market') and (primary_play.get('line') is not None):
+                        mk = str(primary_play.get('market'))
+                        slim_mkts[mk] = {
+                            'line': primary_play.get('line'),
+                            'over_odds': primary_play.get('over_odds'),
+                            'under_odds': primary_play.get('under_odds'),
+                            '_from': 'recs'
+                        }
+                except Exception:
+                    pass
                 merged[norm_key] = {
                     'raw_key': raw_key,
                     'display_name': display_name,
@@ -5735,8 +5760,8 @@ def api_pitcher_props_unified():
                     'team_logo': team_logo,
                     'opponent_logo': opponent_logo,
                     'lines': augmented_mkts,
-                    # Only include markets that have a usable betting line
-                    'markets': { mk: { 'line': (info or {}).get('line'), 'over_odds': (info or {}).get('over_odds'), 'under_odds': (info or {}).get('under_odds') } for mk, info in (augmented_mkts or {}).items() if isinstance(info, dict) and (info or {}).get('line') is not None },
+                    # Only include markets that have a usable betting line (with recs-based fallback above)
+                    'markets': slim_mkts,
                     'plays': primary_play,
                     'team': team_name_for_logo,
                     'opponent': team_info.get('opponent'),
