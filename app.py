@@ -5648,25 +5648,34 @@ def api_pitcher_props_unified():
                     continue
                 # Augment with last-known lines if needed
                 augmented_mkts = dict(mkts)
+                # Only augment from last-known if we currently have zero fresh lines for this pitcher
                 try:
-                    lk = last_known_pitchers.get(norm_key, {})
-                    if isinstance(lk, dict):
-                        for mk, lk_info in lk.items():
-                            if mk not in augmented_mkts and isinstance(lk_info, dict) and lk_info.get('line') is not None:
-                                augmented_mkts[mk] = {
-                                    'line': lk_info.get('line'),
-                                    'over_odds': lk_info.get('over_odds'),
-                                    'under_odds': lk_info.get('under_odds'),
-                                    '_stale': True
-                                }
-                            elif mk in augmented_mkts and isinstance(augmented_mkts.get(mk), dict):
-                                if augmented_mkts[mk].get('line') is None and lk_info.get('line') is not None:
-                                    augmented_mkts[mk]['line'] = lk_info.get('line')
-                                    if 'over_odds' not in augmented_mkts[mk]:
-                                        augmented_mkts[mk]['over_odds'] = lk_info.get('over_odds')
-                                    if 'under_odds' not in augmented_mkts[mk]:
-                                        augmented_mkts[mk]['under_odds'] = lk_info.get('under_odds')
-                                    augmented_mkts[mk]['_stale'] = True
+                    has_fresh_line = any(
+                        isinstance(info, dict) and info.get('line') is not None
+                        for info in (mkts or {}).values()
+                    )
+                except Exception:
+                    has_fresh_line = False
+                try:
+                    if not has_fresh_line:
+                        lk = last_known_pitchers.get(norm_key, {})
+                        if isinstance(lk, dict):
+                            for mk, lk_info in lk.items():
+                                if mk not in augmented_mkts and isinstance(lk_info, dict) and lk_info.get('line') is not None:
+                                    augmented_mkts[mk] = {
+                                        'line': lk_info.get('line'),
+                                        'over_odds': lk_info.get('over_odds'),
+                                        'under_odds': lk_info.get('under_odds'),
+                                        '_stale': True
+                                    }
+                                elif mk in augmented_mkts and isinstance(augmented_mkts.get(mk), dict):
+                                    if augmented_mkts[mk].get('line') is None and lk_info.get('line') is not None:
+                                        augmented_mkts[mk]['line'] = lk_info.get('line')
+                                        if 'over_odds' not in augmented_mkts[mk]:
+                                            augmented_mkts[mk]['over_odds'] = lk_info.get('over_odds')
+                                        if 'under_odds' not in augmented_mkts[mk]:
+                                            augmented_mkts[mk]['under_odds'] = lk_info.get('under_odds')
+                                        augmented_mkts[mk]['_stale'] = True
                 except Exception:
                     pass
                 # Primary play from recommendations file
@@ -5882,25 +5891,34 @@ def api_pitcher_props_unified():
             markets_out = {}
 
             augmented_mkts = dict(mkts)
+            # Only augment from last-known if we currently have zero fresh lines for this pitcher
             try:
-                lk = last_known_pitchers.get(norm_key, {})
-                if isinstance(lk, dict):
-                    for mk, lk_info in lk.items():
-                        if mk not in augmented_mkts and isinstance(lk_info, dict) and lk_info.get('line') is not None:
-                            augmented_mkts[mk] = {
-                                'line': lk_info.get('line'),
-                                'over_odds': lk_info.get('over_odds'),
-                                'under_odds': lk_info.get('under_odds'),
-                                '_stale': True
-                            }
-                        elif mk in augmented_mkts and isinstance(augmented_mkts.get(mk), dict):
-                            if augmented_mkts[mk].get('line') is None and lk_info.get('line') is not None:
-                                augmented_mkts[mk]['line'] = lk_info.get('line')
-                                if 'over_odds' not in augmented_mkts[mk]:
-                                    augmented_mkts[mk]['over_odds'] = lk_info.get('over_odds')
-                                if 'under_odds' not in augmented_mkts[mk]:
-                                    augmented_mkts[mk]['under_odds'] = lk_info.get('under_odds')
-                                augmented_mkts[mk]['_stale'] = True
+                has_fresh_line = any(
+                    isinstance(info, dict) and info.get('line') is not None
+                    for info in (mkts or {}).values()
+                )
+            except Exception:
+                has_fresh_line = False
+            try:
+                if not has_fresh_line:
+                    lk = last_known_pitchers.get(norm_key, {})
+                    if isinstance(lk, dict):
+                        for mk, lk_info in lk.items():
+                            if mk not in augmented_mkts and isinstance(lk_info, dict) and lk_info.get('line') is not None:
+                                augmented_mkts[mk] = {
+                                    'line': lk_info.get('line'),
+                                    'over_odds': lk_info.get('over_odds'),
+                                    'under_odds': lk_info.get('under_odds'),
+                                    '_stale': True
+                                }
+                            elif mk in augmented_mkts and isinstance(augmented_mkts.get(mk), dict):
+                                if augmented_mkts[mk].get('line') is None and lk_info.get('line') is not None:
+                                    augmented_mkts[mk]['line'] = lk_info.get('line')
+                                    if 'over_odds' not in augmented_mkts[mk]:
+                                        augmented_mkts[mk]['over_odds'] = lk_info.get('over_odds')
+                                    if 'under_odds' not in augmented_mkts[mk]:
+                                        augmented_mkts[mk]['under_odds'] = lk_info.get('under_odds')
+                                    augmented_mkts[mk]['_stale'] = True
             except Exception:
                 pass
 
