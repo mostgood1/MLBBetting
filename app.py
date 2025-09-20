@@ -5751,6 +5751,21 @@ def api_pitcher_props_unified():
                         }
                 except Exception:
                     pass
+                # If we've already added this pitcher (e.g., from a team-qualified key) and that entry has
+                # real market lines, don't overwrite it with an empty/sparser duplicate.
+                try:
+                    existing = merged.get(norm_key)
+                    if isinstance(existing, dict):
+                        existing_mkts = existing.get('markets') or {}
+                        new_mkts = slim_mkts or {}
+                        if len(existing_mkts) > 0 and len(new_mkts) == 0:
+                            # Keep the richer existing entry; skip overwrite
+                            continue
+                        if (len(existing_mkts) > 0 and len(new_mkts) > 0) and (len(new_mkts) < len(existing_mkts)):
+                            # Prefer the one with more usable markets
+                            continue
+                except Exception:
+                    pass
                 merged[norm_key] = {
                     'raw_key': raw_key,
                     'display_name': display_name,
@@ -6083,6 +6098,19 @@ def api_pitcher_props_unified():
             team_logo = get_team_logo_url(team_name_for_logo) if team_name_for_logo else None
             opponent_logo = get_team_logo_url(opponent) if opponent else None
 
+            # Avoid overwriting a richer entry with a sparser duplicate when multiple raw keys map to the same pitcher
+            try:
+                existing = merged.get(norm_key)
+                if isinstance(existing, dict):
+                    existing_mkts = existing.get('markets') or {}
+                    new_mkts = markets_out or {}
+                    if len(existing_mkts) > 0 and len(new_mkts) == 0:
+                        # Keep existing richer entry
+                        continue
+                    if (len(existing_mkts) > 0 and len(new_mkts) > 0) and (len(new_mkts) < len(existing_mkts)):
+                        continue
+            except Exception:
+                pass
             merged[norm_key] = {
                 'raw_key': raw_key,
                 'display_name': display_name,
