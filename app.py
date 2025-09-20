@@ -13279,9 +13279,42 @@ def api_props_progress():
     try:
         base = Path('data') / 'daily_bovada'
         summary_path = base / 'props_progress.json'
+        # Helper to normalize timestamps to UTC-Z
+        def _norm_ts(v):
+            try:
+                if not v:
+                    return None
+                s = str(v)
+                if s.endswith('Z') or ('+' in s and len(s) >= 20):
+                    return s
+                from datetime import datetime, timezone
+                dt = datetime.fromisoformat(s)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                else:
+                    dt = dt.astimezone(timezone.utc)
+                return dt.isoformat().replace('+00:00','Z')
+            except Exception:
+                return str(v)
+
+        # If a summary exists but its date is stale (not today's business date), ignore it
         if summary_path.exists():
             doc = _read_json_safe(str(summary_path)) or {}
-            return jsonify({'success': True, 'source': 'summary', 'data': doc})
+            try:
+                today = get_business_date()
+                if str(doc.get('date')) == today:
+                    # Ensure minimal fields exist and return normalized
+                    out = dict(doc)
+                    if 'updated_at' in out:
+                        out['updated_at'] = _norm_ts(out.get('updated_at'))
+                    if 'next_run_eta' in out:
+                        out['next_run_eta'] = _norm_ts(out.get('next_run_eta'))
+                    if 'last_git_push' in out:
+                        out['last_git_push'] = _norm_ts(out.get('last_git_push'))
+                    return jsonify({'success': True, 'source': 'summary', 'data': out})
+            except Exception:
+                # Fall through to dated snapshot fallback
+                pass
         # Fallback: find latest dated file
         candidates = sorted(base.glob('pitcher_props_progress_*.json'))
         if candidates:
@@ -13289,25 +13322,6 @@ def api_props_progress():
             doc = _read_json_safe(str(latest)) or {}
             # Normalize to a slim view
             cov = (doc.get('coverage') or {})
-            # Normalize timestamps to UTC-Z if present without tz
-            def _norm_ts(v):
-                try:
-                    if not v:
-                        return None
-                    # If already has Z or timezone offset, return as-is
-                    s = str(v)
-                    if s.endswith('Z') or ('+' in s and len(s) >= 20):
-                        return s
-                    # Attempt parse and convert to Z
-                    from datetime import datetime, timezone
-                    dt = datetime.fromisoformat(s)
-                    if dt.tzinfo is None:
-                        dt = dt.replace(tzinfo=timezone.utc)
-                    else:
-                        dt = dt.astimezone(timezone.utc)
-                    return dt.isoformat().replace('+00:00','Z')
-                except Exception:
-                    return str(v)
             slim = {
                 'date': doc.get('date'),
                 'updated_at': _norm_ts(doc.get('timestamp')),
