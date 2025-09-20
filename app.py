@@ -5283,6 +5283,49 @@ def api_pitcher_props_unified():
         source_date = date_str
         source_file = props_path if os.path.exists(props_path) else None
 
+        # Build a union of markets per normalized pitcher key across all raw entries
+        # This avoids iteration-order overwrites when the props file contains both
+        # "name" and "name (TEAM)" keys. Only retain markets with a usable line.
+        grouped_markets_by_nk = {}
+        try:
+            for raw_key, mkts in (pitcher_props or {}).items():
+                try:
+                    name_only = str(raw_key).split('(')[0].strip()
+                    nk = normalize_name(name_only)
+                except Exception:
+                    continue
+                if not nk:
+                    continue
+                bucket = grouped_markets_by_nk.get(nk)
+                if bucket is None:
+                    bucket = {}
+                    grouped_markets_by_nk[nk] = bucket
+                try:
+                    for mk, info in (mkts or {}).items():
+                        if not isinstance(info, dict):
+                            continue
+                        line_val = info.get('line')
+                        if line_val is None:
+                            continue
+                        # Prefer the first seen with odds; don't thrash once set
+                        if mk not in bucket:
+                            bucket[mk] = {
+                                'line': line_val,
+                                'over_odds': info.get('over_odds'),
+                                'under_odds': info.get('under_odds')
+                            }
+                        else:
+                            # If existing lacks odds but new has them, upgrade
+                            ex = bucket.get(mk) or {}
+                            if ex.get('over_odds') is None and info.get('over_odds') is not None:
+                                ex['over_odds'] = info.get('over_odds')
+                            if ex.get('under_odds') is None and info.get('under_odds') is not None:
+                                ex['under_odds'] = info.get('under_odds')
+                except Exception:
+                    continue
+        except Exception:
+            grouped_markets_by_nk = {}
+
         # Optional fallback: only when explicitly requested via allow_fallback=1
         try:
             if (not pitcher_props) and (request.args.get('allow_fallback') == '1'):
@@ -5654,9 +5697,11 @@ def api_pitcher_props_unified():
             t_light = time.time()
             merged = {}
             _synthesized = False
-            for raw_key, mkts in pitcher_props.items():
-                name_only = raw_key.split('(')[0].strip()
-                norm_key = normalize_name(name_only)
+            # Iterate by normalized key with unioned markets to avoid duplicate overwrites
+            keys_iter = list(grouped_markets_by_nk.keys()) or [normalize_name(str(rk).split('(')[0].strip()) for rk in pitcher_props.keys()]
+            for norm_key in keys_iter:
+                name_only = norm_key.replace('_',' ')
+                mkts = grouped_markets_by_nk.get(norm_key, {})
                 # Restrict to pitchers scheduled for the requested date when available
                 if allowed_nks and (norm_key not in allowed_nks):
                     continue
@@ -5767,7 +5812,7 @@ def api_pitcher_props_unified():
                 except Exception:
                     pass
                 merged[norm_key] = {
-                    'raw_key': raw_key,
+                    'raw_key': name_only,
                     'display_name': display_name,
                     'player_id': original_id,
                     'mlb_player_id': None,  # skipped in light path to avoid lookups
@@ -5919,9 +5964,11 @@ def api_pitcher_props_unified():
 
         merged = {}
         t_loop = time.time()
-        for raw_key, mkts in pitcher_props.items():
-            name_only = raw_key.split('(')[0].strip()
-            norm_key = normalize_name(name_only)
+        # Use the same unioned markets in the full path to prevent duplicate overwrites
+        keys_iter_full = list(grouped_markets_by_nk.keys()) or [normalize_name(str(rk).split('(')[0].strip()) for rk in pitcher_props.keys()]
+        for norm_key in keys_iter_full:
+            name_only = norm_key.replace('_',' ')
+            mkts = grouped_markets_by_nk.get(norm_key, {})
             # If we have a schedule-derived allowlist, restrict props to that set
             if allowed_nks and (norm_key not in allowed_nks):
                 continue
@@ -6112,7 +6159,7 @@ def api_pitcher_props_unified():
             except Exception:
                 pass
             merged[norm_key] = {
-                'raw_key': raw_key,
+                'raw_key': name_only,
                 'display_name': display_name,
                 'player_id': original_id,
                 'mlb_player_id': mlb_player_id,
