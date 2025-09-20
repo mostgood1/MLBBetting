@@ -1,0 +1,41 @@
+{
+  "date": "2025-09-20",
+  "generated_at": "2025-09-20T12:07:01.694210",
+  "starting_pitchers_count": 31,
+  "props_pitchers_count": 56,
+  "unmatched_starting_pitchers": [
+    "Logan Allen",
+    "Bailey Ober",
+    "Chad Patrick"
+  ],
+  "props_without_start_flag": [
+    "luis severino",
+    "mitch keller",
+    "bryce elder",
+    "charlie morton",
+    "nick lodolo",
+    "shota imanaga",
+    "trevor rogers",
+    "will warren",
+    "brandon sproat",
+    "garrett crochet",
+    "davis martin",
+    "dylan cease",
+    "max scherzer",
+    "michael lorenzen",
+    "janson junk",
+    "tyler mahle",
+    "pablo lopez",
+    "parker messick",
+    "bradley blalock",
+    "mitch farris",
+    "bryan woo",
+    "hunter brown",
+    "jacob misiorowski",
+    "sonny gray",
+    "ryne nelson",
+    "clayton kershaw",
+    "robbie ray",
+    "bubba chandler"
+  ]
+}

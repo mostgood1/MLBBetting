@@ -1,0 +1,39 @@
+{
+  "date": "2025-09-20",
+  "generated_at": "2025-09-20T12:07:09.468311",
+  "pitcher_count": 31,
+  "team_mismatches": 4,
+  "opponent_validation_mismatches": 0,
+  "opponent_corrections": 0,
+  "sample_team_mismatches": [
+    {
+      "pitcher_name": "Zack Littell",
+      "pitcher_id": "641793",
+      "master_team": "Tampa Bay Rays",
+      "resolved_team": "Cincinnati Reds",
+      "team_source": "game_match"
+    },
+    {
+      "pitcher_name": "Kyle Harrison",
+      "pitcher_id": "690986",
+      "master_team": "San Francisco Giants",
+      "resolved_team": "Boston Red Sox",
+      "team_source": "game_match"
+    },
+    {
+      "pitcher_name": "Adrian Houser",
+      "pitcher_id": "605288",
+      "master_team": "Chicago White Sox",
+      "resolved_team": "Tampa Bay Rays",
+      "team_source": "game_match"
+    },
+    {
+      "pitcher_name": "Yoendrys G\u00f3mez",
+      "pitcher_id": "672782",
+      "master_team": "New York Yankees",
+      "resolved_team": "Chicago White Sox",
+      "team_source": "game_match"
+    }
+  ],
+  "sample_opponent_mismatches": []
+}
