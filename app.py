@@ -5115,6 +5115,7 @@ def api_pitcher_props_unified():
         date_str = request.args.get('date') or get_business_date()
         safe_date = date_str.replace('-', '_')
         light_mode = request.args.get('light') in ('1','true','yes')
+        no_cache = request.args.get('nocache') in ('1','true','yes') or request.args.get('force') in ('1','true','yes')
         want_timings = request.args.get('timings') in ('1','true','yes')
         t0 = time.time()
         timings = {}
@@ -5129,7 +5130,7 @@ def api_pitcher_props_unified():
             _UNIFIED_PITCHER_CACHE_LIGHT = {}
         now_ts = time.time()
         cached = _UNIFIED_PITCHER_CACHE.get(date_str)
-        if cached and (now_ts - cached.get('ts', 0) < 15):
+        if (not no_cache) and cached and (now_ts - cached.get('ts', 0) < 15):
             # Serve cached; if light mode requested but cache is full, derive light view on the fly
             payload = cached['payload']
             if light_mode and payload.get('data'):
@@ -5186,7 +5187,7 @@ def api_pitcher_props_unified():
         # If light mode requested and no full cache hit, try returning a prebuilt true-light payload
         if light_mode:
             light_cached = _UNIFIED_PITCHER_CACHE_LIGHT.get(date_str)
-            if light_cached and (now_ts - light_cached.get('ts', 0) < 15):
+            if (not no_cache) and light_cached and (now_ts - light_cached.get('ts', 0) < 15):
                 payload = light_cached['payload']
                 resp = jsonify(payload)
                 try:

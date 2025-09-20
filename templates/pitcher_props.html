@@ -421,12 +421,13 @@
       }catch(_){ }
     }
 
-    async function loadUnified(full=false){
+    async function loadUnified(full=false, noCache=false){
       const date = document.getElementById('date').value;
       const bust = `t=${Date.now()}`;
       const params = new URLSearchParams();
       if(date) params.set('date', date);
       params.set('t', Date.now());
+      if(noCache) params.set('nocache','1');
       if(!full) params.set('light','1');
       // include timings only on first (light) load
       if(!full) params.set('timings','1');
@@ -450,8 +451,8 @@
           }
           metaEl.textContent = msg;
         }
-        // Kick off background full load
-        loadUnified(true).catch(()=>{});
+        // Kick off background full load (propagate noCache)
+        loadUnified(true, noCache).catch(()=>{});
       } else {
         // Merge full data and fully re-render so markets, projections, and odds appear
         window.__UNIFIED = data;
@@ -700,7 +701,7 @@
     }
 
     let _pcTimer;
-    window.addEventListener('DOMContentLoaded', ()=>{
+  window.addEventListener('DOMContentLoaded', ()=>{
   // parse deep link early
   parseDeepLink();
   // initial load
@@ -711,7 +712,8 @@
     const date = document.getElementById('date');
     const doRefresh = ()=>{
       if(btn){ btn.disabled = true; const prev = btn.textContent; btn.textContent = 'Refreshing…'; setTimeout(()=>{ try{ btn.disabled=false; btn.textContent=prev; }catch(_){ } }, 1200); }
-      loadUnified(); loadDiagnostics(); setTimeout(()=>{ pollLivePitches(); pollLiveStats(); }, 200);
+      // Bypass server cache on manual refresh for immediate rebuild
+      loadUnified(false, true); loadDiagnostics(); setTimeout(()=>{ pollLivePitches(); pollLiveStats(); }, 200);
     };
     if(btn){ btn.addEventListener('click', doRefresh); }
     if(date){ date.addEventListener('change', doRefresh); }
@@ -738,7 +740,7 @@
         const date = document.getElementById('date').value;
   const r = await fetch('/api/pitcher-props/refresh', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({date, push:true})});
         const js = await r.json().catch(()=>({}));
-        if (r.ok && js.success){ statusEl.textContent='Refreshed'; await loadUnified(); }
+        if (r.ok && js.success){ statusEl.textContent='Refreshed'; await loadUnified(false, true); }
         else statusEl.textContent = 'Refresh failed';
       }catch(e){ statusEl.textContent='Error'; }
       finally { fBtn.disabled=false; fBtn.textContent=prev; setTimeout(()=>{ statusEl.textContent=''; }, 5000); }
