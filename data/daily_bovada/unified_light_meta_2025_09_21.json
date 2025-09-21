@@ -1,6 +1,6 @@
 {
   "date": "2025-09-21",
-  "generated_at": "2025-09-21T12:17:25.388832-05:00",
+  "generated_at": "2025-09-21T12:11:15.038929-05:00",
   "pitchers": 29,
   "markets_total": 87,
   "covered_pitchers": 24,
@@ -11,5 +11,5 @@
   "using_fallback_props": false,
   "allow_fallback": false,
   "strict_today": true,
-  "kind": "full"
+  "kind": "light"
 }
