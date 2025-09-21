@@ -5333,8 +5333,10 @@ def api_pitcher_props_unified():
             _total_lines = sum(len(v or {}) for v in grouped_markets_by_nk.values())
         except Exception:
             _total_lines = 0
+        # Unconditional safety net: if zero usable markets found for today's file, fall back
+        # to the latest prior Bovada file that has any. This removes dependency on a query param.
         try:
-            if (_total_lines == 0) and (request.args.get('allow_fallback') == '1') and os.path.isdir(base_dir):
+            if (_total_lines == 0) and os.path.isdir(base_dir):
                 cand_files = sorted(
                     [os.path.join(base_dir, f) for f in os.listdir(base_dir) if f.startswith('bovada_pitcher_props_') and f.endswith('.json')],
                     key=lambda p: os.path.getmtime(p),
@@ -6024,7 +6026,8 @@ def api_pitcher_props_unified():
                     'source_date': source_date,
                     'source_file': source_file or os.path.join('data','daily_bovada', f'bovada_pitcher_props_{safe_date}.json'),
                     'light_mode': True,
-                    'synthesized': _synthesized
+                    'synthesized': _synthesized,
+                    'using_fallback_props': using_fallback_props
                 },
                 'data': merged
             }
