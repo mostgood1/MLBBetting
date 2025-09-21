@@ -93,6 +93,7 @@
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
+            justify-items: center;
             gap: 8px;
             padding: 10px 12px;
             background: rgba(255, 255, 255, 0.06);
@@ -103,7 +104,7 @@
             align-items: center;
             gap: 8px;
         }
-        .header-center { text-align: center; }
+    .header-center { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .team-logo {
             width: 28px; height: 28px; object-fit: contain;
             filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
@@ -344,6 +345,11 @@
             font-size: 0.9rem;
             opacity: 0.85;
             margin-top: 4px;
+        }
+        .game-time.scheduled {
+            font-size: 0.8rem;
+            opacity: 0.75;
+            margin-top: 2px;
         }
 
         .live-score {
@@ -784,6 +790,39 @@
             } catch (_) {
                 return String(isoStr).trim();
             }
+        }
+        // Prefer ISO game_time or live_status.game_time; convert to CT if possible
+        function computeDisplayStartTimeCT(game){
+            try {
+                if (!game) return '';
+                // 1) ISO on game.game_time
+                const gt = game.game_time || '';
+                if (gt && (gt.includes('T') || gt.includes('Z'))) {
+                    const ct = isoToCtDisplay(gt);
+                    if (ct) return ct;
+                }
+                // 2) live_status.game_time meridian like "7:10 PM ET" or without ET
+                const ls = game.live_status || {};
+                const lsTime = ls.game_time || '';
+                if (lsTime) {
+                    if (/^\d{1,2}:\d{2}\s*(AM|PM)\s*ET$/i.test(lsTime)) {
+                        const ct = etToCtDisplay(lsTime);
+                        if (ct) return ct;
+                    }
+                    if (/^\d{1,2}:\d{2}\s*(AM|PM)$/i.test(lsTime)) {
+                        return `${lsTime.trim()} CT`;
+                    }
+                }
+                // 3) Plain meridian on game.game_time
+                if (/^\d{1,2}:\d{2}\s*(AM|PM)\s*ET$/i.test(gt)) {
+                    const ct = etToCtDisplay(gt);
+                    if (ct) return ct;
+                }
+                if (/^\d{1,2}:\d{2}\s*(AM|PM)$/i.test(gt)) {
+                    return `${gt.trim()} CT`;
+                }
+                return '';
+            } catch(_) { return ''; }
         }
         // Extract minutes since midnight for a "HH:MM AM/PM" string, assuming ET; returns null if unparseable
         function meridianToMinutesET(timeStr) {
@@ -1402,16 +1441,9 @@
                             </div>
                         `;
                     } else {
-                        // Non-live: show time + pill
-                        const timeHtml = (function(){
-                            const gt = liveGame.game_time;
-                            if (!gt) return '';
-                            if (gt.includes('T') || gt.includes('Z')) {
-                                const ct = isoToCtDisplay(gt);
-                                return ct ? `<div class="game-time">${ct}</div>` : '';
-                            }
-                            return `<div class="game-time">${gt}</div>`;
-                        })();
+                        // Non-live: always show scheduled CT time when known, plus status pill
+                        const ct = computeDisplayStartTimeCT(liveGame);
+                        const timeHtml = ct ? `<div class="game-time scheduled">${ct}</div>` : '';
                         headerCenter.innerHTML = `${timeHtml}<span class="game-status-badge badge-${liveGame.badge_class}">${liveGame.status}</span>`;
                     }
                 }
@@ -1913,43 +1945,11 @@
                 is_final: false
             };
             
-            // Format game time - only show for scheduled games
+            // Format game time - show scheduled time in CT when not live/final
             let displayTime = '';
             let displayStatus = liveStatus.status;
-            
-            // Only show time for scheduled games (not live or final)
             if (!liveStatus.is_live && !liveStatus.is_final) {
-                // First, try to use the already-formatted time from live_status
-                if (liveStatus.game_time && liveStatus.game_time !== 'TBD' && 
-                    !liveStatus.game_time.includes('T') && !liveStatus.game_time.includes('Z')) {
-                    // This is already a formatted time like "7:10 PM"
-                    displayTime = liveStatus.game_time;
-                } 
-                // Otherwise, try to convert the raw game time
-                else if (game.game_time && game.game_time !== 'TBD') {
-                    try {
-                        // Handle ISO or meridian strings like "10:45 PM ET"
-                        let gameTimeString = game.game_time;
-                        console.log('🕐 Processing game time:', gameTimeString);
-                        if (/^(\d{1,2}):(\d{2})\s*(AM|PM)\s*ET$/i.test(gameTimeString)) {
-                            displayTime = etToCtDisplay(gameTimeString);
-                            console.log('✅ ET string converted to:', displayTime);
-                        } else if (/(T|Z)/.test(gameTimeString)) {
-                            displayTime = isoToCtDisplay(gameTimeString) || 'TBD';
-                            console.log('✅ ISO time converted to CT:', displayTime);
-                        } else if (/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.test(gameTimeString)) {
-                            // Already a meridian string without TZ; display as-is
-                            displayTime = gameTimeString.trim();
-                            console.log('ℹ️ Using provided meridian string:', displayTime);
-                        } else {
-                            console.error('❌ Unrecognized time format:', gameTimeString);
-                            displayTime = 'TBD';
-                        }
-                    } catch (error) {
-                        console.error('❌ Error converting game time:', error);
-                        displayTime = 'TBD';
-                    }
-                }
+                displayTime = computeDisplayStartTimeCT(game) || '';
             }
             
             // For live games, enhance status with inning info if available
@@ -2051,7 +2051,7 @@
                                 ${liveStatus.last_play ? `<div class=\"last-play-line\">${liveStatus.last_play}</div>` : ''}
                             </div>
                         ` : `
-                            ${displayTime ? `<div class=\"game-time\">${displayTime}</div>` : ''}
+                            ${displayTime ? `<div class=\"game-time scheduled\">${displayTime}</div>` : ''}
                             <span class=\"game-status-badge badge-${liveStatus.badge_class}\">${displayStatus}</span>
                             ${game.doubleheader ? `<span class=\"game-status-badge badge-scheduled\" title=\"Doubleheader\">DH G${game.doubleheader_game_number || 1}</span>` : ''}
                         `}

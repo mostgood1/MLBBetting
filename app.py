@@ -6092,6 +6092,9 @@ def api_pitcher_props_unified():
         t_loop = time.time()
         proj_time_acc = 0.0
         ev_time_acc = 0.0
+        # Track usage of precomputed projections from recommendations
+        precomp_hits = 0
+        precomp_misses = 0
         # Use the same unioned markets in the full path to prevent duplicate overwrites
         keys_iter_full = list(grouped_markets_by_nk.keys())
         for norm_key in keys_iter_full:
@@ -6112,9 +6115,17 @@ def api_pitcher_props_unified():
                         st['player_id'] = pid
                 except Exception:
                     pass
-            t_proj = time.time()
-            proj = (_get_projection(norm_key, st, opponent, mkts) if (st and _proj_available) else {})
-            proj_time_acc += (time.time() - t_proj)
+            # Prefer precomputed projections from recommendations when available
+            rec_for_pitcher = (recs_by_pitcher_norm.get(norm_key) if isinstance(recs_by_pitcher_norm, dict) else None) or (recs_by_pitcher.get(norm_key) if isinstance(recs_by_pitcher, dict) else None)
+            rec_proj = (rec_for_pitcher.get('projections') if isinstance(rec_for_pitcher, dict) else None)
+            if isinstance(rec_proj, dict) and rec_proj:
+                proj = rec_proj
+                precomp_hits += 1
+            else:
+                t_proj = time.time()
+                proj = (_get_projection(norm_key, st, opponent, mkts) if (st and _proj_available) else {})
+                proj_time_acc += (time.time() - t_proj)
+                precomp_misses += 1
             markets_out = {}
 
             augmented_mkts = dict(mkts)
@@ -6198,7 +6209,7 @@ def api_pitcher_props_unified():
                         pass
                 markets_out[market_key] = entry
 
-            rec = recs_by_pitcher.get(norm_key)
+            rec = rec_for_pitcher or recs_by_pitcher.get(norm_key)
             primary_play = None
             plays_all = None
             try:
@@ -6339,10 +6350,18 @@ def api_pitcher_props_unified():
                         # If allow_fallback=1, relax this so we can synthesize entries when schedule/team map is missing.
                         if (not using_fallback_props) and (not team_info.get('team')) and (not allow_fallback):
                             continue
-                        # Compute projections if available
-                        t_proj = time.time()
-                        proj = (_get_projection(nk, (st if st else {'name': nk, 'team': team_info.get('team')}), opponent, (last_known_pitchers.get(nk, {}) or {})) if _proj_available else {})
-                        proj_time_acc += (time.time() - t_proj)
+                        # Prefer precomputed projections from recommendations when available
+                        rec_for_pitcher = (recs_by_pitcher_norm.get(nk) if isinstance(recs_by_pitcher_norm, dict) else None) or (recs_by_pitcher.get(nk) if isinstance(recs_by_pitcher, dict) else None)
+                        rec_proj = (rec_for_pitcher.get('projections') if isinstance(rec_for_pitcher, dict) else None)
+                        if isinstance(rec_proj, dict) and rec_proj:
+                            proj = rec_proj
+                            precomp_hits += 1
+                        else:
+                            # Compute projections if available
+                            t_proj = time.time()
+                            proj = (_get_projection(nk, (st if st else {'name': nk, 'team': team_info.get('team')}), opponent, (last_known_pitchers.get(nk, {}) or {})) if _proj_available else {})
+                            proj_time_acc += (time.time() - t_proj)
+                            precomp_misses += 1
                         lines_map = last_known_pitchers.get(nk, {}) if isinstance(last_known_pitchers, dict) else {}
                         # Build markets from lines_map; include EV/Kelly when proj available
                         markets_out = {}
@@ -6507,9 +6526,17 @@ def api_pitcher_props_unified():
                                 st['player_id'] = pid
                         except Exception:
                             pass
-                    t_proj = time.time()
-                    proj = (_get_projection(nk, st, opponent, {}) if (st and _proj_available) else {})
-                    proj_time_acc += (time.time() - t_proj)
+                    # Prefer precomputed projections from recommendations when available
+                    rec_for_pitcher = (recs_by_pitcher_norm.get(nk) if isinstance(recs_by_pitcher_norm, dict) else None) or (recs_by_pitcher.get(nk) if isinstance(recs_by_pitcher, dict) else None)
+                    rec_proj = (rec_for_pitcher.get('projections') if isinstance(rec_for_pitcher, dict) else None)
+                    if isinstance(rec_proj, dict) and rec_proj:
+                        proj = rec_proj
+                        precomp_hits += 1
+                    else:
+                        t_proj = time.time()
+                        proj = (_get_projection(nk, st, opponent, {}) if (st and _proj_available) else {})
+                        proj_time_acc += (time.time() - t_proj)
+                        precomp_misses += 1
                     display_name = (st.get('name') if isinstance(st, dict) else None) or pname
                     try:
                         if isinstance(display_name, str):
@@ -6667,6 +6694,10 @@ def api_pitcher_props_unified():
                 'scheduled_pitchers': scheduled_pitchers,
                 'pitchers_with_lines_today': pitchers_with_lines_today,
                 'include_noline': include_noline,
+                'precomputed_projections': {
+                    'hits': precomp_hits,
+                    'misses': precomp_misses
+                },
                 'projection_cache': {
                     'hits': proj_stats['hits'],
                     'misses': proj_stats['misses'],
