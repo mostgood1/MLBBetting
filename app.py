@@ -5326,6 +5326,86 @@ def api_pitcher_props_unified():
         except Exception:
             grouped_markets_by_nk = {}
 
+        # If today's props file has zero usable lines but allow_fallback=1, try the most recent
+        # previous Bovada file with any line-bearing markets and use that instead. This prevents
+        # the UI from showing 0 markets when the daily pull produced empty shells.
+        try:
+            _total_lines = sum(len(v or {}) for v in grouped_markets_by_nk.values())
+        except Exception:
+            _total_lines = 0
+        try:
+            if (_total_lines == 0) and (request.args.get('allow_fallback') == '1') and os.path.isdir(base_dir):
+                cand_files = sorted(
+                    [os.path.join(base_dir, f) for f in os.listdir(base_dir) if f.startswith('bovada_pitcher_props_') and f.endswith('.json')],
+                    key=lambda p: os.path.getmtime(p),
+                    reverse=True
+                )
+                for fp in cand_files:
+                    # Skip the current requested file path if present to avoid re-reading the same empty data
+                    try:
+                        if os.path.abspath(fp) == os.path.abspath(props_path):
+                            continue
+                    except Exception:
+                        pass
+                    try:
+                        with open(fp, 'r', encoding='utf-8') as f:
+                            doc = json.load(f)
+                        cand_props = doc.get('pitcher_props', {}) if isinstance(doc, dict) else {}
+                        # Build grouped map for candidate file
+                        cand_grouped = {}
+                        for raw_key, mkts in (cand_props or {}).items():
+                            try:
+                                name_only = str(raw_key).split('(')[0].strip()
+                                nk = normalize_name(name_only)
+                                if not nk:
+                                    continue
+                                bucket = cand_grouped.get(nk)
+                                if bucket is None:
+                                    bucket = {}
+                                    cand_grouped[nk] = bucket
+                                for mk, info in (mkts or {}).items():
+                                    if not isinstance(info, dict):
+                                        continue
+                                    line_val = info.get('line')
+                                    if line_val is None:
+                                        continue
+                                    if mk not in bucket:
+                                        bucket[mk] = {
+                                            'line': line_val,
+                                            'over_odds': info.get('over_odds'),
+                                            'under_odds': info.get('under_odds')
+                                        }
+                                    else:
+                                        ex = bucket.get(mk) or {}
+                                        if ex.get('over_odds') is None and info.get('over_odds') is not None:
+                                            ex['over_odds'] = info.get('over_odds')
+                                        if ex.get('under_odds') is None and info.get('under_odds') is not None:
+                                            ex['under_odds'] = info.get('under_odds')
+                            except Exception:
+                                continue
+                        cand_total = sum(len(v or {}) for v in cand_grouped.values()) if cand_grouped else 0
+                        if cand_total > 0:
+                            pitcher_props = cand_props
+                            props_doc = doc
+                            grouped_markets_by_nk = cand_grouped
+                            source_file = fp
+                            # Extract date from filename: bovada_pitcher_props_YYYY_MM_DD.json
+                            try:
+                                import re
+                                m = re.search(r"bovada_pitcher_props_(\d{4})_(\d{2})_(\d{2})\.json$", fp.replace('\\', '/'))
+                                if m:
+                                    source_date = f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+                            except Exception:
+                                pass
+                            using_fallback_props = True
+                            logger.warning(f"[UNIFIED] Today's props have zero markets; using fallback Bovada file {fp}")
+                            break
+                    except Exception:
+                        continue
+                # If no candidate improved, keep empty grouped but mark as not using fallback
+        except Exception as _e:
+            logger.warning(f"[UNIFIED] Fallback scan for zero-market props failed: {_e}")
+
         # Optional fallback: only when explicitly requested via allow_fallback=1
         try:
             if (not pitcher_props) and (request.args.get('allow_fallback') == '1'):
@@ -5698,7 +5778,9 @@ def api_pitcher_props_unified():
             merged = {}
             _synthesized = False
             # Iterate by normalized key with unioned markets to avoid duplicate overwrites
-            keys_iter = list(grouped_markets_by_nk.keys()) or [normalize_name(str(rk).split('(')[0].strip()) for rk in pitcher_props.keys()]
+            # Only iterate pitchers who actually have at least one line-bearing market in the grouped map.
+            # If none exist, we'll hit the synthesis block below.
+            keys_iter = list(grouped_markets_by_nk.keys())
             for norm_key in keys_iter:
                 name_only = norm_key.replace('_',' ')
                 mkts = grouped_markets_by_nk.get(norm_key, {})
@@ -5967,7 +6049,7 @@ def api_pitcher_props_unified():
         merged = {}
         t_loop = time.time()
         # Use the same unioned markets in the full path to prevent duplicate overwrites
-        keys_iter_full = list(grouped_markets_by_nk.keys()) or [normalize_name(str(rk).split('(')[0].strip()) for rk in pitcher_props.keys()]
+        keys_iter_full = list(grouped_markets_by_nk.keys())
         for norm_key in keys_iter_full:
             name_only = norm_key.replace('_',' ')
             mkts = grouped_markets_by_nk.get(norm_key, {})
@@ -6121,8 +6203,7 @@ def api_pitcher_props_unified():
                             'over_odds': over_odds,
                             'under_odds': under_odds
                         }
-                        if (best is None) or (k > (best.get('kelly_fraction') or 0)) or (k == (best.get('kelly_fraction') or 0) and abs((edge or 0)) > abs((best.get('edge') or 0))):
-                            best = cand
+                        best = cand
                     primary_play = best
                 except Exception:
                     primary_play = None
