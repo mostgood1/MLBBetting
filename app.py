@@ -389,14 +389,14 @@ def _warm_caches_async():
                 # tiny delay to ensure server fully initialized
                 time.sleep(1.5)
                 date_str = get_business_date()
-                # Warm unified
-                with app.test_request_context(f"/api/pitcher-props/unified?date={date_str}"):
+                # Warm unified (strict today, skip projection-only)
+                with app.test_request_context(f"/api/pitcher-props/unified?strict_today=1&include_noline=0&date={date_str}"):
                     try:
                         api_pitcher_props_unified()
                     except Exception:
                         pass
                 # Also warm the lightweight cache explicitly for fast first paint
-                with app.test_request_context(f"/api/pitcher-props/unified?light=1&date={date_str}"):
+                with app.test_request_context(f"/api/pitcher-props/unified?light=1&strict_today=1&date={date_str}"):
                     try:
                         api_pitcher_props_unified()
                     except Exception:
@@ -493,14 +493,23 @@ def api_warm():
             ))
 
             if not quick_only_inner:
-                # Warm unified pitcher props
+                # Warm unified pitcher props (strict schedule, skip projection-only bundles)
                 _time_step('pitcher-props-unified', lambda: _call_with_path(
-                    f"/api/pitcher-props/unified?strict_today=1&date={date_str_inner}", api_pitcher_props_unified
+                    f"/api/pitcher-props/unified?strict_today=1&include_noline=0&date={date_str_inner}", api_pitcher_props_unified
                 ))
                 # Warm unified pitcher props (light) for Spotlight/initial paint
                 _time_step('pitcher-props-unified-light', lambda: _call_with_path(
                     f"/api/pitcher-props/unified?light=1&strict_today=1&date={date_str_inner}", api_pitcher_props_unified
                 ))
+                # Optional: if warm_noline=1, also warm projection-only path
+                try:
+                    warm_noline = (request.args.get('warm_noline') == '1')
+                except Exception:
+                    warm_noline = False
+                if warm_noline:
+                    _time_step('pitcher-props-unified-noline', lambda: _call_with_path(
+                        f"/api/pitcher-props/unified?strict_today=1&include_noline=1&date={date_str_inner}", api_pitcher_props_unified
+                    ))
                 # Warm full today-games (heavier)
                 _time_step('today-games', lambda: _call_with_path(
                     f"/api/today-games?date={date_str_inner}", api_today_games
@@ -5142,8 +5151,51 @@ def api_pitcher_props_unified():
         allow_fallback = request.args.get('allow_fallback') in ('1','true','yes')
         strict_today = request.args.get('strict_today') in ('1','true','yes')
         want_timings = request.args.get('timings') in ('1','true','yes')
+        # Skip expensive projection-only bundles for pitchers with no lines unless explicitly requested
+        include_noline = request.args.get('include_noline') in ('1','true','yes')
         t0 = time.time()
         timings = {}
+        # Per-date projection memoization (avoids recomputing project_pitcher repeatedly)
+        # Use a simple OrderedDict LRU per date with a bounded size
+        from collections import OrderedDict
+        global _PROJ_MEMO, _PROJ_MEMO_MAX
+        if '_PROJ_MEMO' not in globals():
+            _PROJ_MEMO = {}
+        if '_PROJ_MEMO_MAX' not in globals():
+            # Default max entries per-date for projection cache (can tune via env)
+            try:
+                _PROJ_MEMO_MAX = int(os.environ.get('PROJ_MEMO_MAX', '2000'))
+            except Exception:
+                _PROJ_MEMO_MAX = 2000
+        if date_str not in _PROJ_MEMO or not isinstance(_PROJ_MEMO.get(date_str), OrderedDict):
+            _PROJ_MEMO[date_str] = OrderedDict()
+        proj_cache = _PROJ_MEMO[date_str]
+        proj_stats = {'hits': 0, 'misses': 0}
+
+        def _proj_cache_get(key):
+            try:
+                if key in proj_cache:
+                    # move to end as most-recently used
+                    val = proj_cache.pop(key)
+                    proj_cache[key] = val
+                    return val
+            except Exception:
+                pass
+            return None
+
+        def _proj_cache_put(key, value):
+            try:
+                if key in proj_cache:
+                    proj_cache.pop(key, None)
+                proj_cache[key] = value
+                # Enforce LRU size cap
+                while len(proj_cache) > max(200, int(_PROJ_MEMO_MAX)):
+                    try:
+                        proj_cache.popitem(last=False)
+                    except Exception:
+                        break
+            except Exception:
+                pass
 
         # Cache
         global _UNIFIED_PITCHER_CACHE
@@ -5246,6 +5298,44 @@ def api_pitcher_props_unified():
                 logger.warning(f"[UNIFIED] Projection module unavailable, serving lines-only payload: {_imp_err}")
                 _proj_available = False
                 project_pitcher = build_team_map = compute_ev = kelly_fraction = None  # type: ignore
+
+        # Helper to compute a stable fingerprint of the lines dict for cache keying
+        def _lines_fingerprint(lines_map: dict | None) -> str:
+            try:
+                if not isinstance(lines_map, dict) or not lines_map:
+                    return 'none'
+                items = []
+                for mk, info in sorted(lines_map.items()):
+                    if not isinstance(info, dict):
+                        continue
+                    ln = info.get('line')
+                    oo = info.get('over_odds')
+                    uo = info.get('under_odds')
+                    items.append((mk, ln, oo, uo))
+                return json.dumps(items, sort_keys=True)
+            except Exception:
+                return 'none'
+
+        # Wrapper to memoize projection calls per date/pitcher/opponent/lines
+        def _get_projection(nk: str, stats_obj: dict, opponent: Optional[str], lines_map: Optional[dict]):
+            if not _proj_available:
+                return {}
+            try:
+                opp_key = (opponent or '').strip().lower()
+                fp = _lines_fingerprint(lines_map)
+                cache_key = (nk, opp_key, fp)
+                hit = _proj_cache_get(cache_key)
+                if isinstance(hit, dict):
+                    proj_stats['hits'] += 1
+                    return hit
+                t1 = time.time()
+                out = project_pitcher(nk, stats_obj, opponent, lines=lines_map)  # type: ignore[arg-type]
+                if isinstance(out, dict):
+                    _proj_cache_put(cache_key, out)
+                proj_stats['misses'] += 1
+                return out
+            except Exception:
+                return {}
 
         base_dir = os.path.join('data', 'daily_bovada')
         props_path = os.path.join(base_dir, f'bovada_pitcher_props_{safe_date}.json')
@@ -6000,6 +6090,8 @@ def api_pitcher_props_unified():
 
         merged = {}
         t_loop = time.time()
+        proj_time_acc = 0.0
+        ev_time_acc = 0.0
         # Use the same unioned markets in the full path to prevent duplicate overwrites
         keys_iter_full = list(grouped_markets_by_nk.keys())
         for norm_key in keys_iter_full:
@@ -6020,7 +6112,9 @@ def api_pitcher_props_unified():
                         st['player_id'] = pid
                 except Exception:
                     pass
-            proj = (project_pitcher(norm_key, st, opponent, lines=mkts) if (st and _proj_available) else {})
+            t_proj = time.time()
+            proj = (_get_projection(norm_key, st, opponent, mkts) if (st and _proj_available) else {})
+            proj_time_acc += (time.time() - t_proj)
             markets_out = {}
 
             augmented_mkts = dict(mkts)
@@ -6081,6 +6175,7 @@ def api_pitcher_props_unified():
                 }
                 if _proj_available and (proj_val is not None):
                     try:
+                        t_ev = time.time()
                         p_over, ev_over, ev_under = compute_ev(proj_val, line_val, market_key, over_odds, under_odds, norm_key)
                         edge = proj_val - line_val
                         k_over = k_under = 0.0
@@ -6097,6 +6192,7 @@ def api_pitcher_props_unified():
                             'kelly_over': round(k_over, 4),
                             'kelly_under': round(k_under, 4)
                         })
+                        ev_time_acc += (time.time() - t_ev)
                     except Exception:
                         # If EV/Kelly calculation fails, still return the base line/odds
                         pass
@@ -6244,7 +6340,9 @@ def api_pitcher_props_unified():
                         if (not using_fallback_props) and (not team_info.get('team')) and (not allow_fallback):
                             continue
                         # Compute projections if available
-                        proj = (project_pitcher(nk, st if st else {'name': nk, 'team': team_info.get('team')}, opponent, lines=(last_known_pitchers.get(nk, {}) or {})) if _proj_available else {})
+                        t_proj = time.time()
+                        proj = (_get_projection(nk, (st if st else {'name': nk, 'team': team_info.get('team')}), opponent, (last_known_pitchers.get(nk, {}) or {})) if _proj_available else {})
+                        proj_time_acc += (time.time() - t_proj)
                         lines_map = last_known_pitchers.get(nk, {}) if isinstance(last_known_pitchers, dict) else {}
                         # Build markets from lines_map; include EV/Kelly when proj available
                         markets_out = {}
@@ -6272,6 +6370,7 @@ def api_pitcher_props_unified():
                                 }
                                 if _proj_available and (proj_val is not None):
                                     try:
+                                        t_ev = time.time()
                                         p_over, ev_over, ev_under = compute_ev(proj_val, line_val, mk, over_odds, under_odds, nk)
                                         edge = proj_val - line_val
                                         k_over = k_under = 0.0
@@ -6288,6 +6387,7 @@ def api_pitcher_props_unified():
                                             'kelly_over': round(k_over, 4),
                                             'kelly_under': round(k_under, 4)
                                         })
+                                        ev_time_acc += (time.time() - t_ev)
                                     except Exception:
                                         pass
                                 markets_out[mk] = entry
@@ -6390,59 +6490,63 @@ def api_pitcher_props_unified():
                         if home:
                             yield home
 
-            for pname in _iter_game_pitchers(games_doc):
-                nk = normalize_name(pname)
-                if nk in merged:
-                    continue
-                st = stats_by_name.get(nk, {})
-                team_info = (team_map.get(nk, {'team': None, 'opponent': None}) if _proj_available else {'team': None, 'opponent': None})
-                opponent = team_info.get('opponent') if _proj_available else None
-                if not st:
-                    st = {'name': pname, 'team': team_info.get('team')}
+            # Skip computing projections for pitchers with no lines unless explicitly requested via include_noline=1
+            if include_noline:
+                for pname in _iter_game_pitchers(games_doc):
+                    nk = normalize_name(pname)
+                    if nk in merged:
+                        continue
+                    st = stats_by_name.get(nk, {})
+                    team_info = (team_map.get(nk, {'team': None, 'opponent': None}) if _proj_available else {'team': None, 'opponent': None})
+                    opponent = team_info.get('opponent') if _proj_available else None
+                    if not st:
+                        st = {'name': pname, 'team': team_info.get('team')}
+                        try:
+                            pid = _resolve_player_id_by_name(pname)
+                            if pid:
+                                st['player_id'] = pid
+                        except Exception:
+                            pass
+                    t_proj = time.time()
+                    proj = (_get_projection(nk, st, opponent, {}) if (st and _proj_available) else {})
+                    proj_time_acc += (time.time() - t_proj)
+                    display_name = (st.get('name') if isinstance(st, dict) else None) or pname
                     try:
-                        pid = _resolve_player_id_by_name(pname)
-                        if pid:
-                            st['player_id'] = pid
+                        if isinstance(display_name, str):
+                            display_name = ' '.join([w.capitalize() if not w.isupper() else w for w in display_name.split()])
                     except Exception:
                         pass
-                proj = (project_pitcher(nk, st, opponent, lines={}) if (st and _proj_available) else {})
-                display_name = (st.get('name') if isinstance(st, dict) else None) or pname
-                try:
-                    if isinstance(display_name, str):
-                        display_name = ' '.join([w.capitalize() if not w.isupper() else w for w in display_name.split()])
-                except Exception:
-                    pass
-                original_id = (st.get('player_id') if isinstance(st, dict) else None) or (st.get('id') if isinstance(st, dict) else None)
-                mlb_player_id = None
-                try:
-                    mlb_player_id = _resolve_player_id_by_name(display_name)
-                except Exception:
+                    original_id = (st.get('player_id') if isinstance(st, dict) else None) or (st.get('id') if isinstance(st, dict) else None)
                     mlb_player_id = None
-                headshot_url = None
-                use_id_for_photo = mlb_player_id or original_id
-                if use_id_for_photo:
-                    headshot_url = f"https://img.mlbstatic.com/mlb-photos/image/upload/w_120,q_auto:best/v1/people/{use_id_for_photo}/headshot/67/current"
-                team_name_for_logo = team_info.get('team')
-                team_logo = get_team_logo_url(team_name_for_logo) if team_name_for_logo else None
-                opponent_logo = get_team_logo_url(opponent) if opponent else None
-                merged[nk] = {
-                    'raw_key': pname,
-                    'display_name': display_name,
-                    'player_id': original_id,
-                    'mlb_player_id': mlb_player_id,
-                    'headshot_url': headshot_url,
-                    'team_logo': team_logo,
-                    'opponent_logo': opponent_logo,
-                    'lines': {},
-                    'simple_projection': proj,
-                    'markets': {},
-                    'plays': None,
-                    'team': team_name_for_logo,
-                    'opponent': opponent,
-                    'normalized': nk,
-                    'pitch_count': proj.get('pitch_count') if proj else None,
-                    'live_pitches': ((live_box.get(nk, {}) or {}).get('pitches') if (nk in live_pitchers) else None)
-                }
+                    try:
+                        mlb_player_id = _resolve_player_id_by_name(display_name)
+                    except Exception:
+                        mlb_player_id = None
+                    headshot_url = None
+                    use_id_for_photo = mlb_player_id or original_id
+                    if use_id_for_photo:
+                        headshot_url = f"https://img.mlbstatic.com/mlb-photos/image/upload/w_120,q_auto:best/v1/people/{use_id_for_photo}/headshot/67/current"
+                    team_name_for_logo = team_info.get('team')
+                    team_logo = get_team_logo_url(team_name_for_logo) if team_name_for_logo else None
+                    opponent_logo = get_team_logo_url(opponent) if opponent else None
+                    merged[nk] = {
+                        'raw_key': pname,
+                        'display_name': display_name,
+                        'player_id': original_id,
+                        'mlb_player_id': mlb_player_id,
+                        'headshot_url': headshot_url,
+                        'team_logo': team_logo,
+                        'opponent_logo': opponent_logo,
+                        'lines': {},
+                        'simple_projection': proj,
+                        'markets': {},
+                        'plays': None,
+                        'team': team_name_for_logo,
+                        'opponent': opponent,
+                        'normalized': nk,
+                        'pitch_count': proj.get('pitch_count') if proj else None,
+                        'live_pitches': ((live_box.get(nk, {}) or {}).get('pitches') if (nk in live_pitchers) else None)
+                    }
         except Exception:
             pass
 
@@ -6537,6 +6641,16 @@ def api_pitcher_props_unified():
         except Exception:
             pass
 
+        # Compute helpful counts
+        try:
+            scheduled_pitchers = len(allowed_nks) if allowed_nks else 0
+        except Exception:
+            scheduled_pitchers = 0
+        try:
+            pitchers_with_lines_today = sum(1 for _, mkts in (grouped_markets_by_nk or {}).items() if isinstance(mkts, dict) and any(isinstance(v, dict) and v.get('line') is not None for v in mkts.values()))
+        except Exception:
+            pitchers_with_lines_today = 0
+
         payload = {
             'success': True,
             'date': date_str,
@@ -6549,7 +6663,16 @@ def api_pitcher_props_unified():
                 'source_file': source_file,
                 'allow_fallback': allow_fallback,
                 'using_fallback_props': using_fallback_props,
-                'strict_today': strict_today
+                'strict_today': strict_today,
+                'scheduled_pitchers': scheduled_pitchers,
+                'pitchers_with_lines_today': pitchers_with_lines_today,
+                'include_noline': include_noline,
+                'projection_cache': {
+                    'hits': proj_stats['hits'],
+                    'misses': proj_stats['misses'],
+                    'size': len(proj_cache) if isinstance(proj_cache, dict) else None,
+                    'max': int(_PROJ_MEMO_MAX) if '_PROJ_MEMO_MAX' in globals() else None
+                }
             },
             'data': merged
         }
@@ -6624,6 +6747,8 @@ def api_pitcher_props_unified():
             payload['data'] = slim_data
             payload['meta']['light_mode'] = True
         timings['assemble_payload'] = round(time.time()-t_post,3)
+        timings['projection_time_ms'] = int(proj_time_acc * 1000)
+        timings['ev_time_ms'] = int(ev_time_acc * 1000)
         timings['total'] = round(time.time()-t0,3)
         if want_timings:
             payload['meta']['timings'] = timings
@@ -6823,6 +6948,56 @@ def api_health_unified_meta():
                         'last_known_file': last_known_path, 'last_known_exists': exists_last, 'last_known_size': size_last})
     except Exception as e:
         return jsonify({'ok': False, 'error': str(e)}), 500
+
+    @app.route('/api/admin/proj-cache', methods=['GET','POST'])
+    def api_admin_proj_cache():
+        """Inspect or clear the per-date projection memo cache.
+        GET: returns stats (dates, sizes, max, total)
+        POST: actions via JSON/body args: { action: 'clear'|'clear_all', date: 'YYYY-MM-DD' }
+        Optional env ADMIN_TOKEN to require X-Admin-Token header.
+        """
+        try:
+            admin_token = os.environ.get('ADMIN_TOKEN')
+            if admin_token:
+                hdr = request.headers.get('X-Admin-Token')
+                if hdr != admin_token:
+                    return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+            global _PROJ_MEMO, _PROJ_MEMO_MAX
+            from collections import OrderedDict
+            if request.method == 'POST':
+                try:
+                    data = request.get_json(silent=True) or {}
+                except Exception:
+                    data = {}
+                action = (data.get('action') or request.form.get('action') or '').lower()
+                date = data.get('date') or request.form.get('date')
+                if action == 'clear_all':
+                    _PROJ_MEMO = {}
+                    return jsonify({'success': True, 'cleared': 'all'})
+                elif action == 'clear':
+                    if date and date in (_PROJ_MEMO or {}):
+                        try:
+                            _PROJ_MEMO.pop(date, None)
+                        except Exception:
+                            pass
+                        return jsonify({'success': True, 'cleared': date})
+                    return jsonify({'success': False, 'error': 'date not found'}), 404
+            # GET stats
+            stats = {
+                'max_per_date': int(_PROJ_MEMO_MAX) if '_PROJ_MEMO_MAX' in globals() else None,
+                'dates': {},
+                'total_entries': 0
+            }
+            for d, od in (_PROJ_MEMO or {}).items():
+                try:
+                    sz = len(od) if isinstance(od, OrderedDict) else (len(od) if isinstance(od, dict) else 0)
+                except Exception:
+                    sz = 0
+                stats['dates'][d] = {'size': sz}
+                stats['total_entries'] += sz
+            return jsonify({'success': True, 'stats': stats})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/pitcher-game-synergy')
 def api_pitcher_game_synergy():
