@@ -1,0 +1,51 @@
+{
+  "date": "2025-09-21",
+  "retrieved_at": "2025-09-21T02:13:08.191768",
+  "pitcher_props": {
+    "kai-wei teng": {
+      "outs": {
+        "line": 11.5,
+        "over_odds": "105",
+        "under_odds": "-135",
+        "_src": "oddsapi"
+      },
+      "strikeouts": {
+        "line": 6.5,
+        "over_odds": "145",
+        "under_odds": "-188",
+        "_src": "oddsapi"
+      }
+    },
+    "jake irvin": {
+      "outs": {
+        "line": 15.5,
+        "over_odds": "123",
+        "under_odds": "-163",
+        "_src": "oddsapi"
+      },
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": "100",
+        "under_odds": "-128",
+        "_src": "oddsapi"
+      }
+    },
+    "sean manaea": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": "101",
+        "under_odds": "-129",
+        "_src": "oddsapi"
+      }
+    }
+  },
+  "meta": {
+    "markets": [
+      "pitcher_strikeouts",
+      "pitcher_outs"
+    ],
+    "regions": "us",
+    "bookmakers": null,
+    "include_completed": true
+  }
+}

@@ -1,0 +1,1282 @@
+{
+  "date": "2025-09-21",
+  "retrieved_at": "2025-09-21T14:08:49.137291",
+  "pitcher_props": {
+    "mike burrows": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -110,
+        "under_odds": -120
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -900
+        },
+        {
+          "threshold": 4,
+          "odds": -300
+        },
+        {
+          "threshold": 6,
+          "odds": 175
+        },
+        {
+          "threshold": 7,
+          "odds": 350
+        },
+        {
+          "threshold": 8,
+          "odds": 700
+        },
+        {
+          "threshold": 9,
+          "odds": 1400
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 120,
+        "under_odds": -160
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -160,
+        "under_odds": 120
+      }
+    },
+    "mitch spence": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": -130,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -390
+        },
+        {
+          "threshold": 5,
+          "odds": 180
+        },
+        {
+          "threshold": 6,
+          "odds": 410
+        },
+        {
+          "threshold": 7,
+          "odds": 850
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -150,
+        "under_odds": 110
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 115,
+        "under_odds": -155
+      }
+    },
+    "cam schlittler": {
+      "strikeouts": {
+        "line": 6.5,
+        "over_odds": 120,
+        "under_odds": -160
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -1800
+        },
+        {
+          "threshold": 5,
+          "odds": -470
+        },
+        {
+          "threshold": 6,
+          "odds": -205
+        },
+        {
+          "threshold": 8,
+          "odds": 215
+        },
+        {
+          "threshold": 9,
+          "odds": 425
+        },
+        {
+          "threshold": 10,
+          "odds": 850
+        },
+        {
+          "threshold": 11,
+          "odds": 1600
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -120,
+        "under_odds": -120
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": 115,
+        "under_odds": -155
+      }
+    },
+    "kyle bradish": {
+      "strikeouts": {
+        "line": 6.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -1200
+        },
+        {
+          "threshold": 5,
+          "odds": -400
+        },
+        {
+          "threshold": 6,
+          "odds": -150
+        },
+        {
+          "threshold": 8,
+          "odds": 250
+        },
+        {
+          "threshold": 9,
+          "odds": 500
+        },
+        {
+          "threshold": 10,
+          "odds": 1000
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 115,
+        "under_odds": -155
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 115,
+        "under_odds": -155
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": 125,
+        "under_odds": -165
+      }
+    },
+    "casey mize": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": 115,
+        "under_odds": -150
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -750
+        },
+        {
+          "threshold": 4,
+          "odds": -250
+        },
+        {
+          "threshold": 6,
+          "odds": 225
+        },
+        {
+          "threshold": 7,
+          "odds": 460
+        },
+        {
+          "threshold": 8,
+          "odds": 950
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 140,
+        "under_odds": -180
+      },
+      "outs": {
+        "line": 16.5,
+        "over_odds": -125,
+        "under_odds": -115
+      }
+    },
+    "spencer strider": {
+      "strikeouts": {
+        "line": 6.5,
+        "over_odds": -120,
+        "under_odds": -110
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -2000
+        },
+        {
+          "threshold": 5,
+          "odds": -550
+        },
+        {
+          "threshold": 6,
+          "odds": -200
+        },
+        {
+          "threshold": 8,
+          "odds": 190
+        },
+        {
+          "threshold": 9,
+          "odds": 375
+        },
+        {
+          "threshold": 10,
+          "odds": 725
+        },
+        {
+          "threshold": 11,
+          "odds": 1400
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -155,
+        "under_odds": 115
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 120,
+        "under_odds": -160
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": -135,
+        "under_odds": -105
+      }
+    },
+    "andrew abbott": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": 105,
+        "under_odds": -135
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1000
+        },
+        {
+          "threshold": 4,
+          "odds": -280
+        },
+        {
+          "threshold": 6,
+          "odds": 190
+        },
+        {
+          "threshold": 7,
+          "odds": 400
+        },
+        {
+          "threshold": 8,
+          "odds": 800
+        },
+        {
+          "threshold": 9,
+          "odds": 1600
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -170,
+        "under_odds": 130
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": -120,
+        "under_odds": -120
+      },
+      "outs": {
+        "line": 16.5,
+        "over_odds": -110,
+        "under_odds": -130
+      }
+    },
+    "jameson taillon": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": 115,
+        "under_odds": -150
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -900
+        },
+        {
+          "threshold": 4,
+          "odds": -280
+        },
+        {
+          "threshold": 6,
+          "odds": 190
+        },
+        {
+          "threshold": 7,
+          "odds": 400
+        },
+        {
+          "threshold": 8,
+          "odds": 800
+        },
+        {
+          "threshold": 9,
+          "odds": 1600
+        }
+      ],
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": -130,
+        "under_odds": -110
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": -165,
+        "under_odds": 125
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": -125,
+        "under_odds": -115
+      }
+    },
+    "jake irvin": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": null,
+        "under_odds": -130
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -280
+        },
+        {
+          "threshold": 5,
+          "odds": 230
+        },
+        {
+          "threshold": 6,
+          "odds": 525
+        },
+        {
+          "threshold": 7,
+          "odds": 1200
+        }
+      ],
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": -125,
+        "under_odds": -115
+      },
+      "earned_runs": {
+        "line": 3.5,
+        "over_odds": 115,
+        "under_odds": -155
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": 105,
+        "under_odds": -145
+      }
+    },
+    "sean manaea": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -120,
+        "under_odds": -110
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -3500
+        },
+        {
+          "threshold": 4,
+          "odds": -800
+        },
+        {
+          "threshold": 5,
+          "odds": -275
+        },
+        {
+          "threshold": 7,
+          "odds": 175
+        },
+        {
+          "threshold": 8,
+          "odds": 350
+        },
+        {
+          "threshold": 9,
+          "odds": 700
+        },
+        {
+          "threshold": 10,
+          "odds": 1400
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -170,
+        "under_odds": 130
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -135,
+        "under_odds": -105
+      }
+    },
+    "joey cantillo": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -135,
+        "under_odds": 105
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -3500
+        },
+        {
+          "threshold": 4,
+          "odds": -800
+        },
+        {
+          "threshold": 5,
+          "odds": -300
+        },
+        {
+          "threshold": 7,
+          "odds": 150
+        },
+        {
+          "threshold": 8,
+          "odds": 300
+        },
+        {
+          "threshold": 9,
+          "odds": 600
+        },
+        {
+          "threshold": 10,
+          "odds": 1200
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": null,
+        "under_odds": -140
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -180,
+        "under_odds": 140
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": 115,
+        "under_odds": -155
+      }
+    },
+    "simeon woods richardson": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -145,
+        "under_odds": 110
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1400
+        },
+        {
+          "threshold": 4,
+          "odds": -425
+        },
+        {
+          "threshold": 6,
+          "odds": 140
+        },
+        {
+          "threshold": 7,
+          "odds": 280
+        },
+        {
+          "threshold": 8,
+          "odds": 575
+        },
+        {
+          "threshold": 9,
+          "odds": 1200
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -110,
+        "under_odds": -130
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 130,
+        "under_odds": -170
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": 145,
+        "under_odds": -190
+      }
+    },
+    "michael king": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -160,
+        "under_odds": 120
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -3000
+        },
+        {
+          "threshold": 4,
+          "odds": -650
+        },
+        {
+          "threshold": 6,
+          "odds": null
+        },
+        {
+          "threshold": 7,
+          "odds": 205
+        },
+        {
+          "threshold": 8,
+          "odds": 415
+        },
+        {
+          "threshold": 9,
+          "odds": 850
+        },
+        {
+          "threshold": 10,
+          "odds": 1600
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 135,
+        "under_odds": -175
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -150,
+        "under_odds": 110
+      }
+    },
+    "sean burke": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": -150,
+        "under_odds": 115
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -450
+        },
+        {
+          "threshold": 5,
+          "odds": 145
+        },
+        {
+          "threshold": 6,
+          "odds": 320
+        },
+        {
+          "threshold": 7,
+          "odds": 700
+        },
+        {
+          "threshold": 8,
+          "odds": 1500
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -165,
+        "under_odds": 125
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": -120,
+        "under_odds": -120
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -190,
+        "under_odds": 145
+      }
+    },
+    "michael wacha": {
+      "strikeouts": {
+        "line": 2.5,
+        "over_odds": -165,
+        "under_odds": 125
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": 160
+        },
+        {
+          "threshold": 5,
+          "odds": 400
+        },
+        {
+          "threshold": 6,
+          "odds": 900
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -140,
+        "under_odds": null
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 130,
+        "under_odds": -170
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -155,
+        "under_odds": 115
+      }
+    },
+    "trey yesavage": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -110,
+        "under_odds": -120
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1000
+        },
+        {
+          "threshold": 4,
+          "odds": -320
+        },
+        {
+          "threshold": 6,
+          "odds": 175
+        },
+        {
+          "threshold": 7,
+          "odds": 330
+        },
+        {
+          "threshold": 8,
+          "odds": 650
+        },
+        {
+          "threshold": 9,
+          "odds": 1300
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -165,
+        "under_odds": 125
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -130,
+        "under_odds": -110
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": 160,
+        "under_odds": -230
+      }
+    },
+    "matthew liberatore": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": 110,
+        "under_odds": -145
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -270
+        },
+        {
+          "threshold": 5,
+          "odds": 240
+        },
+        {
+          "threshold": 6,
+          "odds": 550
+        },
+        {
+          "threshold": 7,
+          "odds": 1200
+        }
+      ],
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": -110,
+        "under_odds": -130
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": -130,
+        "under_odds": -110
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -175,
+        "under_odds": 135
+      }
+    },
+    "robert gasser": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -230
+        },
+        {
+          "threshold": 4,
+          "odds": 115
+        },
+        {
+          "threshold": 5,
+          "odds": 275
+        },
+        {
+          "threshold": 6,
+          "odds": 600
+        },
+        {
+          "threshold": 7,
+          "odds": 1200
+        }
+      ]
+    },
+    "eury perez": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": 115,
+        "under_odds": -150
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1500
+        },
+        {
+          "threshold": 4,
+          "odds": -480
+        },
+        {
+          "threshold": 5,
+          "odds": -210
+        },
+        {
+          "threshold": 7,
+          "odds": 225
+        },
+        {
+          "threshold": 8,
+          "odds": 450
+        },
+        {
+          "threshold": 9,
+          "odds": 900
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -165,
+        "under_odds": 125
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -180,
+        "under_odds": 140
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": 145,
+        "under_odds": -190
+      }
+    },
+    "merrill kelly": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -105,
+        "under_odds": -125
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -700
+        },
+        {
+          "threshold": 4,
+          "odds": -250
+        },
+        {
+          "threshold": 6,
+          "odds": 205
+        },
+        {
+          "threshold": 7,
+          "odds": 420
+        },
+        {
+          "threshold": 8,
+          "odds": 900
+        }
+      ],
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": 105,
+        "under_odds": -145
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": -135,
+        "under_odds": -105
+      }
+    },
+    "caden dana": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": 120,
+        "under_odds": -160
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -550
+        },
+        {
+          "threshold": 4,
+          "odds": -215
+        },
+        {
+          "threshold": 6,
+          "odds": 240
+        },
+        {
+          "threshold": 7,
+          "odds": 500
+        },
+        {
+          "threshold": 8,
+          "odds": 1050
+        }
+      ],
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": -105,
+        "under_odds": -135
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": -165,
+        "under_odds": 125
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -105,
+        "under_odds": -135
+      }
+    },
+    "kyle freeland": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": 130,
+        "under_odds": -170
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -550
+        },
+        {
+          "threshold": 4,
+          "odds": -215
+        },
+        {
+          "threshold": 5,
+          "odds": 115
+        },
+        {
+          "threshold": 6,
+          "odds": 235
+        },
+        {
+          "threshold": 7,
+          "odds": 475
+        },
+        {
+          "threshold": 8,
+          "odds": 1000
+        }
+      ],
+      "hits_allowed": {
+        "line": 6.5,
+        "over_odds": -105,
+        "under_odds": -135
+      },
+      "earned_runs": {
+        "line": 3.5,
+        "over_odds": 105,
+        "under_odds": -145
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": 120,
+        "under_odds": -160
+      }
+    },
+    "eduardo rodriguez": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -2000
+        },
+        {
+          "threshold": 4,
+          "odds": -490
+        },
+        {
+          "threshold": 5,
+          "odds": -200
+        },
+        {
+          "threshold": 6,
+          "odds": 120
+        },
+        {
+          "threshold": 7,
+          "odds": 240
+        },
+        {
+          "threshold": 8,
+          "odds": 475
+        },
+        {
+          "threshold": 9,
+          "odds": 950
+        }
+      ]
+    },
+    "ranger suarez": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -900
+        },
+        {
+          "threshold": 4,
+          "odds": -275
+        },
+        {
+          "threshold": 5,
+          "odds": -105
+        },
+        {
+          "threshold": 6,
+          "odds": 200
+        },
+        {
+          "threshold": 7,
+          "odds": 400
+        },
+        {
+          "threshold": 8,
+          "odds": 800
+        },
+        {
+          "threshold": 9,
+          "odds": 1600
+        }
+      ]
+    },
+    "trevor mcdonald (r)": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": -120,
+        "under_odds": -110
+      }
+    },
+    "emmet sheehan": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -2000
+        },
+        {
+          "threshold": 5,
+          "odds": -550
+        },
+        {
+          "threshold": 6,
+          "odds": -225
+        },
+        {
+          "threshold": 7,
+          "odds": null
+        },
+        {
+          "threshold": 8,
+          "odds": 190
+        },
+        {
+          "threshold": 9,
+          "odds": 375
+        },
+        {
+          "threshold": 10,
+          "odds": 750
+        },
+        {
+          "threshold": 11,
+          "odds": 1500
+        }
+      ]
+    },
+    "logan gilbert": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -2200
+        },
+        {
+          "threshold": 5,
+          "odds": -600
+        },
+        {
+          "threshold": 6,
+          "odds": -250
+        },
+        {
+          "threshold": 7,
+          "odds": -115
+        },
+        {
+          "threshold": 8,
+          "odds": 165
+        },
+        {
+          "threshold": 9,
+          "odds": 320
+        },
+        {
+          "threshold": 10,
+          "odds": 625
+        },
+        {
+          "threshold": 11,
+          "odds": 1200
+        }
+      ]
+    },
+    "jason alexander": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -800
+        },
+        {
+          "threshold": 4,
+          "odds": -250
+        },
+        {
+          "threshold": 5,
+          "odds": null
+        },
+        {
+          "threshold": 6,
+          "odds": 205
+        },
+        {
+          "threshold": 7,
+          "odds": 430
+        },
+        {
+          "threshold": 8,
+          "odds": 900
+        }
+      ]
+    },
+    "joe boyle": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -135,
+        "under_odds": 105
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -2000
+        },
+        {
+          "threshold": 4,
+          "odds": -470
+        },
+        {
+          "threshold": 6,
+          "odds": 120
+        },
+        {
+          "threshold": 7,
+          "odds": 245
+        },
+        {
+          "threshold": 8,
+          "odds": 500
+        },
+        {
+          "threshold": 9,
+          "odds": 1000
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 110,
+        "under_odds": -150
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 120,
+        "under_odds": -160
+      }
+    },
+    "connelly early": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -1100
+        },
+        {
+          "threshold": 5,
+          "odds": -360
+        },
+        {
+          "threshold": 6,
+          "odds": -145
+        },
+        {
+          "threshold": 7,
+          "odds": 135
+        },
+        {
+          "threshold": 8,
+          "odds": 270
+        },
+        {
+          "threshold": 9,
+          "odds": 550
+        },
+        {
+          "threshold": 10,
+          "odds": 1100
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -130,
+        "under_odds": -110
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 140,
+        "under_odds": -180
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": 145,
+        "under_odds": -190
+      }
+    }
+  }
+}

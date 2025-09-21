@@ -1,0 +1,57 @@
+{
+  "events_count": 30,
+  "sample": [
+    {
+      "event_id": "16050236",
+      "event": "New York Yankees @ Baltimore Orioles",
+      "markets": [
+        "Total Hits, Runs and Errors"
+      ]
+    },
+    {
+      "event_id": "16049065",
+      "event": "Atlanta Braves @ Detroit Tigers",
+      "markets": [
+        "Total Hits, Runs and Errors"
+      ]
+    },
+    {
+      "event_id": "16049858",
+      "event": "Washington Nationals @ New York Mets",
+      "markets": [
+        "Total Hits, Runs and Errors"
+      ]
+    },
+    {
+      "event_id": "16048659",
+      "event": "Cleveland Guardians @ Minnesota Twins",
+      "markets": [
+        "Total Hits, Runs and Errors"
+      ]
+    },
+    {
+      "event_id": "16050038",
+      "event": "San Diego Padres @ Chicago White Sox",
+      "markets": [
+        "Total Runs O/U - Chicago White Sox",
+        "Total Runs O/U - Chicago White Sox",
+        "Chicago White Sox To Score",
+        "Total Hits, Runs and Errors"
+      ]
+    },
+    {
+      "event_id": "16050237",
+      "event": "Toronto Blue Jays @ Kansas City Royals",
+      "markets": [
+        "Total Hits, Runs and Errors"
+      ]
+    },
+    {
+      "event_id": "16049856",
+      "event": "Philadelphia Phillies @ Arizona Diamondbacks",
+      "markets": [
+        "Total Hits, Runs and Errors"
+      ]
+    }
+  ]
+}

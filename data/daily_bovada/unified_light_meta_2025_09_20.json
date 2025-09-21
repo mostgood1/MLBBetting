@@ -1,0 +1,15 @@
+{
+  "date": "2025-09-20",
+  "generated_at": "2025-09-20T22:29:22.215994-05:00",
+  "pitchers": 28,
+  "markets_total": 0,
+  "covered_pitchers": 0,
+  "coverage_percent": 0.0,
+  "requested_date": "2025-09-20",
+  "source_date": "2025-09-20",
+  "synthesized": false,
+  "using_fallback_props": false,
+  "allow_fallback": false,
+  "strict_today": true,
+  "kind": "light"
+}
