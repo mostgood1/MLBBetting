@@ -219,10 +219,7 @@
             margin: 0 5px;
         }
 
-        .game-time {
-            opacity: 0.7;
-            font-size: 0.9rem;
-        }
+        /* game-time base style defined below; avoid duplicate declarations here */
 
         .prediction-summary {
             display: grid;
@@ -393,6 +390,11 @@
             opacity: 0.8;
             margin-top: 4px;
         }
+        .game-time.scheduled {
+            font-size: 0.8rem;
+            opacity: 0.75;
+            margin-top: 2px;
+        }
 
         .live-score {
             display: flex;
@@ -458,7 +460,8 @@
             color: #ffd700;
         }
 
-        .betting-grid {
+        /* Dedicated comparison grid to avoid collisions with base betting-grid */
+        .betting-comparison-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 6px;
@@ -473,6 +476,73 @@
             border-left: 4px solid #4fd1c7;
             border-radius: 5px;
         }
+
+    /* Utility classes (replaces inline styles) */
+    .header-subtle { font-size: 0.9rem; opacity: 0.8; margin-top: 5px; }
+    .mt-8 { margin-top: 8px; }
+    .mt-10 { margin-top: 10px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-15 { margin-top: 15px; }
+    .mt-20 { margin-top: 20px; }
+    .mb-10 { margin-bottom: 10px; }
+    .text-muted { color: #888; }
+    .text-center { text-align: center; }
+    .italic { font-style: italic; }
+    .small { font-size: 0.9rem; }
+    .xsmall { font-size: 0.8rem; }
+    .hidden { display: none; }
+    .flex { display: flex; }
+    .flex-col { display: flex; flex-direction: column; }
+    .items-center { align-items: center; }
+    .items-end { align-items: flex-end; }
+    .justify-between { justify-content: space-between; }
+    .gap-5 { gap: 5px; }
+    .gap-8 { gap: 8px; }
+    .gap-10 { gap: 10px; }
+    .text-right { text-align: right; }
+    .ml-10 { margin-left: 10px; }
+    .badge-final { color: #28a745; font-weight: bold; }
+    .away-text { color: #ff6b6b; }
+    .home-text { color: #4ecdc4; }
+    .bestbet-tip { background: rgba(79, 209, 199, 0.2); border-left: 2px solid #4fd1c7; }
+    .bestbet-label { font-size: 0.7em; }
+    .bestbet-value { font-size: 0.8em; }
+    .summary-muted { font-size: 0.9em; color: #888; }
+    .desc-muted { font-size: 0.85em; color: #ccc; margin-top: 3px; line-height: 1.2; }
+    .tip-muted { margin-top: 10px; padding: 8px; background: rgba(79, 209, 199, 0.2); border-left: 3px solid #4fd1c7; border-radius: 4px; }
+    .team-logo-sm { width: 24px; height: 24px; }
+    .pred-item-away { background: rgba(255, 255, 255, 0.08); border-left: 3px solid var(--away-color, #4fd1c7); }
+    .pred-item-home { background: rgba(255, 255, 255, 0.08); border-left: 3px solid var(--home-color, #4fd1c7); }
+    .book-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px; }
+    .book-card { text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; }
+    .book-title { font-weight: bold; margin-bottom: 5px; }
+    .book-values { font-size: 0.9rem; }
+    .book-away { color: #ff6b6b; }
+    .book-home { color: #4ecdc4; }
+    .bets-summary { margin-bottom: 15px; padding: 10px; background: rgba(79, 209, 199, 0.1); border-radius: 6px; color: #4fd1c7; font-weight: bold; }
+    .bet-card { margin: 12px 0; padding: 15px; background: rgba(255,255,255,0.08); border-left: 4px solid; border-radius: 8px; }
+    .bet-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .bet-title { font-size: 1.1em; }
+    .bet-edge { color: #4fd1c7; font-weight: bold; }
+    .bet-odds { color: #888; }
+    .bet-card.high { border-left-color: #ff6b6b; }
+    .bet-card.medium { border-left-color: #ffa726; }
+    .bet-card.low { border-left-color: #66bb6a; }
+    .bet-reason { font-size: 0.9em; color: #ccc; line-height: 1.3; }
+    .bet-meta { margin-top: 8px; font-size: 0.8em; color: #888; }
+    .bet-confidence { padding: 2px 6px; border-radius: 4px; }
+    .confidence-high { background: rgba(255, 107, 107, 0.3); }
+    .confidence-medium { background: rgba(255, 167, 38, 0.3); }
+    .confidence-low { background: rgba(102, 187, 106, 0.3); }
+    .best-bet-cta { margin-top: 15px; padding: 12px; background: rgba(79, 209, 199, 0.2); border: 2px solid #4fd1c7; border-radius: 8px; }
+    .no-bets { margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-style: italic; opacity: 0.8; text-align: center; }
+    .no-value { margin-top: 20px; }
+    .footer-muted { margin-top: 20px; font-size: 0.9rem; opacity: 0.8; }
+    .accent-primary { color: #4fd1c7; }
+    .text-high { color: #ff6b6b; }
+    .text-medium { color: #ffa726; }
+    .text-low { color: #66bb6a; }
+    .inning-display { color: #dc3545; font-weight: bold; font-size: 0.9em; }
 
         .btn.secondary {
             background: rgba(255, 255, 255, 0.1);
@@ -598,7 +668,7 @@
         <div class="header">
             <h1>⚾ MLB-Betting</h1>
             <p>Advanced MLB Prediction System with Real-Time Betting Analysis</p>
-            <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">
+            <p class="header-subtle">
                 📊 Comprehensive Analysis Since August 7th • Updated Daily • 113 Games Tracked
             </p>
         </div>
@@ -628,7 +698,7 @@
                 <h3 id="tbd-status-indicator">🔍</h3>
                 <p>TBD Monitor</p>
                 <small id="tbd-status-text">Loading...</small>
-                <div style="margin-top: 8px;">
+                <div class="mt-8">
                     <button class="btn-small" onclick="checkTBD()" id="tbd-check-btn">Check Now</button>
                 </div>
             </div>
@@ -638,26 +708,26 @@
             <div class="games-header">
                 <h2>Today's MLB Games</h2>
                 <div class="date-selector">
-                    <input type="date" id="game-date" style="display: none;" />
+                    <input type="date" id="game-date" class="hidden" />
                     <button class="btn" onclick="loadToday()">Refresh</button>
                     <button class="btn secondary" onclick="goToHistoricalAnalysis()">📊 Historical Analysis</button>
                 </div>
             </div>
 
             <!-- Live Games Section -->
-            <div id="live-games-section" style="display: none;">
+            <div id="live-games-section" class="hidden">
                 <h3 class="section-title">🔴 Live Games</h3>
                 <div id="live-games-container" class="games-grid"></div>
             </div>
 
             <!-- Upcoming Games Section -->
-            <div id="upcoming-games-section" style="display: none;">
+            <div id="upcoming-games-section" class="hidden">
                 <h3 class="section-title">⏰ Upcoming Games</h3>
                 <div id="upcoming-games-container" class="games-grid"></div>
             </div>
 
             <!-- Completed Games Section -->
-            <div id="completed-games-section" style="display: none;">
+            <div id="completed-games-section" class="hidden">
                 <h3 class="section-title">✅ Completed Games</h3>
                 <div id="completed-games-container" class="games-grid"></div>
             </div>
@@ -1220,7 +1290,7 @@
                     <div>
                         <span class="team-score">${liveStatus.away_score ?? 0}</span>
                     </div>
-                    <div style="color: #dc3545; font-weight: bold; font-size: 0.9em;">${inningDisplay}</div>
+                    <div class="inning-display">${inningDisplay}</div>
                     <div>
                         <span class="team-score">${liveStatus.home_score ?? 0}</span>
                     </div>
@@ -1316,7 +1386,7 @@
                     bettingAnalysisHtml = `
                         <div class="betting-comparison">
                             <h6>📈 Model vs Market Performance</h6>
-                            <div class="betting-grid">
+                            <div class="betting-comparison-grid">
                                 ${marketVsModelHtml}
                                 ${totalBetHtml}
                             </div>
@@ -1328,12 +1398,12 @@
             return `
                 <div class="live-score">
                     <div>
-                        <span style="color: #ff6b6b;">${liveStatus.away_team ? liveStatus.away_team.substring(0, 3) : 'AWAY'}</span>
+                        <span class="away-text">${liveStatus.away_team ? liveStatus.away_team.substring(0, 3) : 'AWAY'}</span>
                         <span class="team-score">${actualAwayScore}</span>
                     </div>
-                    <div style="color: #28a745; font-weight: bold;">FINAL</div>
+                    <div class="badge-final">FINAL</div>
                     <div>
-                        <span style="color: #4ecdc4;">${liveStatus.home_team ? liveStatus.home_team.substring(0, 3) : 'HOME'}</span>
+                        <span class="home-text">${liveStatus.home_team ? liveStatus.home_team.substring(0, 3) : 'HOME'}</span>
                         <span class="team-score">${actualHomeScore}</span>
                     </div>
                 </div>
@@ -1394,9 +1464,9 @@
                             const bestBet = bettingRecs.best_bet;
                             const icon = bestBet.edge_rating || '🎯';
                             summaryElement.innerHTML += `
-                                <div class="prediction-item betting-tip" style="background: rgba(79, 209, 199, 0.2); border-left: 2px solid #4fd1c7;">
-                                    <div class="value" style="font-size: 0.8em;">${icon} ${bestBet.bet}</div>
-                                    <div class="label" style="font-size: 0.7em;">Best Bet</div>
+                                <div class="prediction-item betting-tip bestbet-tip">
+                                    <div class="value bestbet-value">${icon} ${bestBet.bet}</div>
+                                    <div class="label bestbet-label">Best Bet</div>
                                 </div>
                             `;
                         }
@@ -1489,7 +1559,7 @@
             
             // Add summary if available
             if (bettingRecs.summary) {
-                html += `<div style="font-size: 0.9em; color: #888; margin-bottom: 10px;">${bettingRecs.summary}</div>`;
+                html += `<div class="summary-muted mb-10">${bettingRecs.summary}</div>`;
             }
 
             // Handle new enhanced format with value_bets array
@@ -1506,19 +1576,17 @@
                     
                     html += `
                         <div class="value-bet ${confidenceClass}" title="${bet.reasoning || 'No details available'}">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 5px;">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-5">
                                     <span>${icon}</span>
                                     <strong>${recommendation}</strong>
                                 </div>
-                                <div style="display: flex; flex-direction: column; align-items: flex-end; font-size: 0.8em;">
-                                    <span style="color: #4fd1c7;">${edgeText}</span>
-                                    ${bet.estimated_odds !== 'N/A' ? `<span style="color: #888;">${bet.estimated_odds}</span>` : ''}
+                                <div class="flex-col items-end xsmall">
+                                    <span class="bet-edge">${edgeText}</span>
+                                    ${bet.estimated_odds !== 'N/A' ? `<span class="bet-odds">${bet.estimated_odds}</span>` : ''}
                                 </div>
                             </div>
-                            <div style="font-size: 0.85em; color: #ccc; margin-top: 3px; line-height: 1.2;">
-                                ${bet.reasoning}
-                            </div>
+                            <div class="desc-muted">${bet.reasoning}</div>
                         </div>
                     `;
                 });
@@ -1541,7 +1609,7 @@
             // Add best bet highlight if available
             if (bettingRecs.best_bet) {
                 html += `
-                    <div style="margin-top: 10px; padding: 8px; background: rgba(79, 209, 199, 0.2); border-left: 3px solid #4fd1c7; border-radius: 4px;">
+                    <div class="tip-muted">
                         <strong>🎯 Best Bet:</strong> ${bettingRecs.best_bet.recommendation}
                     </div>
                 `;
@@ -1567,14 +1635,14 @@
                     const homeAssets = prediction.home_team_assets || { logo_url: data.game.home_logo };
                     
                     document.getElementById('modal-title').innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <img src="${awayAssets.logo_url || ''}" alt="${awayTeam}" style="width: 24px; height: 24px;" />
+                        <div class="flex items-center gap-10">
+                            <div class="flex items-center gap-5">
+                                <img src="${awayAssets.logo_url || ''}" alt="${awayTeam}" class="team-logo-sm" />
                                 <span>${awayTeam}</span>
                             </div>
                             <span>@</span>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <img src="${homeAssets.logo_url || ''}" alt="${homeTeam}" style="width: 24px; height: 24px;" />
+                            <div class="flex items-center gap-5">
+                                <img src="${homeAssets.logo_url || ''}" alt="${homeTeam}" class="team-logo-sm" />
                                 <span>${homeTeam}</span>
                             </div>
                         </div>
@@ -1623,11 +1691,11 @@
             let html = `
                 <div class="prediction-details">
                     <div class="prediction-summary">
-                        <div class="prediction-item" style="background-color: ${awayAssets.primary_color || '#4fd1c7'}22; border-left: 3px solid ${awayAssets.primary_color || '#4fd1c7'};">
+                        <div class="prediction-item pred-item-away" data-away-color="${awayAssets.primary_color || '#4fd1c7'}">
                             <div class="value">${pred.predicted_away_score}</div>
                             <div class="label">${awayTeam} Score</div>
                         </div>
-                        <div class="prediction-item" style="background-color: ${homeAssets.primary_color || '#4fd1c7'}22; border-left: 3px solid ${homeAssets.primary_color || '#4fd1c7'};">
+                        <div class="prediction-item pred-item-home" data-home-color="${homeAssets.primary_color || '#4fd1c7'}">
                             <div class="value">${pred.predicted_home_score}</div>
                             <div class="label">${homeTeam} Score</div>
                         </div>
@@ -1641,13 +1709,11 @@
                         </div>
                     </div>
                     
-                    <div style="margin-top: 20px;">
+                    <div class="mt-20">
                         <h3>Starting Pitchers</h3>
                         <p><strong>Away:</strong> ${awayPitcher.name || 'TBD'} (Quality Factor: ${(awayPitcher.factor || 1.0).toFixed(2)})</p>
                         <p><strong>Home:</strong> ${homePitcher.name || 'TBD'} (Quality Factor: ${(homePitcher.factor || 1.0).toFixed(2)})</p>
-                        <div style="font-size: 0.9em; color: #888; margin-top: 10px;">
-                            <em>Factor < 1.0 = Better pitcher (allows fewer runs), Factor > 1.0 = Weaker pitcher</em>
-                        </div>
+                        <div class="small text-muted mt-10"><em>Factor < 1.0 = Better pitcher (allows fewer runs), Factor > 1.0 = Weaker pitcher</em></div>
                     </div>
             `;
             
@@ -1659,26 +1725,26 @@
                 const spread = bettingData.spread || {};
                 
                 html += `
-                    <div style="margin-top: 20px;">
+                    <div class="mt-20">
                         <h3>Betting Lines</h3>
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px;">
-                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-                                <div style="font-weight: bold; margin-bottom: 5px;">Moneyline</div>
-                                <div style="font-size: 0.9rem;">
-                                    <div style="color: #ff6b6b;">${awayTeam}: ${moneyline.away || 'N/A'}</div>
-                                    <div style="color: #4ecdc4;">${homeTeam}: ${moneyline.home || 'N/A'}</div>
+                        <div class="book-grid">
+                            <div class="book-card">
+                                <div class="book-title">Moneyline</div>
+                                <div class="book-values">
+                                    <div class="book-away">${awayTeam}: ${moneyline.away || 'N/A'}</div>
+                                    <div class="book-home">${homeTeam}: ${moneyline.home || 'N/A'}</div>
                                 </div>
                             </div>
-                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-                                <div style="font-weight: bold; margin-bottom: 5px;">Total</div>
-                                <div style="font-size: 0.9rem;">
+                            <div class="book-card">
+                                <div class="book-title">Total</div>
+                                <div class="book-values">
                                     ${total.line ? `O/U ${total.line}` : 'N/A'}<br>
                                     ${total.over && total.under ? `${total.over}/${total.under}` : ''}
                                 </div>
                             </div>
-                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-                                <div style="font-weight: bold; margin-bottom: 5px;">Spread</div>
-                                <div style="font-size: 0.9rem;">
+                            <div class="book-card">
+                                <div class="book-title">Spread</div>
+                                <div class="book-values">
                                     ${spread.line ? `${spread.line > 0 ? '+' : ''}${spread.line}` : 'N/A'}<br>
                                     ${spread.away && spread.home ? `${spread.away}/${spread.home}` : ''}
                                 </div>
@@ -1691,11 +1757,11 @@
             // Add enhanced betting recommendations section
             const bettingRecs = data.betting_recommendations;  // Get from top level of data object
             if (bettingRecs && (bettingRecs.value_bets || bettingRecs.summary)) {
-                html += '<div style="margin-top: 20px;"><h3>💰 Betting Recommendations</h3>';
+                html += '<div class="mt-20"><h3>💰 Betting Recommendations</h3>';
                 
                 // Add summary if available
                 if (bettingRecs.summary) {
-                    html += `<div style="margin-bottom: 15px; padding: 10px; background: rgba(79, 209, 199, 0.1); border-radius: 6px; color: #4fd1c7; font-weight: bold;">${bettingRecs.summary}</div>`;
+                    html += `<div class="bets-summary">${bettingRecs.summary}</div>`;
                 }
                 
                 // Show value bets in enhanced format
@@ -1706,19 +1772,21 @@
                         const icon = bet.edge_rating || (bet.confidence === 'HIGH' ? '🔥' : 
                                    bet.confidence === 'MEDIUM' ? '⚡' : '💡');
                         
+                        const confClass = bet.confidence === 'HIGH' ? 'high' : (bet.confidence === 'MEDIUM' ? 'medium' : 'low');
+                        const confBadge = bet.confidence === 'HIGH' ? 'confidence-high' : (bet.confidence === 'MEDIUM' ? 'confidence-medium' : 'confidence-low');
                         html += `
-                            <div style="margin: 12px 0; padding: 15px; background: rgba(255,255,255,0.08); border-left: 4px solid ${confidenceColor}; border-radius: 8px;">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                                    <strong style="color: ${confidenceColor}; font-size: 1.1em;">${icon} ${bet.recommendation || bet.bet}</strong>
-                                    <div style="text-align: right; font-size: 0.9em;">
-                                        <div style="color: #4fd1c7; font-weight: bold;">${typeof bet.edge === 'number' ? bet.edge.toFixed(1) + '% edge' : bet.edge}</div>
-                                        ${bet.estimated_odds !== 'N/A' ? `<div style="color: #888;">${bet.estimated_odds}</div>` : ''}
+                            <div class="bet-card ${confClass}">
+                                <div class="bet-head">
+                                    <strong class="bet-title ${confClass}">${icon} ${bet.recommendation || bet.bet}</strong>
+                                    <div class="text-right small">
+                                        <div class="bet-edge">${typeof bet.edge === 'number' ? bet.edge.toFixed(1) + '% edge' : bet.edge}</div>
+                                        ${bet.estimated_odds !== 'N/A' ? `<div class=\"bet-odds\">${bet.estimated_odds}</div>` : ''}
                                     </div>
                                 </div>
-                                <div style="font-size: 0.9em; color: #ccc; line-height: 1.3;">${bet.reasoning}</div>
-                                <div style="margin-top: 8px; font-size: 0.8em; color: #888;">
-                                    <span style="background: rgba(${bet.confidence === 'HIGH' ? '255, 107, 107' : bet.confidence === 'MEDIUM' ? '255, 167, 38' : '102, 187, 106'}, 0.3); padding: 2px 6px; border-radius: 4px;">${bet.confidence} CONFIDENCE</span>
-                                    <span style="margin-left: 10px;">${bet.type}</span>
+                                <div class="bet-reason">${bet.reasoning}</div>
+                                <div class="bet-meta">
+                                    <span class="bet-confidence ${confBadge}">${bet.confidence} CONFIDENCE</span>
+                                    <span class="ml-10">${bet.type}</span>
                                 </div>
                             </div>
                         `;
@@ -1727,13 +1795,13 @@
                     // Highlight best bet if available
                     if (bettingRecs.best_bet) {
                         html += `
-                            <div style="margin-top: 15px; padding: 12px; background: rgba(79, 209, 199, 0.2); border: 2px solid #4fd1c7; border-radius: 8px;">
-                                <strong style="color: #4fd1c7;">🎯 Recommended Best Bet:</strong> ${bettingRecs.best_bet.recommendation || bettingRecs.best_bet.bet}
+                            <div class="best-bet-cta">
+                                <strong class="accent-primary">🎯 Recommended Best Bet:</strong> ${bettingRecs.best_bet.recommendation || bettingRecs.best_bet.bet}
                             </div>
                         `;
                     }
                 } else {
-                    html += '<div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-style: italic; opacity: 0.8; text-align: center;">💡 No strong value bets identified - consider live betting opportunities</div>';
+                    html += '<div class="no-bets">💡 No strong value bets identified - consider live betting opportunities</div>';
                 }
                 
                 html += '</div>';
@@ -1753,11 +1821,11 @@
                 }
                 html += '</div>';
             } else {
-                html += '<div style="margin-top: 20px;"><em>No betting value found for this game.</em></div>';
+                html += '<div class="no-value"><em>No betting value found for this game.</em></div>';
             }
             
             html += `
-                <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
+                <div class="footer-muted">
                     ${meta.execution_time_ms > 0 ? `Execution Time: ${meta.execution_time_ms.toFixed(1)}ms | ` : ''}
                     Simulations: ${(meta.simulations_run || 5000).toLocaleString()} |
                     Data Source: ${meta.data_source || 'comprehensive_engine'}
@@ -1765,6 +1833,18 @@
             `;
             
             document.getElementById('modal-body').innerHTML = html;
+
+            // Map data-* colors to CSS variables to avoid inline style usage
+            try {
+                document.querySelectorAll('#modal-body .pred-item-away[data-away-color]').forEach(el => {
+                    el.style.setProperty('--away-color', el.getAttribute('data-away-color'));
+                });
+                document.querySelectorAll('#modal-body .pred-item-home[data-home-color]').forEach(el => {
+                    el.style.setProperty('--home-color', el.getAttribute('data-home-color'));
+                });
+            } catch (e) {
+                // Non-fatal; colors will fallback to defaults
+            }
         }
 
         function loadToday() {
