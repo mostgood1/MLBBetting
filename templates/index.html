@@ -239,10 +239,7 @@
             background: rgba(255, 167, 38, 0.15);
         }
 
-        .value-bet.low-confidence {
-            border-left-color: #66bb6a;
-            background: rgba(102, 187, 106, 0.15);
-        }
+        /* (single definition) .value-bet.low-confidence is defined above */
 
         .best-bet {
             margin: 8px 0;
@@ -419,7 +416,8 @@
             color: #ffd700;
         }
 
-        .betting-grid {
+        /* Dedicated grid for the betting comparison section to avoid overriding the generic .betting-grid */
+        .betting-comparison-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 6px;
@@ -2272,7 +2270,7 @@
                     bettingAnalysisHtml = `
                         <div class="betting-comparison">
                             <h6>📈 Model vs Market Performance</h6>
-                            <div class="betting-grid">
+                            <div class="betting-comparison-grid">
                                 ${marketVsModelHtml}
                                 ${totalBetHtml}
                             </div>
