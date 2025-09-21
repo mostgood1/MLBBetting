@@ -5346,34 +5346,7 @@ def api_pitcher_props_unified():
         # Removed automatic prior-day fallback: we no longer pull older Bovada files when today's markets are zero.
         # If a fallback is explicitly desired (e.g., for admin diagnostics), use allow_fallback=1 below.
 
-        # Optional fallback: only when explicitly requested via allow_fallback=1
-        try:
-            if (not pitcher_props) and (request.args.get('allow_fallback') == '1'):
-                candidates = sorted(
-                    [os.path.join(base_dir, f) for f in os.listdir(base_dir) if f.startswith('bovada_pitcher_props_') and f.endswith('.json')],
-                    key=lambda p: os.path.getmtime(p),
-                    reverse=True
-                )
-                for fp in candidates:
-                    try:
-                        with open(fp, 'r', encoding='utf-8') as f:
-                            doc = json.load(f)
-                        cand_props = doc.get('pitcher_props', {}) if isinstance(doc, dict) else {}
-                        if cand_props:
-                            pitcher_props = cand_props
-                            props_doc = doc
-                            source_file = fp
-                            # Extract date from filename: bovada_pitcher_props_YYYY_MM_DD.json
-                            import re
-                            m = re.search(r"bovada_pitcher_props_(\d{4})_(\d{2})_(\d{2})\.json$", fp.replace('\\', '/'))
-                            if m:
-                                source_date = f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
-                            logger.info(f"[UNIFIED] Using fallback Bovada file: {fp} (source_date={source_date}) for requested {requested_date}")
-                            break
-                    except Exception:
-                        continue
-        except Exception as _e:
-            logger.warning(f"[UNIFIED] Fallback search for Bovada props failed: {_e}")
+        # Disabled explicit prior-day props fallback: do not load older Bovada files under any circumstances.
 
 
         # Determine whether we're using a true fallback props source (older date or different file)
@@ -5636,58 +5609,8 @@ def api_pitcher_props_unified():
                             recs_by_pitcher_norm[_nk] = r
                     except Exception:
                         pass
-        # Fallback: if no recs and allow_fallback=1, try latest recommendations file on disk
-        try:
-            if (not recs_by_pitcher) and (request.args.get('allow_fallback') == '1') and os.path.isdir(base_dir):
-                rec_cands = sorted(
-                    [os.path.join(base_dir, f) for f in os.listdir(base_dir) if f.startswith('pitcher_prop_recommendations_') and f.endswith('.json')],
-                    key=lambda p: os.path.getmtime(p), reverse=True
-                )
-                for fp in rec_cands:
-                    try:
-                        _doc = _load_json(fp, {})
-                        tmp = {}
-                        if isinstance(_doc, dict):
-                            for r in (_doc.get('recommendations') or []):
-                                pk = r.get('pitcher_key')
-                                if pk:
-                                    tmp[pk] = r
-                        if tmp:
-                            recs_by_pitcher = tmp
-                            # rebuild normalized index
-                            recs_by_pitcher_norm = {}
-                            try:
-                                for k, rv in tmp.items():
-                                    _nk = normalize_name(str(k).split('(')[0].strip())
-                                    if _nk:
-                                        recs_by_pitcher_norm[_nk] = rv
-                            except Exception:
-                                pass
-                            logger.info(f"[UNIFIED] Using fallback recommendations file: {fp}")
-                            break
-                    except Exception:
-                        continue
-        except Exception:
-            pass
-        # Fallback: if no last-known lines and allow_fallback=1, try latest last-known file on disk
-        try:
-            if (not last_known_pitchers) and (request.args.get('allow_fallback') == '1') and os.path.isdir(base_dir):
-                lk_cands = sorted(
-                    [os.path.join(base_dir, f) for f in os.listdir(base_dir) if f.startswith('pitcher_last_known_lines_') and f.endswith('.json')],
-                    key=lambda p: os.path.getmtime(p), reverse=True
-                )
-                for fp in lk_cands:
-                    try:
-                        _doc = _load_json(fp, {})
-                        tmp = _doc.get('pitchers', {}) if isinstance(_doc, dict) else {}
-                        if tmp:
-                            last_known_pitchers = tmp
-                            logger.info(f"[UNIFIED] Using fallback last-known lines file: {fp}")
-                            break
-                    except Exception:
-                        continue
-        except Exception:
-            pass
+        # Disabled prior-day recommendations fallback: do not load older recommendations files.
+        # Disabled prior-day last-known lines fallback: do not load older last-known-line files.
 
         # If schedule-derived allowed set excludes everything from available lines/recs, only disable the filter
         # when we're actually using a fallback props source. For same-day data, keep the strict filter to avoid
