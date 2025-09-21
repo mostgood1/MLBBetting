@@ -5702,8 +5702,10 @@ def api_pitcher_props_unified():
             for norm_key in keys_iter:
                 name_only = norm_key.replace('_',' ')
                 mkts = grouped_markets_by_nk.get(norm_key, {})
-                # Restrict to pitchers scheduled for the requested date when available
-                if allowed_nks and (norm_key not in allowed_nks):
+                # Restrict to pitchers scheduled for the requested date when available,
+                # but don't exclude if we have real markets (lines) present. This avoids
+                # dropping valid entries due to minor name variants (e.g., Zack vs Zach).
+                if allowed_nks and (norm_key not in allowed_nks) and (not mkts):
                     continue
                 st = stats_by_name.get(norm_key, {})
                 team_info = team_map.get(norm_key, {'team': None, 'opponent': None})
@@ -5969,8 +5971,9 @@ def api_pitcher_props_unified():
         for norm_key in keys_iter_full:
             name_only = norm_key.replace('_',' ')
             mkts = grouped_markets_by_nk.get(norm_key, {})
-            # If we have a schedule-derived allowlist, restrict props to that set
-            if allowed_nks and (norm_key not in allowed_nks):
+            # If we have a schedule-derived allowlist, restrict props to that set, but don't
+            # exclude pitchers that already have real markets/lines in today's props.
+            if allowed_nks and (norm_key not in allowed_nks) and (not mkts):
                 continue
             st = stats_by_name.get(norm_key, {})
             team_info = team_map.get(norm_key, {'team': None, 'opponent': None})

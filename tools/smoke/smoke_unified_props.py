@@ -10,11 +10,14 @@ from app import app
 
 if __name__ == "__main__":
     c = app.test_client()
-    r = c.get('/api/pitcher-props/unified?light=1&timings=1&date=2025-09-16')
+    # Query the target date with light payload and allow_fallback
+    r = c.get('/api/pitcher-props/unified?light=1&allow_fallback=1&timings=1&date=2025-09-20')
     print('unified status:', r.status_code)
     js = r.get_json(silent=True) or {}
-    print('pitchers:', (js.get('meta') or {}).get('pitchers'))
-    print('light_mode:', (js.get('meta') or {}).get('light_mode'))
+    meta = js.get('meta') or {}
+    print('pitchers:', meta.get('pitchers'))
+    print('light_mode:', meta.get('light_mode'))
+    print('markets_total:', meta.get('markets_total'))
     d = js.get('data') or {}
-    non_null = sum(1 for v in d.values() if v.get('live_pitches') is not None)
-    print('live_pitches_non_null:', non_null)
+    non_null = sum(1 for v in d.values() if (v.get('markets') or {}))
+    print('pitchers_with_markets:', non_null)
