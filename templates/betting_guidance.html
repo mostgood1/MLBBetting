@@ -584,9 +584,9 @@
         return rows;
       };
       try{
-        let res = await fetchWithTimeout('/api/pitcher-props/unified?light=1', {}, 15000);
+  let res = await fetchWithTimeout('/api/pitcher-props/unified?light=1&strict_today=1', {}, 15000);
         if(!res.ok){
-          res = await fetchWithTimeout('/api/pitcher-props/unified?light=1&allow_fallback=1', {}, 15000);
+          res = await fetchWithTimeout('/api/pitcher-props/unified?light=1&strict_today=1', {}, 15000);
         }
         let j = null;
         try { j = await res.json(); } catch(_){ j = null; }
@@ -594,13 +594,13 @@
         let rows = j ? buildRows(j) : [];
         if(!rows.length){
           try{
-            const fres = await fetchWithTimeout('/api/pitcher-props/unified?light=1&allow_fallback=1', {}, 15000);
+            const fres = await fetchWithTimeout('/api/pitcher-props/unified?light=1&strict_today=1', {}, 15000);
             if(fres.ok){ const fj = await fres.json(); meta = (fj && typeof fj.meta==='object') ? fj.meta : {}; rows = buildRows(fj); }
           }catch(_){ /* ignore */ }
         }
         if(!rows.length){
           try{
-            const fullRes = await fetchWithTimeout('/api/pitcher-props/unified', {}, 20000);
+            const fullRes = await fetchWithTimeout('/api/pitcher-props/unified?strict_today=1', {}, 20000);
             if(fullRes.ok){ const fullJ = await fullRes.json(); meta = (fullJ && typeof fullJ.meta==='object') ? fullJ.meta : meta; rows = buildRows(fullJ); }
           }catch(_){ /* ignore */ }
         }

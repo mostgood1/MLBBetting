@@ -495,11 +495,11 @@ def api_warm():
             if not quick_only_inner:
                 # Warm unified pitcher props
                 _time_step('pitcher-props-unified', lambda: _call_with_path(
-                    f"/api/pitcher-props/unified?date={date_str_inner}", api_pitcher_props_unified
+                    f"/api/pitcher-props/unified?strict_today=1&date={date_str_inner}", api_pitcher_props_unified
                 ))
                 # Warm unified pitcher props (light) for Spotlight/initial paint
                 _time_step('pitcher-props-unified-light', lambda: _call_with_path(
-                    f"/api/pitcher-props/unified?light=1&date={date_str_inner}", api_pitcher_props_unified
+                    f"/api/pitcher-props/unified?light=1&strict_today=1&date={date_str_inner}", api_pitcher_props_unified
                 ))
                 # Warm full today-games (heavier)
                 _time_step('today-games', lambda: _call_with_path(
@@ -4486,6 +4486,8 @@ def api_health_props_stream_stats():
         safe_date = (date_str or '').replace('-', '_')
         base_dir = os.path.join('data', 'daily_bovada')
         props_path = os.path.join(base_dir, f'bovada_pitcher_props_{safe_date}.json')
+        # Optional OddsAPI supplement to increase same-day coverage using user's premium key
+        oddsapi_path = os.path.join(base_dir, f'oddsapi_pitcher_props_{safe_date}.json')
         recs_path = os.path.join(base_dir, f'pitcher_prop_recommendations_{safe_date}.json')
         line_hist_path = os.path.join(base_dir, f'pitcher_prop_line_history_{safe_date}.json')
         _tok, _src = _get_ingest_token()
@@ -4504,6 +4506,11 @@ def api_health_props_stream_stats():
                     'path': props_path,
                     'exists': os.path.exists(props_path),
                     'size': (os.path.getsize(props_path) if os.path.exists(props_path) else 0)
+                },
+                'oddsapi_props': {
+                    'path': oddsapi_path,
+                    'exists': os.path.exists(oddsapi_path),
+                    'size': (os.path.getsize(oddsapi_path) if os.path.exists(oddsapi_path) else 0)
                 },
                 'recommendations': {
                     'path': recs_path,
@@ -5132,6 +5139,8 @@ def api_pitcher_props_unified():
         safe_date = date_str.replace('-', '_')
         light_mode = request.args.get('light') in ('1','true','yes')
         no_cache = request.args.get('nocache') in ('1','true','yes') or request.args.get('force') in ('1','true','yes')
+        allow_fallback = request.args.get('allow_fallback') in ('1','true','yes')
+        strict_today = request.args.get('strict_today') in ('1','true','yes')
         want_timings = request.args.get('timings') in ('1','true','yes')
         t0 = time.time()
         timings = {}
@@ -5240,6 +5249,8 @@ def api_pitcher_props_unified():
 
         base_dir = os.path.join('data', 'daily_bovada')
         props_path = os.path.join(base_dir, f'bovada_pitcher_props_{safe_date}.json')
+        # Optional OddsAPI supplement to increase same-day coverage using user's premium key
+        oddsapi_path = os.path.join(base_dir, f'oddsapi_pitcher_props_{safe_date}.json')
         rec_path = os.path.join(base_dir, f'pitcher_prop_recommendations_{safe_date}.json')
         stats_path = os.path.join('data', 'master_pitcher_stats.json')
         games_path = os.path.join('data', f'games_{date_str}.json')
@@ -5258,6 +5269,37 @@ def api_pitcher_props_unified():
         props_doc = _load_json(props_path, {})
         timings['load_props'] = round(time.time()-t_props,3)
         pitcher_props = props_doc.get('pitcher_props', {}) if isinstance(props_doc, dict) else {}
+        # Load OddsAPI props if available and merge into pitcher_props before grouping
+        try:
+            odds_doc = _load_json(oddsapi_path, {})
+            odds_props = odds_doc.get('pitcher_props', {}) if isinstance(odds_doc, dict) else {}
+            if odds_props:
+                # Shallow merge: prefer existing line/odds from Bovada when present; otherwise take OddsAPI
+                for nk, mkts in (odds_props or {}).items():
+                    try:
+                        # nk is already normalized in our odds fetcher
+                        base_bucket = pitcher_props.get(nk)
+                        if not isinstance(base_bucket, dict):
+                            pitcher_props[nk] = dict(mkts or {})
+                            continue
+                        for mk, info in (mkts or {}).items():
+                            if not isinstance(info, dict):
+                                continue
+                            base_info = base_bucket.get(mk)
+                            if not isinstance(base_info, dict):
+                                base_bucket[mk] = dict(info)
+                                continue
+                            # If Bovada missing a line/odds, fill from OddsAPI
+                            if base_info.get('line') is None and info.get('line') is not None:
+                                base_info['line'] = info.get('line')
+                            if base_info.get('over_odds') is None and info.get('over_odds') is not None:
+                                base_info['over_odds'] = info.get('over_odds')
+                            if base_info.get('under_odds') is None and info.get('under_odds') is not None:
+                                base_info['under_odds'] = info.get('under_odds')
+                    except Exception:
+                        continue
+        except Exception:
+            pass
         last_known = _load_json(last_known_path, {})
         last_known_pitchers = last_known.get('pitchers', {}) if isinstance(last_known, dict) else {}
 
@@ -5300,8 +5342,9 @@ def api_pitcher_props_unified():
         try:
             for raw_key, mkts in (pitcher_props or {}).items():
                 try:
+                    # Some keys may already be normalized (from OddsAPI fetcher)
                     name_only = str(raw_key).split('(')[0].strip()
-                    nk = normalize_name(name_only)
+                    nk = normalize_name(name_only) if '(' in str(raw_key) or ' ' in str(raw_key) else normalize_name(str(raw_key))
                 except Exception:
                     continue
                 if not nk:
@@ -5612,23 +5655,27 @@ def api_pitcher_props_unified():
         # Disabled prior-day recommendations fallback: do not load older recommendations files.
         # Disabled prior-day last-known lines fallback: do not load older last-known-line files.
 
-        # If schedule-derived allowed set excludes everything from available lines/recs, only disable the filter
-        # when we're actually using a fallback props source. For same-day data, keep the strict filter to avoid
-        # showing yesterday/irrelevant pitchers.
+        # If schedule-derived allowed set excludes everything from available line-bearing pitchers, disable the filter
+        # when allow_fallback=1 (or using a fallback source). This avoids cases where props file contains many empty
+        # shells for scheduled pitchers ({}), which would otherwise mask a mismatch and hide valid non-scheduled lines.
         try:
             if allowed_nks:
-                sample_names = set()
-                for raw_key in (pitcher_props or {}).keys():
-                    name_only = raw_key.split('(')[0].strip()
-                    sample_names.add(normalize_name(name_only))
+                # Prefer names that actually have at least one usable market line today
+                sample_names = set([nk for nk, bucket in (grouped_markets_by_nk or {}).items() if isinstance(bucket, dict) and len(bucket) > 0])
+                # Fallback to last-known / recs only if no fresh line-bearing names present
                 if not sample_names:
                     for nk in (last_known_pitchers or {}).keys():
                         sample_names.add(normalize_name(nk))
                     for nk in (recs_by_pitcher or {}).keys():
-                        sample_names.add(normalize_name(nk))
+                        try:
+                            sample_names.add(normalize_name(str(nk).split('(')[0].strip()))
+                        except Exception:
+                            continue
                 if sample_names and not (sample_names & allowed_nks):
-                    if using_fallback_props:
-                        logger.warning(f"[UNIFIED] Schedule-vs-lines mismatch for {date_str} with fallback props; disabling allowed filter")
+                    if strict_today:
+                        logger.warning(f"[UNIFIED] Schedule-vs-lines mismatch for {date_str} but strict_today=1; keeping strict allowlist (may yield empty)")
+                    elif using_fallback_props or allow_fallback:
+                        logger.warning(f"[UNIFIED] Schedule-vs-lines mismatch for {date_str} {'with fallback props ' if using_fallback_props else ''}(allow_fallback={allow_fallback}); disabling allowed filter")
                         allowed_nks = set()
                     else:
                         logger.warning(f"[UNIFIED] Schedule-vs-lines mismatch for {date_str}; keeping strict filter (may yield empty Spotlight)")
@@ -5647,15 +5694,17 @@ def api_pitcher_props_unified():
             for norm_key in keys_iter:
                 name_only = norm_key.replace('_',' ')
                 mkts = grouped_markets_by_nk.get(norm_key, {})
-                # Restrict to pitchers scheduled for the requested date when available,
-                # but don't exclude if we have real markets (lines) present. This avoids
-                # dropping valid entries due to minor name variants (e.g., Zack vs Zach).
-                if allowed_nks and (norm_key not in allowed_nks) and (not mkts):
+                # STRICT: Restrict to pitchers scheduled for the requested date when available.
+                # We no longer allow prior-day pitchers even if they have lines.
+                if allowed_nks and (norm_key not in allowed_nks):
                     continue
                 st = stats_by_name.get(norm_key, {})
                 team_info = team_map.get(norm_key, {'team': None, 'opponent': None})
                 # For same-day (non-fallback) data, require a team mapping; this prevents yesterday/irrelevant names
-                if (not using_fallback_props) and (not allowed_nks) and (not team_info.get('team')):
+                # BUT if allow_fallback=1 is explicitly provided, relax this requirement so that
+                # valid line-bearing pitchers from the props file are surfaced even when the
+                # schedule/team map doesn't include them (e.g., provider mismatch, completed games).
+                if (not using_fallback_props) and (not allowed_nks) and (not team_info.get('team')) and (not allow_fallback):
                     continue
                 # Augment with last-known lines if needed
                 augmented_mkts = dict(mkts)
@@ -5798,7 +5847,9 @@ def api_pitcher_props_unified():
                             st = stats_by_name.get(nk, {})
                             team_info = team_map.get(nk, {'team': None, 'opponent': None})
                             # For same-day (non-fallback) synthesis, still require a team mapping to avoid wrong-day names
-                            if (not using_fallback_props) and (not team_info.get('team')):
+                            # If allow_fallback=1, relax this so we can synthesize entries for pitchers with
+                            # last-known lines or recommendations even when the schedule map is missing.
+                            if (not using_fallback_props) and (not team_info.get('team')) and (not allow_fallback):
                                 continue
                             lines_map = last_known_pitchers.get(nk, {}) if isinstance(last_known_pitchers, dict) else {}
                             # Build plays from recs when available
@@ -5888,7 +5939,9 @@ def api_pitcher_props_unified():
                     'source_file': source_file or os.path.join('data','daily_bovada', f'bovada_pitcher_props_{safe_date}.json'),
                     'light_mode': True,
                     'synthesized': _synthesized,
-                    'using_fallback_props': using_fallback_props
+                    'using_fallback_props': using_fallback_props,
+                    'allow_fallback': allow_fallback,
+                    'strict_today': strict_today
                 },
                 'data': merged
             }
@@ -5914,6 +5967,8 @@ def api_pitcher_props_unified():
                     'source_date': payload['meta'].get('source_date') or date_str,
                     'synthesized': bool(payload['meta'].get('synthesized')),
                     'using_fallback_props': bool(payload['meta'].get('using_fallback_props')),
+                    'allow_fallback': bool(payload['meta'].get('allow_fallback')),
+                    'strict_today': bool(payload['meta'].get('strict_today')),
                     'kind': 'light'
                 }
                 meta_dir = os.path.join('data', 'daily_bovada')
@@ -5950,9 +6005,9 @@ def api_pitcher_props_unified():
         for norm_key in keys_iter_full:
             name_only = norm_key.replace('_',' ')
             mkts = grouped_markets_by_nk.get(norm_key, {})
-            # If we have a schedule-derived allowlist, restrict props to that set, but don't
-            # exclude pitchers that already have real markets/lines in today's props.
-            if allowed_nks and (norm_key not in allowed_nks) and (not mkts):
+            # STRICT: If we have a schedule-derived allowlist, restrict props to that set.
+            # Do not include prior-day pitchers even if they have markets/lines.
+            if allowed_nks and (norm_key not in allowed_nks):
                 continue
             st = stats_by_name.get(norm_key, {})
             team_info = team_map.get(norm_key, {'team': None, 'opponent': None})
@@ -6185,7 +6240,8 @@ def api_pitcher_props_unified():
                         team_info = team_map.get(nk, {'team': None, 'opponent': None})
                         opponent = team_info.get('opponent') if _proj_available else None
                         # For same-day (non-fallback) synthesis, still require a team mapping to avoid wrong-day names
-                        if (not using_fallback_props) and (not team_info.get('team')):
+                        # If allow_fallback=1, relax this so we can synthesize entries when schedule/team map is missing.
+                        if (not using_fallback_props) and (not team_info.get('team')) and (not allow_fallback):
                             continue
                         # Compute projections if available
                         proj = (project_pitcher(nk, st if st else {'name': nk, 'team': team_info.get('team')}, opponent, lines=(last_known_pitchers.get(nk, {}) or {})) if _proj_available else {})
@@ -6490,7 +6546,10 @@ def api_pitcher_props_unified():
                 'markets_total': sum(len(v.get('markets', {})) for v in merged.values()),
                 'requested_date': requested_date,
                 'source_date': source_date,
-                'source_file': source_file
+                'source_file': source_file,
+                'allow_fallback': allow_fallback,
+                'using_fallback_props': using_fallback_props,
+                'strict_today': strict_today
             },
             'data': merged
         }
@@ -6515,6 +6574,8 @@ def api_pitcher_props_unified():
                 'source_date': payload['meta'].get('source_date') or date_str,
                 'synthesized': bool(payload['meta'].get('synthesized')),
                 'using_fallback_props': bool(payload['meta'].get('using_fallback_props')),
+                'allow_fallback': bool(payload['meta'].get('allow_fallback')),
+                'strict_today': bool(payload['meta'].get('strict_today')),
                 'kind': 'full'
             }
             meta_dir = os.path.join('data', 'daily_bovada')

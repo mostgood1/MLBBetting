@@ -432,10 +432,10 @@
       const params = new URLSearchParams();
       if(date) params.set('date', date);
       params.set('t', Date.now());
+    // Enforce schedule-only filtering so we never show yesterday's pitchers by default
+    params.set('strict_today','1');
       if(noCache) params.set('nocache','1');
   if(!full) params.set('light','1');
-  // Use fallback to latest on-disk snapshot for light mode to improve first paint
-  if(!full) params.set('allow_fallback','1');
       // include timings only on first (light) load
       if(!full) params.set('timings','1');
       const url = `/api/pitcher-props/unified?${params.toString()}`;
