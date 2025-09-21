@@ -395,6 +395,12 @@ def _warm_caches_async():
                         api_pitcher_props_unified()
                     except Exception:
                         pass
+                # Also warm the lightweight cache explicitly for fast first paint
+                with app.test_request_context(f"/api/pitcher-props/unified?light=1&date={date_str}"):
+                    try:
+                        api_pitcher_props_unified()
+                    except Exception:
+                        pass
                 # Compute unified betting recs FIRST so quick snapshot includes value_bets on first paint
                 try:
                     _get_unified_betting_recs_cached(timeout_sec=0.0, start_background_on_miss=False)
@@ -490,6 +496,10 @@ def api_warm():
                 # Warm unified pitcher props
                 _time_step('pitcher-props-unified', lambda: _call_with_path(
                     f"/api/pitcher-props/unified?date={date_str_inner}", api_pitcher_props_unified
+                ))
+                # Warm unified pitcher props (light) for Spotlight/initial paint
+                _time_step('pitcher-props-unified-light', lambda: _call_with_path(
+                    f"/api/pitcher-props/unified?light=1&date={date_str_inner}", api_pitcher_props_unified
                 ))
                 # Warm full today-games (heavier)
                 _time_step('today-games', lambda: _call_with_path(
@@ -5333,80 +5343,8 @@ def api_pitcher_props_unified():
             _total_lines = sum(len(v or {}) for v in grouped_markets_by_nk.values())
         except Exception:
             _total_lines = 0
-        # Unconditional safety net: if zero usable markets found for today's file, fall back
-        # to the latest prior Bovada file that has any. This removes dependency on a query param.
-        try:
-            if (_total_lines == 0) and os.path.isdir(base_dir):
-                cand_files = sorted(
-                    [os.path.join(base_dir, f) for f in os.listdir(base_dir) if f.startswith('bovada_pitcher_props_') and f.endswith('.json')],
-                    key=lambda p: os.path.getmtime(p),
-                    reverse=True
-                )
-                for fp in cand_files:
-                    # Skip the current requested file path if present to avoid re-reading the same empty data
-                    try:
-                        if os.path.abspath(fp) == os.path.abspath(props_path):
-                            continue
-                    except Exception:
-                        pass
-                    try:
-                        with open(fp, 'r', encoding='utf-8') as f:
-                            doc = json.load(f)
-                        cand_props = doc.get('pitcher_props', {}) if isinstance(doc, dict) else {}
-                        # Build grouped map for candidate file
-                        cand_grouped = {}
-                        for raw_key, mkts in (cand_props or {}).items():
-                            try:
-                                name_only = str(raw_key).split('(')[0].strip()
-                                nk = normalize_name(name_only)
-                                if not nk:
-                                    continue
-                                bucket = cand_grouped.get(nk)
-                                if bucket is None:
-                                    bucket = {}
-                                    cand_grouped[nk] = bucket
-                                for mk, info in (mkts or {}).items():
-                                    if not isinstance(info, dict):
-                                        continue
-                                    line_val = info.get('line')
-                                    if line_val is None:
-                                        continue
-                                    if mk not in bucket:
-                                        bucket[mk] = {
-                                            'line': line_val,
-                                            'over_odds': info.get('over_odds'),
-                                            'under_odds': info.get('under_odds')
-                                        }
-                                    else:
-                                        ex = bucket.get(mk) or {}
-                                        if ex.get('over_odds') is None and info.get('over_odds') is not None:
-                                            ex['over_odds'] = info.get('over_odds')
-                                        if ex.get('under_odds') is None and info.get('under_odds') is not None:
-                                            ex['under_odds'] = info.get('under_odds')
-                            except Exception:
-                                continue
-                        cand_total = sum(len(v or {}) for v in cand_grouped.values()) if cand_grouped else 0
-                        if cand_total > 0:
-                            pitcher_props = cand_props
-                            props_doc = doc
-                            grouped_markets_by_nk = cand_grouped
-                            source_file = fp
-                            # Extract date from filename: bovada_pitcher_props_YYYY_MM_DD.json
-                            try:
-                                import re
-                                m = re.search(r"bovada_pitcher_props_(\d{4})_(\d{2})_(\d{2})\.json$", fp.replace('\\', '/'))
-                                if m:
-                                    source_date = f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
-                            except Exception:
-                                pass
-                            using_fallback_props = True
-                            logger.warning(f"[UNIFIED] Today's props have zero markets; using fallback Bovada file {fp}")
-                            break
-                    except Exception:
-                        continue
-                # If no candidate improved, keep empty grouped but mark as not using fallback
-        except Exception as _e:
-            logger.warning(f"[UNIFIED] Fallback scan for zero-market props failed: {_e}")
+        # Removed automatic prior-day fallback: we no longer pull older Bovada files when today's markets are zero.
+        # If a fallback is explicitly desired (e.g., for admin diagnostics), use allow_fallback=1 below.
 
         # Optional fallback: only when explicitly requested via allow_fallback=1
         try:
@@ -6031,6 +5969,39 @@ def api_pitcher_props_unified():
                 },
                 'data': merged
             }
+            # Persist a tiny meta snapshot so other workers/processes (e.g., spotlight-health/progress)
+            # can see availability even if they don't share RAM cache.
+            try:
+                covered_cnt = 0
+                try:
+                    for v in (merged or {}).values():
+                        mk = (v.get('markets') or {}) if isinstance(v, dict) else {}
+                        if isinstance(mk, dict) and any(isinstance(m, dict) and (m.get('line') is not None) for m in mk.values()):
+                            covered_cnt += 1
+                except Exception:
+                    covered_cnt = 0
+                meta_snapshot = {
+                    'date': date_str,
+                    'generated_at': payload['meta'].get('generated_at'),
+                    'pitchers': payload['meta'].get('pitchers') or len(merged),
+                    'markets_total': payload['meta'].get('markets_total') or 0,
+                    'covered_pitchers': covered_cnt,
+                    'coverage_percent': round((covered_cnt / (len(merged) or 1)) * 100.0, 1) if merged else 0.0,
+                    'requested_date': payload['meta'].get('requested_date') or date_str,
+                    'source_date': payload['meta'].get('source_date') or date_str,
+                    'synthesized': bool(payload['meta'].get('synthesized')),
+                    'using_fallback_props': bool(payload['meta'].get('using_fallback_props')),
+                    'kind': 'light'
+                }
+                meta_dir = os.path.join('data', 'daily_bovada')
+                os.makedirs(meta_dir, exist_ok=True)
+                meta_file = os.path.join(meta_dir, f'unified_light_meta_{safe_date}.json')
+                tmpf = meta_file + '.tmp'
+                with open(tmpf, 'w', encoding='utf-8') as f:
+                    json.dump(meta_snapshot, f, indent=2)
+                os.replace(tmpf, meta_file)
+            except Exception:
+                pass
             if want_timings:
                 timings['total'] = round(time.time()-t0,3)
                 timings['build_light'] = round(time.time()-t_light,3)
@@ -6600,6 +6571,39 @@ def api_pitcher_props_unified():
             },
             'data': merged
         }
+        # Persist a tiny meta snapshot for the full payload as well (used as fallback by health/progress)
+        try:
+            covered_cnt = 0
+            try:
+                for v in (merged or {}).values():
+                    mk = (v.get('markets') or {}) if isinstance(v, dict) else {}
+                    if isinstance(mk, dict) and any(isinstance(m, dict) and (m.get('line') is not None) for m in mk.values()):
+                        covered_cnt += 1
+            except Exception:
+                covered_cnt = 0
+            meta_snapshot = {
+                'date': date_str,
+                'generated_at': payload['meta'].get('generated_at'),
+                'pitchers': payload['meta'].get('pitchers') or len(merged),
+                'markets_total': payload['meta'].get('markets_total') or 0,
+                'covered_pitchers': covered_cnt,
+                'coverage_percent': round((covered_cnt / (len(merged) or 1)) * 100.0, 1) if merged else 0.0,
+                'requested_date': payload['meta'].get('requested_date') or date_str,
+                'source_date': payload['meta'].get('source_date') or date_str,
+                'synthesized': bool(payload['meta'].get('synthesized')),
+                'using_fallback_props': bool(payload['meta'].get('using_fallback_props')),
+                'kind': 'full'
+            }
+            meta_dir = os.path.join('data', 'daily_bovada')
+            os.makedirs(meta_dir, exist_ok=True)
+            safe_date = date_str.replace('-', '_')
+            meta_file = os.path.join(meta_dir, f'unified_full_meta_{safe_date}.json')
+            tmpf = meta_file + '.tmp'
+            with open(tmpf, 'w', encoding='utf-8') as f:
+                json.dump(meta_snapshot, f, indent=2)
+            os.replace(tmpf, meta_file)
+        except Exception:
+            pass
         if light_mode:
             # Reduce payload size for initial paint
             slim_data = {}
@@ -13734,6 +13738,55 @@ def api_props_progress():
             except Exception:
                 return str(v)
 
+        # First, prefer in-memory unified caches for freshest progress
+        try:
+            today = get_business_date()
+            light_cache = None
+            full_cache = None
+            if '_UNIFIED_PITCHER_CACHE_LIGHT' in globals():
+                light_cache = (_UNIFIED_PITCHER_CACHE_LIGHT or {}).get(today)
+            if '_UNIFIED_PITCHER_CACHE' in globals():
+                full_cache = (_UNIFIED_PITCHER_CACHE or {}).get(today)
+            payload = None
+            if full_cache and isinstance(full_cache, dict) and full_cache.get('payload'):
+                payload = full_cache['payload']
+            elif light_cache and isinstance(light_cache, dict) and light_cache.get('payload'):
+                payload = light_cache['payload']
+            if payload and isinstance(payload, dict):
+                meta = payload.get('meta') or {}
+                data = payload.get('data') or {}
+                pitchers = int(meta.get('pitchers') or len(data) or 0)
+                markets_total = int(meta.get('markets_total') or 0)
+                # Coverage heuristic: pitchers with at least one market
+                covered = 0
+                try:
+                    for v in (data.values() if isinstance(data, dict) else []):
+                        mk = (v.get('markets') or {}) if isinstance(v, dict) else {}
+                        if isinstance(mk, dict) and any(isinstance(m, dict) and (m.get('line') is not None) for m in mk.values()):
+                            covered += 1
+                except Exception:
+                    covered = 0
+                cov_pct = round((covered / pitchers) * 100.0, 1) if pitchers else 0.0
+                gen_at = meta.get('generated_at') or datetime.utcnow().isoformat()
+                return jsonify({
+                    'success': True,
+                    'source': 'cache',
+                    'data': {
+                        'date': payload.get('date') or today,
+                        'updated_at': _norm_ts(gen_at),
+                        'iteration': None,
+                        'coverage_percent': cov_pct,
+                        'covered_pitchers': covered,
+                        'total_pitchers': pitchers,
+                        'all_games_started': None,
+                        'active_game_count': None,
+                        'next_run_eta': None,
+                        'last_git_push': None
+                    }
+                })
+        except Exception:
+            pass
+
         # If a summary exists but its date is stale (not today's business date), ignore it
         if summary_path.exists():
             doc = _read_json_safe(str(summary_path)) or {}
@@ -13752,6 +13805,36 @@ def api_props_progress():
             except Exception:
                 # Fall through to dated snapshot fallback
                 pass
+        # Fallback: use meta snapshots from unified props if present (cross-worker visibility)
+        try:
+            today = get_business_date()
+            sdate = today.replace('-', '_')
+            base_dir = Path('data') / 'daily_bovada'
+            # Prefer light meta, then full
+            meta_paths = [
+                base_dir / f'unified_light_meta_{sdate}.json',
+                base_dir / f'unified_full_meta_{sdate}.json'
+            ]
+            for mp in meta_paths:
+                if mp.exists():
+                    mdoc = _read_json_safe(str(mp)) or {}
+                    cov_pct = float(mdoc.get('coverage_percent') or 0.0)
+                    covered = int(mdoc.get('covered_pitchers') or 0)
+                    total = int(mdoc.get('pitchers') or 0)
+                    return jsonify({'success': True, 'source': 'meta-file', 'data': {
+                        'date': mdoc.get('date') or today,
+                        'updated_at': _norm_ts(mdoc.get('generated_at')),
+                        'iteration': None,
+                        'coverage_percent': round(cov_pct, 1),
+                        'covered_pitchers': covered,
+                        'total_pitchers': total,
+                        'all_games_started': None,
+                        'active_game_count': None,
+                        'next_run_eta': None,
+                        'last_git_push': None
+                    }})
+        except Exception:
+            pass
         # Fallback: find latest dated file
         candidates = sorted(base.glob('pitcher_props_progress_*.json'))
         if candidates:
@@ -13797,23 +13880,60 @@ def api_props_spotlight_health():
     try:
         date_str = request.args.get('date') or get_business_date()
         light = None
+        full = None
         try:
             if '_UNIFIED_PITCHER_CACHE_LIGHT' in globals():
                 light = (_UNIFIED_PITCHER_CACHE_LIGHT or {}).get(date_str)
         except Exception:
             light = None
+        try:
+            if '_UNIFIED_PITCHER_CACHE' in globals():
+                full = (_UNIFIED_PITCHER_CACHE or {}).get(date_str)
+        except Exception:
+            full = None
+        chosen = None
         if light and isinstance(light, dict) and light.get('payload'):
-            payload = light['payload']
+            chosen = light
+        elif full and isinstance(full, dict) and full.get('payload'):
+            chosen = full
+        if chosen:
+            payload = chosen['payload']
             meta = payload.get('meta') or {}
             return jsonify({
                 'success': True,
                 'available': True,
                 'date': payload.get('date') or date_str,
-                'pitchers': meta.get('pitchers'),
+                'pitchers': meta.get('pitchers') or (len((payload.get('data') or {})) if isinstance(payload.get('data'), dict) else None),
                 'synthesized': bool(meta.get('synthesized')),
                 'source_date': meta.get('source_date'),
                 'requested_date': meta.get('requested_date')
             })
+        # Fallback: check meta snapshots from unified props on disk (cross-worker visibility)
+        try:
+            sdate = (request.args.get('date') or get_business_date()).replace('-', '_')
+            base_dir = os.path.join('data', 'daily_bovada')
+            candidates = [
+                os.path.join(base_dir, f'unified_light_meta_{sdate}.json'),
+                os.path.join(base_dir, f'unified_full_meta_{sdate}.json')
+            ]
+            for fp in candidates:
+                try:
+                    if os.path.exists(fp):
+                        with open(fp, 'r', encoding='utf-8') as f:
+                            mdoc = json.load(f)
+                        return jsonify({
+                            'success': True,
+                            'available': True,
+                            'date': mdoc.get('date') or date_str,
+                            'pitchers': mdoc.get('pitchers'),
+                            'synthesized': bool(mdoc.get('synthesized')),
+                            'source_date': mdoc.get('source_date'),
+                            'requested_date': mdoc.get('requested_date') or mdoc.get('date')
+                        })
+                except Exception:
+                    continue
+        except Exception:
+            pass
         return jsonify({'success': True, 'available': False, 'date': date_str})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
