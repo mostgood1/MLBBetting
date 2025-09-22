@@ -1,0 +1,32 @@
+[
+  {
+    "game_pk": 776221,
+    "game_time": "2025-09-22T23:15:00Z",
+    "away_team": "Washington Nationals",
+    "home_team": "Atlanta Braves",
+    "away_pitcher": "MacKenzie Gore",
+    "home_pitcher": "Chris Sale",
+    "away_probable_pitcher": "MacKenzie Gore",
+    "home_probable_pitcher": "Chris Sale"
+  },
+  {
+    "game_pk": 776222,
+    "game_time": "2025-09-23T01:40:00Z",
+    "away_team": "Milwaukee Brewers",
+    "home_team": "San Diego Padres",
+    "away_pitcher": "Freddy Peralta",
+    "home_pitcher": "Nick Pivetta",
+    "away_probable_pitcher": "Freddy Peralta",
+    "home_probable_pitcher": "Nick Pivetta"
+  },
+  {
+    "game_pk": 776220,
+    "game_time": "2025-09-23T01:45:00Z",
+    "away_team": "St. Louis Cardinals",
+    "home_team": "San Francisco Giants",
+    "away_pitcher": "Michael McGreevy",
+    "home_pitcher": "Justin Verlander",
+    "away_probable_pitcher": "Michael McGreevy",
+    "home_probable_pitcher": "Justin Verlander"
+  }
+]

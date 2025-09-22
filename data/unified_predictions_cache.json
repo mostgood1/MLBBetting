@@ -26079,6 +26079,170 @@
         "last_update_type": "full",
         "game_count": 15
       }
+    },
+    "2025-09-22": {
+      "games": {
+        "Washington Nationals_vs_Atlanta Braves": {
+          "away_team": "Washington Nationals",
+          "home_team": "Atlanta Braves",
+          "game_date": "2025-09-22",
+          "predictions": {
+            "home_win_prob": 0.705,
+            "away_win_prob": 0.295,
+            "predicted_home_score": 4.9,
+            "predicted_away_score": 3.4,
+            "predicted_total_runs": 8.4,
+            "home_score_range": [
+              2.0,
+              8.0
+            ],
+            "away_score_range": [
+              1.0,
+              6.0
+            ],
+            "total_runs_range": [
+              5.0,
+              12.0
+            ],
+            "confidence": 60.3
+          },
+          "betting_lines": {
+            "home_ml": -239,
+            "away_ml": 239,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "MacKenzie Gore",
+            "home_pitcher_name": "Chris Sale",
+            "away_pitcher_factor": 0.9889999999999999,
+            "home_pitcher_factor": 0.76
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 14.7,
+            "recommendations_found": 0,
+            "timestamp": "2025-09-22T08:59:29.812501",
+            "data_source": "live_simulation"
+          }
+        },
+        "Milwaukee Brewers_vs_San Diego Padres": {
+          "away_team": "Milwaukee Brewers",
+          "home_team": "San Diego Padres",
+          "game_date": "2025-09-22",
+          "predictions": {
+            "home_win_prob": 0.444,
+            "away_win_prob": 0.556,
+            "predicted_home_score": 3.8,
+            "predicted_away_score": 4.2,
+            "predicted_total_runs": 8.2,
+            "home_score_range": [
+              1.0,
+              7.0
+            ],
+            "away_score_range": [
+              2.0,
+              7.0
+            ],
+            "total_runs_range": [
+              5.0,
+              12.0
+            ],
+            "confidence": 61.1
+          },
+          "betting_lines": {
+            "home_ml": 125,
+            "away_ml": -125,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Freddy Peralta",
+            "home_pitcher_name": "Nick Pivetta",
+            "away_pitcher_factor": 0.76,
+            "home_pitcher_factor": 0.835
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 7.5,
+            "recommendations_found": 0,
+            "timestamp": "2025-09-22T08:59:29.819969",
+            "data_source": "live_simulation"
+          }
+        },
+        "St. Louis Cardinals_vs_San Francisco Giants": {
+          "away_team": "St. Louis Cardinals",
+          "home_team": "San Francisco Giants",
+          "game_date": "2025-09-22",
+          "predictions": {
+            "home_win_prob": 0.516,
+            "away_win_prob": 0.484,
+            "predicted_home_score": 5.4,
+            "predicted_away_score": 5.3,
+            "predicted_total_runs": 10.0,
+            "home_score_range": [
+              3.0,
+              8.0
+            ],
+            "away_score_range": [
+              2.0,
+              8.0
+            ],
+            "total_runs_range": [
+              7.0,
+              15.0
+            ],
+            "confidence": 56.4
+          },
+          "betting_lines": {
+            "home_ml": -106,
+            "away_ml": 106,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 10.0,
+              "edge": 1.5,
+              "expected_value": 0.102,
+              "kelly_bet_size": 5.9,
+              "confidence": "HIGH",
+              "reasoning": "Model: 10.0 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Michael McGreevy",
+            "home_pitcher_name": "Justin Verlander",
+            "away_pitcher_factor": 1.0768,
+            "home_pitcher_factor": 1.129
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 2.7,
+            "recommendations_found": 1,
+            "timestamp": "2025-09-22T08:59:29.822632",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-09-22T08:53:22.483021",
+        "pitcher_update_date": "2025-09-22",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-09-22T08:59:29.844368",
+        "last_update_type": "full",
+        "game_count": 3
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

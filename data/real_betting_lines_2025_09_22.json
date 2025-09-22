@@ -1,0 +1,71 @@
+{
+  "date": "2025-09-22",
+  "fetched_at": "2025-09-22T08:59:29.215105",
+  "source": "DraftKings_via_OddsAPI",
+  "lines": {
+    "Washington Nationals @ Atlanta Braves": {
+      "moneyline": {
+        "away": 213,
+        "home": -267
+      },
+      "total_runs": {
+        "line": 7.0,
+        "over": -121,
+        "under": 100
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -106,
+        "home": -115
+      }
+    },
+    "Milwaukee Brewers @ San Diego Padres": {
+      "moneyline": {
+        "away": 103,
+        "home": -125
+      },
+      "total_runs": {
+        "line": 7.0,
+        "over": -118,
+        "under": -103
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 177,
+        "home": -219
+      }
+    },
+    "St. Louis Cardinals @ San Francisco Giants": {
+      "moneyline": {
+        "away": 122,
+        "home": -149
+      },
+      "total_runs": {
+        "line": 8.0,
+        "over": -106,
+        "under": -114
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -177,
+        "home": 144
+      }
+    },
+    "Detroit Tigers @ Cleveland Guardians": {
+      "moneyline": {
+        "away": -169,
+        "home": 138
+      },
+      "total_runs": {
+        "line": null,
+        "over": null,
+        "under": null
+      },
+      "run_line": {
+        "line": null,
+        "away": null,
+        "home": null
+      }
+    }
+  }
+}

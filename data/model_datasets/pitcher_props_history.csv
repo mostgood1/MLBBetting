@@ -81,37 +81,37 @@ date,pitcher_id,pitcher_name,team,opponent,venue_home_team,line_strikeouts,line_
 2025-09-19,669194,Ryne Nelson,ryne nelson,Arizona Diamondbacks,Philadelphia Phillies,Arizona Diamondbacks,4.5,16.5,6.2,21,5.9,21,0.944,0.9959914712153518,0.2121,1.04,7.0,7.0,0.22019333333333335,OVER,OVER,1.7000000000000002,4.5,1.4000000000000004,4.5,-145,110,-130,-110,,
 2025-09-19,592662,Robbie Ray,robbie ray,San Francisco Giants,Los Angeles Dodgers,Los Angeles Dodgers,5.5,15.5,5.6,17,5.7,17,1.018,0.9746695095948827,0.2208,0.97,5.34,5.67,0.22019333333333335,,,0.09999999999999964,1.5,0.20000000000000018,1.5,120,-160,110,-150,,
 2025-09-19,477132,Clayton Kershaw,clayton kershaw,Los Angeles Dodgers,San Francisco Giants,Los Angeles Dodgers,4.5,14.5,3.2,16,3.3,16,1.042,0.9893816631130063,0.2261,0.97,5.19,5.19,0.22019333333333335,UNDER,,-1.2999999999999998,1.5,-1.2000000000000002,1.5,105,-135,-190,145,,
-2025-09-20,666214,Joey Wentz,joey wentz,Atlanta Braves,Detroit Tigers,Detroit Tigers,,,4.4,15,4.7,15,1.068,1.002174840085288,0.2351,1.0,4.06,4.88,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,672456,Keider Montero,keider montero,Detroit Tigers,Atlanta Braves,Detroit Tigers,,,4.9,20,5.0,20,1.026,0.9836247334754797,0.2259,1.0,4.8,6.79,0.22019333333333335,,,,,,,,,,,,
+2025-09-20,666214,Joey Wentz,joey wentz,Atlanta Braves,Detroit Tigers,Detroit Tigers,,,4.4,15,4.7,15,1.068,1.002174840085288,0.2351,1.0,4.06,4.88,0.22019333333333335,,,,,,,,,,7,15,boxscore
+2025-09-20,672456,Keider Montero,keider montero,Detroit Tigers,Atlanta Braves,Detroit Tigers,,,4.9,20,5.0,20,1.026,0.9836247334754797,0.2259,1.0,4.8,6.79,0.22019333333333335,,,,,,,,,,2,9,boxscore
 2025-09-20,677944,Slade Cecconi,slade cecconi,Cleveland Guardians,Minnesota Twins,Minnesota Twins,,,4.8,18,4.8,18,0.997,1.0043070362473348,0.2217,1.02,6.2,5.87,0.22019333333333335,,,,,,,,,,,,
 2025-09-20,657746,Joe Ryan,joe ryan,Minnesota Twins,Cleveland Guardians,Minnesota Twins,,,6.2,17,6.3,17,1.016,1.0023880597014925,0.226,1.02,4.94,5.55,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,671106,Logan Allen,logan allen,Cleveland Guardians,Minnesota Twins,Minnesota Twins,,,4.1,16,4.1,16,0.997,1.0043070362473348,0.2217,1.02,5.14,5.27,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,641927,Bailey Ober,bailey ober,Minnesota Twins,Cleveland Guardians,Minnesota Twins,,,4.4,16,4.5,16,1.016,1.0023880597014925,0.226,1.02,5.4,5.42,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,676917,Cade Cavalli,cade cavalli,Washington Nationals,New York Mets,New York Mets,,,4.5,17,4.3,17,0.949,0.9819189765458421,0.2101,1.01,5.53,5.53,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,690997,Nolan McLean,nolan mclean,New York Mets,Washington Nationals,New York Mets,,,7.5,18,7.4,18,0.986,1.0166737739872067,0.2183,1.01,,,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,665871,Javier Assad,javier assad,Chicago Cubs,Cincinnati Reds,Cincinnati Reds,,,3.0,14,3.1,14,1.041,0.9951385927505331,0.2316,1.02,4.67,4.67,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,641793,Zack Littell,zack littell,Cincinnati Reds,Chicago Cubs,Cincinnati Reds,,,3.8,17,3.5,17,0.915,0.988955223880597,0.2035,1.02,5.0,5.63,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,806960,Luis Morales,luis morales,Athletics,Pittsburgh Pirates,Pittsburgh Pirates,,,5.0,15,5.4,15,1.077,0.9919402985074626,0.2359,0.99,5.07,5.07,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,690986,Kyle Harrison,kyle harrison,Boston Red Sox,Tampa Bay Rays,Tampa Bay Rays,,,6.2,17,6.5,17,1.051,1.0168869936034115,0.2281,0.97,5.8,5.8,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,605288,Adrian Houser,adrian houser,Tampa Bay Rays,Boston Red Sox,Tampa Bay Rays,,,4.3,19,4.6,19,1.058,1.001961620469083,0.2296,0.97,6.2,6.2,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,800049,Adam Mazur,adam mazur,Miami Marlins,Texas Rangers,Texas Rangers,,,5.0,16,4.8,16,0.96,1.0064392324093816,0.2179,1.06,5.23,5.21,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,683004,Jack Leiter,jack leiter,Texas Rangers,Miami Marlins,Texas Rangers,,,5.0,16,4.6,16,0.912,1.0098507462686568,0.2071,1.06,5.54,5.22,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,607074,Carlos Rodón,carlos rodon,New York Yankees,Baltimore Orioles,Baltimore Orioles,,,6.2,18,6.6,18,1.062,1.015820895522388,0.2374,1.03,5.87,5.87,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,608372,Tomoyuki Sugano,tomoyuki sugano,Baltimore Orioles,New York Yankees,Baltimore Orioles,,,3.3,15,3.4,14,1.028,0.9625159914712154,0.2299,1.03,4.54,5.09,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,669923,George Kirby,george kirby,Seattle Mariners,Houston Astros,Houston Astros,,,5.6,16,5.4,16,0.971,1.012409381663113,0.2116,0.98,5.34,5.5,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,664285,Framber Valdez,framber valdez,Houston Astros,Seattle Mariners,Houston Astros,,,6.1,19,6.5,19,1.065,0.9932196162046908,0.2322,0.98,6.28,6.28,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,669456,Shane Bieber,shane bieber,Toronto Blue Jays,Kansas City Royals,Kansas City Royals,,,9.0,18,7.5,18,0.828,1.0256289978678037,0.1832,1.01,,,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,702070,Noah Cameron,noah cameron,Kansas City Royals,Toronto Blue Jays,Kansas City Royals,,,4.4,16,3.5,16,0.794,0.9983368869936033,0.1758,1.01,5.14,5.49,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,506433,Yu Darvish,yu darvish,San Diego Padres,Chicago White Sox,Chicago White Sox,,,4.3,14,4.3,14,1.009,0.9994029850746269,0.2232,1.01,4.8,4.8,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,672782,Yoendrys Gómez,yoendrys gomez,Chicago White Sox,San Diego Padres,Chicago White Sox,,,2.4,15,2.0,15,0.851,0.997910447761194,0.1884,1.01,4.74,4.9,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,694477,Chad Patrick,chad patrick,Milwaukee Brewers,St. Louis Cardinals,St. Louis Cardinals,,,5.3,16,5.2,16,0.975,1.0107036247334755,0.2146,1.0,5.25,5.25,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,571945,Miles Mikolas,miles mikolas,St. Louis Cardinals,Milwaukee Brewers,St. Louis Cardinals,,,3.2,15,3.0,15,0.924,0.9881023454157782,0.2034,1.0,5.0,5.0,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,543294,Kyle Hendricks,kyle hendricks,Los Angeles Angels,Colorado Rockies,Colorado Rockies,,,3.5,16,3.7,17,1.067,1.0347974413646055,0.2539,1.15,5.14,5.18,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,608566,Germán Márquez,german marquez,Colorado Rockies,Los Angeles Angels,Colorado Rockies,,,3.6,15,4.0,15,1.113,1.001961620469083,0.2649,1.15,4.86,4.89,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,605400,Aaron Nola,aaron nola,Philadelphia Phillies,Arizona Diamondbacks,Arizona Diamondbacks,,,5.6,16,5.3,16,0.944,0.9940724946695095,0.212,1.04,5.27,5.27,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,668678,Zac Gallen,zac gallen,Arizona Diamondbacks,Philadelphia Phillies,Arizona Diamondbacks,,,5.2,17,4.9,17,0.944,0.9959914712153518,0.2121,1.04,5.8,5.79,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,678906,Kai-Wei Teng,kai-wei teng,San Francisco Giants,Los Angeles Dodgers,Los Angeles Dodgers,,,4.0,13,4.1,13,1.018,0.9746695095948827,0.2208,0.97,4.37,4.37,0.22019333333333335,,,,,,,,,,,,
-2025-09-20,607192,Tyler Glasnow,tyler glasnow,Los Angeles Dodgers,San Francisco Giants,Los Angeles Dodgers,,,5.8,14,6.0,14,1.042,0.9893816631130063,0.2261,0.97,4.71,4.71,0.22019333333333335,,,,,,,,,,,,
+2025-09-20,671106,Logan Allen,logan allen,Cleveland Guardians,Minnesota Twins,Minnesota Twins,,,4.1,16,4.1,16,0.997,1.0043070362473348,0.2217,1.02,5.14,5.27,0.22019333333333335,,,,,,,,,,7,24,boxscore
+2025-09-20,641927,Bailey Ober,bailey ober,Minnesota Twins,Cleveland Guardians,Minnesota Twins,,,4.4,16,4.5,16,1.016,1.0023880597014925,0.226,1.02,5.4,5.42,0.22019333333333335,,,,,,,,,,1,15,boxscore
+2025-09-20,676917,Cade Cavalli,cade cavalli,Washington Nationals,New York Mets,New York Mets,,,4.5,17,4.3,17,0.949,0.9819189765458421,0.2101,1.01,5.53,5.53,0.22019333333333335,,,,,,,,,,3,15,boxscore
+2025-09-20,690997,Nolan McLean,nolan mclean,New York Mets,Washington Nationals,New York Mets,,,7.5,18,7.4,18,0.986,1.0166737739872067,0.2183,1.01,,,0.22019333333333335,,,,,,,,,,6,15,boxscore
+2025-09-20,665871,Javier Assad,javier assad,Chicago Cubs,Cincinnati Reds,Cincinnati Reds,,,3.0,14,3.1,14,1.041,0.9951385927505331,0.2316,1.02,4.67,4.67,0.22019333333333335,,,,,,,,,,2,12,boxscore
+2025-09-20,641793,Zack Littell,zack littell,Cincinnati Reds,Chicago Cubs,Cincinnati Reds,,,3.8,17,3.5,17,0.915,0.988955223880597,0.2035,1.02,5.0,5.63,0.22019333333333335,,,,,,,,,,4,15,boxscore
+2025-09-20,806960,Luis Morales,luis morales,Athletics,Pittsburgh Pirates,Pittsburgh Pirates,,,5.0,15,5.4,15,1.077,0.9919402985074626,0.2359,0.99,5.07,5.07,0.22019333333333335,,,,,,,,,,4,18,boxscore
+2025-09-20,690986,Kyle Harrison,kyle harrison,Boston Red Sox,Tampa Bay Rays,Tampa Bay Rays,,,6.2,17,6.5,17,1.051,1.0168869936034115,0.2281,0.97,5.8,5.8,0.22019333333333335,,,,,,,,,,5,18,boxscore
+2025-09-20,605288,Adrian Houser,adrian houser,Tampa Bay Rays,Boston Red Sox,Tampa Bay Rays,,,4.3,19,4.6,19,1.058,1.001961620469083,0.2296,0.97,6.2,6.2,0.22019333333333335,,,,,,,,,,2,18,boxscore
+2025-09-20,800049,Adam Mazur,adam mazur,Miami Marlins,Texas Rangers,Texas Rangers,,,5.0,16,4.8,16,0.96,1.0064392324093816,0.2179,1.06,5.23,5.21,0.22019333333333335,,,,,,,,,,2,12,boxscore
+2025-09-20,683004,Jack Leiter,jack leiter,Texas Rangers,Miami Marlins,Texas Rangers,,,5.0,16,4.6,16,0.912,1.0098507462686568,0.2071,1.06,5.54,5.22,0.22019333333333335,,,,,,,,,,4,17,boxscore
+2025-09-20,607074,Carlos Rodón,carlos rodon,New York Yankees,Baltimore Orioles,Baltimore Orioles,,,6.2,18,6.6,18,1.062,1.015820895522388,0.2374,1.03,5.87,5.87,0.22019333333333335,,,,,,,,,,8,21,boxscore
+2025-09-20,608372,Tomoyuki Sugano,tomoyuki sugano,Baltimore Orioles,New York Yankees,Baltimore Orioles,,,3.3,15,3.4,14,1.028,0.9625159914712154,0.2299,1.03,4.54,5.09,0.22019333333333335,,,,,,,,,,3,9,boxscore
+2025-09-20,669923,George Kirby,george kirby,Seattle Mariners,Houston Astros,Houston Astros,,,5.6,16,5.4,16,0.971,1.012409381663113,0.2116,0.98,5.34,5.5,0.22019333333333335,,,,,,,,,,7,18,boxscore
+2025-09-20,664285,Framber Valdez,framber valdez,Houston Astros,Seattle Mariners,Houston Astros,,,6.1,19,6.5,19,1.065,0.9932196162046908,0.2322,0.98,6.28,6.28,0.22019333333333335,,,,,,,,,,4,14,boxscore
+2025-09-20,669456,Shane Bieber,shane bieber,Toronto Blue Jays,Kansas City Royals,Kansas City Royals,,,9.0,18,7.5,18,0.828,1.0256289978678037,0.1832,1.01,,,0.22019333333333335,,,,,,,,,,4,19,boxscore
+2025-09-20,702070,Noah Cameron,noah cameron,Kansas City Royals,Toronto Blue Jays,Kansas City Royals,,,4.4,16,3.5,16,0.794,0.9983368869936033,0.1758,1.01,5.14,5.49,0.22019333333333335,,,,,,,,,,5,20,boxscore
+2025-09-20,506433,Yu Darvish,yu darvish,San Diego Padres,Chicago White Sox,Chicago White Sox,,,4.3,14,4.3,14,1.009,0.9994029850746269,0.2232,1.01,4.8,4.8,0.22019333333333335,,,,,,,,,,4,14,boxscore
+2025-09-20,672782,Yoendrys Gómez,yoendrys gomez,Chicago White Sox,San Diego Padres,Chicago White Sox,,,2.4,15,2.0,15,0.851,0.997910447761194,0.1884,1.01,4.74,4.9,0.22019333333333335,,,,,,,,,,4,16,boxscore
+2025-09-20,694477,Chad Patrick,chad patrick,Milwaukee Brewers,St. Louis Cardinals,St. Louis Cardinals,,,5.3,16,5.2,16,0.975,1.0107036247334755,0.2146,1.0,5.25,5.25,0.22019333333333335,,,,,,,,,,3,13,boxscore
+2025-09-20,571945,Miles Mikolas,miles mikolas,St. Louis Cardinals,Milwaukee Brewers,St. Louis Cardinals,,,3.2,15,3.0,15,0.924,0.9881023454157782,0.2034,1.0,5.0,5.0,0.22019333333333335,,,,,,,,,,3,15,boxscore
+2025-09-20,543294,Kyle Hendricks,kyle hendricks,Los Angeles Angels,Colorado Rockies,Colorado Rockies,,,3.5,16,3.7,17,1.067,1.0347974413646055,0.2539,1.15,5.14,5.18,0.22019333333333335,,,,,,,,,,5,21,boxscore
+2025-09-20,608566,Germán Márquez,german marquez,Colorado Rockies,Los Angeles Angels,Colorado Rockies,,,3.6,15,4.0,15,1.113,1.001961620469083,0.2649,1.15,4.86,4.89,0.22019333333333335,,,,,,,,,,5,21,boxscore
+2025-09-20,605400,Aaron Nola,aaron nola,Philadelphia Phillies,Arizona Diamondbacks,Arizona Diamondbacks,,,5.6,16,5.3,16,0.944,0.9940724946695095,0.212,1.04,5.27,5.27,0.22019333333333335,,,,,,,,,,4,16,boxscore
+2025-09-20,668678,Zac Gallen,zac gallen,Arizona Diamondbacks,Philadelphia Phillies,Arizona Diamondbacks,,,5.2,17,4.9,17,0.944,0.9959914712153518,0.2121,1.04,5.8,5.79,0.22019333333333335,,,,,,,,,,9,21,boxscore
+2025-09-20,678906,Kai-Wei Teng,kai-wei teng,San Francisco Giants,Los Angeles Dodgers,Los Angeles Dodgers,,,4.0,13,4.1,13,1.018,0.9746695095948827,0.2208,0.97,4.37,4.37,0.22019333333333335,,,,,,,,,,6,9,boxscore
+2025-09-20,607192,Tyler Glasnow,tyler glasnow,Los Angeles Dodgers,San Francisco Giants,Los Angeles Dodgers,,,5.8,14,6.0,14,1.042,0.9893816631130063,0.2261,0.97,4.71,4.71,0.22019333333333335,,,,,,,,,,7,15,boxscore
 2025-09-21,687765,Mitch Spence,mitch spence,Athletics,Pittsburgh Pirates,Pittsburgh Pirates,3.5,,6.9,24,7.4,24,1.077,0.9919402985074626,0.2359,0.99,5.14,8.42,0.22019333333333335,OVER,,3.4000000000000004,,3.9000000000000004,,-130,,,,,
 2025-09-21,681347,Mike Burrows,mike burrows,Pittsburgh Pirates,Athletics,Pittsburgh Pirates,4.5,,4.9,15,5.0,15,1.029,1.0028144989339018,0.2255,0.99,4.94,4.83,0.22019333333333335,,,0.40000000000000036,,0.5,,-110,-120,,,,
 2025-09-21,693645,Cam Schlittler,cam schlittler,New York Yankees,Baltimore Orioles,Baltimore Orioles,6.5,15.5,5.3,15,5.6,15,1.062,1.015820895522388,0.2374,1.03,4.86,5.04,0.22019333333333335,UNDER,,-1.2000000000000002,-0.5,-0.9000000000000004,-0.5,120,-160,115,-155,,
@@ -137,3 +137,10 @@ date,pitcher_id,pitcher_name,team,opponent,venue_home_team,line_strikeouts,line_
 2025-09-21,669302,Logan Gilbert,logan gilbert,Seattle Mariners,Houston Astros,Houston Astros,,,7.2,16,7.0,16,0.971,1.012409381663113,0.2116,0.98,5.2,5.2,0.22019333333333335,,,,,,,,,,,,
 2025-09-21,669920,Jason Alexander,jason alexander,Houston Astros,Seattle Mariners,Houston Astros,,,5.8,20,6.2,20,1.065,0.9932196162046908,0.2322,0.98,6.58,6.58,0.22019333333333335,,,,,,,,,,,,
 2025-09-21,671212,Joe Boyle,joe boyle,Tampa Bay Rays,Boston Red Sox,Tampa Bay Rays,4.5,,6.5,18,6.9,18,1.058,1.001961620469083,0.2296,0.97,6.03,6.03,0.22019333333333335,OVER,,2.0,,2.4000000000000004,,-135,105,,,,
+2025-09-22,669022,MacKenzie Gore,mackenzie gore,Washington Nationals,Tampa Bay Rays,Washington Nationals,,,6.4,16,6.6,16,1.026,1.0168869936034115,0.2281,1.02,5.14,5.34,0.22019333333333335,,,,,,,,,,,,
+2025-09-22,519242,Chris Sale,chris sale,Atlanta Braves,Philadelphia Phillies,Philadelphia Phillies,,,8.2,19,7.7,19,0.944,0.9959914712153518,0.2121,1.04,6.86,6.34,0.22019333333333335,,,,,,,,,,,,
+2025-09-22,642547,Freddy Peralta,freddy peralta,Milwaukee Brewers,Toronto Blue Jays,Toronto Blue Jays,,,6.0,16,4.8,16,0.794,0.9983368869936033,0.1758,1.01,5.4,5.43,0.22019333333333335,,,,,,,,,,,,
+2025-09-22,601713,Nick Pivetta,nick pivetta,San Diego Padres,Minnesota Twins,Minnesota Twins,,,6.1,17,6.1,17,0.997,1.0043070362473348,0.2217,1.02,5.74,5.81,0.22019333333333335,,,,,,,,,,,,
+2025-09-22,700241,Michael McGreevy,michael mcgreevy,St. Louis Cardinals,Cincinnati Reds,Cincinnati Reds,,,3.5,18,3.6,18,1.041,0.9951385927505331,0.2316,1.02,5.8,5.97,0.22019333333333335,,,,,,,,,,,,
+2025-09-22,434378,Justin Verlander,justin verlander,San Francisco Giants,Baltimore Orioles,San Francisco Giants,,,4.7,16,5.2,16,1.11,1.015820895522388,0.2374,0.94,5.66,5.27,0.22019333333333335,,,,,,,,,,,,
+2025-09-22,608379,Michael Wacha,michael wacha,Kansas City Royals,Detroit Tigers,Kansas City Royals,2.5,14.5,4.1,17,4.4,17,1.062,1.002174840085288,0.2351,1.01,5.54,5.64,0.22019333333333335,OVER,OVER,1.5999999999999996,2.5,1.9000000000000004,2.5,-165,125,-155,115,,

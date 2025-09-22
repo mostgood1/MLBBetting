@@ -1,0 +1,27 @@
+{
+  "date": "2025-09-22",
+  "fetched_at": "2025-09-22T08:53:22.429366",
+  "games": [
+    {
+      "away_team": "Washington Nationals",
+      "home_team": "Atlanta Braves",
+      "away_pitcher": "MacKenzie Gore",
+      "home_pitcher": "Chris Sale",
+      "game_key": "Washington Nationals @ Atlanta Braves"
+    },
+    {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "San Diego Padres",
+      "away_pitcher": "Freddy Peralta",
+      "home_pitcher": "Nick Pivetta",
+      "game_key": "Milwaukee Brewers @ San Diego Padres"
+    },
+    {
+      "away_team": "St. Louis Cardinals",
+      "home_team": "San Francisco Giants",
+      "away_pitcher": "Michael McGreevy",
+      "home_pitcher": "Justin Verlander",
+      "game_key": "St. Louis Cardinals @ San Francisco Giants"
+    }
+  ]
+}

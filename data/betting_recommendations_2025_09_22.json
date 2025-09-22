@@ -1,0 +1,104 @@
+{
+  "date": "2025-09-22",
+  "generated_at": "2025-09-22T08:59:30.141118",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Washington Nationals_vs_Atlanta Braves": {
+      "away_team": "Washington Nationals",
+      "home_team": "Atlanta Braves",
+      "away_pitcher": "MacKenzie Gore",
+      "home_pitcher": "Chris Sale",
+      "predicted_score": "3.4-4.9",
+      "predicted_total_runs": 8.4,
+      "win_probabilities": {
+        "away_prob": 0.295,
+        "home_prob": 0.705
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.0",
+          "expected_value": 0.16892561983471077,
+          "win_probability": 0.64,
+          "american_odds": "-121",
+          "confidence": "medium",
+          "kelly_bet_size": 20.4,
+          "predicted_total": 8.4,
+          "betting_line": 7.0,
+          "reasoning": "Predicted 8.4 vs line 7.0"
+        }
+      ]
+    },
+    "Milwaukee Brewers_vs_San Diego Padres": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "San Diego Padres",
+      "away_pitcher": "Freddy Peralta",
+      "home_pitcher": "Nick Pivetta",
+      "predicted_score": "4.2-3.8",
+      "predicted_total_runs": 8.2,
+      "win_probabilities": {
+        "away_prob": 0.556,
+        "home_prob": 0.444
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.0",
+          "expected_value": 0.14542372881355914,
+          "win_probability": 0.6199999999999999,
+          "american_odds": "-118",
+          "confidence": "low",
+          "kelly_bet_size": 17.2,
+          "predicted_total": 8.2,
+          "betting_line": 7.0,
+          "reasoning": "Predicted 8.2 vs line 7.0"
+        },
+        {
+          "type": "moneyline",
+          "recommendation": "Milwaukee Brewers ML",
+          "expected_value": 0.12868000000000013,
+          "win_probability": 0.556,
+          "american_odds": "103",
+          "confidence": "low",
+          "kelly_bet_size": 12.5,
+          "reasoning": "Model projects 55.6% win probability vs 49.3% implied odds"
+        }
+      ]
+    },
+    "St. Louis Cardinals_vs_San Francisco Giants": {
+      "away_team": "St. Louis Cardinals",
+      "home_team": "San Francisco Giants",
+      "away_pitcher": "Michael McGreevy",
+      "home_pitcher": "Justin Verlander",
+      "predicted_score": "5.3-5.4",
+      "predicted_total_runs": 10.0,
+      "win_probabilities": {
+        "away_prob": 0.484,
+        "home_prob": 0.516
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 8.0",
+          "expected_value": 0.36037735849056596,
+          "win_probability": 0.7,
+          "american_odds": "-106",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 10.0,
+          "betting_line": 8.0,
+          "reasoning": "Predicted 10.0 vs line 8.0"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 3,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 4,
+    "high_confidence_bets": 1,
+    "medium_confidence_bets": 1,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

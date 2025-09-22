@@ -1571,5 +1571,44 @@
     "outcome": "pending",
     "profit_loss": 0.0,
     "roi": 0.0
+  },
+  {
+    "date": "2025-09-22",
+    "game": "St. Louis Cardinals vs San Francisco Giants",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.0",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -106,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-22",
+    "game": "Washington Nationals vs Atlanta Braves",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.0",
+    "confidence": 0.204,
+    "kelly_percentage": 20.4,
+    "recommended_bet": 80,
+    "odds": -121,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-22",
+    "game": "Milwaukee Brewers vs San Diego Padres",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.0",
+    "confidence": 0.172,
+    "kelly_percentage": 17.2,
+    "recommended_bet": 70,
+    "odds": -118,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
   }
 ]
