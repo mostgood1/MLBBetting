@@ -1,0 +1,32 @@
+{
+  "Washington Nationals_vs_Atlanta Braves": {
+    "away_team": "Washington Nationals",
+    "home_team": "Atlanta Braves",
+    "away_score": 5,
+    "home_score": 11,
+    "total_runs": 16,
+    "winner": "home",
+    "game_pk": 776221,
+    "is_final": true
+  },
+  "Milwaukee Brewers_vs_San Diego Padres": {
+    "away_team": "Milwaukee Brewers",
+    "home_team": "San Diego Padres",
+    "away_score": 4,
+    "home_score": 5,
+    "total_runs": 9,
+    "winner": "home",
+    "game_pk": 776222,
+    "is_final": true
+  },
+  "St. Louis Cardinals_vs_San Francisco Giants": {
+    "away_team": "St. Louis Cardinals",
+    "home_team": "San Francisco Giants",
+    "away_score": 6,
+    "home_score": 5,
+    "total_runs": 11,
+    "winner": "away",
+    "game_pk": 776220,
+    "is_final": true
+  }
+}
