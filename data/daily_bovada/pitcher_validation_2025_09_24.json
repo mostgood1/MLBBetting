@@ -1,0 +1,25 @@
+{
+  "date": "2025-09-24",
+  "generated_at": "2025-09-24T14:59:42.249445",
+  "pitcher_count": 28,
+  "team_mismatches": 2,
+  "opponent_validation_mismatches": 0,
+  "opponent_corrections": 0,
+  "sample_team_mismatches": [
+    {
+      "pitcher_name": "Stephen Kolek",
+      "pitcher_id": "663568",
+      "master_team": "San Diego Padres",
+      "resolved_team": "Kansas City Royals",
+      "team_source": "game_match"
+    },
+    {
+      "pitcher_name": "JT Brubaker",
+      "pitcher_id": "664141",
+      "master_team": "New York Yankees",
+      "resolved_team": "San Francisco Giants",
+      "team_source": "game_match"
+    }
+  ],
+  "sample_opponent_mismatches": []
+}
