@@ -1,0 +1,54 @@
+[
+  {
+    "date": "2025-09-25",
+    "game": "Pittsburgh Pirates vs Cincinnati Reds",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.0",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -108,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-25",
+    "game": "Detroit Tigers vs Cleveland Guardians",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.5",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -117,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-25",
+    "game": "Chicago White Sox vs New York Yankees",
+    "bet_type": "Over/Under",
+    "bet_details": "Under 8.5",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -102,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-25",
+    "game": "Boston Red Sox vs Toronto Blue Jays",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.0",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -103,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  }
+]

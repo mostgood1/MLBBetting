@@ -1,0 +1,122 @@
+[
+  {
+    "game_pk": 776190,
+    "game_time": "2025-09-25T16:40:00Z",
+    "away_team": "Pittsburgh Pirates",
+    "home_team": "Cincinnati Reds",
+    "away_pitcher": "Braxton Ashcraft",
+    "home_pitcher": "Nick Lodolo",
+    "away_probable_pitcher": "Braxton Ashcraft",
+    "home_probable_pitcher": "Nick Lodolo"
+  },
+  {
+    "game_pk": 776191,
+    "game_time": "2025-09-25T17:05:00Z",
+    "away_team": "Tampa Bay Rays",
+    "home_team": "Baltimore Orioles",
+    "away_pitcher": "Drew Rasmussen",
+    "home_pitcher": "Cade Povich",
+    "away_probable_pitcher": "Drew Rasmussen",
+    "home_probable_pitcher": "Cade Povich"
+  },
+  {
+    "game_pk": 776183,
+    "game_time": "2025-09-25T18:35:00Z",
+    "away_team": "Minnesota Twins",
+    "home_team": "Texas Rangers",
+    "away_pitcher": "Bailey Ober",
+    "home_pitcher": "Tyler Mahle",
+    "away_probable_pitcher": "Bailey Ober",
+    "home_probable_pitcher": "Tyler Mahle"
+  },
+  {
+    "game_pk": 776182,
+    "game_time": "2025-09-25T19:35:00Z",
+    "away_team": "Houston Astros",
+    "home_team": "Athletics",
+    "away_pitcher": "Framber Valdez",
+    "home_pitcher": "J.T. Ginn",
+    "away_probable_pitcher": "Framber Valdez",
+    "home_probable_pitcher": "J.T. Ginn"
+  },
+  {
+    "game_pk": 776185,
+    "game_time": "2025-09-25T19:40:00Z",
+    "away_team": "Los Angeles Dodgers",
+    "home_team": "Arizona Diamondbacks",
+    "away_pitcher": "Yoshinobu Yamamoto",
+    "home_pitcher": "Jalen Beeks",
+    "away_probable_pitcher": "Yoshinobu Yamamoto",
+    "home_probable_pitcher": "Jalen Beeks"
+  },
+  {
+    "game_pk": 776188,
+    "game_time": "2025-09-25T22:05:00Z",
+    "away_team": "Miami Marlins",
+    "home_team": "Philadelphia Phillies",
+    "away_pitcher": "Janson Junk",
+    "home_pitcher": "Walker Buehler",
+    "away_probable_pitcher": "Janson Junk",
+    "home_probable_pitcher": "Walker Buehler"
+  },
+  {
+    "game_pk": 776189,
+    "game_time": "2025-09-25T22:40:00Z",
+    "away_team": "Detroit Tigers",
+    "home_team": "Cleveland Guardians",
+    "away_pitcher": "Troy Melton",
+    "home_pitcher": "Parker Messick",
+    "away_probable_pitcher": "Troy Melton",
+    "home_probable_pitcher": "Parker Messick"
+  },
+  {
+    "game_pk": 776184,
+    "game_time": "2025-09-25T23:05:00Z",
+    "away_team": "Chicago White Sox",
+    "home_team": "New York Yankees",
+    "away_pitcher": "Davis Martin",
+    "home_pitcher": "Carlos Rod\u00f3n",
+    "away_probable_pitcher": "Davis Martin",
+    "home_probable_pitcher": "Carlos Rod\u00f3n"
+  },
+  {
+    "game_pk": 776186,
+    "game_time": "2025-09-25T23:07:00Z",
+    "away_team": "Boston Red Sox",
+    "home_team": "Toronto Blue Jays",
+    "away_pitcher": "Brayan Bello",
+    "home_pitcher": "Louis Varland",
+    "away_probable_pitcher": "Brayan Bello",
+    "home_probable_pitcher": "Louis Varland"
+  },
+  {
+    "game_pk": 776187,
+    "game_time": "2025-09-25T23:40:00Z",
+    "away_team": "New York Mets",
+    "home_team": "Chicago Cubs",
+    "away_pitcher": "Nolan McLean",
+    "home_pitcher": "Shota Imanaga",
+    "away_probable_pitcher": "Nolan McLean",
+    "home_probable_pitcher": "Shota Imanaga"
+  },
+  {
+    "game_pk": 776178,
+    "game_time": "2025-09-26T01:38:00Z",
+    "away_team": "Kansas City Royals",
+    "home_team": "Los Angeles Angels",
+    "away_pitcher": "Michael Lorenzen",
+    "home_pitcher": "Mitch Farris",
+    "away_probable_pitcher": "Michael Lorenzen",
+    "home_probable_pitcher": "Mitch Farris"
+  },
+  {
+    "game_pk": 776179,
+    "game_time": "2025-09-26T01:40:00Z",
+    "away_team": "Colorado Rockies",
+    "home_team": "Seattle Mariners",
+    "away_pitcher": "Bradley Blalock",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Bradley Blalock",
+    "home_probable_pitcher": "TBD"
+  }
+]
