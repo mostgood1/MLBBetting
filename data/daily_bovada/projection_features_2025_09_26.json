@@ -1,6 +1,6 @@
 {
   "date": "2025-09-26",
-  "generated_at": "2025-09-26T13:56:10.958855",
+  "generated_at": "2025-09-26T17:57:30.427119",
   "pitchers": [
     {
       "pitcher_id": "571945",
@@ -85,6 +85,92 @@
       }
     },
     {
+      "pitcher_id": "607067",
+      "pitcher_name": "Colin Rea",
+      "team": "Chicago Cubs",
+      "opponent": "St. Louis Cardinals",
+      "venue_home_team": "Chicago Cubs",
+      "team_source": "game_match",
+      "projected_outs": 17,
+      "projected_innings": 5.6,
+      "projected_strikeouts": 4.1,
+      "projected_earned_runs": 2.5,
+      "projected_hits_allowed": 5.6,
+      "projected_walks": 1.7,
+      "adjusted_projections": {
+        "strikeouts": 3.9,
+        "outs": 17,
+        "k_factor": 0.95,
+        "park_factor_used": 1.05,
+        "opponent_k_rate": 0.2146,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0107036247334755,
+        "recent_ip_weighted": 5.6,
+        "recent_ip_per_start": 5.34
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": 3.5,
+          "over_odds": -160,
+          "under_odds": 120
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -450
+          },
+          {
+            "threshold": 5,
+            "odds": 150
+          },
+          {
+            "threshold": 6,
+            "odds": 320
+          },
+          {
+            "threshold": 7,
+            "odds": 700
+          },
+          {
+            "threshold": 8,
+            "odds": 1500
+          }
+        ],
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": -105,
+          "under_odds": -135
+        },
+        "hits_allowed": {
+          "line": 5.5,
+          "over_odds": 115,
+          "under_odds": -155
+        },
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": 0.5999999999999996,
+        "earned_runs": 0.0,
+        "hits_allowed": 0.09999999999999964,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": 0.3999999999999999
+      }
+    },
+    {
       "pitcher_id": "657746",
       "pitcher_name": "Joe Ryan",
       "team": "Minnesota Twins",
@@ -110,7 +196,11 @@
       },
       "confidence": "HIGH",
       "lines": {
-        "outs": null,
+        "outs": {
+          "line": 15.5,
+          "over_odds": 145,
+          "under_odds": -190
+        },
         "strikeouts": {
           "line": null,
           "over_odds": null,
@@ -150,27 +240,47 @@
             "odds": 2200
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": 135,
+          "under_odds": -175
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": -105,
+          "under_odds": -135
+        },
         "walks": null
       },
       "recommendations": {
         "outs": null,
         "strikeouts": null,
-        "earned_runs": null,
+        "earned_runs": "UNDER",
         "hits_allowed": null,
         "walks": null
       },
-      "recommendations_meta": {},
+      "recommendations_meta": {
+        "earned_runs": {
+          "edge": -0.7,
+          "threshold": 0.6,
+          "confidence_score": 0.63,
+          "confidence_label": "MEDIUM",
+          "side_odds": -175,
+          "decimal_odds": 1.571,
+          "win_prob_est": 0.607,
+          "expected_value": 0.56,
+          "kelly_fraction": 0.0
+        }
+      },
       "diffs": {
-        "outs": null,
+        "outs": 1.5,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": -0.7,
+        "hits_allowed": -0.2999999999999998,
         "walks": null
       },
       "diffs_adjusted": {
-        "outs": null,
+        "outs": 1.5,
         "strikeouts": null
       }
     },
@@ -200,7 +310,11 @@
       },
       "confidence": "HIGH",
       "lines": {
-        "outs": null,
+        "outs": {
+          "line": 16.5,
+          "over_odds": -115,
+          "under_odds": -125
+        },
         "strikeouts": {
           "line": null,
           "over_odds": null,
@@ -240,27 +354,58 @@
             "odds": 2200
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 1.5,
+          "over_odds": -180,
+          "under_odds": 140
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": -130,
+          "under_odds": -110
+        },
         "walks": null
       },
       "recommendations": {
         "outs": null,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
         "walks": null
       },
-      "recommendations_meta": {},
+      "recommendations_meta": {
+        "earned_runs": {
+          "edge": 2.4,
+          "threshold": 0.6,
+          "confidence_score": 1.0,
+          "confidence_label": "HIGH",
+          "side_odds": -180,
+          "decimal_odds": 1.556,
+          "win_prob_est": 1.0,
+          "expected_value": 1.555,
+          "kelly_fraction": 0.25
+        },
+        "hits_allowed": {
+          "edge": 2.1,
+          "threshold": 0.8,
+          "confidence_score": 0.995,
+          "confidence_label": "HIGH",
+          "side_odds": -130,
+          "decimal_odds": 1.769,
+          "win_prob_est": 0.986,
+          "expected_value": 1.729,
+          "kelly_fraction": 0.25
+        }
+      },
       "diffs": {
-        "outs": null,
+        "outs": -0.5,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": 2.4,
+        "hits_allowed": 2.0999999999999996,
         "walks": null
       },
       "diffs_adjusted": {
-        "outs": null,
+        "outs": -0.5,
         "strikeouts": null
       }
     },
@@ -290,7 +435,11 @@
       },
       "confidence": "LOW",
       "lines": {
-        "outs": null,
+        "outs": {
+          "line": 15.5,
+          "over_odds": 130,
+          "under_odds": -170
+        },
         "strikeouts": {
           "line": null,
           "over_odds": null,
@@ -326,27 +475,58 @@
             "odds": 1600
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": -110,
+          "under_odds": -130
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": -155,
+          "under_odds": 115
+        },
         "walks": null
       },
       "recommendations": {
         "outs": null,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": "UNDER",
+        "hits_allowed": "UNDER",
         "walks": null
       },
-      "recommendations_meta": {},
+      "recommendations_meta": {
+        "earned_runs": {
+          "edge": -1.0,
+          "threshold": 0.6,
+          "confidence_score": 0.894,
+          "confidence_label": "HIGH",
+          "side_odds": -130,
+          "decimal_odds": 1.769,
+          "win_prob_est": 0.85,
+          "expected_value": 1.353,
+          "kelly_fraction": 0.25
+        },
+        "hits_allowed": {
+          "edge": -2.1,
+          "threshold": 0.8,
+          "confidence_score": 0.995,
+          "confidence_label": "HIGH",
+          "side_odds": 115,
+          "decimal_odds": 2.15,
+          "win_prob_est": 0.986,
+          "expected_value": 2.105,
+          "kelly_fraction": 0.25
+        }
+      },
       "diffs": {
-        "outs": null,
+        "outs": -0.5,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": -1.0,
+        "hits_allowed": -2.1,
         "walks": null
       },
       "diffs_adjusted": {
-        "outs": null,
+        "outs": -0.5,
         "strikeouts": null
       }
     },
@@ -412,23 +592,43 @@
             "odds": 1500
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 1.5,
+          "over_odds": -150,
+          "under_odds": 110
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": -130,
+          "under_odds": -110
+        },
         "walks": null
       },
       "recommendations": {
         "outs": null,
         "strikeouts": null,
         "earned_runs": null,
-        "hits_allowed": null,
+        "hits_allowed": "OVER",
         "walks": null
       },
-      "recommendations_meta": {},
+      "recommendations_meta": {
+        "hits_allowed": {
+          "edge": 0.9,
+          "threshold": 0.8,
+          "confidence_score": 0.599,
+          "confidence_label": "LOW",
+          "side_odds": -130,
+          "decimal_odds": 1.769,
+          "win_prob_est": 0.581,
+          "expected_value": 0.608,
+          "kelly_fraction": 0.035
+        }
+      },
       "diffs": {
         "outs": null,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": 0.10000000000000009,
+        "hits_allowed": 0.9000000000000004,
         "walks": null
       },
       "diffs_adjusted": {
@@ -670,22 +870,22 @@
       "opponent": "Toronto Blue Jays",
       "venue_home_team": "Toronto Blue Jays",
       "team_source": "game_match",
-      "projected_outs": 18,
-      "projected_innings": 6.0,
-      "projected_strikeouts": 4.1,
+      "projected_outs": 19,
+      "projected_innings": 6.2,
+      "projected_strikeouts": 4.3,
       "projected_earned_runs": 1.4,
-      "projected_hits_allowed": 5.4,
-      "projected_walks": 1.9,
+      "projected_hits_allowed": 5.6,
+      "projected_walks": 2.0,
       "adjusted_projections": {
-        "strikeouts": 3.3,
-        "outs": 18,
+        "strikeouts": 3.4,
+        "outs": 19,
         "k_factor": 0.794,
         "park_factor_used": 1.01,
         "opponent_k_rate": 0.1758,
         "league_avg_k_rate": 0.22019333333333335,
         "outs_factor": 0.9983368869936033,
-        "recent_ip_weighted": 5.98,
-        "recent_ip_per_start": 5.66
+        "recent_ip_weighted": 6.2,
+        "recent_ip_per_start": 6.2
       },
       "confidence": "HIGH",
       "lines": {
@@ -730,7 +930,7 @@
         "walks": null
       },
       "recommendations": {
-        "outs": null,
+        "outs": "OVER",
         "strikeouts": "OVER",
         "earned_runs": "UNDER",
         "hits_allowed": null,
@@ -738,15 +938,26 @@
       },
       "recommendations_meta": {
         "strikeouts": {
-          "edge": 1.6,
+          "edge": 1.8,
           "threshold": 0.7,
-          "confidence_score": 0.984,
+          "confidence_score": 0.993,
           "confidence_label": "HIGH",
           "side_odds": -190,
           "decimal_odds": 1.526,
-          "win_prob_est": 0.966,
-          "expected_value": 1.44,
+          "win_prob_est": 0.983,
+          "expected_value": 1.485,
           "kelly_fraction": 0.25
+        },
+        "outs": {
+          "edge": 2.5,
+          "threshold": 2.0,
+          "confidence_score": 0.69,
+          "confidence_label": "MEDIUM",
+          "side_odds": -130,
+          "decimal_odds": 1.769,
+          "win_prob_est": 0.657,
+          "expected_value": 0.819,
+          "kelly_fraction": 0.211
         },
         "earned_runs": {
           "edge": -1.1,
@@ -761,15 +972,15 @@
         }
       },
       "diffs": {
-        "outs": 1.5,
-        "strikeouts": 1.5999999999999996,
+        "outs": 2.5,
+        "strikeouts": 1.7999999999999998,
         "earned_runs": -1.1,
-        "hits_allowed": -0.09999999999999964,
+        "hits_allowed": 0.09999999999999964,
         "walks": null
       },
       "diffs_adjusted": {
-        "outs": 1.5,
-        "strikeouts": 0.7999999999999998
+        "outs": 2.5,
+        "strikeouts": 0.8999999999999999
       }
     },
     {
@@ -930,7 +1141,11 @@
       },
       "confidence": "HIGH",
       "lines": {
-        "outs": null,
+        "outs": {
+          "line": 15.5,
+          "over_odds": -105,
+          "under_odds": -135
+        },
         "strikeouts": {
           "line": 4.5,
           "over_odds": 110,
@@ -958,8 +1173,16 @@
             "odds": 1000
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": -105,
+          "under_odds": -135
+        },
+        "hits_allowed": {
+          "line": 5.5,
+          "over_odds": -105,
+          "under_odds": -135
+        },
         "walks": null
       },
       "recommendations": {
@@ -971,14 +1194,14 @@
       },
       "recommendations_meta": {},
       "diffs": {
-        "outs": null,
+        "outs": 0.5,
         "strikeouts": 0.09999999999999964,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": -0.3999999999999999,
+        "hits_allowed": -0.20000000000000018,
         "walks": null
       },
       "diffs_adjusted": {
-        "outs": null,
+        "outs": 0.5,
         "strikeouts": 0.20000000000000018
       }
     },
@@ -1200,7 +1423,11 @@
       },
       "confidence": "HIGH",
       "lines": {
-        "outs": null,
+        "outs": {
+          "line": 17.5,
+          "over_odds": -140,
+          "under_odds": null
+        },
         "strikeouts": {
           "line": 4.5,
           "over_odds": -145,
@@ -1265,14 +1492,14 @@
         }
       },
       "diffs": {
-        "outs": null,
+        "outs": -0.5,
         "strikeouts": 0.09999999999999964,
         "earned_runs": 0.2999999999999998,
         "hits_allowed": 1.2000000000000002,
         "walks": null
       },
       "diffs_adjusted": {
-        "outs": null,
+        "outs": -0.5,
         "strikeouts": 0.09999999999999964
       }
     },
@@ -1338,23 +1565,43 @@
             "odds": 1400
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": -125,
+          "under_odds": -115
+        },
+        "hits_allowed": {
+          "line": 5.5,
+          "over_odds": -125,
+          "under_odds": -115
+        },
         "walks": null
       },
       "recommendations": {
         "outs": null,
         "strikeouts": null,
-        "earned_runs": null,
+        "earned_runs": "OVER",
         "hits_allowed": null,
         "walks": null
       },
-      "recommendations_meta": {},
+      "recommendations_meta": {
+        "earned_runs": {
+          "edge": 1.4,
+          "threshold": 0.6,
+          "confidence_score": 0.986,
+          "confidence_label": "HIGH",
+          "side_odds": -125,
+          "decimal_odds": 1.8,
+          "win_prob_est": 0.97,
+          "expected_value": 1.715,
+          "kelly_fraction": 0.25
+        }
+      },
       "diffs": {
         "outs": null,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": 1.4,
+        "hits_allowed": 0.40000000000000036,
         "walks": null
       },
       "diffs_adjusted": {
@@ -1394,9 +1641,9 @@
           "under_odds": -165
         },
         "strikeouts": {
-          "line": 4.5,
-          "over_odds": 120,
-          "under_odds": -160
+          "line": 3.5,
+          "over_odds": -180,
+          "under_odds": 135
         },
         "strikeouts_alts": [
           {
@@ -1422,46 +1669,46 @@
         ],
         "earned_runs": {
           "line": 2.5,
-          "over_odds": -110,
-          "under_odds": -130
+          "over_odds": -120,
+          "under_odds": -120
         },
         "hits_allowed": {
-          "line": 4.5,
-          "over_odds": -170,
-          "under_odds": 130
+          "line": 5.5,
+          "over_odds": 130,
+          "under_odds": -170
         },
         "walks": null
       },
       "recommendations": {
         "outs": null,
-        "strikeouts": null,
+        "strikeouts": "OVER",
         "earned_runs": null,
-        "hits_allowed": "OVER",
+        "hits_allowed": null,
         "walks": null
       },
       "recommendations_meta": {
-        "hits_allowed": {
-          "edge": 0.9,
-          "threshold": 0.8,
-          "confidence_score": 0.599,
+        "strikeouts": {
+          "edge": 0.8,
+          "threshold": 0.7,
+          "confidence_score": 0.612,
           "confidence_label": "LOW",
-          "side_odds": -170,
-          "decimal_odds": 1.588,
-          "win_prob_est": 0.581,
-          "expected_value": 0.503,
+          "side_odds": -180,
+          "decimal_odds": 1.556,
+          "win_prob_est": 0.592,
+          "expected_value": 0.512,
           "kelly_fraction": 0.0
         }
       },
       "diffs": {
         "outs": 0.5,
-        "strikeouts": -0.20000000000000018,
+        "strikeouts": 0.7999999999999998,
         "earned_runs": 0.10000000000000009,
-        "hits_allowed": 0.9000000000000004,
+        "hits_allowed": -0.09999999999999964,
         "walks": null
       },
       "diffs_adjusted": {
         "outs": 0.5,
-        "strikeouts": -0.20000000000000018
+        "strikeouts": 0.7999999999999998
       }
     },
     {
@@ -1493,8 +1740,8 @@
         "outs": null,
         "strikeouts": {
           "line": 5.5,
-          "over_odds": 110,
-          "under_odds": -145
+          "over_odds": 105,
+          "under_odds": -135
         },
         "strikeouts_alts": [
           {
@@ -1584,7 +1831,11 @@
       },
       "confidence": "HIGH",
       "lines": {
-        "outs": null,
+        "outs": {
+          "line": 15.5,
+          "over_odds": 110,
+          "under_odds": -150
+        },
         "strikeouts": {
           "line": null,
           "over_odds": null,
@@ -1612,27 +1863,47 @@
             "odds": 1000
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": 110,
+          "under_odds": -150
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": -160,
+          "under_odds": 120
+        },
         "walks": null
       },
       "recommendations": {
         "outs": null,
         "strikeouts": null,
         "earned_runs": null,
-        "hits_allowed": null,
+        "hits_allowed": "OVER",
         "walks": null
       },
-      "recommendations_meta": {},
+      "recommendations_meta": {
+        "hits_allowed": {
+          "edge": 0.9,
+          "threshold": 0.8,
+          "confidence_score": 0.599,
+          "confidence_label": "LOW",
+          "side_odds": -160,
+          "decimal_odds": 1.625,
+          "win_prob_est": 0.581,
+          "expected_value": 0.524,
+          "kelly_fraction": 0.0
+        }
+      },
       "diffs": {
-        "outs": null,
+        "outs": 1.5,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": -0.2999999999999998,
+        "hits_allowed": 0.9000000000000004,
         "walks": null
       },
       "diffs_adjusted": {
-        "outs": null,
+        "outs": 1.5,
         "strikeouts": null
       }
     },
@@ -1662,7 +1933,11 @@
       },
       "confidence": "HIGH",
       "lines": {
-        "outs": null,
+        "outs": {
+          "line": 15.5,
+          "over_odds": -115,
+          "under_odds": -125
+        },
         "strikeouts": {
           "line": null,
           "over_odds": null,
@@ -1698,27 +1973,69 @@
             "odds": 1000
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 1.5,
+          "over_odds": -130,
+          "under_odds": -110
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": null,
+          "under_odds": -140
+        },
         "walks": null
       },
       "recommendations": {
-        "outs": null,
+        "outs": "OVER",
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
         "walks": null
       },
-      "recommendations_meta": {},
+      "recommendations_meta": {
+        "outs": {
+          "edge": 4.5,
+          "threshold": 2.0,
+          "confidence_score": 0.982,
+          "confidence_label": "HIGH",
+          "side_odds": -115,
+          "decimal_odds": 1.87,
+          "win_prob_est": 0.963,
+          "expected_value": 1.762,
+          "kelly_fraction": 0.25
+        },
+        "earned_runs": {
+          "edge": 1.1,
+          "threshold": 0.6,
+          "confidence_score": 0.935,
+          "confidence_label": "HIGH",
+          "side_odds": -130,
+          "decimal_odds": 1.769,
+          "win_prob_est": 0.897,
+          "expected_value": 1.485,
+          "kelly_fraction": 0.25
+        },
+        "hits_allowed": {
+          "edge": 1.6,
+          "threshold": 0.8,
+          "confidence_score": 0.961,
+          "confidence_label": "HIGH",
+          "side_odds": null,
+          "decimal_odds": null,
+          "win_prob_est": 0.931,
+          "expected_value": null,
+          "kelly_fraction": null
+        }
+      },
       "diffs": {
-        "outs": null,
+        "outs": 4.5,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": 1.1,
+        "hits_allowed": 1.5999999999999996,
         "walks": null
       },
       "diffs_adjusted": {
-        "outs": null,
+        "outs": 4.5,
         "strikeouts": null
       }
     },
@@ -1781,14 +2098,18 @@
           "over_odds": -120,
           "under_odds": -120
         },
-        "hits_allowed": null,
+        "hits_allowed": {
+          "line": 5.5,
+          "over_odds": -105,
+          "under_odds": -135
+        },
         "walks": null
       },
       "recommendations": {
         "outs": null,
         "strikeouts": "OVER",
         "earned_runs": "OVER",
-        "hits_allowed": null,
+        "hits_allowed": "OVER",
         "walks": null
       },
       "recommendations_meta": {
@@ -1813,13 +2134,24 @@
           "win_prob_est": 0.786,
           "expected_value": 1.227,
           "kelly_fraction": 0.25
+        },
+        "hits_allowed": {
+          "edge": 1.2,
+          "threshold": 0.8,
+          "confidence_score": 0.832,
+          "confidence_label": "HIGH",
+          "side_odds": -105,
+          "decimal_odds": 1.952,
+          "win_prob_est": 0.786,
+          "expected_value": 1.32,
+          "kelly_fraction": 0.25
         }
       },
       "diffs": {
         "outs": null,
         "strikeouts": 1.2999999999999998,
         "earned_runs": 0.8999999999999999,
-        "hits_allowed": null,
+        "hits_allowed": 1.2000000000000002,
         "walks": null
       },
       "diffs_adjusted": {
@@ -1853,7 +2185,11 @@
       },
       "confidence": "HIGH",
       "lines": {
-        "outs": null,
+        "outs": {
+          "line": 16.5,
+          "over_odds": null,
+          "under_odds": -140
+        },
         "strikeouts": {
           "line": null,
           "over_odds": null,
@@ -1881,8 +2217,16 @@
             "odds": 1200
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": -135,
+          "under_odds": -105
+        },
+        "hits_allowed": {
+          "line": 5.5,
+          "over_odds": -145,
+          "under_odds": 105
+        },
         "walks": null
       },
       "recommendations": {
@@ -1894,14 +2238,14 @@
       },
       "recommendations_meta": {},
       "diffs": {
-        "outs": null,
+        "outs": -0.5,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": 0.3999999999999999,
+        "hits_allowed": -0.09999999999999964,
         "walks": null
       },
       "diffs_adjusted": {
-        "outs": null,
+        "outs": -0.5,
         "strikeouts": null
       }
     },
@@ -1933,8 +2277,8 @@
       "lines": {
         "outs": {
           "line": 18.5,
-          "over_odds": 160,
-          "under_odds": -230
+          "over_odds": 155,
+          "under_odds": -220
         },
         "strikeouts": {
           "line": 4.5,
@@ -2076,23 +2420,43 @@
             "odds": 1300
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 1.5,
+          "over_odds": -155,
+          "under_odds": 115
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": 125,
+          "under_odds": -165
+        },
         "walks": null
       },
       "recommendations": {
         "outs": null,
         "strikeouts": null,
-        "earned_runs": null,
+        "earned_runs": "OVER",
         "hits_allowed": null,
         "walks": null
       },
-      "recommendations_meta": {},
+      "recommendations_meta": {
+        "earned_runs": {
+          "edge": 1.4,
+          "threshold": 0.6,
+          "confidence_score": 0.986,
+          "confidence_label": "HIGH",
+          "side_odds": -155,
+          "decimal_odds": 1.645,
+          "win_prob_est": 0.97,
+          "expected_value": 1.565,
+          "kelly_fraction": 0.25
+        }
+      },
       "diffs": {
         "outs": null,
         "strikeouts": -0.20000000000000018,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": 1.4,
+        "hits_allowed": -0.7999999999999998,
         "walks": null
       },
       "diffs_adjusted": {
@@ -2244,23 +2608,54 @@
             "odds": 1600
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": -145,
+          "under_odds": 105
+        },
+        "hits_allowed": {
+          "line": 5.5,
+          "over_odds": -130,
+          "under_odds": -110
+        },
         "walks": null
       },
       "recommendations": {
         "outs": null,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": "UNDER",
+        "hits_allowed": "UNDER",
         "walks": null
       },
-      "recommendations_meta": {},
+      "recommendations_meta": {
+        "earned_runs": {
+          "edge": -1.0,
+          "threshold": 0.6,
+          "confidence_score": 0.894,
+          "confidence_label": "HIGH",
+          "side_odds": 105,
+          "decimal_odds": 2.05,
+          "win_prob_est": 0.85,
+          "expected_value": 1.592,
+          "kelly_fraction": 0.25
+        },
+        "hits_allowed": {
+          "edge": -1.3,
+          "threshold": 0.8,
+          "confidence_score": 0.881,
+          "confidence_label": "HIGH",
+          "side_odds": -110,
+          "decimal_odds": 1.909,
+          "win_prob_est": 0.835,
+          "expected_value": 1.43,
+          "kelly_fraction": 0.25
+        }
+      },
       "diffs": {
         "outs": null,
         "strikeouts": -0.09999999999999964,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": -1.0,
+        "hits_allowed": -1.2999999999999998,
         "walks": null
       },
       "diffs_adjusted": {
@@ -2294,7 +2689,11 @@
       },
       "confidence": "HIGH",
       "lines": {
-        "outs": null,
+        "outs": {
+          "line": 15.5,
+          "over_odds": -115,
+          "under_odds": -125
+        },
         "strikeouts": {
           "line": null,
           "over_odds": null,
@@ -2326,73 +2725,63 @@
             "odds": 1300
           }
         ],
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": -145,
+          "under_odds": 105
+        },
+        "hits_allowed": {
+          "line": 5.5,
+          "over_odds": -145,
+          "under_odds": 105
+        },
         "walks": null
       },
       "recommendations": {
         "outs": null,
         "strikeouts": null,
-        "earned_runs": null,
+        "earned_runs": "OVER",
         "hits_allowed": null,
         "walks": null
       },
-      "recommendations_meta": {},
+      "recommendations_meta": {
+        "earned_runs": {
+          "edge": 0.6,
+          "threshold": 0.6,
+          "confidence_score": 0.5,
+          "confidence_label": "LOW",
+          "side_odds": -145,
+          "decimal_odds": 1.69,
+          "win_prob_est": 0.5,
+          "expected_value": 0.345,
+          "kelly_fraction": 0.0
+        }
+      },
       "diffs": {
-        "outs": null,
+        "outs": -0.5,
         "strikeouts": null,
-        "earned_runs": null,
-        "hits_allowed": null,
+        "earned_runs": 0.6000000000000001,
+        "hits_allowed": 0.7999999999999998,
         "walks": null
       },
       "diffs_adjusted": {
-        "outs": null,
+        "outs": -0.5,
         "strikeouts": null
       }
     }
   ],
-  "count": 25,
+  "count": 26,
   "notes": "Season averages baseline + opponent K-rate, park factor, patience (outs), recent form weighted IP when data available.",
-  "unmatched_starting_pitchers": [
-    "Trevor McDonald"
-  ],
+  "unmatched_starting_pitchers": [],
   "props_without_start_flag": [
-    "colin rea",
     "george kirby",
     "trevor mcdonald (r)",
-    "andrew alvarez",
-    "bryce elder",
-    "dylan cease",
-    "shane baz",
-    "tyler wells",
-    "jack flaherty",
-    "tanner bibee",
-    "hunter greene",
-    "paul skenes",
-    "jesus luzardo",
-    "ryan weathers",
-    "fraser ellard",
-    "max fried",
-    "garrett crochet",
-    "max scherzer",
-    "jacob degrom",
-    "taj bradley",
-    "jonah tong",
-    "matt boyd",
-    "stephen kolek",
-    "yusei kikuchi",
-    "luis castillo",
-    "tanner gordon",
-    "blake snell",
-    "ryne nelson",
-    "sonny gray",
-    "hunter brown",
-    "luis severino"
+    "mason barnett"
   ],
   "adjustment_meta": {
     "recent_form_pitchers_used": 13,
-    "patience_adjustments_used": 25,
-    "total_pitchers": 27,
+    "patience_adjustments_used": 26,
+    "total_pitchers": 28,
     "park_factors_count": 60,
     "batting_k_rates_count": 30,
     "patience_teams_count": 30,
@@ -2415,7 +2804,7 @@
       "recent_form": 0
     },
     "recent_form_on_demand_used": 5,
-    "synthetic_recent_form_count": 7,
+    "synthetic_recent_form_count": 8,
     "team_mismatches": 4,
     "opponent_validation_mismatches": 0,
     "opponent_corrections_count": 0

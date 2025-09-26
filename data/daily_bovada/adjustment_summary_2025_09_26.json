@@ -1,10 +1,10 @@
 {
   "date": "2025-09-26",
-  "generated_at": "2025-09-26T13:56:10.958855",
+  "generated_at": "2025-09-26T17:57:30.427119",
   "counts": {
     "recent_form_pitchers_used": 13,
-    "patience_adjustments_used": 25,
-    "total_pitchers": 27,
+    "patience_adjustments_used": 26,
+    "total_pitchers": 28,
     "park_factors_count": 60,
     "batting_k_rates_count": 30,
     "patience_teams_count": 30,
@@ -27,7 +27,7 @@
       "recent_form": 0
     },
     "recent_form_on_demand_used": 5,
-    "synthetic_recent_form_count": 7,
+    "synthetic_recent_form_count": 8,
     "team_mismatches": 4,
     "opponent_validation_mismatches": 0,
     "opponent_corrections_count": 0

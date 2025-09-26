@@ -1,42 +1,12 @@
 {
   "date": "2025-09-26",
-  "generated_at": "2025-09-26T13:55:59.645738",
-  "starting_pitchers_count": 27,
-  "props_pitchers_count": 57,
-  "unmatched_starting_pitchers": [
-    "Trevor McDonald"
-  ],
+  "generated_at": "2025-09-26T17:57:06.673798",
+  "starting_pitchers_count": 28,
+  "props_pitchers_count": 31,
+  "unmatched_starting_pitchers": [],
   "props_without_start_flag": [
-    "colin rea",
     "george kirby",
     "trevor mcdonald (r)",
-    "andrew alvarez",
-    "bryce elder",
-    "dylan cease",
-    "shane baz",
-    "tyler wells",
-    "jack flaherty",
-    "tanner bibee",
-    "hunter greene",
-    "paul skenes",
-    "jesus luzardo",
-    "ryan weathers",
-    "fraser ellard",
-    "max fried",
-    "garrett crochet",
-    "max scherzer",
-    "jacob degrom",
-    "taj bradley",
-    "jonah tong",
-    "matt boyd",
-    "stephen kolek",
-    "yusei kikuchi",
-    "luis castillo",
-    "tanner gordon",
-    "blake snell",
-    "ryne nelson",
-    "sonny gray",
-    "hunter brown",
-    "luis severino"
+    "mason barnett"
   ]
 }
