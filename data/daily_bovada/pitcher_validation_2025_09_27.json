@@ -1,0 +1,18 @@
+{
+  "date": "2025-09-27",
+  "generated_at": "2025-09-27T14:16:50.762769",
+  "pitcher_count": 26,
+  "team_mismatches": 1,
+  "opponent_validation_mismatches": 0,
+  "opponent_corrections": 0,
+  "sample_team_mismatches": [
+    {
+      "pitcher_name": "Mick Abel",
+      "pitcher_id": "690953",
+      "master_team": "Philadelphia Phillies",
+      "resolved_team": "Minnesota Twins",
+      "team_source": "game_match"
+    }
+  ],
+  "sample_opponent_mismatches": []
+}
