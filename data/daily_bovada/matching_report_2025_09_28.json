@@ -1,0 +1,40 @@
+{
+  "date": "2025-09-28",
+  "generated_at": "2025-09-28T15:05:25.421690",
+  "starting_pitchers_count": 28,
+  "props_pitchers_count": 50,
+  "unmatched_starting_pitchers": [
+    "Chris Paddack",
+    "Brady Basso",
+    "Bryce Miller",
+    "Charlie Morton"
+  ],
+  "props_without_start_flag": [
+    "cam schlittler",
+    "tomoyuki sugano",
+    "jameson taillon",
+    "michael mcgreevy",
+    "trey yesavage",
+    "joe boyle",
+    "sean burke",
+    "jake irvin",
+    "justin verlander",
+    "kyle freeland",
+    "eury perez",
+    "clay holmes",
+    "ranger suarez",
+    "mick abel",
+    "joey cantillo",
+    "andrew abbott",
+    "spencer strider",
+    "bubba chandler",
+    "michael king",
+    "eduardo rodriguez",
+    "caden dana",
+    "logan gilbert",
+    "tyler glasnow",
+    "michael wacha",
+    "luis morales",
+    "logan allen"
+  ]
+}

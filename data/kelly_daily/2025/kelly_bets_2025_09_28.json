@@ -1,0 +1,54 @@
+[
+  {
+    "date": "2025-09-28",
+    "game": "Cincinnati Reds vs Milwaukee Brewers",
+    "bet_type": "Over/Under",
+    "bet_details": "Under 8.5",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -110,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-28",
+    "game": "New York Mets vs Miami Marlins",
+    "bet_type": "Over/Under",
+    "bet_details": "Under 8.5",
+    "confidence": 0.244,
+    "kelly_percentage": 24.4,
+    "recommended_bet": 100,
+    "odds": -110,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-28",
+    "game": "Tampa Bay Rays vs Toronto Blue Jays",
+    "bet_type": "Over/Under",
+    "bet_details": "Under 8.5",
+    "confidence": 0.202,
+    "kelly_percentage": 20.2,
+    "recommended_bet": 80,
+    "odds": -110,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-28",
+    "game": "Los Angeles Dodgers vs Seattle Mariners",
+    "bet_type": "Over/Under",
+    "bet_details": "Under 8.5",
+    "confidence": 0.181,
+    "kelly_percentage": 18.1,
+    "recommended_bet": 70,
+    "odds": -110,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  }
+]

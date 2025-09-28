@@ -1,0 +1,25 @@
+{
+  "date": "2025-09-28",
+  "generated_at": "2025-09-28T15:05:34.093116",
+  "pitcher_count": 26,
+  "team_mismatches": 2,
+  "opponent_validation_mismatches": 0,
+  "opponent_corrections": 0,
+  "sample_team_mismatches": [
+    {
+      "pitcher_name": "Chris Paddack",
+      "pitcher_id": "663978",
+      "master_team": "Minnesota Twins",
+      "resolved_team": "Detroit Tigers",
+      "team_source": "game_match"
+    },
+    {
+      "pitcher_name": "Charlie Morton",
+      "pitcher_id": "450203",
+      "master_team": "Detroit Tigers",
+      "resolved_team": "Atlanta Braves",
+      "team_source": "game_match"
+    }
+  ],
+  "sample_opponent_mismatches": []
+}

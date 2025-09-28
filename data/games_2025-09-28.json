@@ -1,0 +1,152 @@
+[
+  {
+    "game_pk": 776151,
+    "game_time": "2025-09-28T19:05:00Z",
+    "away_team": "Detroit Tigers",
+    "home_team": "Boston Red Sox",
+    "away_pitcher": "Chris Paddack",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Chris Paddack",
+    "home_probable_pitcher": "TBD"
+  },
+  {
+    "game_pk": 776138,
+    "game_time": "2025-09-28T19:05:00Z",
+    "away_team": "Kansas City Royals",
+    "home_team": "Athletics",
+    "away_pitcher": "Cole Ragans",
+    "home_pitcher": "Brady Basso",
+    "away_probable_pitcher": "Cole Ragans",
+    "home_probable_pitcher": "Brady Basso"
+  },
+  {
+    "game_pk": 776137,
+    "game_time": "2025-09-28T19:05:00Z",
+    "away_team": "Colorado Rockies",
+    "home_team": "San Francisco Giants",
+    "away_pitcher": "McCade Brown",
+    "home_pitcher": "Logan Webb",
+    "away_probable_pitcher": "McCade Brown",
+    "home_probable_pitcher": "Logan Webb"
+  },
+  {
+    "game_pk": 776141,
+    "game_time": "2025-09-28T19:05:00Z",
+    "away_team": "Minnesota Twins",
+    "home_team": "Philadelphia Phillies",
+    "away_pitcher": "Simeon Woods Richardson",
+    "home_pitcher": "Cristopher S\u00e1nchez",
+    "away_probable_pitcher": "Simeon Woods Richardson",
+    "home_probable_pitcher": "Cristopher S\u00e1nchez"
+  },
+  {
+    "game_pk": 776143,
+    "game_time": "2025-09-28T19:05:00Z",
+    "away_team": "Chicago White Sox",
+    "home_team": "Washington Nationals",
+    "away_pitcher": "Shane Smith",
+    "home_pitcher": "Brad Lord",
+    "away_probable_pitcher": "Shane Smith",
+    "home_probable_pitcher": "Brad Lord"
+  },
+  {
+    "game_pk": 776140,
+    "game_time": "2025-09-28T19:05:00Z",
+    "away_team": "Baltimore Orioles",
+    "home_team": "New York Yankees",
+    "away_pitcher": "Kyle Bradish",
+    "home_pitcher": "Luis Gil",
+    "away_probable_pitcher": "Kyle Bradish",
+    "home_probable_pitcher": "Luis Gil"
+  },
+  {
+    "game_pk": 776135,
+    "game_time": "2025-09-28T19:07:00Z",
+    "away_team": "Houston Astros",
+    "home_team": "Los Angeles Angels",
+    "away_pitcher": "Lance McCullers Jr.",
+    "home_pitcher": "Sam Aldegheri",
+    "away_probable_pitcher": "Lance McCullers Jr.",
+    "home_probable_pitcher": "Sam Aldegheri"
+  },
+  {
+    "game_pk": 776145,
+    "game_time": "2025-09-28T19:07:00Z",
+    "away_team": "Tampa Bay Rays",
+    "home_team": "Toronto Blue Jays",
+    "away_pitcher": "Ian Seymour",
+    "home_pitcher": "Kevin Gausman",
+    "away_probable_pitcher": "Ian Seymour",
+    "home_probable_pitcher": "Kevin Gausman"
+  },
+  {
+    "game_pk": 776136,
+    "game_time": "2025-09-28T19:10:00Z",
+    "away_team": "Arizona Diamondbacks",
+    "home_team": "San Diego Padres",
+    "away_pitcher": "Brandon Pfaadt",
+    "home_pitcher": "JP Sears",
+    "away_probable_pitcher": "Brandon Pfaadt",
+    "home_probable_pitcher": "JP Sears"
+  },
+  {
+    "game_pk": 776139,
+    "game_time": "2025-09-28T19:10:00Z",
+    "away_team": "Los Angeles Dodgers",
+    "home_team": "Seattle Mariners",
+    "away_pitcher": "Clayton Kershaw",
+    "home_pitcher": "Bryce Miller",
+    "away_probable_pitcher": "Clayton Kershaw",
+    "home_probable_pitcher": "Bryce Miller"
+  },
+  {
+    "game_pk": 776147,
+    "game_time": "2025-09-28T19:10:00Z",
+    "away_team": "Texas Rangers",
+    "home_team": "Cleveland Guardians",
+    "away_pitcher": "Patrick Corbin",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Patrick Corbin",
+    "home_probable_pitcher": "TBD"
+  },
+  {
+    "game_pk": 776148,
+    "game_time": "2025-09-28T19:10:00Z",
+    "away_team": "New York Mets",
+    "home_team": "Miami Marlins",
+    "away_pitcher": "Sean Manaea",
+    "home_pitcher": "Edward Cabrera",
+    "away_probable_pitcher": "Sean Manaea",
+    "home_probable_pitcher": "Edward Cabrera"
+  },
+  {
+    "game_pk": 776144,
+    "game_time": "2025-09-28T19:10:00Z",
+    "away_team": "Cincinnati Reds",
+    "home_team": "Milwaukee Brewers",
+    "away_pitcher": "Brady Singer",
+    "home_pitcher": "Freddy Peralta",
+    "away_probable_pitcher": "Brady Singer",
+    "home_probable_pitcher": "Freddy Peralta"
+  },
+  {
+    "game_pk": 776149,
+    "game_time": "2025-09-28T19:15:00Z",
+    "away_team": "Pittsburgh Pirates",
+    "home_team": "Atlanta Braves",
+    "away_pitcher": "Johan Oviedo",
+    "home_pitcher": "Charlie Morton",
+    "away_probable_pitcher": "Johan Oviedo",
+    "home_probable_pitcher": "Charlie Morton"
+  },
+  {
+    "game_pk": 776142,
+    "game_time": "2025-09-28T19:20:00Z",
+    "away_team": "St. Louis Cardinals",
+    "home_team": "Chicago Cubs",
+    "away_pitcher": "Kyle Leahy",
+    "home_pitcher": "Javier Assad",
+    "away_probable_pitcher": "Kyle Leahy",
+    "home_probable_pitcher": "Javier Assad"
+  }
+]
