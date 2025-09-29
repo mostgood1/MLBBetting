@@ -11,6 +11,7 @@ import logging
 import shutil
 from datetime import datetime
 from pathlib import Path
+import json
 
 def setup_logging():
     """Setup logging for the automation"""
@@ -47,6 +48,10 @@ def run_script(script_path: Path, description: str, logger, timeout: int = 300):
     """Run a script with error handling"""
     try:
         logger.info(f"🚀 {description}")
+        # If running in no-games mode, skip heavy script execution quickly
+        if os.environ.get('NO_GAMES_MODE', '').lower() in ('1', 'true', 'yes'):
+            logger.info(f"⏭️ Skipping in no-games mode: {description}")
+            return True
         # Ensure script exists before attempting to run
         if not script_path.exists():
             logger.warning(f"⚠️ Script not found, skipping: {script_path}")
@@ -99,6 +104,86 @@ def copy_file_safe(source: Path, target: Path, logger):
     except Exception as e:
         logger.error(f"❌ Error copying {source} to {target}: {e}")
         return False
+
+# ===== Helpers for days with no games =====
+def count_games_in_file(games_path: Path) -> int:
+    """Return number of games in a games file (supports list or {"games": [...]})"""
+    try:
+        if not games_path.exists() or games_path.stat().st_size == 0:
+            return 0
+        with open(games_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if isinstance(data, list):
+            return len(data)
+        if isinstance(data, dict):
+            if isinstance(data.get('games'), list):
+                return len(data.get('games') or [])
+            if isinstance(data.get('games'), dict):
+                return len(data.get('games'))
+        return 0
+    except Exception:
+        return 0
+
+def write_no_games_day_files(data_dir: Path, today: str, today_underscore: str, logger) -> None:
+    """Create skeletal files for a no-games day so downstream steps remain stable."""
+    try:
+        data_dir.mkdir(parents=True, exist_ok=True)
+        # games file
+        games_path = data_dir / f"games_{today}.json"
+        if not games_path.exists():
+            with open(games_path, 'w', encoding='utf-8') as f:
+                json.dump([], f, ensure_ascii=False, indent=2)
+            logger.info(f"🧘 Wrote no-games skeleton: {games_path.name}")
+        # betting recommendations
+        recs_path = data_dir / f"betting_recommendations_{today_underscore}.json"
+        if not recs_path.exists():
+            with open(recs_path, 'w', encoding='utf-8') as f:
+                json.dump({
+                    "date": today,
+                    "games": {},
+                    "value_bets": [],
+                    "notes": "No MLB games today"
+                }, f, ensure_ascii=False, indent=2)
+            logger.info(f"🧘 Wrote no-games skeleton: {recs_path.name}")
+        # real betting lines
+        lines_path = data_dir / f"real_betting_lines_{today_underscore}.json"
+        if not lines_path.exists():
+            with open(lines_path, 'w', encoding='utf-8') as f:
+                json.dump({
+                    "date": today,
+                    "lines": {},
+                    "notes": "No MLB games today"
+                }, f, ensure_ascii=False, indent=2)
+            logger.info(f"🧘 Wrote no-games skeleton: {lines_path.name}")
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to write no-games skeleton files: {e}")
+
+def seed_no_games_unified_cache(unified_cache_path: Path, today: str, games_path: Path, recs_path: Path, logger) -> None:
+    """Seed unified_predictions_cache.json with a no-games entry for today."""
+    try:
+        cache = {}
+        if unified_cache_path.exists() and unified_cache_path.stat().st_size > 0:
+            try:
+                with open(unified_cache_path, 'r', encoding='utf-8') as f:
+                    cache = json.load(f) or {}
+            except Exception:
+                cache = {}
+        cache.setdefault('predictions_by_date', {})
+        cache['predictions_by_date'][today] = {
+            'games': {},
+            'timestamp': datetime.now().isoformat(),
+            'total_games': 0,
+            'source': 'no_games',
+            'games_file': str(games_path),
+            'betting_file': str(recs_path),
+            'notes': 'No MLB games today'
+        }
+        unified_cache_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(unified_cache_path, 'w', encoding='utf-8') as f:
+            json.dump(cache, f, ensure_ascii=False, indent=2)
+        logger.info(f"🧘 Seeded unified cache with no-games entry: {unified_cache_path.name}")
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to seed unified cache for no-games day: {e}")
 
 def complete_daily_automation():
     """Run the complete daily automation workflow"""
@@ -170,6 +255,25 @@ def complete_daily_automation():
 
     if not success1:
         logger.warning("⚠️ No games fetch script found - continuing with existing data")
+    
+    # Detect a no-games day and switch to light mode
+    no_games_day = False
+    try:
+        games_path_for_check = data_dir / f"games_{today}.json"
+        games_count = count_games_in_file(games_path_for_check)
+        if games_count == 0:
+            no_games_day = True
+            logger.info("🧘 No MLB games today detected. Enabling no-games mode and skipping heavy steps.")
+            # Ensure skeletal files exist for today
+            write_no_games_day_files(data_dir, today, today_underscore, logger)
+            # Seed unified cache so the frontend has a stable entry
+            unified_cache_seed_path = data_dir / "unified_predictions_cache.json"
+            recs_seed_path = data_dir / f"betting_recommendations_{today_underscore}.json"
+            seed_no_games_unified_cache(unified_cache_seed_path, today, games_path_for_check, recs_seed_path, logger)
+            # Signal run_script to skip subsequent heavy invocations
+            os.environ['NO_GAMES_MODE'] = '1'
+    except Exception as e:
+        logger.debug(f"No-games detection failed gracefully: {e}")
     
     # Step 2: Fetch Probable Pitchers
     logger.info("\n🎯 STEP 2: Fetching Probable Pitchers")
@@ -773,11 +877,30 @@ def complete_daily_automation():
     
     all_success = True
     critical_success = True  # Track critical components
-    critical_steps = ["Fetch Today's Games", "Generate Predictions", "Unified Cache Verification", "Games Data Verification"]
+    # On no-games day, predictions aren't required; focus on files being present and cache integrity
+    if os.environ.get('NO_GAMES_MODE', '').lower() in ('1', 'true', 'yes'):
+        critical_steps = ["Unified Cache Verification", "Games Data Verification", "File Copying"]
+    else:
+        critical_steps = ["Fetch Today's Games", "Generate Predictions", "Unified Cache Verification", "Games Data Verification"]
     
     for step_name, success in steps:
         status = "✅ PASS" if success else "❌ FAIL"
-        # Mark non-critical betting lines as optional
+        # If it's a no-games day, mark heavy steps as skipped without counting as a failure
+        if os.environ.get('NO_GAMES_MODE', '').lower() in ('1', 'true', 'yes'):
+            no_games_skippable = {
+                "Fetch Probable Pitchers",
+                "Fetch Bovada Pitcher Props",
+                "Generate Pitcher Prop Projections",
+                "Fetch Betting Lines",
+                "Generate Predictions",
+                "Generate Betting Recommendations",
+            }
+            if step_name in no_games_skippable and not success:
+                status = "⏭️ SKIP (no games)"
+                # Do not penalize overall success
+                logger.info(f"{step_name}: {status}")
+                continue
+        # Mark non-critical betting lines as optional on normal days
         if step_name in ["Fetch Betting Lines", "Betting Lines Verification"] and not success:
             status = "⚠️ SKIP (no real odds available)"
         logger.info(f"{step_name}: {status}")
