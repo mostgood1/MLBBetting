@@ -1,0 +1,211 @@
+{
+  "date": "2025-09-29",
+  "generated_at": "2025-09-29T08:38:58.309182",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Detroit Tigers_vs_Boston Red Sox": {
+      "away_team": "Detroit Tigers",
+      "home_team": "Boston Red Sox",
+      "away_pitcher": null,
+      "home_pitcher": null,
+      "predicted_score": "4.6-4.9",
+      "predicted_total_runs": 9.2,
+      "win_probabilities": {
+        "away_prob": 0.463,
+        "home_prob": 0.537
+      },
+      "value_bets": []
+    },
+    "Kansas City Royals_vs_Athletics": {
+      "away_team": "Kansas City Royals",
+      "home_team": "Athletics",
+      "away_pitcher": "Cole Ragans",
+      "home_pitcher": "Brady Basso",
+      "predicted_score": "4.5-5.0",
+      "predicted_total_runs": 9.2,
+      "win_probabilities": {
+        "away_prob": 0.45,
+        "home_prob": 0.55
+      },
+      "value_bets": []
+    },
+    "Colorado Rockies_vs_San Francisco Giants": {
+      "away_team": "Colorado Rockies",
+      "home_team": "San Francisco Giants",
+      "away_pitcher": "McCade Brown",
+      "home_pitcher": "Logan Webb",
+      "predicted_score": "3.8-5.0",
+      "predicted_total_runs": 8.7,
+      "win_probabilities": {
+        "away_prob": 0.338,
+        "home_prob": 0.662
+      },
+      "value_bets": []
+    },
+    "Minnesota Twins_vs_Philadelphia Phillies": {
+      "away_team": "Minnesota Twins",
+      "home_team": "Philadelphia Phillies",
+      "away_pitcher": "Simeon Woods Richardson",
+      "home_pitcher": "Cristopher S\u00e1nchez",
+      "predicted_score": "3.4-4.9",
+      "predicted_total_runs": 8.4,
+      "win_probabilities": {
+        "away_prob": 0.296,
+        "home_prob": 0.704
+      },
+      "value_bets": []
+    },
+    "Chicago White Sox_vs_Washington Nationals": {
+      "away_team": "Chicago White Sox",
+      "home_team": "Washington Nationals",
+      "away_pitcher": "Shane Smith",
+      "home_pitcher": "Brad Lord",
+      "predicted_score": "3.5-3.8",
+      "predicted_total_runs": 7.6,
+      "win_probabilities": {
+        "away_prob": 0.46,
+        "home_prob": 0.54
+      },
+      "value_bets": []
+    },
+    "Baltimore Orioles_vs_New York Yankees": {
+      "away_team": "Baltimore Orioles",
+      "home_team": "New York Yankees",
+      "away_pitcher": "Kyle Bradish",
+      "home_pitcher": "Luis Gil",
+      "predicted_score": "3.3-3.8",
+      "predicted_total_runs": 7.5,
+      "win_probabilities": {
+        "away_prob": 0.418,
+        "home_prob": 0.582
+      },
+      "value_bets": []
+    },
+    "Houston Astros_vs_Los Angeles Angels": {
+      "away_team": "Houston Astros",
+      "home_team": "Los Angeles Angels",
+      "away_pitcher": "Lance McCullers Jr.",
+      "home_pitcher": "Sam Aldegheri",
+      "predicted_score": "4.4-5.1",
+      "predicted_total_runs": 9.2,
+      "win_probabilities": {
+        "away_prob": 0.426,
+        "home_prob": 0.574
+      },
+      "value_bets": []
+    },
+    "Tampa Bay Rays_vs_Toronto Blue Jays": {
+      "away_team": "Tampa Bay Rays",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "Ian Seymour",
+      "home_pitcher": "Kevin Gausman",
+      "predicted_score": "3.2-3.6",
+      "predicted_total_runs": 7.3,
+      "win_probabilities": {
+        "away_prob": 0.426,
+        "home_prob": 0.574
+      },
+      "value_bets": []
+    },
+    "Arizona Diamondbacks_vs_San Diego Padres": {
+      "away_team": "Arizona Diamondbacks",
+      "home_team": "San Diego Padres",
+      "away_pitcher": "Brandon Pfaadt",
+      "home_pitcher": "JP Sears",
+      "predicted_score": "3.8-4.4",
+      "predicted_total_runs": 8.3,
+      "win_probabilities": {
+        "away_prob": 0.406,
+        "home_prob": 0.594
+      },
+      "value_bets": []
+    },
+    "Los Angeles Dodgers_vs_Seattle Mariners": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "Clayton Kershaw",
+      "home_pitcher": "Bryce Miller",
+      "predicted_score": "3.8-3.1",
+      "predicted_total_runs": 7.4,
+      "win_probabilities": {
+        "away_prob": 0.615,
+        "home_prob": 0.385
+      },
+      "value_bets": []
+    },
+    "Texas Rangers_vs_Cleveland Guardians": {
+      "away_team": "Texas Rangers",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": null,
+      "home_pitcher": null,
+      "predicted_score": "4.5-4.7",
+      "predicted_total_runs": 9.0,
+      "win_probabilities": {
+        "away_prob": 0.48,
+        "home_prob": 0.52
+      },
+      "value_bets": []
+    },
+    "New York Mets_vs_Miami Marlins": {
+      "away_team": "New York Mets",
+      "home_team": "Miami Marlins",
+      "away_pitcher": "Sean Manaea",
+      "home_pitcher": "Edward Cabrera",
+      "predicted_score": "3.1-3.4",
+      "predicted_total_runs": 7.1,
+      "win_probabilities": {
+        "away_prob": 0.46,
+        "home_prob": 0.54
+      },
+      "value_bets": []
+    },
+    "Cincinnati Reds_vs_Milwaukee Brewers": {
+      "away_team": "Cincinnati Reds",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": "Brady Singer",
+      "home_pitcher": "Freddy Peralta",
+      "predicted_score": "2.6-3.5",
+      "predicted_total_runs": 6.8,
+      "win_probabilities": {
+        "away_prob": 0.375,
+        "home_prob": 0.625
+      },
+      "value_bets": []
+    },
+    "Pittsburgh Pirates_vs_Atlanta Braves": {
+      "away_team": "Pittsburgh Pirates",
+      "home_team": "Atlanta Braves",
+      "away_pitcher": "Johan Oviedo",
+      "home_pitcher": "Charlie Morton",
+      "predicted_score": "4.3-4.7",
+      "predicted_total_runs": 8.8,
+      "win_probabilities": {
+        "away_prob": 0.444,
+        "home_prob": 0.556
+      },
+      "value_bets": []
+    },
+    "St. Louis Cardinals_vs_Chicago Cubs": {
+      "away_team": "St. Louis Cardinals",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": "Kyle Leahy",
+      "home_pitcher": "Javier Assad",
+      "predicted_score": "4.1-4.7",
+      "predicted_total_runs": 8.7,
+      "win_probabilities": {
+        "away_prob": 0.411,
+        "home_prob": 0.589
+      },
+      "value_bets": []
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 15,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 0,
+    "high_confidence_bets": 0,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

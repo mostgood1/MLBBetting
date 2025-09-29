@@ -30882,6 +30882,14 @@
         "last_update_type": "full",
         "game_count": 15
       }
+    },
+    "2025-09-29": {
+      "games": {},
+      "timestamp": "2025-09-29T08:38:59.024540",
+      "total_games": 0,
+      "source": "daily_files",
+      "games_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\games_2025-09-29.json",
+      "betting_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\betting_recommendations_2025_09_29.json"
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",
