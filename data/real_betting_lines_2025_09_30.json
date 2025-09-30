@@ -1,0 +1,70 @@
+{
+  "lines": {
+    "Detroit Tigers @ Cleveland Guardians": {
+      "moneyline": {
+        "away": -110,
+        "home": -110
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -110,
+        "under": -110
+      },
+      "run_line": {
+        "away": "-1.5 (+130)",
+        "home": "+1.5 (-150)"
+      }
+    },
+    "San Diego Padres @ Chicago Cubs": {
+      "moneyline": {
+        "away": -110,
+        "home": -110
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -110,
+        "under": -110
+      },
+      "run_line": {
+        "away": "-1.5 (+130)",
+        "home": "+1.5 (-150)"
+      }
+    },
+    "Boston Red Sox @ New York Yankees": {
+      "moneyline": {
+        "away": -110,
+        "home": -110
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -110,
+        "under": -110
+      },
+      "run_line": {
+        "away": "-1.5 (+130)",
+        "home": "+1.5 (-150)"
+      }
+    },
+    "Cincinnati Reds @ Los Angeles Dodgers": {
+      "moneyline": {
+        "away": -110,
+        "home": -110
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -110,
+        "under": -110
+      },
+      "run_line": {
+        "away": "-1.5 (+130)",
+        "home": "+1.5 (-150)"
+      }
+    }
+  },
+  "metadata": {
+    "date": "2025-09-30",
+    "source": "sample_fallback",
+    "games_count": 4,
+    "timestamp": "2025-09-30T08:36:19.286512"
+  }
+}

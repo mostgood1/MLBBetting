@@ -1,0 +1,217 @@
+{
+  "date": "2025-09-30",
+  "updated_at": "2025-09-30T08:31:16.367124",
+  "pitchers": {
+    "gavin williams": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -170,
+        "under_odds": 130
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -155,
+        "under_odds": 115
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -155,
+        "under_odds": 115
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -190,
+        "under_odds": 140
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -175,
+        "under_odds": 135
+      }
+    },
+    "tarik skubal": {
+      "strikeouts": {
+        "line": 7.5,
+        "over_odds": -135,
+        "under_odds": 105
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 120,
+        "under_odds": -160
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": 115,
+        "under_odds": -155
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": 140,
+        "under_odds": -200
+      },
+      "outs": {
+        "line": 18.5,
+        "over_odds": 140,
+        "under_odds": -180
+      }
+    },
+    "matthew boyd": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": -130,
+        "under_odds": null
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -115,
+        "under_odds": -125
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -155,
+        "under_odds": 115
+      },
+      "walks": {
+        "line": 0.5,
+        "over_odds": -270,
+        "under_odds": 180
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -155,
+        "under_odds": 115
+      }
+    },
+    "nick pivetta": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -160,
+        "under_odds": 120
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": null,
+        "under_odds": -140
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -115,
+        "under_odds": -125
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -145,
+        "under_odds": 105
+      }
+    },
+    "garrett crochet": {
+      "strikeouts": {
+        "line": 7.5,
+        "over_odds": -125,
+        "under_odds": -105
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -135,
+        "under_odds": -105
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 150,
+        "under_odds": -200
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -125,
+        "under_odds": -115
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": -155,
+        "under_odds": 115
+      }
+    },
+    "max fried": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -150,
+        "under_odds": 115
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -140,
+        "under_odds": null
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -140,
+        "under_odds": null
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -110,
+        "under_odds": -130
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": -155,
+        "under_odds": 115
+      }
+    },
+    "blake snell": {
+      "strikeouts": {
+        "line": 6.5,
+        "over_odds": -115,
+        "under_odds": -115
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": 115,
+        "under_odds": -155
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -160,
+        "under_odds": 110
+      }
+    },
+    "hunter greene": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -165,
+        "under_odds": 125
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 130,
+        "under_odds": -170
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 110,
+        "under_odds": -150
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -160,
+        "under_odds": 110
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": 115,
+        "under_odds": -155
+      }
+    }
+  }
+}

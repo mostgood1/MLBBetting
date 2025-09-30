@@ -1,0 +1,1524 @@
+{
+  "date": "2025-09-30",
+  "generated_at": "2025-09-30T13:30:43.431149",
+  "pitchers": [
+    {
+      "pitcher_id": "669373",
+      "pitcher_name": "Tarik Skubal",
+      "team": "Detroit Tigers",
+      "opponent": "Kansas City Royals",
+      "venue_home_team": "Kansas City Royals",
+      "team_source": "game_match",
+      "projected_outs": 20,
+      "projected_innings": 6.6,
+      "projected_strikeouts": 8.3,
+      "projected_earned_runs": 1.7,
+      "projected_hits_allowed": 4.7,
+      "projected_walks": 1.0,
+      "adjusted_projections": {
+        "strikeouts": 6.9,
+        "outs": 21,
+        "k_factor": 0.828,
+        "park_factor_used": 1.01,
+        "opponent_k_rate": 0.1832,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0256289978678037,
+        "recent_ip_weighted": 6.59,
+        "recent_ip_per_start": 6.94
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": {
+          "line": 18.5,
+          "over_odds": 140,
+          "under_odds": -180
+        },
+        "strikeouts": {
+          "line": 7.5,
+          "over_odds": -135,
+          "under_odds": 105
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 5,
+            "odds": -2600
+          },
+          {
+            "threshold": 6,
+            "odds": -750
+          },
+          {
+            "threshold": 7,
+            "odds": -310
+          },
+          {
+            "threshold": 9,
+            "odds": 135
+          },
+          {
+            "threshold": 10,
+            "odds": 260
+          },
+          {
+            "threshold": 11,
+            "odds": 480
+          },
+          {
+            "threshold": 12,
+            "odds": 950
+          },
+          {
+            "threshold": 13,
+            "odds": 2500
+          },
+          {
+            "threshold": 14,
+            "odds": 6000
+          }
+        ],
+        "earned_runs": {
+          "line": 1.5,
+          "over_odds": 115,
+          "under_odds": -155
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": 120,
+          "under_odds": -160
+        },
+        "walks": {
+          "line": 1.5,
+          "over_odds": 140,
+          "under_odds": -200
+        }
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": "OVER",
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {
+        "strikeouts": {
+          "edge": 0.8,
+          "threshold": 0.7,
+          "confidence_score": 0.612,
+          "confidence_label": "LOW",
+          "side_odds": -135,
+          "decimal_odds": 1.741,
+          "win_prob_est": 0.592,
+          "expected_value": 0.622,
+          "kelly_fraction": 0.041
+        }
+      },
+      "diffs": {
+        "outs": 1.5,
+        "strikeouts": 0.8000000000000007,
+        "earned_runs": 0.19999999999999996,
+        "hits_allowed": 0.20000000000000018,
+        "walks": -0.5
+      },
+      "diffs_adjusted": {
+        "outs": 2.5,
+        "strikeouts": -0.5999999999999996
+      }
+    },
+    {
+      "pitcher_id": "668909",
+      "pitcher_name": "Gavin Williams",
+      "team": "Cleveland Guardians",
+      "opponent": "Seattle Mariners",
+      "venue_home_team": "Cleveland Guardians",
+      "team_source": "master_stats",
+      "projected_outs": 17,
+      "projected_innings": 5.6,
+      "projected_strikeouts": 5.6,
+      "projected_earned_runs": 2.1,
+      "projected_hits_allowed": 4.4,
+      "projected_walks": 3.0,
+      "adjusted_projections": {
+        "strikeouts": 6.0,
+        "outs": 17,
+        "k_factor": 1.065,
+        "park_factor_used": 0.98,
+        "opponent_k_rate": 0.2322,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9932196162046908,
+        "recent_ip_weighted": 5.62,
+        "recent_ip_per_start": 6.2
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": {
+          "line": 14.5,
+          "over_odds": -175,
+          "under_odds": 135
+        },
+        "strikeouts": {
+          "line": 5.5,
+          "over_odds": -170,
+          "under_odds": 130
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 4,
+            "odds": -1100
+          },
+          {
+            "threshold": 5,
+            "odds": -380
+          },
+          {
+            "threshold": 7,
+            "odds": 125
+          },
+          {
+            "threshold": 8,
+            "odds": 250
+          },
+          {
+            "threshold": 9,
+            "odds": 500
+          },
+          {
+            "threshold": 10,
+            "odds": 1000
+          },
+          {
+            "threshold": 11,
+            "odds": 2200
+          }
+        ],
+        "earned_runs": {
+          "line": 1.5,
+          "over_odds": -155,
+          "under_odds": 115
+        },
+        "hits_allowed": {
+          "line": 3.5,
+          "over_odds": -155,
+          "under_odds": 115
+        },
+        "walks": {
+          "line": 1.5,
+          "over_odds": -190,
+          "under_odds": 140
+        }
+      },
+      "recommendations": {
+        "outs": "OVER",
+        "strikeouts": null,
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
+        "walks": "OVER"
+      },
+      "recommendations_meta": {
+        "outs": {
+          "edge": 2.5,
+          "threshold": 2.0,
+          "confidence_score": 0.69,
+          "confidence_label": "MEDIUM",
+          "side_odds": -175,
+          "decimal_odds": 1.571,
+          "win_prob_est": 0.657,
+          "expected_value": 0.689,
+          "kelly_fraction": 0.057
+        },
+        "earned_runs": {
+          "edge": 0.6,
+          "threshold": 0.6,
+          "confidence_score": 0.5,
+          "confidence_label": "LOW",
+          "side_odds": -155,
+          "decimal_odds": 1.645,
+          "win_prob_est": 0.5,
+          "expected_value": 0.323,
+          "kelly_fraction": 0.0
+        },
+        "hits_allowed": {
+          "edge": 0.9,
+          "threshold": 0.8,
+          "confidence_score": 0.599,
+          "confidence_label": "LOW",
+          "side_odds": -155,
+          "decimal_odds": 1.645,
+          "win_prob_est": 0.581,
+          "expected_value": 0.536,
+          "kelly_fraction": 0.0
+        },
+        "walks": {
+          "edge": 1.5,
+          "threshold": 0.6,
+          "confidence_score": 0.992,
+          "confidence_label": "HIGH",
+          "side_odds": -190,
+          "decimal_odds": 1.526,
+          "win_prob_est": 0.98,
+          "expected_value": 1.476,
+          "kelly_fraction": 0.25
+        }
+      },
+      "diffs": {
+        "outs": 2.5,
+        "strikeouts": 0.09999999999999964,
+        "earned_runs": 0.6000000000000001,
+        "hits_allowed": 0.9000000000000004,
+        "walks": 1.5
+      },
+      "diffs_adjusted": {
+        "outs": 2.5,
+        "strikeouts": 0.5
+      }
+    },
+    {
+      "pitcher_id": "601713",
+      "pitcher_name": "Nick Pivetta",
+      "team": "San Diego Padres",
+      "opponent": "Minnesota Twins",
+      "venue_home_team": "Minnesota Twins",
+      "team_source": "master_stats",
+      "projected_outs": 17,
+      "projected_innings": 5.8,
+      "projected_strikeouts": 6.1,
+      "projected_earned_runs": 1.8,
+      "projected_hits_allowed": 4.0,
+      "projected_walks": 1.5,
+      "adjusted_projections": {
+        "strikeouts": 6.1,
+        "outs": 17,
+        "k_factor": 0.997,
+        "park_factor_used": 1.02,
+        "opponent_k_rate": 0.2217,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0043070362473348,
+        "recent_ip_weighted": 5.78,
+        "recent_ip_per_start": 5.66
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": {
+          "line": 14.5,
+          "over_odds": -145,
+          "under_odds": 105
+        },
+        "strikeouts": {
+          "line": 4.5,
+          "over_odds": -160,
+          "under_odds": 120
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -1000
+          },
+          {
+            "threshold": 4,
+            "odds": -350
+          },
+          {
+            "threshold": 6,
+            "odds": 145
+          },
+          {
+            "threshold": 7,
+            "odds": 300
+          },
+          {
+            "threshold": 8,
+            "odds": 700
+          },
+          {
+            "threshold": 9,
+            "odds": 1500
+          }
+        ],
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": 125,
+          "under_odds": -165
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": null,
+          "under_odds": -140
+        },
+        "walks": {
+          "line": 1.5,
+          "over_odds": -115,
+          "under_odds": -125
+        }
+      },
+      "recommendations": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": "UNDER",
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {
+        "strikeouts": {
+          "edge": 1.6,
+          "threshold": 0.7,
+          "confidence_score": 0.984,
+          "confidence_label": "HIGH",
+          "side_odds": -160,
+          "decimal_odds": 1.625,
+          "win_prob_est": 0.966,
+          "expected_value": 1.535,
+          "kelly_fraction": 0.25
+        },
+        "outs": {
+          "edge": 2.5,
+          "threshold": 2.0,
+          "confidence_score": 0.69,
+          "confidence_label": "MEDIUM",
+          "side_odds": -145,
+          "decimal_odds": 1.69,
+          "win_prob_est": 0.657,
+          "expected_value": 0.767,
+          "kelly_fraction": 0.16
+        },
+        "earned_runs": {
+          "edge": -0.7,
+          "threshold": 0.6,
+          "confidence_score": 0.63,
+          "confidence_label": "MEDIUM",
+          "side_odds": -165,
+          "decimal_odds": 1.606,
+          "win_prob_est": 0.607,
+          "expected_value": 0.581,
+          "kelly_fraction": 0.0
+        }
+      },
+      "diffs": {
+        "outs": 2.5,
+        "strikeouts": 1.5999999999999996,
+        "earned_runs": -0.7,
+        "hits_allowed": -0.5,
+        "walks": 0.0
+      },
+      "diffs_adjusted": {
+        "outs": 2.5,
+        "strikeouts": 1.5999999999999996
+      }
+    },
+    {
+      "pitcher_id": "571510",
+      "pitcher_name": "Matthew Boyd",
+      "team": "Chicago Cubs",
+      "opponent": "Colorado Rockies",
+      "venue_home_team": "Colorado Rockies",
+      "team_source": "game_match",
+      "projected_outs": 18,
+      "projected_innings": 6.0,
+      "projected_strikeouts": 5.2,
+      "projected_earned_runs": 1.7,
+      "projected_hits_allowed": 4.9,
+      "projected_walks": 1.3,
+      "adjusted_projections": {
+        "strikeouts": 5.5,
+        "outs": 19,
+        "k_factor": 1.067,
+        "park_factor_used": 1.15,
+        "opponent_k_rate": 0.2539,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0347974413646055,
+        "recent_ip_weighted": 6.01,
+        "recent_ip_per_start": 6.14
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": {
+          "line": 14.5,
+          "over_odds": -155,
+          "under_odds": 115
+        },
+        "strikeouts": {
+          "line": 3.5,
+          "over_odds": -130,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -380
+          },
+          {
+            "threshold": 5,
+            "odds": 160
+          },
+          {
+            "threshold": 6,
+            "odds": 350
+          },
+          {
+            "threshold": 7,
+            "odds": 800
+          }
+        ],
+        "earned_runs": {
+          "line": 1.5,
+          "over_odds": -155,
+          "under_odds": 115
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": -115,
+          "under_odds": -125
+        },
+        "walks": {
+          "line": 0.5,
+          "over_odds": -270,
+          "under_odds": 180
+        }
+      },
+      "recommendations": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": "OVER"
+      },
+      "recommendations_meta": {
+        "strikeouts": {
+          "edge": 1.7,
+          "threshold": 0.7,
+          "confidence_score": 0.99,
+          "confidence_label": "HIGH",
+          "side_odds": -130,
+          "decimal_odds": 1.769,
+          "win_prob_est": 0.976,
+          "expected_value": 1.703,
+          "kelly_fraction": 0.25
+        },
+        "outs": {
+          "edge": 3.5,
+          "threshold": 2.0,
+          "confidence_score": 0.917,
+          "confidence_label": "HIGH",
+          "side_odds": -155,
+          "decimal_odds": 1.645,
+          "win_prob_est": 0.875,
+          "expected_value": 1.316,
+          "kelly_fraction": 0.25
+        },
+        "walks": {
+          "edge": 0.8,
+          "threshold": 0.6,
+          "confidence_score": 0.744,
+          "confidence_label": "MEDIUM",
+          "side_odds": -270,
+          "decimal_odds": 1.37,
+          "win_prob_est": 0.704,
+          "expected_value": 0.669,
+          "kelly_fraction": 0.0
+        }
+      },
+      "diffs": {
+        "outs": 3.5,
+        "strikeouts": 1.7000000000000002,
+        "earned_runs": 0.19999999999999996,
+        "hits_allowed": 0.40000000000000036,
+        "walks": 0.8
+      },
+      "diffs_adjusted": {
+        "outs": 4.5,
+        "strikeouts": 2.0
+      }
+    },
+    {
+      "pitcher_id": "676979",
+      "pitcher_name": "Garrett Crochet",
+      "team": "Boston Red Sox",
+      "opponent": "Pittsburgh Pirates",
+      "venue_home_team": "Boston Red Sox",
+      "team_source": "master_stats",
+      "projected_outs": 19,
+      "projected_innings": 6.5,
+      "projected_strikeouts": 8.1,
+      "projected_earned_runs": 1.7,
+      "projected_hits_allowed": 5.2,
+      "projected_walks": 1.6,
+      "adjusted_projections": {
+        "strikeouts": 8.5,
+        "outs": 19,
+        "k_factor": 1.045,
+        "park_factor_used": 1.05,
+        "opponent_k_rate": 0.2359,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9919402985074626,
+        "recent_ip_weighted": 6.47,
+        "recent_ip_per_start": 6.6
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": {
+          "line": 17.5,
+          "over_odds": -155,
+          "under_odds": 115
+        },
+        "strikeouts": {
+          "line": 7.5,
+          "over_odds": -125,
+          "under_odds": -105
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 5,
+            "odds": -2200
+          },
+          {
+            "threshold": 6,
+            "odds": -650
+          },
+          {
+            "threshold": 7,
+            "odds": -275
+          },
+          {
+            "threshold": 9,
+            "odds": 140
+          },
+          {
+            "threshold": 10,
+            "odds": 265
+          },
+          {
+            "threshold": 11,
+            "odds": 480
+          },
+          {
+            "threshold": 12,
+            "odds": 900
+          },
+          {
+            "threshold": 13,
+            "odds": 2000
+          }
+        ],
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": 150,
+          "under_odds": -200
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": -135,
+          "under_odds": -105
+        },
+        "walks": {
+          "line": 1.5,
+          "over_odds": -125,
+          "under_odds": -115
+        }
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": "UNDER",
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {
+        "earned_runs": {
+          "edge": -0.8,
+          "threshold": 0.6,
+          "confidence_score": 0.744,
+          "confidence_label": "MEDIUM",
+          "side_odds": -200,
+          "decimal_odds": 1.5,
+          "win_prob_est": 0.704,
+          "expected_value": 0.76,
+          "kelly_fraction": 0.112
+        }
+      },
+      "diffs": {
+        "outs": 1.5,
+        "strikeouts": 0.5999999999999996,
+        "earned_runs": -0.8,
+        "hits_allowed": 0.7000000000000002,
+        "walks": 0.10000000000000009
+      },
+      "diffs_adjusted": {
+        "outs": 1.5,
+        "strikeouts": 1.0
+      }
+    },
+    {
+      "pitcher_id": "608331",
+      "pitcher_name": "Max Fried",
+      "team": "New York Yankees",
+      "opponent": "Chicago White Sox",
+      "venue_home_team": "Chicago White Sox",
+      "team_source": "master_stats",
+      "projected_outs": 19,
+      "projected_innings": 6.2,
+      "projected_strikeouts": 6.0,
+      "projected_earned_runs": 2.2,
+      "projected_hits_allowed": 5.4,
+      "projected_walks": 1.6,
+      "adjusted_projections": {
+        "strikeouts": 6.1,
+        "outs": 19,
+        "k_factor": 1.009,
+        "park_factor_used": 1.01,
+        "opponent_k_rate": 0.2232,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9994029850746269,
+        "recent_ip_weighted": 6.24,
+        "recent_ip_per_start": 6.66
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": {
+          "line": 17.5,
+          "over_odds": -155,
+          "under_odds": 115
+        },
+        "strikeouts": {
+          "line": 5.5,
+          "over_odds": -150,
+          "under_odds": 115
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -2200
+          },
+          {
+            "threshold": 4,
+            "odds": -700
+          },
+          {
+            "threshold": 5,
+            "odds": -300
+          },
+          {
+            "threshold": 7,
+            "odds": 150
+          },
+          {
+            "threshold": 8,
+            "odds": 300
+          },
+          {
+            "threshold": 9,
+            "odds": 630
+          },
+          {
+            "threshold": 10,
+            "odds": 1300
+          }
+        ],
+        "earned_runs": {
+          "line": 1.5,
+          "over_odds": -140,
+          "under_odds": null
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": -140,
+          "under_odds": null
+        },
+        "walks": {
+          "line": 1.5,
+          "over_odds": -110,
+          "under_odds": -130
+        }
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": "OVER",
+        "hits_allowed": "OVER",
+        "walks": null
+      },
+      "recommendations_meta": {
+        "earned_runs": {
+          "edge": 0.7,
+          "threshold": 0.6,
+          "confidence_score": 0.63,
+          "confidence_label": "MEDIUM",
+          "side_odds": -140,
+          "decimal_odds": 1.714,
+          "win_prob_est": 0.607,
+          "expected_value": 0.647,
+          "kelly_fraction": 0.056
+        },
+        "hits_allowed": {
+          "edge": 0.9,
+          "threshold": 0.8,
+          "confidence_score": 0.599,
+          "confidence_label": "LOW",
+          "side_odds": -140,
+          "decimal_odds": 1.714,
+          "win_prob_est": 0.581,
+          "expected_value": 0.576,
+          "kelly_fraction": 0.0
+        }
+      },
+      "diffs": {
+        "outs": 1.5,
+        "strikeouts": 0.5,
+        "earned_runs": 0.7000000000000002,
+        "hits_allowed": 0.9000000000000004,
+        "walks": 0.10000000000000009
+      },
+      "diffs_adjusted": {
+        "outs": 1.5,
+        "strikeouts": 0.5999999999999996
+      }
+    },
+    {
+      "pitcher_id": "668881",
+      "pitcher_name": "Hunter Greene",
+      "team": "Cincinnati Reds",
+      "opponent": "St. Louis Cardinals",
+      "venue_home_team": "Cincinnati Reds",
+      "team_source": "master_stats",
+      "projected_outs": 17,
+      "projected_innings": 5.8,
+      "projected_strikeouts": 7.3,
+      "projected_earned_runs": 1.7,
+      "projected_hits_allowed": 4.3,
+      "projected_walks": 1.1,
+      "adjusted_projections": {
+        "strikeouts": 7.0,
+        "outs": 17,
+        "k_factor": 0.965,
+        "park_factor_used": 1.02,
+        "opponent_k_rate": 0.2146,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0107036247334755,
+        "recent_ip_weighted": 5.78,
+        "recent_ip_per_start": 6.14
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": {
+          "line": 15.5,
+          "over_odds": 115,
+          "under_odds": -155
+        },
+        "strikeouts": {
+          "line": 5.5,
+          "over_odds": -165,
+          "under_odds": 125
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -2600
+          },
+          {
+            "threshold": 4,
+            "odds": -810
+          },
+          {
+            "threshold": 5,
+            "odds": -330
+          },
+          {
+            "threshold": 7,
+            "odds": 125
+          },
+          {
+            "threshold": 8,
+            "odds": 250
+          },
+          {
+            "threshold": 9,
+            "odds": 500
+          },
+          {
+            "threshold": 10,
+            "odds": 1000
+          },
+          {
+            "threshold": 11,
+            "odds": 2200
+          }
+        ],
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": 110,
+          "under_odds": -150
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": 130,
+          "under_odds": -170
+        },
+        "walks": {
+          "line": 1.5,
+          "over_odds": -160,
+          "under_odds": 110
+        }
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": "OVER",
+        "earned_runs": "UNDER",
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {
+        "strikeouts": {
+          "edge": 1.8,
+          "threshold": 0.7,
+          "confidence_score": 0.993,
+          "confidence_label": "HIGH",
+          "side_odds": -165,
+          "decimal_odds": 1.606,
+          "win_prob_est": 0.983,
+          "expected_value": 1.563,
+          "kelly_fraction": 0.25
+        },
+        "earned_runs": {
+          "edge": -0.8,
+          "threshold": 0.6,
+          "confidence_score": 0.744,
+          "confidence_label": "MEDIUM",
+          "side_odds": -150,
+          "decimal_odds": 1.667,
+          "win_prob_est": 0.704,
+          "expected_value": 0.877,
+          "kelly_fraction": 0.25
+        }
+      },
+      "diffs": {
+        "outs": 1.5,
+        "strikeouts": 1.7999999999999998,
+        "earned_runs": -0.8,
+        "hits_allowed": -0.20000000000000018,
+        "walks": -0.3999999999999999
+      },
+      "diffs_adjusted": {
+        "outs": 1.5,
+        "strikeouts": 1.5
+      }
+    },
+    {
+      "pitcher_id": "605483",
+      "pitcher_name": "Blake Snell",
+      "team": "Los Angeles Dodgers",
+      "opponent": "Arizona Diamondbacks",
+      "venue_home_team": "Los Angeles Dodgers",
+      "team_source": "master_stats",
+      "projected_outs": 16,
+      "projected_innings": 5.3,
+      "projected_strikeouts": 5.5,
+      "projected_earned_runs": 1.9,
+      "projected_hits_allowed": 5.2,
+      "projected_walks": 2.6,
+      "adjusted_projections": {
+        "strikeouts": 5.4,
+        "outs": 16,
+        "k_factor": 0.977,
+        "park_factor_used": 0.97,
+        "opponent_k_rate": 0.212,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9940724946695095,
+        "recent_ip_weighted": 5.26,
+        "recent_ip_per_start": 5.26
+      },
+      "confidence": "MEDIUM",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": 6.5,
+          "over_odds": -115,
+          "under_odds": -115
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 4,
+            "odds": -1700
+          },
+          {
+            "threshold": 5,
+            "odds": -630
+          },
+          {
+            "threshold": 6,
+            "odds": -280
+          },
+          {
+            "threshold": 8,
+            "odds": 145
+          },
+          {
+            "threshold": 9,
+            "odds": 290
+          },
+          {
+            "threshold": 10,
+            "odds": 600
+          },
+          {
+            "threshold": 11,
+            "odds": 1200
+          }
+        ],
+        "earned_runs": {
+          "line": 1.5,
+          "over_odds": 115,
+          "under_odds": -155
+        },
+        "hits_allowed": {
+          "line": 3.5,
+          "over_odds": 125,
+          "under_odds": -165
+        },
+        "walks": {
+          "line": 1.5,
+          "over_odds": -160,
+          "under_odds": 110
+        }
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": "UNDER",
+        "earned_runs": null,
+        "hits_allowed": "OVER",
+        "walks": "OVER"
+      },
+      "recommendations_meta": {
+        "strikeouts": {
+          "edge": -1.0,
+          "threshold": 0.7,
+          "confidence_score": 0.798,
+          "confidence_label": "MEDIUM",
+          "side_odds": -115,
+          "decimal_odds": 1.87,
+          "win_prob_est": 0.753,
+          "expected_value": 1.161,
+          "kelly_fraction": 0.25
+        },
+        "hits_allowed": {
+          "edge": 1.7,
+          "threshold": 0.8,
+          "confidence_score": 0.973,
+          "confidence_label": "HIGH",
+          "side_odds": 125,
+          "decimal_odds": 2.25,
+          "win_prob_est": 0.949,
+          "expected_value": 2.084,
+          "kelly_fraction": 0.25
+        },
+        "walks": {
+          "edge": 1.1,
+          "threshold": 0.6,
+          "confidence_score": 0.935,
+          "confidence_label": "HIGH",
+          "side_odds": -160,
+          "decimal_odds": 1.625,
+          "win_prob_est": 0.897,
+          "expected_value": 1.355,
+          "kelly_fraction": 0.25
+        }
+      },
+      "diffs": {
+        "outs": null,
+        "strikeouts": -1.0,
+        "earned_runs": 0.3999999999999999,
+        "hits_allowed": 1.7000000000000002,
+        "walks": 1.1
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": -1.0999999999999996
+      }
+    },
+    {
+      "pitcher_id": "663903",
+      "pitcher_name": "Brady Singer",
+      "team": "Cincinnati Reds",
+      "opponent": "St. Louis Cardinals",
+      "venue_home_team": "Cincinnati Reds",
+      "team_source": "game_match",
+      "projected_outs": 17,
+      "projected_innings": 5.6,
+      "projected_strikeouts": 5.4,
+      "projected_earned_runs": 2.5,
+      "projected_hits_allowed": 5.0,
+      "projected_walks": 2.1,
+      "adjusted_projections": {
+        "strikeouts": 5.2,
+        "outs": 17,
+        "k_factor": 0.965,
+        "park_factor_used": 1.02,
+        "opponent_k_rate": 0.2146,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0107036247334755,
+        "recent_ip_weighted": 5.56,
+        "recent_ip_per_start": 6.0
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -1000
+          },
+          {
+            "threshold": 4,
+            "odds": -320
+          },
+          {
+            "threshold": 5,
+            "odds": -110
+          },
+          {
+            "threshold": 6,
+            "odds": 180
+          },
+          {
+            "threshold": 7,
+            "odds": 390
+          },
+          {
+            "threshold": 8,
+            "odds": 800
+          },
+          {
+            "threshold": 9,
+            "odds": 1600
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    },
+    {
+      "pitcher_id": "693855",
+      "pitcher_name": "Ian Seymour",
+      "team": "Tampa Bay Rays",
+      "opponent": "Washington Nationals",
+      "venue_home_team": "Washington Nationals",
+      "team_source": "game_match",
+      "projected_outs": 15,
+      "projected_innings": 5.0,
+      "projected_strikeouts": 5.6,
+      "projected_earned_runs": 2.1,
+      "projected_hits_allowed": 4.1,
+      "projected_walks": 1.7,
+      "adjusted_projections": {
+        "strikeouts": 5.5,
+        "outs": 15,
+        "k_factor": 0.981,
+        "park_factor_used": 1.02,
+        "opponent_k_rate": 0.2183,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0166737739872067,
+        "recent_ip_weighted": null,
+        "recent_ip_per_start": 5.0
+      },
+      "confidence": "LOW",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -580
+          },
+          {
+            "threshold": 4,
+            "odds": -190
+          },
+          {
+            "threshold": 5,
+            "odds": 125
+          },
+          {
+            "threshold": 6,
+            "odds": 280
+          },
+          {
+            "threshold": 7,
+            "odds": 600
+          },
+          {
+            "threshold": 8,
+            "odds": 1300
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    },
+    {
+      "pitcher_id": "695418",
+      "pitcher_name": "Brad Lord",
+      "team": "Washington Nationals",
+      "opponent": "Tampa Bay Rays",
+      "venue_home_team": "Washington Nationals",
+      "team_source": "game_match",
+      "projected_outs": 20,
+      "projected_innings": 6.7,
+      "projected_strikeouts": 5.4,
+      "projected_earned_runs": 2.6,
+      "projected_hits_allowed": 6.3,
+      "projected_walks": 2.2,
+      "adjusted_projections": {
+        "strikeouts": 5.5,
+        "outs": 20,
+        "k_factor": 1.026,
+        "park_factor_used": 1.02,
+        "opponent_k_rate": 0.2281,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0168869936034115,
+        "recent_ip_weighted": 6.75,
+        "recent_ip_per_start": 4.86
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -900
+          },
+          {
+            "threshold": 4,
+            "odds": -300
+          },
+          {
+            "threshold": 5,
+            "odds": -125
+          },
+          {
+            "threshold": 6,
+            "odds": 175
+          },
+          {
+            "threshold": 7,
+            "odds": 375
+          },
+          {
+            "threshold": 8,
+            "odds": 800
+          },
+          {
+            "threshold": 9,
+            "odds": 1700
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    },
+    {
+      "pitcher_id": "661563",
+      "pitcher_name": "Luis Gil",
+      "team": "New York Yankees",
+      "opponent": "Chicago White Sox",
+      "venue_home_team": "Chicago White Sox",
+      "team_source": "game_match",
+      "projected_outs": 15,
+      "projected_innings": 5.0,
+      "projected_strikeouts": 4.5,
+      "projected_earned_runs": 2.4,
+      "projected_hits_allowed": 5.0,
+      "projected_walks": 3.4,
+      "adjusted_projections": {
+        "strikeouts": 4.5,
+        "outs": 15,
+        "k_factor": 1.009,
+        "park_factor_used": 1.01,
+        "opponent_k_rate": 0.2232,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9994029850746269,
+        "recent_ip_weighted": 4.99,
+        "recent_ip_per_start": 5.34
+      },
+      "confidence": "LOW",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -3000
+          },
+          {
+            "threshold": 4,
+            "odds": -670
+          },
+          {
+            "threshold": 5,
+            "odds": -260
+          },
+          {
+            "threshold": 6,
+            "odds": null
+          },
+          {
+            "threshold": 7,
+            "odds": 190
+          },
+          {
+            "threshold": 8,
+            "odds": 390
+          },
+          {
+            "threshold": 9,
+            "odds": 800
+          },
+          {
+            "threshold": 10,
+            "odds": 1600
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    },
+    {
+      "pitcher_id": "694297",
+      "pitcher_name": "Brandon Pfaadt",
+      "team": "Arizona Diamondbacks",
+      "opponent": "Los Angeles Dodgers",
+      "venue_home_team": "Los Angeles Dodgers",
+      "team_source": "game_match",
+      "projected_outs": 16,
+      "projected_innings": 5.3,
+      "projected_strikeouts": 4.3,
+      "projected_earned_runs": 2.9,
+      "projected_hits_allowed": 5.9,
+      "projected_walks": 1.2,
+      "adjusted_projections": {
+        "strikeouts": 4.4,
+        "outs": 16,
+        "k_factor": 1.018,
+        "park_factor_used": 0.97,
+        "opponent_k_rate": 0.2208,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9746695095948827,
+        "recent_ip_weighted": 5.31,
+        "recent_ip_per_start": 5.2
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -450
+          },
+          {
+            "threshold": 4,
+            "odds": -145
+          },
+          {
+            "threshold": 5,
+            "odds": 170
+          },
+          {
+            "threshold": 6,
+            "odds": 350
+          },
+          {
+            "threshold": 7,
+            "odds": 750
+          },
+          {
+            "threshold": 8,
+            "odds": 1600
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    }
+  ],
+  "count": 13,
+  "notes": "Season averages baseline + opponent K-rate, park factor, patience (outs), recent form weighted IP when data available.",
+  "unmatched_starting_pitchers": [],
+  "props_without_start_flag": [
+    "kyle bradish",
+    "shane smith",
+    "logan webb",
+    "mccade brown",
+    "cole ragans",
+    "cristopher sanchez",
+    "simeon woods richardson",
+    "sam aldegheri",
+    "lance mccullers jr.",
+    "kevin gausman",
+    "jp sears",
+    "freddy peralta",
+    "clayton kershaw",
+    "edward cabrera",
+    "sean manaea",
+    "logan allen",
+    "patrick corbin",
+    "johan oviedo",
+    "javier assad",
+    "kyle leahy"
+  ],
+  "adjustment_meta": {
+    "recent_form_pitchers_used": 6,
+    "patience_adjustments_used": 13,
+    "total_pitchers": 13,
+    "park_factors_count": 60,
+    "batting_k_rates_count": 30,
+    "patience_teams_count": 30,
+    "recent_pitchers_count": 55,
+    "park_factor_example_keys": [
+      "angels",
+      "los angeles angels",
+      "astros",
+      "houston astros",
+      "athletics",
+      "oakland athletics",
+      "blue_jays",
+      "toronto blue jays"
+    ],
+    "missing_counts": {
+      "opponent": 0,
+      "park_factor": 0,
+      "opponent_k_rate": 0,
+      "patience_stats": 0,
+      "recent_form": 0
+    },
+    "recent_form_on_demand_used": 5,
+    "synthetic_recent_form_count": 1,
+    "team_mismatches": 0,
+    "opponent_validation_mismatches": 0,
+    "opponent_corrections_count": 0
+  },
+  "adjustment_gaps": {
+    "opponent": [],
+    "park_factor": [],
+    "opponent_k_rate": [],
+    "patience_stats": [],
+    "recent_form": []
+  }
+}

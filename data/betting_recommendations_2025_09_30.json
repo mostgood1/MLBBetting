@@ -1,0 +1,101 @@
+{
+  "date": "2025-09-30",
+  "generated_at": "2025-09-30T08:36:20.301227",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Detroit Tigers_vs_Cleveland Guardians": {
+      "away_team": "Detroit Tigers",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": "Tarik Skubal",
+      "home_pitcher": "Gavin Williams",
+      "predicted_score": "4.8-4.0",
+      "predicted_total_runs": 8.7,
+      "win_probabilities": {
+        "away_prob": 0.589,
+        "home_prob": 0.411
+      },
+      "value_bets": [
+        {
+          "type": "moneyline",
+          "recommendation": "Detroit Tigers ML",
+          "expected_value": 0.12445454545454537,
+          "win_probability": 0.589,
+          "american_odds": "-110",
+          "confidence": "low",
+          "kelly_bet_size": 13.7,
+          "reasoning": "Model projects 58.9% win probability vs 52.4% implied odds"
+        }
+      ]
+    },
+    "San Diego Padres_vs_Chicago Cubs": {
+      "away_team": "San Diego Padres",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": "Nick Pivetta",
+      "home_pitcher": "Matthew Boyd",
+      "predicted_score": "4.1-4.7",
+      "predicted_total_runs": 8.8,
+      "win_probabilities": {
+        "away_prob": 0.425,
+        "home_prob": 0.575
+      },
+      "value_bets": [
+        {
+          "type": "moneyline",
+          "recommendation": "Chicago Cubs ML",
+          "expected_value": 0.09772727272727266,
+          "win_probability": 0.575,
+          "american_odds": "-110",
+          "confidence": "low",
+          "kelly_bet_size": 10.7,
+          "reasoning": "Model projects 57.5% win probability vs 52.4% implied odds"
+        }
+      ]
+    },
+    "Boston Red Sox_vs_New York Yankees": {
+      "away_team": "Boston Red Sox",
+      "home_team": "New York Yankees",
+      "away_pitcher": "Garrett Crochet",
+      "home_pitcher": "Max Fried",
+      "predicted_score": "4.5-4.3",
+      "predicted_total_runs": 8.7,
+      "win_probabilities": {
+        "away_prob": 0.533,
+        "home_prob": 0.467
+      },
+      "value_bets": []
+    },
+    "Cincinnati Reds_vs_Los Angeles Dodgers": {
+      "away_team": "Cincinnati Reds",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Hunter Greene",
+      "home_pitcher": "Blake Snell",
+      "predicted_score": "4.7-4.1",
+      "predicted_total_runs": 8.7,
+      "win_probabilities": {
+        "away_prob": 0.573,
+        "home_prob": 0.427
+      },
+      "value_bets": [
+        {
+          "type": "moneyline",
+          "recommendation": "Cincinnati Reds ML",
+          "expected_value": 0.09390909090909083,
+          "win_probability": 0.573,
+          "american_odds": "-110",
+          "confidence": "low",
+          "kelly_bet_size": 10.3,
+          "reasoning": "Model projects 57.3% win probability vs 52.4% implied odds"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 4,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 3,
+    "high_confidence_bets": 0,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

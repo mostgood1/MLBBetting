@@ -30890,6 +30890,203 @@
       "source": "daily_files",
       "games_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\games_2025-09-29.json",
       "betting_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\betting_recommendations_2025_09_29.json"
+    },
+    "2025-09-30": {
+      "games": {
+        "Detroit Tigers_vs_Cleveland Guardians": {
+          "away_team": "Detroit Tigers",
+          "home_team": "Cleveland Guardians",
+          "game_date": "2025-09-30",
+          "predictions": {
+            "home_win_prob": 0.411,
+            "away_win_prob": 0.589,
+            "predicted_home_score": 4.0,
+            "predicted_away_score": 4.8,
+            "predicted_total_runs": 8.7,
+            "home_score_range": [
+              1.0,
+              7.0
+            ],
+            "away_score_range": [
+              2.0,
+              8.0
+            ],
+            "total_runs_range": [
+              5.0,
+              13.0
+            ],
+            "confidence": 58.9
+          },
+          "betting_lines": {
+            "home_ml": 143,
+            "away_ml": -143,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Tarik Skubal",
+            "home_pitcher_name": "Gavin Williams",
+            "away_pitcher_factor": 0.73,
+            "home_pitcher_factor": 0.919
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 11.7,
+            "recommendations_found": 0,
+            "timestamp": "2025-09-30T08:36:19.907025",
+            "data_source": "live_simulation"
+          }
+        },
+        "San Diego Padres_vs_Chicago Cubs": {
+          "away_team": "San Diego Padres",
+          "home_team": "Chicago Cubs",
+          "game_date": "2025-09-30",
+          "predictions": {
+            "home_win_prob": 0.575,
+            "away_win_prob": 0.425,
+            "predicted_home_score": 4.7,
+            "predicted_away_score": 4.1,
+            "predicted_total_runs": 8.8,
+            "home_score_range": [
+              2.0,
+              7.1
+            ],
+            "away_score_range": [
+              2.0,
+              7.0
+            ],
+            "total_runs_range": [
+              5.0,
+              13.0
+            ],
+            "confidence": 59.7
+          },
+          "betting_lines": {
+            "home_ml": -135,
+            "away_ml": 135,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Nick Pivetta",
+            "home_pitcher_name": "Matthew Boyd",
+            "away_pitcher_factor": 0.835,
+            "home_pitcher_factor": 0.76
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 7.1,
+            "recommendations_found": 0,
+            "timestamp": "2025-09-30T08:36:19.914078",
+            "data_source": "live_simulation"
+          }
+        },
+        "Boston Red Sox_vs_New York Yankees": {
+          "away_team": "Boston Red Sox",
+          "home_team": "New York Yankees",
+          "game_date": "2025-09-30",
+          "predictions": {
+            "home_win_prob": 0.467,
+            "away_win_prob": 0.533,
+            "predicted_home_score": 4.3,
+            "predicted_away_score": 4.5,
+            "predicted_total_runs": 8.7,
+            "home_score_range": [
+              2.0,
+              7.0
+            ],
+            "away_score_range": [
+              2.0,
+              7.0
+            ],
+            "total_runs_range": [
+              5.0,
+              13.0
+            ],
+            "confidence": 60.0
+          },
+          "betting_lines": {
+            "home_ml": 114,
+            "away_ml": -114,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Garrett Crochet",
+            "home_pitcher_name": "Max Fried",
+            "away_pitcher_factor": 0.76,
+            "home_pitcher_factor": 0.865
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 4.3,
+            "recommendations_found": 0,
+            "timestamp": "2025-09-30T08:36:19.919331",
+            "data_source": "live_simulation"
+          }
+        },
+        "Cincinnati Reds_vs_Los Angeles Dodgers": {
+          "away_team": "Cincinnati Reds",
+          "home_team": "Los Angeles Dodgers",
+          "game_date": "2025-09-30",
+          "predictions": {
+            "home_win_prob": 0.427,
+            "away_win_prob": 0.573,
+            "predicted_home_score": 4.1,
+            "predicted_away_score": 4.7,
+            "predicted_total_runs": 8.7,
+            "home_score_range": [
+              2.0,
+              7.0
+            ],
+            "away_score_range": [
+              2.0,
+              7.0
+            ],
+            "total_runs_range": [
+              5.0,
+              13.0
+            ],
+            "confidence": 59.8
+          },
+          "betting_lines": {
+            "home_ml": 134,
+            "away_ml": -134,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Hunter Greene",
+            "home_pitcher_name": "Blake Snell",
+            "away_pitcher_factor": 0.784,
+            "home_pitcher_factor": 0.9775
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 4.0,
+            "recommendations_found": 0,
+            "timestamp": "2025-09-30T08:36:19.923330",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-09-30T08:30:11.248850",
+        "pitcher_update_date": "2025-09-30",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-09-30T08:36:19.948302",
+        "last_update_type": "full",
+        "game_count": 4
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

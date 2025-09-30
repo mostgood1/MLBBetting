@@ -1,0 +1,42 @@
+[
+  {
+    "game_pk": 813072,
+    "game_time": "2025-09-30T17:08:00Z",
+    "away_team": "Detroit Tigers",
+    "home_team": "Cleveland Guardians",
+    "away_pitcher": "Tarik Skubal",
+    "home_pitcher": "Gavin Williams",
+    "away_probable_pitcher": "Tarik Skubal",
+    "home_probable_pitcher": "Gavin Williams"
+  },
+  {
+    "game_pk": 813066,
+    "game_time": "2025-09-30T19:08:00Z",
+    "away_team": "San Diego Padres",
+    "home_team": "Chicago Cubs",
+    "away_pitcher": "Nick Pivetta",
+    "home_pitcher": "Matthew Boyd",
+    "away_probable_pitcher": "Nick Pivetta",
+    "home_probable_pitcher": "Matthew Boyd"
+  },
+  {
+    "game_pk": 813074,
+    "game_time": "2025-09-30T22:08:00Z",
+    "away_team": "Boston Red Sox",
+    "home_team": "New York Yankees",
+    "away_pitcher": "Garrett Crochet",
+    "home_pitcher": "Max Fried",
+    "away_probable_pitcher": "Garrett Crochet",
+    "home_probable_pitcher": "Max Fried"
+  },
+  {
+    "game_pk": 813069,
+    "game_time": "2025-10-01T01:08:00Z",
+    "away_team": "Cincinnati Reds",
+    "home_team": "Los Angeles Dodgers",
+    "away_pitcher": "Hunter Greene",
+    "home_pitcher": "Blake Snell",
+    "away_probable_pitcher": "Hunter Greene",
+    "home_probable_pitcher": "Blake Snell"
+  }
+]
