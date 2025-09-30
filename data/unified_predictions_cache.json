@@ -30898,28 +30898,28 @@
           "home_team": "Cleveland Guardians",
           "game_date": "2025-09-30",
           "predictions": {
-            "home_win_prob": 0.423,
-            "away_win_prob": 0.577,
-            "predicted_home_score": 2.8,
-            "predicted_away_score": 3.3,
-            "predicted_total_runs": 6.1,
+            "home_win_prob": 0.375,
+            "away_win_prob": 0.625,
+            "predicted_home_score": 4.4,
+            "predicted_away_score": 5.4,
+            "predicted_total_runs": 9.9,
             "home_score_range": [
-              1.0,
-              5.0
+              2.0,
+              7.0
             ],
             "away_score_range": [
-              1.0,
-              6.0
+              3.0,
+              8.0
             ],
             "total_runs_range": [
-              3.0,
-              9.0
+              6.0,
+              14.0
             ],
-            "confidence": 63.5
+            "confidence": 58.4
           },
           "betting_lines": {
-            "home_ml": 136,
-            "away_ml": -136,
+            "home_ml": 166,
+            "away_ml": -166,
             "total_line": 8.5,
             "over_odds": -110,
             "under_odds": -110,
@@ -30928,15 +30928,15 @@
           "recommendations": [
             {
               "type": "total",
-              "side": "under",
+              "side": "over",
               "line": 8.5,
               "odds": -110,
-              "model_total": 6.1,
-              "edge": 2.4,
-              "expected_value": 0.184,
-              "kelly_bet_size": 11.4,
+              "model_total": 9.9,
+              "edge": 1.4,
+              "expected_value": 0.086,
+              "kelly_bet_size": 4.9,
               "confidence": "HIGH",
-              "reasoning": "Model: 6.1 vs Line: 8.5"
+              "reasoning": "Model: 9.9 vs Line: 8.5"
             }
           ],
           "pitcher_info": {
@@ -30947,9 +30947,9 @@
           },
           "meta": {
             "simulations_run": 2000,
-            "execution_time_ms": 13.2,
+            "execution_time_ms": 10.2,
             "recommendations_found": 1,
-            "timestamp": "2025-09-30T13:53:39.046248",
+            "timestamp": "2025-09-30T14:21:59.170045",
             "data_source": "live_simulation"
           }
         },
@@ -30958,28 +30958,28 @@
           "home_team": "Chicago Cubs",
           "game_date": "2025-09-30",
           "predictions": {
-            "home_win_prob": 0.572,
-            "away_win_prob": 0.428,
-            "predicted_home_score": 3.2,
-            "predicted_away_score": 2.8,
-            "predicted_total_runs": 6.0,
+            "home_win_prob": 0.59,
+            "away_win_prob": 0.41,
+            "predicted_home_score": 5.2,
+            "predicted_away_score": 4.5,
+            "predicted_total_runs": 9.7,
             "home_score_range": [
-              1.0,
-              5.0
+              2.0,
+              8.0
             ],
             "away_score_range": [
-              1.0,
-              5.0
+              2.0,
+              7.0
             ],
             "total_runs_range": [
-              3.0,
-              9.0
+              6.0,
+              14.0
             ],
-            "confidence": 63.6
+            "confidence": 57.8
           },
           "betting_lines": {
-            "home_ml": -133,
-            "away_ml": 133,
+            "home_ml": -144,
+            "away_ml": 144,
             "total_line": 8.5,
             "over_odds": -110,
             "under_odds": -110,
@@ -30988,15 +30988,15 @@
           "recommendations": [
             {
               "type": "total",
-              "side": "under",
+              "side": "over",
               "line": 8.5,
               "odds": -110,
-              "model_total": 6.0,
-              "edge": 2.5,
-              "expected_value": 0.191,
-              "kelly_bet_size": 11.9,
+              "model_total": 9.7,
+              "edge": 1.2,
+              "expected_value": 0.069,
+              "kelly_bet_size": 3.9,
               "confidence": "HIGH",
-              "reasoning": "Model: 6.0 vs Line: 8.5"
+              "reasoning": "Model: 9.7 vs Line: 8.5"
             }
           ],
           "pitcher_info": {
@@ -31007,9 +31007,9 @@
           },
           "meta": {
             "simulations_run": 2000,
-            "execution_time_ms": 16.6,
+            "execution_time_ms": 6.1,
             "recommendations_found": 1,
-            "timestamp": "2025-09-30T13:53:39.062865",
+            "timestamp": "2025-09-30T14:21:59.176166",
             "data_source": "live_simulation"
           }
         },
@@ -31018,28 +31018,28 @@
           "home_team": "New York Yankees",
           "game_date": "2025-09-30",
           "predictions": {
-            "home_win_prob": 0.48,
-            "away_win_prob": 0.52,
-            "predicted_home_score": 3.2,
-            "predicted_away_score": 3.3,
-            "predicted_total_runs": 6.5,
+            "home_win_prob": 0.468,
+            "away_win_prob": 0.532,
+            "predicted_home_score": 4.9,
+            "predicted_away_score": 5.1,
+            "predicted_total_runs": 10.0,
             "home_score_range": [
-              1.0,
-              6.0
+              2.0,
+              8.0
             ],
             "away_score_range": [
-              1.0,
-              6.0
+              2.0,
+              8.0
             ],
             "total_runs_range": [
-              3.0,
-              10.0
+              6.0,
+              14.0
             ],
-            "confidence": 62.8
+            "confidence": 58.3
           },
           "betting_lines": {
-            "home_ml": 108,
-            "away_ml": -108,
+            "home_ml": 113,
+            "away_ml": -113,
             "total_line": 8.5,
             "over_odds": -110,
             "under_odds": -110,
@@ -31048,15 +31048,15 @@
           "recommendations": [
             {
               "type": "total",
-              "side": "under",
+              "side": "over",
               "line": 8.5,
               "odds": -110,
-              "model_total": 6.5,
-              "edge": 2.0,
-              "expected_value": 0.147,
-              "kelly_bet_size": 8.8,
+              "model_total": 10.0,
+              "edge": 1.5,
+              "expected_value": 0.098,
+              "kelly_bet_size": 5.6,
               "confidence": "HIGH",
-              "reasoning": "Model: 6.5 vs Line: 8.5"
+              "reasoning": "Model: 10.0 vs Line: 8.5"
             }
           ],
           "pitcher_info": {
@@ -31067,9 +31067,9 @@
           },
           "meta": {
             "simulations_run": 2000,
-            "execution_time_ms": 16.5,
+            "execution_time_ms": 3.7,
             "recommendations_found": 1,
-            "timestamp": "2025-09-30T13:53:39.080396",
+            "timestamp": "2025-09-30T14:21:59.179892",
             "data_source": "live_simulation"
           }
         },
@@ -31078,28 +31078,28 @@
           "home_team": "Los Angeles Dodgers",
           "game_date": "2025-09-30",
           "predictions": {
-            "home_win_prob": 0.414,
-            "away_win_prob": 0.586,
-            "predicted_home_score": 4.1,
-            "predicted_away_score": 4.7,
-            "predicted_total_runs": 8.8,
+            "home_win_prob": 0.428,
+            "away_win_prob": 0.572,
+            "predicted_home_score": 3.6,
+            "predicted_away_score": 4.1,
+            "predicted_total_runs": 7.7,
             "home_score_range": [
-              2.0,
-              7.0
+              1.0,
+              6.0
             ],
             "away_score_range": [
               2.0,
-              8.0
+              7.0
             ],
             "total_runs_range": [
-              5.0,
-              13.0
+              4.0,
+              11.0
             ],
-            "confidence": 59.1
+            "confidence": 61.0
           },
           "betting_lines": {
-            "home_ml": 141,
-            "away_ml": -141,
+            "home_ml": 133,
+            "away_ml": -133,
             "total_line": 8.5,
             "over_odds": -110,
             "under_odds": -110,
@@ -31114,19 +31114,19 @@
           },
           "meta": {
             "simulations_run": 2000,
-            "execution_time_ms": 8.8,
+            "execution_time_ms": 5.8,
             "recommendations_found": 0,
-            "timestamp": "2025-09-30T13:53:39.089187",
+            "timestamp": "2025-09-30T14:21:59.185669",
             "data_source": "live_simulation"
           }
         }
       },
       "metadata": {
-        "last_pitcher_update": "2025-09-30T13:47:58.501783",
+        "last_pitcher_update": "2025-09-30T14:16:12.232903",
         "pitcher_update_date": "2025-09-30",
         "pitchers_updated_count": 4,
         "engine": "UltraFast",
-        "generated_at": "2025-09-30T13:53:39.129235",
+        "generated_at": "2025-09-30T14:21:59.226777",
         "last_update_type": "full",
         "game_count": 4
       }

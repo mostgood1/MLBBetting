@@ -1,105 +1,7 @@
 {
   "date": "2025-09-30",
-  "retrieved_at": "2025-09-30T18:48:24.025183",
+  "retrieved_at": "2025-09-30T19:16:39.745878",
   "pitcher_props": {
-    "matthew boyd": {
-      "strikeouts": {
-        "line": 3.5,
-        "over_odds": -145,
-        "under_odds": 110
-      },
-      "strikeouts_alts": [
-        {
-          "threshold": 3,
-          "odds": -380
-        },
-        {
-          "threshold": 5,
-          "odds": 160
-        },
-        {
-          "threshold": 6,
-          "odds": 350
-        },
-        {
-          "threshold": 7,
-          "odds": 800
-        }
-      ],
-      "hits_allowed": {
-        "line": 4.5,
-        "over_odds": -120,
-        "under_odds": -120
-      },
-      "earned_runs": {
-        "line": 1.5,
-        "over_odds": -105,
-        "under_odds": -135
-      },
-      "walks": {
-        "line": 0.5,
-        "over_odds": -270,
-        "under_odds": 180
-      },
-      "outs": {
-        "line": 14.5,
-        "over_odds": -150,
-        "under_odds": 110
-      }
-    },
-    "nick pivetta": {
-      "strikeouts": {
-        "line": 4.5,
-        "over_odds": -160,
-        "under_odds": 120
-      },
-      "strikeouts_alts": [
-        {
-          "threshold": 3,
-          "odds": -1000
-        },
-        {
-          "threshold": 4,
-          "odds": -350
-        },
-        {
-          "threshold": 6,
-          "odds": 145
-        },
-        {
-          "threshold": 7,
-          "odds": 300
-        },
-        {
-          "threshold": 8,
-          "odds": 700
-        },
-        {
-          "threshold": 9,
-          "odds": 1500
-        }
-      ],
-      "hits_allowed": {
-        "line": 4.5,
-        "over_odds": 145,
-        "under_odds": -190
-      },
-      "earned_runs": {
-        "line": 1.5,
-        "over_odds": -165,
-        "under_odds": 125
-      },
-      "walks": {
-        "line": 1.5,
-        "over_odds": -115,
-        "under_odds": -125
-      },
-      "outs": {
-        "line": 14.5,
-        "over_odds": -145,
-        "under_odds": 105
-      }
-    },
     "garrett crochet": {
       "strikeouts": {
         "line": 7.5,
@@ -332,8 +234,8 @@
       },
       "outs": {
         "line": 15.5,
-        "over_odds": -105,
-        "under_odds": -135
+        "over_odds": -115,
+        "under_odds": -125
       }
     }
   }

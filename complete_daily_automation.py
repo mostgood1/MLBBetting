@@ -200,6 +200,34 @@ def complete_daily_automation():
     base_dir = Path(__file__).parent
     data_dir = base_dir / "data"
     mlb_betting_data_dir = data_dir
+
+    # Ensure OddsAPI key is available to downstream scripts (from ENV or local secrets)
+    try:
+        if not os.environ.get('ODDS_API_KEY'):
+            secrets_dir = base_dir / 'secrets'
+            key_file = secrets_dir / 'odds_api_key'
+            if key_file.exists():
+                with open(key_file, 'r', encoding='utf-8') as f:
+                    key_val = f.read().strip()
+                if key_val:
+                    os.environ['ODDS_API_KEY'] = key_val
+                    logger.info('🔐 Loaded ODDS_API_KEY from local secrets file')
+            else:
+                # Optional: check config file as last resort
+                cfg_path = data_dir / 'closing_lines_config.json'
+                if cfg_path.exists():
+                    try:
+                        with open(cfg_path, 'r', encoding='utf-8') as cf:
+                            cfg = json.load(cf) or {}
+                        api_keys = cfg.get('api_keys') or {}
+                        key_val = api_keys.get('odds_api_key') or api_keys.get('the_odds_api_key')
+                        if key_val:
+                            os.environ['ODDS_API_KEY'] = key_val
+                            logger.info('🔐 Loaded ODDS_API_KEY from config file')
+                    except Exception:
+                        pass
+    except Exception as e:
+        logger.debug(f"ENV key bootstrap skipped: {e}")
     
     # Pre-check: Verify which scripts are available
     logger.info("\n🔍 PRE-CHECK: Verifying Available Scripts")

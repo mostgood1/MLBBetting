@@ -1,6 +1,6 @@
 {
   "date": "2025-09-30",
-  "generated_at": "2025-09-30T18:48:32.136231",
+  "generated_at": "2025-09-30T19:16:52.835160",
   "pitchers": [
     {
       "pitcher_id": "669373",
@@ -134,99 +134,31 @@
       },
       "confidence": "HIGH",
       "lines": {
-        "outs": {
-          "line": 14.5,
-          "over_odds": -145,
-          "under_odds": 105
-        },
-        "strikeouts": {
-          "line": 4.5,
-          "over_odds": -160,
-          "under_odds": 120
-        },
-        "strikeouts_alts": [
-          {
-            "threshold": 3,
-            "odds": -1000
-          },
-          {
-            "threshold": 4,
-            "odds": -350
-          },
-          {
-            "threshold": 6,
-            "odds": 145
-          },
-          {
-            "threshold": 7,
-            "odds": 300
-          },
-          {
-            "threshold": 8,
-            "odds": 700
-          },
-          {
-            "threshold": 9,
-            "odds": 1500
-          }
-        ],
-        "earned_runs": {
-          "line": 1.5,
-          "over_odds": -165,
-          "under_odds": 125
-        },
-        "hits_allowed": {
-          "line": 4.5,
-          "over_odds": 145,
-          "under_odds": -190
-        },
-        "walks": {
-          "line": 1.5,
-          "over_odds": -115,
-          "under_odds": -125
-        }
-      },
-      "recommendations": {
-        "outs": "OVER",
-        "strikeouts": "OVER",
+        "outs": null,
+        "strikeouts": null,
+        "strikeouts_alts": null,
         "earned_runs": null,
         "hits_allowed": null,
         "walks": null
       },
-      "recommendations_meta": {
-        "strikeouts": {
-          "edge": 1.6,
-          "threshold": 0.7,
-          "confidence_score": 0.984,
-          "confidence_label": "HIGH",
-          "side_odds": -160,
-          "decimal_odds": 1.625,
-          "win_prob_est": 0.966,
-          "expected_value": 1.535,
-          "kelly_fraction": 0.25
-        },
-        "outs": {
-          "edge": 2.5,
-          "threshold": 2.0,
-          "confidence_score": 0.69,
-          "confidence_label": "MEDIUM",
-          "side_odds": -145,
-          "decimal_odds": 1.69,
-          "win_prob_est": 0.657,
-          "expected_value": 0.767,
-          "kelly_fraction": 0.16
-        }
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
       },
+      "recommendations_meta": {},
       "diffs": {
-        "outs": 2.5,
-        "strikeouts": 1.5999999999999996,
-        "earned_runs": 0.30000000000000004,
-        "hits_allowed": -0.5,
-        "walks": 0.0
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
       },
       "diffs_adjusted": {
-        "outs": 2.5,
-        "strikeouts": 1.5999999999999996
+        "outs": null,
+        "strikeouts": null
       }
     },
     {
@@ -255,102 +187,31 @@
       },
       "confidence": "HIGH",
       "lines": {
-        "outs": {
-          "line": 14.5,
-          "over_odds": -150,
-          "under_odds": 110
-        },
-        "strikeouts": {
-          "line": 3.5,
-          "over_odds": -145,
-          "under_odds": 110
-        },
-        "strikeouts_alts": [
-          {
-            "threshold": 3,
-            "odds": -380
-          },
-          {
-            "threshold": 5,
-            "odds": 160
-          },
-          {
-            "threshold": 6,
-            "odds": 350
-          },
-          {
-            "threshold": 7,
-            "odds": 800
-          }
-        ],
-        "earned_runs": {
-          "line": 1.5,
-          "over_odds": -105,
-          "under_odds": -135
-        },
-        "hits_allowed": {
-          "line": 4.5,
-          "over_odds": -120,
-          "under_odds": -120
-        },
-        "walks": {
-          "line": 0.5,
-          "over_odds": -270,
-          "under_odds": 180
-        }
-      },
-      "recommendations": {
-        "outs": "OVER",
-        "strikeouts": "OVER",
+        "outs": null,
+        "strikeouts": null,
+        "strikeouts_alts": null,
         "earned_runs": null,
         "hits_allowed": null,
-        "walks": "OVER"
+        "walks": null
       },
-      "recommendations_meta": {
-        "strikeouts": {
-          "edge": 1.7,
-          "threshold": 0.7,
-          "confidence_score": 0.99,
-          "confidence_label": "HIGH",
-          "side_odds": -145,
-          "decimal_odds": 1.69,
-          "win_prob_est": 0.976,
-          "expected_value": 1.626,
-          "kelly_fraction": 0.25
-        },
-        "outs": {
-          "edge": 3.5,
-          "threshold": 2.0,
-          "confidence_score": 0.917,
-          "confidence_label": "HIGH",
-          "side_odds": -150,
-          "decimal_odds": 1.667,
-          "win_prob_est": 0.875,
-          "expected_value": 1.335,
-          "kelly_fraction": 0.25
-        },
-        "walks": {
-          "edge": 0.8,
-          "threshold": 0.6,
-          "confidence_score": 0.744,
-          "confidence_label": "MEDIUM",
-          "side_odds": -270,
-          "decimal_odds": 1.37,
-          "win_prob_est": 0.704,
-          "expected_value": 0.669,
-          "kelly_fraction": 0.0
-        }
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
       },
+      "recommendations_meta": {},
       "diffs": {
-        "outs": 3.5,
-        "strikeouts": 1.7000000000000002,
-        "earned_runs": 0.19999999999999996,
-        "hits_allowed": 0.40000000000000036,
-        "walks": 0.8
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
       },
       "diffs_adjusted": {
-        "outs": 4.5,
-        "strikeouts": 2.0
+        "outs": null,
+        "strikeouts": null
       }
     },
     {
@@ -624,8 +485,8 @@
       "lines": {
         "outs": {
           "line": 15.5,
-          "over_odds": -105,
-          "under_odds": -135
+          "over_odds": -115,
+          "under_odds": -125
         },
         "strikeouts": {
           "line": 5.5,
@@ -866,7 +727,9 @@
   "notes": "Season averages baseline + opponent K-rate, park factor, patience (outs), recent form weighted IP when data available.",
   "unmatched_starting_pitchers": [
     "Tarik Skubal",
-    "Gavin Williams"
+    "Gavin Williams",
+    "Nick Pivetta",
+    "Matthew Boyd"
   ],
   "props_without_start_flag": [],
   "adjustment_meta": {

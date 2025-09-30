@@ -1,11 +1,13 @@
 {
   "date": "2025-09-30",
-  "generated_at": "2025-09-30T18:48:24.043845",
+  "generated_at": "2025-09-30T19:16:39.759491",
   "starting_pitchers_count": 8,
-  "props_pitchers_count": 6,
+  "props_pitchers_count": 4,
   "unmatched_starting_pitchers": [
     "Tarik Skubal",
-    "Gavin Williams"
+    "Gavin Williams",
+    "Nick Pivetta",
+    "Matthew Boyd"
   ],
   "props_without_start_flag": []
 }

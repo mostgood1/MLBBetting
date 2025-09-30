@@ -1,6 +1,6 @@
 {
   "date": "2025-09-30",
-  "generated_at": "2025-09-30T18:48:35.675491",
+  "generated_at": "2025-09-30T19:16:56.364232",
   "edge_threshold_used": 0.5,
   "kelly_cap": 0.1,
   "blend": {
@@ -9,117 +9,8 @@
     "skew_scale_ks": 0.6,
     "skew_scale_outs": 0.4
   },
-  "count": 6,
+  "count": 4,
   "recommendations": [
-    {
-      "pitcher_key": "matthew boyd",
-      "pitcher": "matthew boyd",
-      "team": "Chicago Cubs",
-      "opponent": "San Diego Padres",
-      "opponent_strength": null,
-      "projections": {
-        "outs": 17.81,
-        "strikeouts": 4.42,
-        "earned_runs": 1.7,
-        "hits_allowed": 4.8,
-        "walks": 1.3,
-        "pitch_count": 91.0
-      },
-      "plays": [
-        {
-          "market": "strikeouts",
-          "side": "OVER",
-          "line": 3.5,
-          "proj": 4.42,
-          "edge": 0.92,
-          "confidence": "LOW",
-          "p_over": 0.604,
-          "ev_over": 0.02,
-          "ev_under": -0.168,
-          "selected_ev": 0.02,
-          "over_odds": -145,
-          "under_odds": 110,
-          "kelly_fraction": 0.029
-        },
-        {
-          "market": "outs",
-          "side": "OVER",
-          "line": 14.5,
-          "proj": 17.81,
-          "edge": 3.31,
-          "confidence": "HIGH",
-          "p_over": 0.951,
-          "ev_over": 0.585,
-          "ev_under": -0.897,
-          "selected_ev": 0.585,
-          "over_odds": -150,
-          "under_odds": 110,
-          "kelly_fraction": 0.1
-        },
-        {
-          "market": "walks",
-          "side": "OVER",
-          "line": 0.5,
-          "proj": 1.3,
-          "edge": 0.8,
-          "confidence": "LOW",
-          "p_over": 0.788,
-          "ev_over": 0.08,
-          "ev_under": -0.407,
-          "selected_ev": 0.08,
-          "over_odds": -270,
-          "under_odds": 180,
-          "kelly_fraction": 0.1
-        }
-      ]
-    },
-    {
-      "pitcher_key": "nick pivetta",
-      "pitcher": "nick pivetta",
-      "team": "San Diego Padres",
-      "opponent": "Chicago Cubs",
-      "opponent_strength": null,
-      "projections": {
-        "outs": 17.8,
-        "strikeouts": 5.82,
-        "earned_runs": 1.9,
-        "hits_allowed": 4.1,
-        "walks": 1.6,
-        "pitch_count": 91.0
-      },
-      "plays": [
-        {
-          "market": "strikeouts",
-          "side": "OVER",
-          "line": 4.5,
-          "proj": 5.82,
-          "edge": 1.32,
-          "confidence": "MEDIUM",
-          "p_over": 0.647,
-          "ev_over": 0.051,
-          "ev_under": -0.223,
-          "selected_ev": 0.051,
-          "over_odds": -160,
-          "under_odds": 120,
-          "kelly_fraction": 0.0821
-        },
-        {
-          "market": "outs",
-          "side": "OVER",
-          "line": 14.5,
-          "proj": 17.8,
-          "edge": 3.3,
-          "confidence": "HIGH",
-          "p_over": 0.951,
-          "ev_over": 0.606,
-          "ev_under": -0.899,
-          "selected_ev": 0.606,
-          "over_odds": -145,
-          "under_odds": 105,
-          "kelly_fraction": 0.1
-        }
-      ]
-    },
     {
       "pitcher_key": "garrett crochet",
       "pitcher": "garrett crochet",
@@ -359,11 +250,11 @@
           "edge": 1.2,
           "confidence": "MEDIUM",
           "p_over": 0.726,
-          "ev_over": 0.417,
-          "ev_under": -0.523,
-          "selected_ev": 0.417,
-          "over_odds": -105,
-          "under_odds": -135,
+          "ev_over": 0.357,
+          "ev_under": -0.506,
+          "selected_ev": 0.357,
+          "over_odds": -115,
+          "under_odds": -125,
           "kelly_fraction": 0.1
         },
         {

@@ -1,6 +1,6 @@
 {
   "date": "2025-09-30",
-  "generated_at": "2025-09-30T13:53:39.433877",
+  "generated_at": "2025-09-30T14:21:59.584565",
   "source": "Unified Betting Engine v1.0",
   "games": {
     "Detroit Tigers_vs_Cleveland Guardians": {
@@ -8,24 +8,24 @@
       "home_team": "Cleveland Guardians",
       "away_pitcher": "Tarik Skubal",
       "home_pitcher": "Gavin Williams",
-      "predicted_score": "3.3-2.8",
-      "predicted_total_runs": 6.1,
+      "predicted_score": "5.4-4.4",
+      "predicted_total_runs": 9.9,
       "win_probabilities": {
-        "away_prob": 0.577,
-        "home_prob": 0.423
+        "away_prob": 0.625,
+        "home_prob": 0.375
       },
       "value_bets": [
         {
           "type": "total",
           "recommendation": "Over 4.5",
-          "expected_value": 0.10295302013422808,
-          "win_probability": 0.6599999999999999,
+          "expected_value": 0.5040268456375839,
+          "win_probability": 0.9,
           "american_odds": "-149",
-          "confidence": "low",
-          "kelly_bet_size": 15.3,
-          "predicted_total": 6.1,
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 9.9,
           "betting_line": 4.5,
-          "reasoning": "Predicted 6.1 vs line 4.5"
+          "reasoning": "Predicted 9.9 vs line 4.5"
         }
       ]
     },
@@ -34,60 +34,74 @@
       "home_team": "Chicago Cubs",
       "away_pitcher": "Nick Pivetta",
       "home_pitcher": "Matthew Boyd",
-      "predicted_score": "2.8-3.2",
-      "predicted_total_runs": 6.0,
+      "predicted_score": "4.5-5.2",
+      "predicted_total_runs": 9.7,
       "win_probabilities": {
-        "away_prob": 0.428,
-        "home_prob": 0.572
+        "away_prob": 0.41,
+        "home_prob": 0.59
       },
-      "value_bets": []
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 6.5",
+          "expected_value": 0.514915254237288,
+          "win_probability": 0.82,
+          "american_odds": "-118",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 9.7,
+          "betting_line": 6.5,
+          "reasoning": "Predicted 9.7 vs line 6.5"
+        }
+      ]
     },
     "Boston Red Sox_vs_New York Yankees": {
       "away_team": "Boston Red Sox",
       "home_team": "New York Yankees",
       "away_pitcher": "Garrett Crochet",
       "home_pitcher": "Max Fried",
-      "predicted_score": "3.3-3.2",
-      "predicted_total_runs": 6.5,
+      "predicted_score": "5.1-4.9",
+      "predicted_total_runs": 10.0,
       "win_probabilities": {
-        "away_prob": 0.52,
-        "home_prob": 0.48
+        "away_prob": 0.532,
+        "home_prob": 0.468
       },
-      "value_bets": []
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 6.5",
+          "expected_value": 0.5246031746031747,
+          "win_probability": 0.8500000000000001,
+          "american_odds": "-126",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 10.0,
+          "betting_line": 6.5,
+          "reasoning": "Predicted 10.0 vs line 6.5"
+        }
+      ]
     },
     "Cincinnati Reds_vs_Los Angeles Dodgers": {
       "away_team": "Cincinnati Reds",
       "home_team": "Los Angeles Dodgers",
       "away_pitcher": "Hunter Greene",
       "home_pitcher": "Blake Snell",
-      "predicted_score": "4.7-4.1",
-      "predicted_total_runs": 8.8,
+      "predicted_score": "4.1-3.6",
+      "predicted_total_runs": 7.7,
       "win_probabilities": {
-        "away_prob": 0.586,
-        "home_prob": 0.414
+        "away_prob": 0.572,
+        "home_prob": 0.428
       },
       "value_bets": [
         {
           "type": "moneyline",
           "recommendation": "Cincinnati Reds ML",
-          "expected_value": 0.5646199999999999,
-          "win_probability": 0.586,
+          "expected_value": 0.5272399999999998,
+          "win_probability": 0.572,
           "american_odds": "167",
           "confidence": "low",
           "kelly_bet_size": 25.0,
-          "reasoning": "Model projects 58.6% win probability vs 37.5% implied odds"
-        },
-        {
-          "type": "total",
-          "recommendation": "Over 7.0",
-          "expected_value": 0.24198347107438023,
-          "win_probability": 0.68,
-          "american_odds": "-121",
-          "confidence": "medium",
-          "kelly_bet_size": 25.0,
-          "predicted_total": 8.8,
-          "betting_line": 7.0,
-          "reasoning": "Predicted 8.8 vs line 7.0"
+          "reasoning": "Model projects 57.2% win probability vs 37.5% implied odds"
         }
       ]
     }
@@ -95,9 +109,9 @@
   "summary": {
     "total_games_analyzed": 4,
     "games_with_betting_lines": 0,
-    "total_value_bets": 3,
-    "high_confidence_bets": 0,
-    "medium_confidence_bets": 1,
+    "total_value_bets": 4,
+    "high_confidence_bets": 3,
+    "medium_confidence_bets": 0,
     "pitcher_distribution_pitchers": 0,
     "pitcher_distribution_built_at": null
   }
