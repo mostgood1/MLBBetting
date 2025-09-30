@@ -1,70 +1,71 @@
 {
+  "date": "2025-09-30",
+  "fetched_at": "2025-09-30T13:53:38.480410",
+  "source": "DraftKings_via_OddsAPI",
   "lines": {
     "Detroit Tigers @ Cleveland Guardians": {
       "moneyline": {
-        "away": -110,
-        "home": -110
+        "away": -313,
+        "home": 226
       },
       "total_runs": {
-        "line": 8.5,
-        "over": -110,
-        "under": -110
+        "line": 4.5,
+        "over": -149,
+        "under": 115
       },
       "run_line": {
-        "away": "-1.5 (+130)",
-        "home": "+1.5 (-150)"
+        "line": 1.5,
+        "away": 214,
+        "home": -294
       }
     },
     "San Diego Padres @ Chicago Cubs": {
       "moneyline": {
-        "away": -110,
-        "home": -110
+        "away": 108,
+        "home": -132
       },
       "total_runs": {
-        "line": 8.5,
-        "over": -110,
-        "under": -110
+        "line": 6.5,
+        "over": -118,
+        "under": -103
       },
       "run_line": {
-        "away": "-1.5 (+130)",
-        "home": "+1.5 (-150)"
+        "line": 1.5,
+        "away": -220,
+        "home": 178
       }
     },
     "Boston Red Sox @ New York Yankees": {
       "moneyline": {
-        "away": -110,
-        "home": -110
+        "away": 113,
+        "home": -137
       },
       "total_runs": {
-        "line": 8.5,
-        "over": -110,
-        "under": -110
+        "line": 6.5,
+        "over": -126,
+        "under": 104
       },
       "run_line": {
-        "away": "-1.5 (+130)",
-        "home": "+1.5 (-150)"
+        "line": 1.5,
+        "away": -193,
+        "home": 157
       }
     },
     "Cincinnati Reds @ Los Angeles Dodgers": {
       "moneyline": {
-        "away": -110,
-        "home": -110
+        "away": 167,
+        "home": -206
       },
       "total_runs": {
-        "line": 8.5,
-        "over": -110,
-        "under": -110
+        "line": 7.0,
+        "over": -121,
+        "under": -101
       },
       "run_line": {
-        "away": "-1.5 (+130)",
-        "home": "+1.5 (-150)"
+        "line": 1.5,
+        "away": -132,
+        "home": 109
       }
     }
-  },
-  "metadata": {
-    "date": "2025-09-30",
-    "source": "sample_fallback",
-    "games_count": 4,
-    "timestamp": "2025-09-30T08:36:19.286512"
   }
 }

@@ -1948,5 +1948,31 @@
     "outcome": "pending",
     "profit_loss": 0.0,
     "roi": 0.0
+  },
+  {
+    "date": "2025-09-30",
+    "game": "Cincinnati Reds vs Los Angeles Dodgers",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.0",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -121,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-09-30",
+    "game": "Detroit Tigers vs Cleveland Guardians",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 4.5",
+    "confidence": 0.153,
+    "kelly_percentage": 15.3,
+    "recommended_bet": 60,
+    "odds": -149,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
   }
 ]

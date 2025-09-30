@@ -10,6 +10,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Tuple
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 class IntegratedClosingLinesManager:
     """
@@ -24,9 +25,23 @@ class IntegratedClosingLinesManager:
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
+        # Load environment variables from .env if present
+        try:
+            load_dotenv()
+        except Exception as e:
+            self.logger.debug(f"dotenv load skipped/failed: {e}")
         # Load configuration
         self.config = self.load_config()
-        self.odds_api_key = self.config.get('api_keys', {}).get('odds_api_key', '')
+        # Prefer config key, but allow environment to override for quick ops
+        cfg_key = ''
+        if isinstance(self.config, dict):
+            api_keys = self.config.get('api_keys', {}) or {}
+            # Prefer odds_api_key, but allow the_odds_api_key as an alias
+            cfg_key = api_keys.get('odds_api_key') or api_keys.get('the_odds_api_key') or ''
+        # Environment overrides: support multiple names
+        env_key = os.getenv('ODDS_API_KEY') or os.getenv('THE_ODDS_API_KEY') or os.getenv('ODDSAPI_KEY') or ''
+        # If an env key is provided, it takes precedence
+        self.odds_api_key = (env_key or cfg_key)
 
         # File paths
         self.master_closing_lines_file = self.data_dir / "master_closing_lines.json"
@@ -36,8 +51,11 @@ class IntegratedClosingLinesManager:
         self.closing_lines_data = self.load_closing_lines_data()
         self.games_data = self.load_games_data()
 
+        # Log a short preview and whether env override was used (without leaking secret)
+        key_preview = (self.odds_api_key[:8] + '...' + self.odds_api_key[-4:]) if len(self.odds_api_key) > 12 else 'Short'
+        src = 'ENV' if env_key else 'CONFIG'
         self.logger.info(
-            f"Initialized with OddsAPI key: {self.odds_api_key[:8]}...{self.odds_api_key[-4:] if len(self.odds_api_key) > 12 else 'Short'}"
+            f"Initialized with OddsAPI key: {key_preview} (source={src})"
         )
     
     def load_config(self) -> Dict:

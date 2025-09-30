@@ -1,10 +1,10 @@
 {
   "date": "2025-09-30",
-  "generated_at": "2025-09-30T13:30:43.431149",
+  "generated_at": "2025-09-30T18:48:32.136231",
   "counts": {
-    "recent_form_pitchers_used": 6,
-    "patience_adjustments_used": 13,
-    "total_pitchers": 13,
+    "recent_form_pitchers_used": 2,
+    "patience_adjustments_used": 8,
+    "total_pitchers": 8,
     "park_factors_count": 60,
     "batting_k_rates_count": 30,
     "patience_teams_count": 30,

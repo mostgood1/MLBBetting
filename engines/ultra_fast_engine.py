@@ -841,13 +841,16 @@ class FastPredictionEngine:
                     betting_odds = betting_data.get('betting_odds', {})
                     moneyline = betting_odds.get('moneyline', {})
                     total_runs = betting_odds.get('total_runs', {})
-                    
+                    # Determine if we have real totals vs fallback
+                    has_real_total = (isinstance(total_runs, dict) and (total_runs.get('line') is not None))
+                    source = 'real' if has_real_total else 'mixed'
                     return {
                         'home_ml': moneyline.get('home', self._prob_to_odds(home_win_prob)),
                         'away_ml': moneyline.get('away', self._prob_to_odds(1 - home_win_prob)),
                         'total_line': total_runs.get('line', 8.5),
                         'over_odds': total_runs.get('over', -110),
-                        'under_odds': total_runs.get('under', -110)
+                        'under_odds': total_runs.get('under', -110),
+                        'source': source
                     }
         
         # Generate sample lines
@@ -870,7 +873,8 @@ class FastPredictionEngine:
             'away_ml': away_ml,
             'total_line': 8.5,
             'over_odds': -110,
-            'under_odds': -110
+            'under_odds': -110,
+            'source': 'fallback'
         }
     
     def _apply_betting_integration(self, home_win_prob: float, predicted_total: float, 
@@ -901,13 +905,20 @@ class FastPredictionEngine:
         # Adjust total prediction
         total_line = betting_lines.get('total_line')
         if total_line is not None:
-            total_diff = abs(predicted_total - total_line)
-            if total_diff > line_threshold:
-                # Blend model total with lines total
-                adjusted_total = (
-                    (1 - betting_weight) * predicted_total + 
-                    betting_weight * total_line
-                )
+            # Skip blending toward totals if lines are fallback/default
+            is_default_totals = (
+                str(betting_lines.get('source', 'fallback')).lower() != 'real' or
+                (total_line == 8.5 and betting_lines.get('over_odds') == -110 and betting_lines.get('under_odds') == -110)
+            )
+            if not is_default_totals:
+                total_diff = abs(predicted_total - total_line)
+                if total_diff > line_threshold:
+                    # Blend model total with lines total
+                    adjusted_total = (
+                        (1 - betting_weight) * predicted_total + 
+                        betting_weight * total_line
+                    )
+        return adjusted_home_prob, adjusted_total
         
         return adjusted_home_prob, adjusted_total
     

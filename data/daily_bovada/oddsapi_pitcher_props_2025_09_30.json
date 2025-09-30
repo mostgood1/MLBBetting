@@ -1,0 +1,34 @@
+{
+  "date": "2025-09-30",
+  "retrieved_at": "2025-09-30T17:41:41.775110",
+  "pitcher_props": {
+    "tarik skubal": {
+      "outs": {
+        "line": 20.5,
+        "over_odds": "-120",
+        "under_odds": "-110",
+        "_src": "oddsapi"
+      },
+      "strikeouts": {
+        "line": 8.5,
+        "over_odds": "110",
+        "under_odds": "-142",
+        "_src": "oddsapi"
+      }
+    }
+  },
+  "meta": {
+    "markets": [
+      "pitcher_strikeouts",
+      "pitcher_outs"
+    ],
+    "regions": "us",
+    "bookmakers": null,
+    "include_completed": true,
+    "hist_snapshots": [
+      "2025-09-30T23:59:59Z"
+    ],
+    "probe_markets": false,
+    "probe_stats": null
+  }
+}
