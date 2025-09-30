@@ -270,14 +270,32 @@
         if(!res.ok) throw new Error('HTTP '+res.status);
         data=await res.json();
       }catch(e){ console.warn('performance load error', e); data={}; }
-      const perf=data.performance_by_bet_type||{};
       const grid=document.getElementById('perf');
-      grid.innerHTML='';
-      Object.entries(perf).forEach(([type,stats])=>{
-        const div=document.createElement('div'); div.className='stat';
-        div.innerHTML=`<div class='num'>${fmtPct(stats.accuracy)}</div><div class='muted'>${type.replace('_',' ').toUpperCase()}</div><div class='muted'>ROI: ${stats.roi?.toFixed(1)||0}% | Profit: $${stats.net_profit?.toFixed(2)||0}</div><div class='muted'>${stats.total_bets} bets (${stats.correct_bets} wins)</div>`;
-        grid.appendChild(div);
-      });
+      if(grid) grid.innerHTML='';
+      try{
+        // Accept either shape from API
+        // Legacy: { performance_by_bet_type: { type: { accuracy, roi, net_profit, total_bets, correct_bets } } }
+        // Current: { bet_types: { type: { accuracy_pct, roi_pct, net_profit, total_bets, correct_bets } } }
+        const rawPerf = (data && (data.performance_by_bet_type || data.bet_types)) || {};
+        const entries = Object.entries(rawPerf);
+        if(!entries.length){
+          if(grid) grid.innerHTML = '<div class="muted">No performance metrics yet.</div>';
+        } else {
+          entries.forEach(([type, stats])=>{
+            const acc = (stats.accuracy != null) ? Number(stats.accuracy) : Number(stats.accuracy_pct);
+            const roi = (stats.roi != null) ? Number(stats.roi) : Number(stats.roi_pct);
+            const profit = Number(stats.net_profit||0);
+            const total = Number(stats.total_bets||0);
+            const wins = Number(stats.correct_bets||0);
+            const div=document.createElement('div'); div.className='stat';
+            div.innerHTML = `<div class='num'>${fmtPct(acc)}</div>
+              <div class='muted'>${String(type||'').replace('_',' ').toUpperCase()}</div>
+              <div class='muted'>ROI: ${(Number.isFinite(roi)? roi.toFixed(1):'0')}% | Profit: $${profit.toFixed(2)}</div>
+              <div class='muted'>${total} bets (${wins} wins)</div>`;
+            grid.appendChild(div);
+          });
+        }
+      }catch(e){ if(grid) grid.innerHTML = '<div class="muted">Performance section failed to load.</div>'; }
       loadROIMetricsPanel();
     }
 
