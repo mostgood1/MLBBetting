@@ -1,0 +1,404 @@
+{
+  "date": "2025-10-01",
+  "generated_at": "2025-10-01T13:43:28.051530",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 7,
+  "recommendations": [
+    {
+      "pitcher_key": "casey mize",
+      "pitcher": "casey mize",
+      "team": "Detroit Tigers",
+      "opponent": "Cleveland Guardians",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 15.62,
+        "strikeouts": 4.76,
+        "earned_runs": 2.2,
+        "hits_allowed": 5.4,
+        "walks": 1.4,
+        "pitch_count": 80.0
+      },
+      "plays": [
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 14.5,
+          "proj": 15.62,
+          "edge": 1.12,
+          "confidence": "MEDIUM",
+          "p_over": 0.712,
+          "ev_over": 0.332,
+          "ev_under": -0.482,
+          "selected_ev": 0.332,
+          "over_odds": -115,
+          "under_odds": -125,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 5.4,
+          "edge": 1.9,
+          "confidence": "HIGH",
+          "p_over": 0.706,
+          "ev_over": 0.122,
+          "ev_under": -0.325,
+          "selected_ev": 0.122,
+          "over_odds": -170,
+          "under_odds": 130,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.2,
+          "edge": 0.7,
+          "confidence": "LOW",
+          "p_over": 0.579,
+          "ev_over": -0.035,
+          "ev_under": -0.116,
+          "selected_ev": -0.035,
+          "over_odds": -150,
+          "under_odds": 110,
+          "kelly_fraction": 0.0
+        }
+      ]
+    },
+    {
+      "pitcher_key": "tanner bibee",
+      "pitcher": "tanner bibee",
+      "team": "Cleveland Guardians",
+      "opponent": "Detroit Tigers",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 16.6,
+        "strikeouts": 4.84,
+        "earned_runs": 2.9,
+        "hits_allowed": 5.6,
+        "walks": 1.8,
+        "pitch_count": 85.0
+      },
+      "plays": [
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 14.5,
+          "proj": 16.6,
+          "edge": 2.1,
+          "confidence": "HIGH",
+          "p_over": 0.853,
+          "ev_over": 0.442,
+          "ev_under": -0.699,
+          "selected_ev": 0.442,
+          "over_odds": -145,
+          "under_odds": 105,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 5.6,
+          "edge": 2.1,
+          "confidence": "HIGH",
+          "p_over": 0.726,
+          "ev_over": 0.284,
+          "ev_under": -0.476,
+          "selected_ev": 0.284,
+          "over_odds": -130,
+          "under_odds": -110,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.9,
+          "edge": 1.4,
+          "confidence": "MEDIUM",
+          "p_over": 0.655,
+          "ev_over": 0.251,
+          "ev_under": -0.39,
+          "selected_ev": 0.251,
+          "over_odds": -110,
+          "under_odds": -130,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "dylan cease",
+      "pitcher": "dylan cease",
+      "team": "San Diego Padres",
+      "opponent": "Chicago Cubs",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 15.62,
+        "strikeouts": 6.17,
+        "earned_runs": 2.8,
+        "hits_allowed": 4.7,
+        "walks": 2.2,
+        "pitch_count": 80.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 5.5,
+          "proj": 6.17,
+          "edge": 0.67,
+          "confidence": "LOW",
+          "p_over": 0.576,
+          "ev_over": -0.064,
+          "ev_under": -0.067,
+          "selected_ev": -0.064,
+          "over_odds": -160,
+          "under_odds": 120,
+          "kelly_fraction": 0.0
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 14.5,
+          "proj": 15.62,
+          "edge": 1.12,
+          "confidence": "MEDIUM",
+          "p_over": 0.712,
+          "ev_over": null,
+          "ev_under": -0.507,
+          "selected_ev": null,
+          "over_odds": null,
+          "under_odds": -140,
+          "kelly_fraction": 0.0
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 4.7,
+          "edge": 1.2,
+          "confidence": "MEDIUM",
+          "p_over": 0.634,
+          "ev_over": null,
+          "ev_under": -0.373,
+          "selected_ev": null,
+          "over_odds": null,
+          "under_odds": -140,
+          "kelly_fraction": 0.0
+        },
+        {
+          "market": "earned_runs",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.8,
+          "edge": 1.3,
+          "confidence": "MEDIUM",
+          "p_over": 0.645,
+          "ev_over": 0.206,
+          "ev_under": -0.361,
+          "selected_ev": 0.206,
+          "over_odds": -115,
+          "under_odds": -125,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "brayan bello",
+      "pitcher": "brayan bello",
+      "team": "Boston Red Sox",
+      "opponent": "New York Yankees",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 18.1,
+        "strikeouts": 4.68,
+        "earned_runs": 2.1,
+        "hits_allowed": 5.4,
+        "walks": 2.1,
+        "pitch_count": 92.0
+      },
+      "plays": [
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 14.5,
+          "proj": 18.1,
+          "edge": 3.6,
+          "confidence": "HIGH",
+          "p_over": 0.964,
+          "ev_over": 0.653,
+          "ev_under": null,
+          "selected_ev": 0.653,
+          "over_odds": -140,
+          "under_odds": null,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 4.5,
+          "proj": 5.4,
+          "edge": 0.9,
+          "confidence": "LOW",
+          "p_over": 0.601,
+          "ev_over": 0.353,
+          "ev_under": -0.36,
+          "selected_ev": 0.353,
+          "over_odds": 125,
+          "under_odds": -165,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "carlos rodon",
+      "pitcher": "carlos rodon",
+      "team": "New York Yankees",
+      "opponent": "Boston Red Sox",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 18.05,
+        "strikeouts": 6.1,
+        "earned_runs": 2.0,
+        "hits_allowed": 3.9,
+        "walks": 2.4,
+        "pitch_count": 92.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 5.5,
+          "proj": 6.1,
+          "edge": 0.6,
+          "confidence": "LOW",
+          "p_over": 0.568,
+          "ev_over": -0.04,
+          "ev_under": -0.093,
+          "selected_ev": -0.04,
+          "over_odds": -145,
+          "under_odds": 110,
+          "kelly_fraction": 0.0
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 15.5,
+          "proj": 18.05,
+          "edge": 2.55,
+          "confidence": "HIGH",
+          "p_over": 0.899,
+          "ev_over": 0.716,
+          "ev_under": -0.821,
+          "selected_ev": 0.716,
+          "over_odds": -110,
+          "under_odds": -130,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.0,
+          "edge": 0.5,
+          "confidence": "LOW",
+          "p_over": 0.557,
+          "ev_over": -0.059,
+          "ev_under": -0.091,
+          "selected_ev": -0.059,
+          "over_odds": -145,
+          "under_odds": 105,
+          "kelly_fraction": 0.0
+        }
+      ]
+    },
+    {
+      "pitcher_key": "yoshinobu yamamoto",
+      "pitcher": "yoshinobu yamamoto",
+      "team": "Los Angeles Dodgers",
+      "opponent": "Cincinnati Reds",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 17.12,
+        "strikeouts": 6.51,
+        "earned_runs": 1.8,
+        "hits_allowed": 4.0,
+        "walks": 1.9,
+        "pitch_count": 87.0
+      },
+      "plays": [
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 4.0,
+          "edge": 0.5,
+          "confidence": "LOW",
+          "p_over": 0.557,
+          "ev_over": -0.072,
+          "ev_under": -0.069,
+          "selected_ev": -0.072,
+          "over_odds": -150,
+          "under_odds": 110,
+          "kelly_fraction": 0.0
+        }
+      ]
+    },
+    {
+      "pitcher_key": "zach littell",
+      "pitcher": "zach littell",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 15.12,
+        "strikeouts": 5.5,
+        "earned_runs": 2.6,
+        "hits_allowed": 5.2,
+        "walks": 1.9,
+        "pitch_count": 77.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 5.5,
+          "edge": 2.0,
+          "confidence": "HIGH",
+          "p_over": 0.716,
+          "ev_over": 0.647,
+          "ev_under": -0.549,
+          "selected_ev": 0.647,
+          "over_odds": 130,
+          "under_odds": -170,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 12.5,
+          "proj": 15.12,
+          "edge": 2.62,
+          "confidence": "HIGH",
+          "p_over": 0.905,
+          "ev_over": null,
+          "ev_under": -0.837,
+          "selected_ev": null,
+          "over_odds": null,
+          "under_odds": -140,
+          "kelly_fraction": 0.0
+        }
+      ]
+    }
+  ]
+}

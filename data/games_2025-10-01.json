@@ -1,0 +1,42 @@
+[
+  {
+    "game_pk": 813071,
+    "game_time": "2025-10-01T17:08:00Z",
+    "away_team": "Detroit Tigers",
+    "home_team": "Cleveland Guardians",
+    "away_pitcher": "Casey Mize",
+    "home_pitcher": "Tanner Bibee",
+    "away_probable_pitcher": "Casey Mize",
+    "home_probable_pitcher": "Tanner Bibee"
+  },
+  {
+    "game_pk": 813064,
+    "game_time": "2025-10-01T19:08:00Z",
+    "away_team": "San Diego Padres",
+    "home_team": "Chicago Cubs",
+    "away_pitcher": "Dylan Cease",
+    "home_pitcher": "Andrew Kittredge",
+    "away_probable_pitcher": "Dylan Cease",
+    "home_probable_pitcher": "Andrew Kittredge"
+  },
+  {
+    "game_pk": 813070,
+    "game_time": "2025-10-01T22:08:00Z",
+    "away_team": "Boston Red Sox",
+    "home_team": "New York Yankees",
+    "away_pitcher": "Brayan Bello",
+    "home_pitcher": "Carlos Rod\u00f3n",
+    "away_probable_pitcher": "Brayan Bello",
+    "home_probable_pitcher": "Carlos Rod\u00f3n"
+  },
+  {
+    "game_pk": 813068,
+    "game_time": "2025-10-02T01:08:00Z",
+    "away_team": "Cincinnati Reds",
+    "home_team": "Los Angeles Dodgers",
+    "away_pitcher": "Zack Littell",
+    "home_pitcher": "Yoshinobu Yamamoto",
+    "away_probable_pitcher": "Zack Littell",
+    "home_probable_pitcher": "Yoshinobu Yamamoto"
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "date": "2025-10-01",
+  "fetched_at": "2025-10-01T08:42:09.102915",
+  "games": [
+    {
+      "away_team": "Detroit Tigers",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": "Casey Mize",
+      "home_pitcher": "Tanner Bibee",
+      "game_key": "Detroit Tigers @ Cleveland Guardians"
+    },
+    {
+      "away_team": "San Diego Padres",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": "Dylan Cease",
+      "home_pitcher": "Andrew Kittredge",
+      "game_key": "San Diego Padres @ Chicago Cubs"
+    },
+    {
+      "away_team": "Boston Red Sox",
+      "home_team": "New York Yankees",
+      "away_pitcher": "Brayan Bello",
+      "home_pitcher": "Carlos Rod\u00f3n",
+      "game_key": "Boston Red Sox @ New York Yankees"
+    },
+    {
+      "away_team": "Cincinnati Reds",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Zack Littell",
+      "home_pitcher": "Yoshinobu Yamamoto",
+      "game_key": "Cincinnati Reds @ Los Angeles Dodgers"
+    }
+  ]
+}

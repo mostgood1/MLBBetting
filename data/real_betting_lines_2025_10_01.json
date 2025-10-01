@@ -1,0 +1,71 @@
+{
+  "date": "2025-10-01",
+  "fetched_at": "2025-10-01T08:48:34.691815",
+  "source": "DraftKings_via_OddsAPI",
+  "lines": {
+    "Detroit Tigers @ Cleveland Guardians": {
+      "moneyline": {
+        "away": 108,
+        "home": -132
+      },
+      "total_runs": {
+        "line": 6.5,
+        "over": -115,
+        "under": -106
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -217,
+        "home": 176
+      }
+    },
+    "San Diego Padres @ Chicago Cubs": {
+      "moneyline": {
+        "away": -102,
+        "home": -119
+      },
+      "total_runs": {
+        "line": 6.5,
+        "over": -123,
+        "under": 101
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 171,
+        "home": -212
+      }
+    },
+    "Boston Red Sox @ New York Yankees": {
+      "moneyline": {
+        "away": 148,
+        "home": -181
+      },
+      "total_runs": {
+        "line": 7.5,
+        "over": 103,
+        "under": -125
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -157,
+        "home": 129
+      }
+    },
+    "Cincinnati Reds @ Los Angeles Dodgers": {
+      "moneyline": {
+        "away": 223,
+        "home": -281
+      },
+      "total_runs": {
+        "line": 8.0,
+        "over": -111,
+        "under": -110
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 108,
+        "home": -132
+      }
+    }
+  }
+}

@@ -1,0 +1,291 @@
+{
+  "date": "2025-10-01",
+  "retrieved_at": "2025-10-01T13:43:00.564482",
+  "pitcher_props": {
+    "casey mize": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": null,
+        "under_odds": -130
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1000
+        },
+        {
+          "threshold": 4,
+          "odds": -330
+        },
+        {
+          "threshold": 6,
+          "odds": 180
+        },
+        {
+          "threshold": 7,
+          "odds": 385
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -170,
+        "under_odds": 130
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -150,
+        "under_odds": 110
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -115,
+        "under_odds": -125
+      }
+    },
+    "tanner bibee": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -170,
+        "under_odds": 130
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -2500
+        },
+        {
+          "threshold": 4,
+          "odds": -525
+        },
+        {
+          "threshold": 6,
+          "odds": -110
+        },
+        {
+          "threshold": 7,
+          "odds": 240
+        },
+        {
+          "threshold": 8,
+          "odds": 500
+        },
+        {
+          "threshold": 9,
+          "odds": 900
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -130,
+        "under_odds": -110
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -110,
+        "under_odds": -130
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -145,
+        "under_odds": 105
+      }
+    },
+    "dylan cease": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -160,
+        "under_odds": 120
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": null,
+        "under_odds": -140
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -115,
+        "under_odds": -125
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": null,
+        "under_odds": -140
+      }
+    },
+    "brayan bello": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -750
+        },
+        {
+          "threshold": 4,
+          "odds": -250
+        },
+        {
+          "threshold": 6,
+          "odds": 210
+        },
+        {
+          "threshold": 7,
+          "odds": 475
+        },
+        {
+          "threshold": 8,
+          "odds": 950
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 105,
+        "under_odds": -145
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -140,
+        "under_odds": null
+      }
+    },
+    "carlos rodon": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -145,
+        "under_odds": 110
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -1200
+        },
+        {
+          "threshold": 5,
+          "odds": -385
+        },
+        {
+          "threshold": 7,
+          "odds": 110
+        },
+        {
+          "threshold": 8,
+          "odds": 250
+        },
+        {
+          "threshold": 9,
+          "odds": 500
+        },
+        {
+          "threshold": 10,
+          "odds": 1000
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -160,
+        "under_odds": 120
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": -110,
+        "under_odds": -130
+      }
+    },
+    "yoshinobu yamamoto": {
+      "strikeouts": {
+        "line": 6.5,
+        "over_odds": -135,
+        "under_odds": 105
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -3000
+        },
+        {
+          "threshold": 5,
+          "odds": -800
+        },
+        {
+          "threshold": 6,
+          "odds": -320
+        },
+        {
+          "threshold": 8,
+          "odds": 125
+        },
+        {
+          "threshold": 9,
+          "odds": 260
+        },
+        {
+          "threshold": 10,
+          "odds": 525
+        },
+        {
+          "threshold": 11,
+          "odds": 950
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -150,
+        "under_odds": 110
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -105,
+        "under_odds": -135
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": -105,
+        "under_odds": -135
+      }
+    },
+    "zach littell": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": 130,
+        "under_odds": -170
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -265
+        },
+        {
+          "threshold": 5,
+          "odds": 280
+        },
+        {
+          "threshold": 6,
+          "odds": 600
+        }
+      ],
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 120,
+        "under_odds": -160
+      },
+      "outs": {
+        "line": 12.5,
+        "over_odds": null,
+        "under_odds": -140
+      }
+    }
+  }
+}

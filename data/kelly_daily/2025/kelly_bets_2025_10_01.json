@@ -1,0 +1,41 @@
+[
+  {
+    "date": "2025-10-01",
+    "game": "Detroit Tigers vs Cleveland Guardians",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 6.5",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -115,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-10-01",
+    "game": "San Diego Padres vs Chicago Cubs",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 6.5",
+    "confidence": 0.25,
+    "kelly_percentage": 25.0,
+    "recommended_bet": 100,
+    "odds": -123,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-10-01",
+    "game": "Cincinnati Reds vs Los Angeles Dodgers",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.0",
+    "confidence": 0.24,
+    "kelly_percentage": 24.0,
+    "recommended_bet": 100,
+    "odds": -111,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  }
+]

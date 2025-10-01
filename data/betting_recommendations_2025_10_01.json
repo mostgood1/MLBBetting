@@ -1,0 +1,117 @@
+{
+  "date": "2025-10-01",
+  "generated_at": "2025-10-01T08:48:35.759476",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Detroit Tigers_vs_Cleveland Guardians": {
+      "away_team": "Detroit Tigers",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": "Casey Mize",
+      "home_pitcher": "Tanner Bibee",
+      "predicted_score": "5.0-4.5",
+      "predicted_total_runs": 9.5,
+      "win_probabilities": {
+        "away_prob": 0.568,
+        "home_prob": 0.432
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 6.5",
+          "expected_value": 0.4956521739130435,
+          "win_probability": 0.8,
+          "american_odds": "-115",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 9.5,
+          "betting_line": 6.5,
+          "reasoning": "Predicted 9.5 vs line 6.5"
+        },
+        {
+          "type": "moneyline",
+          "recommendation": "Detroit Tigers ML",
+          "expected_value": 0.18143999999999993,
+          "win_probability": 0.568,
+          "american_odds": "108",
+          "confidence": "low",
+          "kelly_bet_size": 16.8,
+          "reasoning": "Model projects 56.8% win probability vs 48.1% implied odds"
+        }
+      ]
+    },
+    "San Diego Padres_vs_Chicago Cubs": {
+      "away_team": "San Diego Padres",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": "Dylan Cease",
+      "home_pitcher": "Andrew Kittredge",
+      "predicted_score": "5.0-5.8",
+      "predicted_total_runs": 10.8,
+      "win_probabilities": {
+        "away_prob": 0.414,
+        "home_prob": 0.586
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 6.5",
+          "expected_value": 0.6317073170731707,
+          "win_probability": 0.9,
+          "american_odds": "-123",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 10.8,
+          "betting_line": 6.5,
+          "reasoning": "Predicted 10.8 vs line 6.5"
+        }
+      ]
+    },
+    "Boston Red Sox_vs_New York Yankees": {
+      "away_team": "Boston Red Sox",
+      "home_team": "New York Yankees",
+      "away_pitcher": "Brayan Bello",
+      "home_pitcher": "Carlos Rod\u00f3n",
+      "predicted_score": "3.2-3.6",
+      "predicted_total_runs": 6.8,
+      "win_probabilities": {
+        "away_prob": 0.443,
+        "home_prob": 0.557
+      },
+      "value_bets": []
+    },
+    "Cincinnati Reds_vs_Los Angeles Dodgers": {
+      "away_team": "Cincinnati Reds",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Zack Littell",
+      "home_pitcher": "Yoshinobu Yamamoto",
+      "predicted_score": "4.3-5.1",
+      "predicted_total_runs": 9.4,
+      "win_probabilities": {
+        "away_prob": 0.397,
+        "home_prob": 0.603
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 8.0",
+          "expected_value": 0.21657657657657658,
+          "win_probability": 0.64,
+          "american_odds": "-111",
+          "confidence": "medium",
+          "kelly_bet_size": 24.0,
+          "predicted_total": 9.4,
+          "betting_line": 8.0,
+          "reasoning": "Predicted 9.4 vs line 8.0"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 4,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 4,
+    "high_confidence_bets": 2,
+    "medium_confidence_bets": 1,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}
