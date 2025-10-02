@@ -1,0 +1,325 @@
+{
+  "date": "2025-10-02",
+  "generated_at": "2025-10-02T14:12:56.192587",
+  "pitchers": [
+    {
+      "pitcher_id": "656427",
+      "pitcher_name": "Jack Flaherty",
+      "team": "Detroit Tigers",
+      "opponent": "Kansas City Royals",
+      "venue_home_team": "Kansas City Royals",
+      "team_source": "master_stats",
+      "projected_outs": 15,
+      "projected_innings": 5.1,
+      "projected_strikeouts": 5.9,
+      "projected_earned_runs": 2.7,
+      "projected_hits_allowed": 4.7,
+      "projected_walks": 1.9,
+      "adjusted_projections": {
+        "strikeouts": 4.9,
+        "outs": 15,
+        "k_factor": 0.828,
+        "park_factor_used": 1.01,
+        "opponent_k_rate": 0.1832,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0256289978678037,
+        "recent_ip_weighted": 5.08,
+        "recent_ip_per_start": 4.86
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "strikeouts_alts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    },
+    {
+      "pitcher_id": "677944",
+      "pitcher_name": "Slade Cecconi",
+      "team": "Cleveland Guardians",
+      "opponent": "Seattle Mariners",
+      "venue_home_team": "Cleveland Guardians",
+      "team_source": "master_stats",
+      "projected_outs": 17,
+      "projected_innings": 5.8,
+      "projected_strikeouts": 4.8,
+      "projected_earned_runs": 2.8,
+      "projected_hits_allowed": 5.8,
+      "projected_walks": 1.6,
+      "adjusted_projections": {
+        "strikeouts": 5.1,
+        "outs": 17,
+        "k_factor": 1.065,
+        "park_factor_used": 0.98,
+        "opponent_k_rate": 0.2322,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9932196162046908,
+        "recent_ip_weighted": 5.79,
+        "recent_ip_per_start": 6.0
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "strikeouts_alts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    },
+    {
+      "pitcher_id": "506433",
+      "pitcher_name": "Yu Darvish",
+      "team": "San Diego Padres",
+      "opponent": "Minnesota Twins",
+      "venue_home_team": "Minnesota Twins",
+      "team_source": "master_stats",
+      "projected_outs": 14,
+      "projected_innings": 4.8,
+      "projected_strikeouts": 4.4,
+      "projected_earned_runs": 2.9,
+      "projected_hits_allowed": 3.7,
+      "projected_walks": 1.6,
+      "adjusted_projections": {
+        "strikeouts": 4.4,
+        "outs": 14,
+        "k_factor": 0.997,
+        "park_factor_used": 1.02,
+        "opponent_k_rate": 0.2217,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0043070362473348,
+        "recent_ip_weighted": 4.82,
+        "recent_ip_per_start": 4.86
+      },
+      "confidence": "MEDIUM",
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "strikeouts_alts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    },
+    {
+      "pitcher_id": "592791",
+      "pitcher_name": "Jameson Taillon",
+      "team": "Chicago Cubs",
+      "opponent": "Colorado Rockies",
+      "venue_home_team": "Colorado Rockies",
+      "team_source": "master_stats",
+      "projected_outs": 17,
+      "projected_innings": 5.6,
+      "projected_strikeouts": 4.3,
+      "projected_earned_runs": 2.6,
+      "projected_hits_allowed": 5.0,
+      "projected_walks": 1.1,
+      "adjusted_projections": {
+        "strikeouts": 4.6,
+        "outs": 18,
+        "k_factor": 1.067,
+        "park_factor_used": 1.15,
+        "opponent_k_rate": 0.2539,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0347974413646055,
+        "recent_ip_weighted": 5.61,
+        "recent_ip_per_start": 5.66
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "strikeouts_alts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    },
+    {
+      "pitcher_id": "693645",
+      "pitcher_name": "Cam Schlittler",
+      "team": "New York Yankees",
+      "opponent": "Chicago White Sox",
+      "venue_home_team": "Chicago White Sox",
+      "team_source": "master_stats",
+      "projected_outs": 15,
+      "projected_innings": 5.1,
+      "projected_strikeouts": 5.3,
+      "projected_earned_runs": 1.8,
+      "projected_hits_allowed": 4.4,
+      "projected_walks": 2.2,
+      "adjusted_projections": {
+        "strikeouts": 5.3,
+        "outs": 15,
+        "k_factor": 1.009,
+        "park_factor_used": 1.01,
+        "opponent_k_rate": 0.2232,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9994029850746269,
+        "recent_ip_weighted": 5.07,
+        "recent_ip_per_start": 4.94
+      },
+      "confidence": "MEDIUM",
+      "lines": {
+        "outs": null,
+        "strikeouts": null,
+        "strikeouts_alts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    }
+  ],
+  "count": 5,
+  "notes": "Season averages baseline + opponent K-rate, park factor, patience (outs), recent form weighted IP when data available.",
+  "unmatched_starting_pitchers": [
+    "Jack Flaherty",
+    "Slade Cecconi",
+    "Yu Darvish",
+    "Jameson Taillon",
+    "Connelly Early",
+    "Cam Schlittler"
+  ],
+  "props_without_start_flag": [
+    "garrett crochet",
+    "max fried",
+    "blake snell",
+    "hunter greene"
+  ],
+  "adjustment_meta": {
+    "recent_form_pitchers_used": 0,
+    "patience_adjustments_used": 5,
+    "total_pitchers": 6,
+    "park_factors_count": 60,
+    "batting_k_rates_count": 30,
+    "patience_teams_count": 30,
+    "recent_pitchers_count": 55,
+    "park_factor_example_keys": [
+      "angels",
+      "los angeles angels",
+      "astros",
+      "houston astros",
+      "athletics",
+      "oakland athletics",
+      "blue_jays",
+      "toronto blue jays"
+    ],
+    "missing_counts": {
+      "opponent": 0,
+      "park_factor": 0,
+      "opponent_k_rate": 0,
+      "patience_stats": 0,
+      "recent_form": 0
+    },
+    "recent_form_on_demand_used": 5,
+    "synthetic_recent_form_count": 0,
+    "team_mismatches": 0,
+    "opponent_validation_mismatches": 0,
+    "opponent_corrections_count": 0
+  },
+  "adjustment_gaps": {
+    "opponent": [],
+    "park_factor": [],
+    "opponent_k_rate": [],
+    "patience_stats": [],
+    "recent_form": []
+  }
+}

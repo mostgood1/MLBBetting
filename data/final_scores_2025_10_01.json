@@ -1,0 +1,42 @@
+{
+  "Detroit Tigers_vs_Cleveland Guardians": {
+    "away_team": "Detroit Tigers",
+    "home_team": "Cleveland Guardians",
+    "away_score": 1,
+    "home_score": 6,
+    "total_runs": 7,
+    "winner": "home",
+    "game_pk": 813071,
+    "is_final": true
+  },
+  "San Diego Padres_vs_Chicago Cubs": {
+    "away_team": "San Diego Padres",
+    "home_team": "Chicago Cubs",
+    "away_score": 3,
+    "home_score": 0,
+    "total_runs": 3,
+    "winner": "away",
+    "game_pk": 813064,
+    "is_final": true
+  },
+  "Boston Red Sox_vs_New York Yankees": {
+    "away_team": "Boston Red Sox",
+    "home_team": "New York Yankees",
+    "away_score": 3,
+    "home_score": 4,
+    "total_runs": 7,
+    "winner": "home",
+    "game_pk": 813070,
+    "is_final": true
+  },
+  "Cincinnati Reds_vs_Los Angeles Dodgers": {
+    "away_team": "Cincinnati Reds",
+    "home_team": "Los Angeles Dodgers",
+    "away_score": 4,
+    "home_score": 8,
+    "total_runs": 12,
+    "winner": "home",
+    "game_pk": 813068,
+    "is_final": true
+  }
+}

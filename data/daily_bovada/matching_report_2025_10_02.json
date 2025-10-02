@@ -1,0 +1,20 @@
+{
+  "date": "2025-10-02",
+  "generated_at": "2025-10-02T14:12:49.180959",
+  "starting_pitchers_count": 6,
+  "props_pitchers_count": 4,
+  "unmatched_starting_pitchers": [
+    "Jack Flaherty",
+    "Slade Cecconi",
+    "Yu Darvish",
+    "Jameson Taillon",
+    "Connelly Early",
+    "Cam Schlittler"
+  ],
+  "props_without_start_flag": [
+    "garrett crochet",
+    "max fried",
+    "blake snell",
+    "hunter greene"
+  ]
+}

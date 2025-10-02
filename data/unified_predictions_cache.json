@@ -31357,6 +31357,186 @@
         "last_update_type": "full",
         "game_count": 4
       }
+    },
+    "2025-10-02": {
+      "games": {
+        "Detroit Tigers_vs_Cleveland Guardians": {
+          "away_team": "Detroit Tigers",
+          "home_team": "Cleveland Guardians",
+          "game_date": "2025-10-02",
+          "predictions": {
+            "home_win_prob": 0.55,
+            "away_win_prob": 0.45,
+            "predicted_home_score": 4.0,
+            "predicted_away_score": 3.7,
+            "predicted_total_runs": 7.8,
+            "home_score_range": [
+              2.0,
+              7.0
+            ],
+            "away_score_range": [
+              1.0,
+              6.0
+            ],
+            "total_runs_range": [
+              4.0,
+              11.0
+            ],
+            "confidence": 61.6
+          },
+          "betting_lines": {
+            "home_ml": -122,
+            "away_ml": 122,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Jack Flaherty",
+            "home_pitcher_name": "Slade Cecconi",
+            "away_pitcher_factor": 1.129,
+            "home_pitcher_factor": 1.0768
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 16.5,
+            "recommendations_found": 0,
+            "timestamp": "2025-10-02T09:18:15.311614",
+            "data_source": "live_simulation"
+          }
+        },
+        "San Diego Padres_vs_Chicago Cubs": {
+          "away_team": "San Diego Padres",
+          "home_team": "Chicago Cubs",
+          "game_date": "2025-10-02",
+          "predictions": {
+            "home_win_prob": 0.647,
+            "away_win_prob": 0.353,
+            "predicted_home_score": 6.4,
+            "predicted_away_score": 5.0,
+            "predicted_total_runs": 11.4,
+            "home_score_range": [
+              3.0,
+              10.0
+            ],
+            "away_score_range": [
+              2.0,
+              8.0
+            ],
+            "total_runs_range": [
+              7.0,
+              16.0
+            ],
+            "confidence": 56.1
+          },
+          "betting_lines": {
+            "home_ml": -183,
+            "away_ml": 183,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 11.4,
+              "edge": 2.9,
+              "expected_value": 0.233,
+              "kelly_bet_size": 15.0,
+              "confidence": "HIGH",
+              "reasoning": "Model: 11.4 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Yu Darvish",
+            "home_pitcher_name": "Jameson Taillon",
+            "away_pitcher_factor": 1.0725,
+            "home_pitcher_factor": 0.9349999999999999
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 8.0,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-02T09:18:15.319614",
+            "data_source": "live_simulation"
+          }
+        },
+        "Boston Red Sox_vs_New York Yankees": {
+          "away_team": "Boston Red Sox",
+          "home_team": "New York Yankees",
+          "game_date": "2025-10-02",
+          "predictions": {
+            "home_win_prob": 0.566,
+            "away_win_prob": 0.434,
+            "predicted_home_score": 3.8,
+            "predicted_away_score": 3.3,
+            "predicted_total_runs": 7.1,
+            "home_score_range": [
+              1.0,
+              6.0
+            ],
+            "away_score_range": [
+              1.0,
+              6.0
+            ],
+            "total_runs_range": [
+              4.0,
+              11.0
+            ],
+            "confidence": 62.5
+          },
+          "betting_lines": {
+            "home_ml": -130,
+            "away_ml": 130,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 7.1,
+              "edge": 1.4,
+              "expected_value": 0.086,
+              "kelly_bet_size": 4.9,
+              "confidence": "HIGH",
+              "reasoning": "Model: 7.1 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Connelly Early",
+            "home_pitcher_name": "Cam Schlittler",
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 0.9595
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 2.0,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-02T09:18:15.321619",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-02T09:12:29.744227",
+        "pitcher_update_date": "2025-10-02",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-02T09:18:15.350974",
+        "last_update_type": "full",
+        "game_count": 3
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

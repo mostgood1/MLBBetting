@@ -1,0 +1,27 @@
+{
+  "date": "2025-10-02",
+  "fetched_at": "2025-10-02T09:12:29.713993",
+  "games": [
+    {
+      "away_team": "Detroit Tigers",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": "Jack Flaherty",
+      "home_pitcher": "Slade Cecconi",
+      "game_key": "Detroit Tigers @ Cleveland Guardians"
+    },
+    {
+      "away_team": "San Diego Padres",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": "Yu Darvish",
+      "home_pitcher": "Jameson Taillon",
+      "game_key": "San Diego Padres @ Chicago Cubs"
+    },
+    {
+      "away_team": "Boston Red Sox",
+      "home_team": "New York Yankees",
+      "away_pitcher": "Connelly Early",
+      "home_pitcher": "Cam Schlittler",
+      "game_key": "Boston Red Sox @ New York Yankees"
+    }
+  ]
+}

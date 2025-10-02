@@ -1,0 +1,32 @@
+[
+  {
+    "game_pk": 813073,
+    "game_time": "2025-10-02T19:08:00Z",
+    "away_team": "Detroit Tigers",
+    "home_team": "Cleveland Guardians",
+    "away_pitcher": "Jack Flaherty",
+    "home_pitcher": "Slade Cecconi",
+    "away_probable_pitcher": "Jack Flaherty",
+    "home_probable_pitcher": "Slade Cecconi"
+  },
+  {
+    "game_pk": 813059,
+    "game_time": "2025-10-02T21:08:00Z",
+    "away_team": "San Diego Padres",
+    "home_team": "Chicago Cubs",
+    "away_pitcher": "Yu Darvish",
+    "home_pitcher": "Jameson Taillon",
+    "away_probable_pitcher": "Yu Darvish",
+    "home_probable_pitcher": "Jameson Taillon"
+  },
+  {
+    "game_pk": 813065,
+    "game_time": "2025-10-03T00:08:00Z",
+    "away_team": "Boston Red Sox",
+    "home_team": "New York Yankees",
+    "away_pitcher": "Connelly Early",
+    "home_pitcher": "Cam Schlittler",
+    "away_probable_pitcher": "Connelly Early",
+    "home_probable_pitcher": "Cam Schlittler"
+  }
+]

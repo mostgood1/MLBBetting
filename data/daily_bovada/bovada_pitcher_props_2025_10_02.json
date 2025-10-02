@@ -1,0 +1,242 @@
+{
+  "date": "2025-10-02",
+  "retrieved_at": "2025-10-02T14:12:49.176951",
+  "pitcher_props": {
+    "garrett crochet": {
+      "strikeouts": {
+        "line": 7.5,
+        "over_odds": -105,
+        "under_odds": -125
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 5,
+          "odds": -2200
+        },
+        {
+          "threshold": 6,
+          "odds": -650
+        },
+        {
+          "threshold": 7,
+          "odds": -275
+        },
+        {
+          "threshold": 9,
+          "odds": 140
+        },
+        {
+          "threshold": 10,
+          "odds": 265
+        },
+        {
+          "threshold": 11,
+          "odds": 480
+        },
+        {
+          "threshold": 12,
+          "odds": 900
+        },
+        {
+          "threshold": 13,
+          "odds": 2000
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -120,
+        "under_odds": -120
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 150,
+        "under_odds": -200
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -125,
+        "under_odds": -115
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": -140,
+        "under_odds": null
+      }
+    },
+    "max fried": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -165,
+        "under_odds": 125
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -2200
+        },
+        {
+          "threshold": 4,
+          "odds": -700
+        },
+        {
+          "threshold": 5,
+          "odds": -300
+        },
+        {
+          "threshold": 7,
+          "odds": 150
+        },
+        {
+          "threshold": 8,
+          "odds": 300
+        },
+        {
+          "threshold": 9,
+          "odds": 630
+        },
+        {
+          "threshold": 10,
+          "odds": 1300
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -150,
+        "under_odds": 110
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -130,
+        "under_odds": -110
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -110,
+        "under_odds": -130
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": -140,
+        "under_odds": null
+      }
+    },
+    "blake snell": {
+      "strikeouts": {
+        "line": 6.5,
+        "over_odds": -110,
+        "under_odds": -120
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -1700
+        },
+        {
+          "threshold": 5,
+          "odds": -630
+        },
+        {
+          "threshold": 6,
+          "odds": -280
+        },
+        {
+          "threshold": 8,
+          "odds": 145
+        },
+        {
+          "threshold": 9,
+          "odds": 290
+        },
+        {
+          "threshold": 10,
+          "odds": 600
+        },
+        {
+          "threshold": 11,
+          "odds": 1200
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": 110,
+        "under_odds": -150
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": 115,
+        "under_odds": -155
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -160,
+        "under_odds": 110
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": 105,
+        "under_odds": -145
+      }
+    },
+    "hunter greene": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -135,
+        "under_odds": 105
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -2600
+        },
+        {
+          "threshold": 4,
+          "odds": -810
+        },
+        {
+          "threshold": 5,
+          "odds": -330
+        },
+        {
+          "threshold": 7,
+          "odds": 125
+        },
+        {
+          "threshold": 8,
+          "odds": 250
+        },
+        {
+          "threshold": 9,
+          "odds": 500
+        },
+        {
+          "threshold": 10,
+          "odds": 1000
+        },
+        {
+          "threshold": 11,
+          "odds": 2200
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -180,
+        "under_odds": 140
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -160,
+        "under_odds": 110
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": -115,
+        "under_odds": -125
+      }
+    }
+  }
+}
