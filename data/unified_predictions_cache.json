@@ -31545,6 +31545,259 @@
       "source": "daily_files",
       "games_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\games_2025-10-03.json",
       "betting_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\betting_recommendations_2025_10_03.json"
+    },
+    "2025-10-04": {
+      "games": {
+        "Chicago Cubs_vs_Milwaukee Brewers": {
+          "away_team": "Chicago Cubs",
+          "home_team": "Milwaukee Brewers",
+          "game_date": "2025-10-04",
+          "predictions": {
+            "home_win_prob": 0.523,
+            "away_win_prob": 0.477,
+            "predicted_home_score": 2.7,
+            "predicted_away_score": 2.6,
+            "predicted_total_runs": 5.4,
+            "home_score_range": [
+              1.0,
+              5.0
+            ],
+            "away_score_range": [
+              1.0,
+              5.0
+            ],
+            "total_runs_range": [
+              3.0,
+              9.0
+            ],
+            "confidence": 65.5
+          },
+          "betting_lines": {
+            "home_ml": -109,
+            "away_ml": 109,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 5.4,
+              "edge": 3.1,
+              "expected_value": 0.251,
+              "kelly_bet_size": 16.4,
+              "confidence": "HIGH",
+              "reasoning": "Model: 5.4 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Matthew Boyd",
+            "home_pitcher_name": "Freddy Peralta",
+            "away_pitcher_factor": 0.76,
+            "home_pitcher_factor": 0.76
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 25.0,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-04T09:46:32.727805",
+            "data_source": "live_simulation"
+          }
+        },
+        "New York Yankees_vs_Toronto Blue Jays": {
+          "away_team": "New York Yankees",
+          "home_team": "Toronto Blue Jays",
+          "game_date": "2025-10-04",
+          "predictions": {
+            "home_win_prob": 0.577,
+            "away_win_prob": 0.423,
+            "predicted_home_score": 5.1,
+            "predicted_away_score": 4.6,
+            "predicted_total_runs": 9.7,
+            "home_score_range": [
+              2.0,
+              8.0
+            ],
+            "away_score_range": [
+              2.0,
+              7.0
+            ],
+            "total_runs_range": [
+              6.0,
+              14.0
+            ],
+            "confidence": 58.6
+          },
+          "betting_lines": {
+            "home_ml": -136,
+            "away_ml": 136,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 9.7,
+              "edge": 1.2,
+              "expected_value": 0.071,
+              "kelly_bet_size": 4.0,
+              "confidence": "HIGH",
+              "reasoning": "Model: 9.7 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Luis Gil",
+            "home_pitcher_name": "Kevin Gausman",
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 0.9349999999999999
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 7.8,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-04T09:46:32.736632",
+            "data_source": "live_simulation"
+          }
+        },
+        "Los Angeles Dodgers_vs_Philadelphia Phillies": {
+          "away_team": "Los Angeles Dodgers",
+          "home_team": "Philadelphia Phillies",
+          "game_date": "2025-10-04",
+          "predictions": {
+            "home_win_prob": 0.659,
+            "away_win_prob": 0.341,
+            "predicted_home_score": 3.8,
+            "predicted_away_score": 2.7,
+            "predicted_total_runs": 6.5,
+            "home_score_range": [
+              1.0,
+              6.0
+            ],
+            "away_score_range": [
+              1.0,
+              5.0
+            ],
+            "total_runs_range": [
+              3.0,
+              10.0
+            ],
+            "confidence": 62.3
+          },
+          "betting_lines": {
+            "home_ml": -193,
+            "away_ml": 193,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 6.5,
+              "edge": 2.0,
+              "expected_value": 0.143,
+              "kelly_bet_size": 8.6,
+              "confidence": "HIGH",
+              "reasoning": "Model: 6.5 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Shohei Ohtani",
+            "home_pitcher_name": "Cristopher S\u00e1nchez",
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 0.76
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 9.6,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-04T09:46:32.747240",
+            "data_source": "live_simulation"
+          }
+        },
+        "Detroit Tigers_vs_Seattle Mariners": {
+          "away_team": "Detroit Tigers",
+          "home_team": "Seattle Mariners",
+          "game_date": "2025-10-04",
+          "predictions": {
+            "home_win_prob": 0.54,
+            "away_win_prob": 0.46,
+            "predicted_home_score": 3.5,
+            "predicted_away_score": 3.1,
+            "predicted_total_runs": 6.6,
+            "home_score_range": [
+              1.0,
+              6.0
+            ],
+            "away_score_range": [
+              1.0,
+              6.0
+            ],
+            "total_runs_range": [
+              3.0,
+              10.0
+            ],
+            "confidence": 61.8
+          },
+          "betting_lines": {
+            "home_ml": -117,
+            "away_ml": 117,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 6.6,
+              "edge": 1.9,
+              "expected_value": 0.136,
+              "kelly_bet_size": 8.1,
+              "confidence": "HIGH",
+              "reasoning": "Model: 6.6 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Troy Melton",
+            "home_pitcher_name": "George Kirby",
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 0.9648
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 7.4,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-04T09:46:32.754609",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-04T09:40:26.051486",
+        "pitcher_update_date": "2025-10-04",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-04T09:46:32.789633",
+        "last_update_type": "full",
+        "game_count": 4
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",
