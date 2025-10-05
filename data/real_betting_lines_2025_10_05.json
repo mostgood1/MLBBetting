@@ -1,0 +1,40 @@
+{
+  "lines": {
+    "New York Yankees @ Toronto Blue Jays": {
+      "moneyline": {
+        "away": -110,
+        "home": -110
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -110,
+        "under": -110
+      },
+      "run_line": {
+        "away": "-1.5 (+130)",
+        "home": "+1.5 (-150)"
+      }
+    },
+    "Detroit Tigers @ Seattle Mariners": {
+      "moneyline": {
+        "away": -110,
+        "home": -110
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -110,
+        "under": -110
+      },
+      "run_line": {
+        "away": "-1.5 (+130)",
+        "home": "+1.5 (-150)"
+      }
+    }
+  },
+  "metadata": {
+    "date": "2025-10-05",
+    "source": "sample_fallback",
+    "games_count": 2,
+    "timestamp": "2025-10-05T09:39:18.890366"
+  }
+}

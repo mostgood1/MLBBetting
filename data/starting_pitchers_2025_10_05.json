@@ -1,0 +1,20 @@
+{
+  "date": "2025-10-05",
+  "fetched_at": "2025-10-05T09:33:31.691866",
+  "games": [
+    {
+      "away_team": "New York Yankees",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "Max Fried",
+      "home_pitcher": "Trey Yesavage",
+      "game_key": "New York Yankees @ Toronto Blue Jays"
+    },
+    {
+      "away_team": "Detroit Tigers",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "Tarik Skubal",
+      "home_pitcher": "Luis Castillo",
+      "game_key": "Detroit Tigers @ Seattle Mariners"
+    }
+  ]
+}

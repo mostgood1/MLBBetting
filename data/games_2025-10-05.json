@@ -1,0 +1,22 @@
+[
+  {
+    "game_pk": 813062,
+    "game_time": "2025-10-05T20:08:00Z",
+    "away_team": "New York Yankees",
+    "home_team": "Toronto Blue Jays",
+    "away_pitcher": "Max Fried",
+    "home_pitcher": "Trey Yesavage",
+    "away_probable_pitcher": "Max Fried",
+    "home_probable_pitcher": "Trey Yesavage"
+  },
+  {
+    "game_pk": 813057,
+    "game_time": "2025-10-06T00:03:00Z",
+    "away_team": "Detroit Tigers",
+    "home_team": "Seattle Mariners",
+    "away_pitcher": "Tarik Skubal",
+    "home_pitcher": "Luis Castillo",
+    "away_probable_pitcher": "Tarik Skubal",
+    "home_probable_pitcher": "Luis Castillo"
+  }
+]

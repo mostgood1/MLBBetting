@@ -31798,6 +31798,139 @@
         "last_update_type": "full",
         "game_count": 4
       }
+    },
+    "2025-10-05": {
+      "games": {
+        "New York Yankees_vs_Toronto Blue Jays": {
+          "away_team": "New York Yankees",
+          "home_team": "Toronto Blue Jays",
+          "game_date": "2025-10-05",
+          "predictions": {
+            "home_win_prob": 0.464,
+            "away_win_prob": 0.536,
+            "predicted_home_score": 3.2,
+            "predicted_away_score": 3.5,
+            "predicted_total_runs": 6.6,
+            "home_score_range": [
+              1.0,
+              6.0
+            ],
+            "away_score_range": [
+              1.0,
+              6.0
+            ],
+            "total_runs_range": [
+              3.0,
+              10.0
+            ],
+            "confidence": 62.7
+          },
+          "betting_lines": {
+            "home_ml": 115,
+            "away_ml": -115,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 6.6,
+              "edge": 1.9,
+              "expected_value": 0.135,
+              "kelly_bet_size": 8.0,
+              "confidence": "HIGH",
+              "reasoning": "Model: 6.6 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Max Fried",
+            "home_pitcher_name": "Trey Yesavage",
+            "away_pitcher_factor": 0.865,
+            "home_pitcher_factor": 1.0
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 16.0,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-05T09:39:19.555259",
+            "data_source": "live_simulation"
+          }
+        },
+        "Detroit Tigers_vs_Seattle Mariners": {
+          "away_team": "Detroit Tigers",
+          "home_team": "Seattle Mariners",
+          "game_date": "2025-10-05",
+          "predictions": {
+            "home_win_prob": 0.422,
+            "away_win_prob": 0.578,
+            "predicted_home_score": 2.6,
+            "predicted_away_score": 3.1,
+            "predicted_total_runs": 5.6,
+            "home_score_range": [
+              1.0,
+              5.0
+            ],
+            "away_score_range": [
+              1.0,
+              5.0
+            ],
+            "total_runs_range": [
+              3.0,
+              9.0
+            ],
+            "confidence": 65.4
+          },
+          "betting_lines": {
+            "home_ml": 137,
+            "away_ml": -137,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 5.6,
+              "edge": 2.9,
+              "expected_value": 0.228,
+              "kelly_bet_size": 14.6,
+              "confidence": "HIGH",
+              "reasoning": "Model: 5.6 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Tarik Skubal",
+            "home_pitcher_name": "Luis Castillo",
+            "away_pitcher_factor": 0.73,
+            "home_pitcher_factor": 0.956
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 4.0,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-05T09:39:19.559284",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-05T09:33:31.754416",
+        "pitcher_update_date": "2025-10-05",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-05T09:39:19.593628",
+        "last_update_type": "full",
+        "game_count": 2
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

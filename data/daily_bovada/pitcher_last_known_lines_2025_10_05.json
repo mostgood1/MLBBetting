@@ -1,0 +1,128 @@
+{
+  "date": "2025-10-05",
+  "updated_at": "2025-10-05T09:34:16.398445",
+  "pitchers": {
+    "max fried": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -180,
+        "under_odds": 135
+      },
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": 115,
+        "under_odds": -155
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 140,
+        "under_odds": -180
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -120,
+        "under_odds": -120
+      },
+      "outs": {
+        "line": 17.5,
+        "over_odds": -165,
+        "under_odds": 125
+      }
+    },
+    "trey yesavage": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -105,
+        "under_odds": -125
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": 130,
+        "under_odds": -170
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -150,
+        "under_odds": 110
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -140,
+        "under_odds": null
+      },
+      "outs": {
+        "line": 11.5,
+        "over_odds": -140,
+        "under_odds": null
+      }
+    },
+    "luis castillo": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -135,
+        "under_odds": 105
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -160,
+        "under_odds": 120
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -130,
+        "under_odds": -110
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": 140,
+        "under_odds": -200
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": -130,
+        "under_odds": -110
+      }
+    },
+    "tarik skubal": {
+      "strikeouts": {
+        "line": 8.5,
+        "over_odds": -130,
+        "under_odds": null
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": 120,
+        "under_odds": -160
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": 120,
+        "under_odds": -170
+      },
+      "outs": {
+        "line": 18.5,
+        "over_odds": -115,
+        "under_odds": -125
+      }
+    },
+    "blake snell": {
+      "walks": {
+        "line": 2.5,
+        "over_odds": -110,
+        "under_odds": -130
+      }
+    },
+    "jesus luzardo": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -110,
+        "under_odds": -130
+      }
+    }
+  }
+}

@@ -1,0 +1,278 @@
+{
+  "date": "2025-10-05",
+  "generated_at": "2025-10-05T14:34:16.244937",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 4,
+  "recommendations": [
+    {
+      "pitcher_key": "max fried",
+      "pitcher": "max fried",
+      "team": "New York Yankees",
+      "opponent": "Toronto Blue Jays",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 18.26,
+        "strikeouts": 5.76,
+        "earned_runs": 2.1,
+        "hits_allowed": 5.1,
+        "walks": 1.5,
+        "pitch_count": 93.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 4.5,
+          "proj": 5.76,
+          "edge": 1.26,
+          "confidence": "MEDIUM",
+          "p_over": 0.641,
+          "ev_over": -0.004,
+          "ev_under": -0.155,
+          "selected_ev": -0.004,
+          "over_odds": -180,
+          "under_odds": 135,
+          "kelly_fraction": 0.0
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 17.5,
+          "proj": 18.26,
+          "edge": 0.76,
+          "confidence": "LOW",
+          "p_over": 0.648,
+          "ev_over": 0.041,
+          "ev_under": -0.208,
+          "selected_ev": 0.041,
+          "over_odds": -165,
+          "under_odds": 125,
+          "kelly_fraction": 0.0673
+        }
+      ]
+    },
+    {
+      "pitcher_key": "trey yesavage",
+      "pitcher": "trey yesavage",
+      "team": "Toronto Blue Jays",
+      "opponent": "New York Yankees",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 14.88,
+        "strikeouts": 5.67,
+        "earned_runs": 2.6,
+        "hits_allowed": 5.2,
+        "walks": 1.9,
+        "pitch_count": 76.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 4.5,
+          "proj": 5.67,
+          "edge": 1.17,
+          "confidence": "MEDIUM",
+          "p_over": 0.631,
+          "ev_over": 0.232,
+          "ev_under": -0.336,
+          "selected_ev": 0.232,
+          "over_odds": -105,
+          "under_odds": -125,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 11.5,
+          "proj": 14.88,
+          "edge": 3.38,
+          "confidence": "HIGH",
+          "p_over": 0.954,
+          "ev_over": 0.636,
+          "ev_under": null,
+          "selected_ev": 0.636,
+          "over_odds": -140,
+          "under_odds": null,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 5.2,
+          "edge": 1.7,
+          "confidence": "HIGH",
+          "p_over": 0.686,
+          "ev_over": 0.579,
+          "ev_under": -0.502,
+          "selected_ev": 0.579,
+          "over_odds": 130,
+          "under_odds": -170,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.6,
+          "edge": 1.1,
+          "confidence": "MEDIUM",
+          "p_over": 0.623,
+          "ev_over": 0.039,
+          "ev_under": -0.209,
+          "selected_ev": 0.039,
+          "over_odds": -150,
+          "under_odds": 110,
+          "kelly_fraction": 0.0584
+        }
+      ]
+    },
+    {
+      "pitcher_key": "luis castillo",
+      "pitcher": "luis castillo",
+      "team": "Seattle Mariners",
+      "opponent": "Detroit Tigers",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 16.7,
+        "strikeouts": 5.12,
+        "earned_runs": 2.2,
+        "hits_allowed": 5.6,
+        "walks": 1.5,
+        "pitch_count": 85.0
+      },
+      "plays": [
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 15.5,
+          "proj": 16.7,
+          "edge": 1.2,
+          "confidence": "MEDIUM",
+          "p_over": 0.726,
+          "ev_over": 0.284,
+          "ev_under": -0.476,
+          "selected_ev": 0.284,
+          "over_odds": -130,
+          "under_odds": -110,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 5.6,
+          "edge": 2.1,
+          "confidence": "HIGH",
+          "p_over": 0.726,
+          "ev_over": 0.179,
+          "ev_under": -0.397,
+          "selected_ev": 0.179,
+          "over_odds": -160,
+          "under_odds": 120,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.2,
+          "edge": 0.7,
+          "confidence": "LOW",
+          "p_over": 0.579,
+          "ev_over": 0.025,
+          "ev_under": -0.197,
+          "selected_ev": 0.025,
+          "over_odds": -130,
+          "under_odds": -110,
+          "kelly_fraction": 0.0323
+        }
+      ]
+    },
+    {
+      "pitcher_key": "tarik skubal",
+      "pitcher": "tarik skubal",
+      "team": "Detroit Tigers",
+      "opponent": "Seattle Mariners",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 19.02,
+        "strikeouts": 7.39,
+        "earned_runs": 1.6,
+        "hits_allowed": 4.5,
+        "walks": 1.0,
+        "pitch_count": 97.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "UNDER",
+          "line": 8.5,
+          "proj": 7.39,
+          "edge": -1.11,
+          "confidence": "MEDIUM",
+          "p_over": 0.376,
+          "ev_over": -0.336,
+          "ev_under": null,
+          "selected_ev": null,
+          "over_odds": -130,
+          "under_odds": null,
+          "kelly_fraction": 0.0
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 18.5,
+          "proj": 19.02,
+          "edge": 0.52,
+          "confidence": "LOW",
+          "p_over": 0.603,
+          "ev_over": 0.127,
+          "ev_under": -0.285,
+          "selected_ev": 0.127,
+          "over_odds": -115,
+          "under_odds": -125,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 4.5,
+          "edge": 1.0,
+          "confidence": "MEDIUM",
+          "p_over": 0.612,
+          "ev_over": 0.035,
+          "ev_under": -0.206,
+          "selected_ev": 0.035,
+          "over_odds": -145,
+          "under_odds": 105,
+          "kelly_fraction": 0.0505
+        },
+        {
+          "market": "walks",
+          "side": "UNDER",
+          "line": 1.5,
+          "proj": 1.0,
+          "edge": -0.5,
+          "confidence": "LOW",
+          "p_over": 0.309,
+          "ev_over": -0.321,
+          "ev_under": 0.098,
+          "selected_ev": 0.098,
+          "over_odds": 120,
+          "under_odds": -170,
+          "kelly_fraction": 0.1
+        }
+      ]
+    }
+  ]
+}
