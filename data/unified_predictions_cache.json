@@ -31931,6 +31931,126 @@
         "last_update_type": "full",
         "game_count": 2
       }
+    },
+    "2025-10-06": {
+      "games": {
+        "Los Angeles Dodgers_vs_Philadelphia Phillies": {
+          "away_team": "Los Angeles Dodgers",
+          "home_team": "Philadelphia Phillies",
+          "game_date": "2025-10-06",
+          "predictions": {
+            "home_win_prob": 0.52,
+            "away_win_prob": 0.48,
+            "predicted_home_score": 5.0,
+            "predicted_away_score": 4.8,
+            "predicted_total_runs": 9.7,
+            "home_score_range": [
+              2.0,
+              8.0
+            ],
+            "away_score_range": [
+              2.0,
+              8.0
+            ],
+            "total_runs_range": [
+              6.0,
+              14.0
+            ],
+            "confidence": 57.7
+          },
+          "betting_lines": {
+            "home_ml": -108,
+            "away_ml": 108,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 9.7,
+              "edge": 1.2,
+              "expected_value": 0.074,
+              "kelly_bet_size": 4.1,
+              "confidence": "HIGH",
+              "reasoning": "Model: 9.7 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Blake Snell",
+            "home_pitcher_name": "Jes\u00fas Luzardo",
+            "away_pitcher_factor": 0.9775,
+            "home_pitcher_factor": 0.9889999999999999
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 16.0,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-06T11:01:57.992231",
+            "data_source": "live_simulation"
+          }
+        },
+        "Chicago Cubs_vs_Milwaukee Brewers": {
+          "away_team": "Chicago Cubs",
+          "home_team": "Milwaukee Brewers",
+          "game_date": "2025-10-06",
+          "predictions": {
+            "home_win_prob": 0.439,
+            "away_win_prob": 0.561,
+            "predicted_home_score": 4.4,
+            "predicted_away_score": 4.9,
+            "predicted_total_runs": 9.2,
+            "home_score_range": [
+              2.0,
+              7.0
+            ],
+            "away_score_range": [
+              2.0,
+              8.0
+            ],
+            "total_runs_range": [
+              5.0,
+              13.0
+            ],
+            "confidence": 58.1
+          },
+          "betting_lines": {
+            "home_ml": 127,
+            "away_ml": -127,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Shota Imanaga",
+            "home_pitcher_name": "Aaron Ashby",
+            "away_pitcher_factor": 0.835,
+            "home_pitcher_factor": 1.0
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 2.6,
+            "recommendations_found": 0,
+            "timestamp": "2025-10-06T11:01:57.994859",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-06T10:55:58.866077",
+        "pitcher_update_date": "2025-10-06",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-06T11:01:58.030992",
+        "last_update_type": "full",
+        "game_count": 2
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

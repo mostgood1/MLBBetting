@@ -1,0 +1,20 @@
+{
+  "date": "2025-10-06",
+  "fetched_at": "2025-10-06T10:55:58.844631",
+  "games": [
+    {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Philadelphia Phillies",
+      "away_pitcher": "Blake Snell",
+      "home_pitcher": "Jes\u00fas Luzardo",
+      "game_key": "Los Angeles Dodgers @ Philadelphia Phillies"
+    },
+    {
+      "away_team": "Chicago Cubs",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": "Shota Imanaga",
+      "home_pitcher": "Aaron Ashby",
+      "game_key": "Chicago Cubs @ Milwaukee Brewers"
+    }
+  ]
+}

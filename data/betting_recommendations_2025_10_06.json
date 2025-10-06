@@ -1,0 +1,78 @@
+{
+  "date": "2025-10-06",
+  "generated_at": "2025-10-06T11:01:58.330113",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Los Angeles Dodgers_vs_Philadelphia Phillies": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Philadelphia Phillies",
+      "away_pitcher": "Blake Snell",
+      "home_pitcher": "Jes\u00fas Luzardo",
+      "predicted_score": "4.8-5.0",
+      "predicted_total_runs": 9.7,
+      "win_probabilities": {
+        "away_prob": 0.48,
+        "home_prob": 0.52
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.3250420168067226,
+          "win_probability": 0.72,
+          "american_odds": "-119",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 9.7,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 9.7 vs line 7.5"
+        }
+      ]
+    },
+    "Chicago Cubs_vs_Milwaukee Brewers": {
+      "away_team": "Chicago Cubs",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": "Shota Imanaga",
+      "home_pitcher": "Aaron Ashby",
+      "predicted_score": "4.9-4.4",
+      "predicted_total_runs": 9.2,
+      "win_probabilities": {
+        "away_prob": 0.561,
+        "home_prob": 0.439
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.24264957264957254,
+          "win_probability": 0.6699999999999999,
+          "american_odds": "-117",
+          "confidence": "medium",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 9.2,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 9.2 vs line 7.5"
+        },
+        {
+          "type": "moneyline",
+          "recommendation": "Chicago Cubs ML",
+          "expected_value": 0.19493000000000005,
+          "win_probability": 0.561,
+          "american_odds": "113",
+          "confidence": "low",
+          "kelly_bet_size": 17.3,
+          "reasoning": "Model projects 56.1% win probability vs 46.9% implied odds"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 2,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 3,
+    "high_confidence_bets": 1,
+    "medium_confidence_bets": 1,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

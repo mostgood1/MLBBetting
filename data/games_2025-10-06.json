@@ -1,0 +1,22 @@
+[
+  {
+    "game_pk": 813052,
+    "game_time": "2025-10-06T22:08:00Z",
+    "away_team": "Los Angeles Dodgers",
+    "home_team": "Philadelphia Phillies",
+    "away_pitcher": "Blake Snell",
+    "home_pitcher": "Jes\u00fas Luzardo",
+    "away_probable_pitcher": "Blake Snell",
+    "home_probable_pitcher": "Jes\u00fas Luzardo"
+  },
+  {
+    "game_pk": 813048,
+    "game_time": "2025-10-07T01:08:00Z",
+    "away_team": "Chicago Cubs",
+    "home_team": "Milwaukee Brewers",
+    "away_pitcher": "Shota Imanaga",
+    "home_pitcher": "Aaron Ashby",
+    "away_probable_pitcher": "Shota Imanaga",
+    "home_probable_pitcher": "Aaron Ashby"
+  }
+]
