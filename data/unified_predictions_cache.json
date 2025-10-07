@@ -32051,6 +32051,139 @@
         "last_update_type": "full",
         "game_count": 2
       }
+    },
+    "2025-10-07": {
+      "games": {
+        "Seattle Mariners_vs_Detroit Tigers": {
+          "away_team": "Seattle Mariners",
+          "home_team": "Detroit Tigers",
+          "game_date": "2025-10-07",
+          "predictions": {
+            "home_win_prob": 0.438,
+            "away_win_prob": 0.562,
+            "predicted_home_score": 3.2,
+            "predicted_away_score": 3.6,
+            "predicted_total_runs": 6.8,
+            "home_score_range": [
+              1.0,
+              6.0
+            ],
+            "away_score_range": [
+              1.0,
+              6.0
+            ],
+            "total_runs_range": [
+              3.0,
+              11.0
+            ],
+            "confidence": 63.1
+          },
+          "betting_lines": {
+            "home_ml": 128,
+            "away_ml": -128,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 6.8,
+              "edge": 1.7,
+              "expected_value": 0.118,
+              "kelly_bet_size": 6.9,
+              "confidence": "HIGH",
+              "reasoning": "Model: 6.8 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Logan Gilbert",
+            "home_pitcher_name": "Jack Flaherty",
+            "away_pitcher_factor": 0.9349999999999999,
+            "home_pitcher_factor": 1.129
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 16.3,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-07T09:32:07.948782",
+            "data_source": "live_simulation"
+          }
+        },
+        "Toronto Blue Jays_vs_New York Yankees": {
+          "away_team": "Toronto Blue Jays",
+          "home_team": "New York Yankees",
+          "game_date": "2025-10-07",
+          "predictions": {
+            "home_win_prob": 0.639,
+            "away_win_prob": 0.361,
+            "predicted_home_score": 5.8,
+            "predicted_away_score": 4.8,
+            "predicted_total_runs": 10.6,
+            "home_score_range": [
+              3.0,
+              9.0
+            ],
+            "away_score_range": [
+              2.0,
+              8.0
+            ],
+            "total_runs_range": [
+              7.0,
+              15.0
+            ],
+            "confidence": 56.2
+          },
+          "betting_lines": {
+            "home_ml": -177,
+            "away_ml": 177,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 10.6,
+              "edge": 2.1,
+              "expected_value": 0.155,
+              "kelly_bet_size": 9.4,
+              "confidence": "HIGH",
+              "reasoning": "Model: 10.6 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Shane Bieber",
+            "home_pitcher_name": "Carlos Rod\u00f3n",
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 0.865
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 5.0,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-07T09:32:07.955825",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-07T09:26:18.645747",
+        "pitcher_update_date": "2025-10-07",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-07T09:32:07.977701",
+        "last_update_type": "full",
+        "game_count": 2
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

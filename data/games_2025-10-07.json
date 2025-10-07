@@ -1,0 +1,22 @@
+[
+  {
+    "game_pk": 813056,
+    "game_time": "2025-10-07T20:08:00Z",
+    "away_team": "Seattle Mariners",
+    "home_team": "Detroit Tigers",
+    "away_pitcher": "Logan Gilbert",
+    "home_pitcher": "Jack Flaherty",
+    "away_probable_pitcher": "Logan Gilbert",
+    "home_probable_pitcher": "Jack Flaherty"
+  },
+  {
+    "game_pk": 813061,
+    "game_time": "2025-10-08T00:08:00Z",
+    "away_team": "Toronto Blue Jays",
+    "home_team": "New York Yankees",
+    "away_pitcher": "Shane Bieber",
+    "home_pitcher": "Carlos Rod\u00f3n",
+    "away_probable_pitcher": "Shane Bieber",
+    "home_probable_pitcher": "Carlos Rod\u00f3n"
+  }
+]

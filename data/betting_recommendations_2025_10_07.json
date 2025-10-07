@@ -1,0 +1,68 @@
+{
+  "date": "2025-10-07",
+  "generated_at": "2025-10-07T09:32:08.301673",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Seattle Mariners_vs_Detroit Tigers": {
+      "away_team": "Seattle Mariners",
+      "home_team": "Detroit Tigers",
+      "away_pitcher": "Logan Gilbert",
+      "home_pitcher": "Jack Flaherty",
+      "predicted_score": "3.6-3.2",
+      "predicted_total_runs": 6.8,
+      "win_probabilities": {
+        "away_prob": 0.562,
+        "home_prob": 0.438
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Under 7.5",
+          "expected_value": 0.08351351351351366,
+          "win_probability": 0.5700000000000001,
+          "american_odds": "-111",
+          "confidence": "low",
+          "kelly_bet_size": 9.3,
+          "predicted_total": 6.8,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 6.8 vs line 7.5"
+        }
+      ]
+    },
+    "Toronto Blue Jays_vs_New York Yankees": {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "New York Yankees",
+      "away_pitcher": "Shane Bieber",
+      "home_pitcher": "Carlos Rod\u00f3n",
+      "predicted_score": "4.8-5.8",
+      "predicted_total_runs": 10.6,
+      "win_probabilities": {
+        "away_prob": 0.361,
+        "home_prob": 0.639
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.4906722689075631,
+          "win_probability": 0.81,
+          "american_odds": "-119",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 10.6,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 10.6 vs line 7.5"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 2,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 2,
+    "high_confidence_bets": 1,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

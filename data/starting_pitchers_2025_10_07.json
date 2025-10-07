@@ -1,0 +1,20 @@
+{
+  "date": "2025-10-07",
+  "fetched_at": "2025-10-07T09:26:18.609711",
+  "games": [
+    {
+      "away_team": "Seattle Mariners",
+      "home_team": "Detroit Tigers",
+      "away_pitcher": "Logan Gilbert",
+      "home_pitcher": "Jack Flaherty",
+      "game_key": "Seattle Mariners @ Detroit Tigers"
+    },
+    {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "New York Yankees",
+      "away_pitcher": "Shane Bieber",
+      "home_pitcher": "Carlos Rod\u00f3n",
+      "game_key": "Toronto Blue Jays @ New York Yankees"
+    }
+  ]
+}

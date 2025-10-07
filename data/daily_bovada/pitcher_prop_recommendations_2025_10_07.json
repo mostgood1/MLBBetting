@@ -1,0 +1,359 @@
+{
+  "date": "2025-10-07",
+  "generated_at": "2025-10-07T14:27:04.314900",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 7,
+  "recommendations": [
+    {
+      "pitcher_key": "blake snell",
+      "pitcher": "blake snell",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 16.12,
+        "strikeouts": 6.72,
+        "earned_runs": 1.9,
+        "hits_allowed": 5.2,
+        "walks": 2.6,
+        "pitch_count": 82.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "UNDER",
+          "line": 7.5,
+          "proj": 6.72,
+          "edge": -0.78,
+          "confidence": "LOW",
+          "p_over": 0.412,
+          "ev_over": -0.214,
+          "ev_under": 0.078,
+          "selected_ev": 0.078,
+          "over_odds": -110,
+          "under_odds": -120,
+          "kelly_fraction": 0.094
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 5.2,
+          "edge": 1.7,
+          "confidence": "HIGH",
+          "p_over": 0.686,
+          "ev_over": 0.129,
+          "ev_under": -0.326,
+          "selected_ev": 0.129,
+          "over_odds": -155,
+          "under_odds": 115,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "jesus luzardo",
+      "pitcher": "jesus luzardo",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 16.46,
+        "strikeouts": 6.17,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.4,
+        "walks": 1.8,
+        "pitch_count": 84.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 5.5,
+          "proj": 6.17,
+          "edge": 0.67,
+          "confidence": "LOW",
+          "p_over": 0.576,
+          "ev_over": -0.104,
+          "ev_under": -0.003,
+          "selected_ev": -0.104,
+          "over_odds": -180,
+          "under_odds": 135,
+          "kelly_fraction": 0.0
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 14.5,
+          "proj": 16.46,
+          "edge": 1.96,
+          "confidence": "HIGH",
+          "p_over": 0.836,
+          "ev_over": 0.314,
+          "ev_under": -0.616,
+          "selected_ev": 0.314,
+          "over_odds": -175,
+          "under_odds": 135,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 4.5,
+          "proj": 5.4,
+          "edge": 0.9,
+          "confidence": "LOW",
+          "p_over": 0.601,
+          "ev_over": 0.174,
+          "ev_under": -0.306,
+          "selected_ev": 0.174,
+          "over_odds": -105,
+          "under_odds": -135,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "aaron ashby",
+      "pitcher": "aaron ashby",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 13.39,
+        "strikeouts": 4.78,
+        "earned_runs": 1.3,
+        "hits_allowed": 4.2,
+        "walks": 1.9,
+        "pitch_count": 68.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 4.78,
+          "edge": 3.28,
+          "confidence": "HIGH",
+          "p_over": 0.826,
+          "ev_over": 0.238,
+          "ev_under": -0.564,
+          "selected_ev": 0.238,
+          "over_odds": -200,
+          "under_odds": 150,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 5.5,
+          "proj": 13.39,
+          "edge": 7.89,
+          "confidence": "HIGH",
+          "p_over": 1.0,
+          "ev_over": 0.555,
+          "ev_under": -1.0,
+          "selected_ev": 0.555,
+          "over_odds": -180,
+          "under_odds": 140,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 4.2,
+          "edge": 2.7,
+          "confidence": "HIGH",
+          "p_over": 0.78,
+          "ev_over": 0.38,
+          "ev_under": -0.58,
+          "selected_ev": 0.38,
+          "over_odds": -130,
+          "under_odds": -110,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "OVER",
+          "line": 0.5,
+          "proj": 1.3,
+          "edge": 0.8,
+          "confidence": "LOW",
+          "p_over": 0.59,
+          "ev_over": 0.269,
+          "ev_under": -0.326,
+          "selected_ev": 0.269,
+          "over_odds": 115,
+          "under_odds": -155,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "shota imanaga",
+      "pitcher": "shota imanaga",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 17.3,
+        "strikeouts": 4.4,
+        "earned_runs": 1.9,
+        "hits_allowed": 4.3,
+        "walks": 1.1,
+        "pitch_count": 88.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 4.4,
+          "edge": 0.9,
+          "confidence": "LOW",
+          "p_over": 0.601,
+          "ev_over": 0.293,
+          "ev_under": -0.336,
+          "selected_ev": 0.293,
+          "over_odds": 115,
+          "under_odds": -150,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 12.5,
+          "proj": 17.3,
+          "edge": 4.8,
+          "confidence": "HIGH",
+          "p_over": 0.992,
+          "ev_over": 0.785,
+          "ev_under": -0.985,
+          "selected_ev": 0.785,
+          "over_odds": -125,
+          "under_odds": -115,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 0.5,
+          "proj": 1.1,
+          "edge": 0.6,
+          "confidence": "LOW",
+          "p_over": 0.726,
+          "ev_over": 0.108,
+          "ev_under": -0.342,
+          "selected_ev": 0.108,
+          "over_odds": -190,
+          "under_odds": 140,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "shane bieber",
+      "pitcher": "shane bieber",
+      "team": "Toronto Blue Jays",
+      "opponent": "New York Yankees",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 19.1,
+        "strikeouts": 6.6,
+        "earned_runs": 1.0,
+        "hits_allowed": 2.0,
+        "walks": 0.0,
+        "pitch_count": 97.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "UNDER",
+          "line": 1.5,
+          "proj": 0.0,
+          "edge": -1.5,
+          "confidence": "HIGH",
+          "p_over": 0.067,
+          "ev_over": -0.863,
+          "ev_under": 0.577,
+          "selected_ev": 0.577,
+          "over_odds": 105,
+          "under_odds": -145,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "carlos rodon",
+      "pitcher": "carlos rodon",
+      "team": "New York Yankees",
+      "opponent": "Toronto Blue Jays",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 19.0,
+        "strikeouts": 6.4,
+        "earned_runs": 2.0,
+        "hits_allowed": 3.9,
+        "walks": 2.4,
+        "pitch_count": 97.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.4,
+          "edge": 0.9,
+          "confidence": "LOW",
+          "p_over": 0.816,
+          "ev_over": 0.593,
+          "ev_under": -0.68,
+          "selected_ev": 0.593,
+          "over_odds": -105,
+          "under_odds": -135,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "aaron nola",
+      "pitcher": "aaron nola",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 16.0,
+        "strikeouts": 6.4,
+        "earned_runs": 3.8,
+        "hits_allowed": 6.4,
+        "walks": 1.6,
+        "pitch_count": 82.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 0.5,
+          "proj": 1.6,
+          "edge": 1.1,
+          "confidence": "MEDIUM",
+          "p_over": 0.864,
+          "ev_over": 0.21,
+          "ev_under": -0.634,
+          "selected_ev": 0.21,
+          "over_odds": -250,
+          "under_odds": 170,
+          "kelly_fraction": 0.1
+        }
+      ]
+    }
+  ]
+}

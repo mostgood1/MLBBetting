@@ -1,0 +1,151 @@
+{
+  "date": "2025-10-07",
+  "updated_at": "2025-10-07T09:27:04.462866",
+  "pitchers": {
+    "blake snell": {
+      "strikeouts": {
+        "line": 7.5,
+        "over_odds": -110,
+        "under_odds": -120
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -155,
+        "under_odds": 115
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -180,
+        "under_odds": 140
+      },
+      "walks": {
+        "line": 2.5,
+        "over_odds": 110,
+        "under_odds": -160
+      },
+      "outs": {
+        "line": 16.5,
+        "over_odds": -120,
+        "under_odds": -120
+      }
+    },
+    "jesus luzardo": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -180,
+        "under_odds": 135
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -105,
+        "under_odds": -135
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 130,
+        "under_odds": -170
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -105,
+        "under_odds": -135
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -175,
+        "under_odds": 135
+      }
+    },
+    "aaron ashby": {
+      "strikeouts": {
+        "line": 1.5,
+        "over_odds": -200,
+        "under_odds": 150
+      },
+      "hits_allowed": {
+        "line": 1.5,
+        "over_odds": -130,
+        "under_odds": -110
+      },
+      "earned_runs": {
+        "line": 0.5,
+        "over_odds": 115,
+        "under_odds": -155
+      },
+      "outs": {
+        "line": 5.5,
+        "over_odds": -180,
+        "under_odds": 140
+      }
+    },
+    "shota imanaga": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": 115,
+        "under_odds": -150
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -180,
+        "under_odds": 130
+      },
+      "walks": {
+        "line": 0.5,
+        "over_odds": -190,
+        "under_odds": 140
+      },
+      "outs": {
+        "line": 12.5,
+        "over_odds": -125,
+        "under_odds": -115
+      }
+    },
+    "logan gilbert": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": 140,
+        "under_odds": -200
+      }
+    },
+    "jack flaherty": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -130,
+        "under_odds": -110
+      }
+    },
+    "shane bieber": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": 105,
+        "under_odds": -145
+      }
+    },
+    "carlos rodon": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -105,
+        "under_odds": -135
+      }
+    },
+    "yoshinobu yamamoto": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -200,
+        "under_odds": 140
+      }
+    },
+    "aaron nola": {
+      "walks": {
+        "line": 0.5,
+        "over_odds": -250,
+        "under_odds": 170
+      }
+    }
+  }
+}
