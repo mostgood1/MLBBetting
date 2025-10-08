@@ -1,0 +1,71 @@
+{
+  "date": "2025-10-08",
+  "fetched_at": "2025-10-08T07:41:53.078996",
+  "source": "DraftKings_via_OddsAPI",
+  "lines": {
+    "Seattle Mariners @ Detroit Tigers": {
+      "moneyline": {
+        "away": -108,
+        "home": -112
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -106,
+        "under": -115
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 150,
+        "home": -184
+      }
+    },
+    "Milwaukee Brewers @ Chicago Cubs": {
+      "moneyline": {
+        "away": 101,
+        "home": -122
+      },
+      "total_runs": {
+        "line": 6.5,
+        "over": -120,
+        "under": -102
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 176,
+        "home": -217
+      }
+    },
+    "Toronto Blue Jays @ New York Yankees": {
+      "moneyline": {
+        "away": 156,
+        "home": -192
+      },
+      "total_runs": {
+        "line": 8.5,
+        "over": -114,
+        "under": -106
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -137,
+        "home": 113
+      }
+    },
+    "Philadelphia Phillies @ Los Angeles Dodgers": {
+      "moneyline": {
+        "away": 148,
+        "home": -181
+      },
+      "total_runs": {
+        "line": 7.5,
+        "over": -119,
+        "under": -102
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -143,
+        "home": 118
+      }
+    }
+  }
+}

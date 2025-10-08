@@ -1,0 +1,127 @@
+{
+  "date": "2025-10-08",
+  "generated_at": "2025-10-08T07:41:55.355613",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Seattle Mariners_vs_Detroit Tigers": {
+      "away_team": "Seattle Mariners",
+      "home_team": "Detroit Tigers",
+      "away_pitcher": "Bryce Miller",
+      "home_pitcher": "Casey Mize",
+      "predicted_score": "5.2-6.7",
+      "predicted_total_runs": 11.9,
+      "win_probabilities": {
+        "away_prob": 0.332,
+        "home_prob": 0.668
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 8.5",
+          "expected_value": 0.6324528301886794,
+          "win_probability": 0.8400000000000001,
+          "american_odds": "-106",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 11.9,
+          "betting_line": 8.5,
+          "reasoning": "Predicted 11.9 vs line 8.5"
+        },
+        {
+          "type": "moneyline",
+          "recommendation": "Detroit Tigers ML",
+          "expected_value": 0.26442857142857157,
+          "win_probability": 0.668,
+          "american_odds": "-112",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "reasoning": "Model projects 66.8% win probability vs 52.8% implied odds"
+        }
+      ]
+    },
+    "Milwaukee Brewers_vs_Chicago Cubs": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": "Quinn Priester",
+      "home_pitcher": "Jameson Taillon",
+      "predicted_score": "3.2-3.1",
+      "predicted_total_runs": 6.3,
+      "win_probabilities": {
+        "away_prob": 0.514,
+        "home_prob": 0.486
+      },
+      "value_bets": []
+    },
+    "Toronto Blue Jays_vs_New York Yankees": {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "New York Yankees",
+      "away_pitcher": "Louis Varland",
+      "home_pitcher": "Cam Schlittler",
+      "predicted_score": "4.6-5.1",
+      "predicted_total_runs": 9.7,
+      "win_probabilities": {
+        "away_prob": 0.442,
+        "home_prob": 0.558
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 8.5",
+          "expected_value": 0.16385964912280682,
+          "win_probability": 0.6199999999999999,
+          "american_odds": "-114",
+          "confidence": "medium",
+          "kelly_bet_size": 18.7,
+          "predicted_total": 9.7,
+          "betting_line": 8.5,
+          "reasoning": "Predicted 9.7 vs line 8.5"
+        }
+      ]
+    },
+    "Philadelphia Phillies_vs_Los Angeles Dodgers": {
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Aaron Nola",
+      "home_pitcher": "Yoshinobu Yamamoto",
+      "predicted_score": "4.4-6.7",
+      "predicted_total_runs": 11.1,
+      "win_probabilities": {
+        "away_prob": 0.242,
+        "home_prob": 0.758
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.5826890756302521,
+          "win_probability": 0.86,
+          "american_odds": "-119",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 11.1,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 11.1 vs line 7.5"
+        },
+        {
+          "type": "moneyline",
+          "recommendation": "Los Angeles Dodgers ML",
+          "expected_value": 0.17678453038674036,
+          "win_probability": 0.758,
+          "american_odds": "-181",
+          "confidence": "medium",
+          "kelly_bet_size": 25.0,
+          "reasoning": "Model projects 75.8% win probability vs 64.4% implied odds"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 4,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 5,
+    "high_confidence_bets": 3,
+    "medium_confidence_bets": 2,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "date": "2025-10-08",
+  "updated_at": "2025-10-08T07:36:49.748246",
+  "pitchers": {
+    "bryce miller": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": 135,
+        "under_odds": -185
+      }
+    },
+    "casey mize": {
+      "walks": {
+        "line": 0.5,
+        "over_odds": -180,
+        "under_odds": 130
+      }
+    },
+    "jameson taillon": {
+      "strikeouts": {
+        "line": 2.5,
+        "over_odds": -135,
+        "under_odds": 105
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": 145,
+        "under_odds": -190
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": 140,
+        "under_odds": -180
+      },
+      "walks": {
+        "line": 0.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "outs": {
+        "line": 9.5,
+        "over_odds": -155,
+        "under_odds": 115
+      }
+    },
+    "quinn priester": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": -110,
+        "under_odds": -120
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": 105,
+        "under_odds": -145
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": 130,
+        "under_odds": -180
+      },
+      "outs": {
+        "line": 12.5,
+        "over_odds": -105,
+        "under_odds": -135
+      }
+    },
+    "cam schlittler": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": 140,
+        "under_odds": -200
+      }
+    },
+    "yoshinobu yamamoto": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -170,
+        "under_odds": 120
+      }
+    },
+    "aaron nola": {
+      "walks": {
+        "line": 0.5,
+        "over_odds": -250,
+        "under_odds": 170
+      }
+    }
+  }
+}

@@ -32184,6 +32184,259 @@
         "last_update_type": "full",
         "game_count": 2
       }
+    },
+    "2025-10-08": {
+      "games": {
+        "Seattle Mariners_vs_Detroit Tigers": {
+          "away_team": "Seattle Mariners",
+          "home_team": "Detroit Tigers",
+          "game_date": "2025-10-08",
+          "predictions": {
+            "home_win_prob": 0.668,
+            "away_win_prob": 0.332,
+            "predicted_home_score": 6.7,
+            "predicted_away_score": 5.2,
+            "predicted_total_runs": 11.9,
+            "home_score_range": [
+              4.0,
+              10.0
+            ],
+            "away_score_range": [
+              2.0,
+              9.0
+            ],
+            "total_runs_range": [
+              7.9,
+              17.0
+            ],
+            "confidence": 54.7
+          },
+          "betting_lines": {
+            "home_ml": -201,
+            "away_ml": 201,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 11.9,
+              "edge": 3.4,
+              "expected_value": 0.278,
+              "kelly_bet_size": 18.6,
+              "confidence": "HIGH",
+              "reasoning": "Model: 11.9 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Bryce Miller",
+            "home_pitcher_name": "Casey Mize",
+            "away_pitcher_factor": 1.188,
+            "home_pitcher_factor": 0.956
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 23.2,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-08T07:41:54.859993",
+            "data_source": "live_simulation"
+          }
+        },
+        "Milwaukee Brewers_vs_Chicago Cubs": {
+          "away_team": "Milwaukee Brewers",
+          "home_team": "Chicago Cubs",
+          "game_date": "2025-10-08",
+          "predictions": {
+            "home_win_prob": 0.486,
+            "away_win_prob": 0.514,
+            "predicted_home_score": 3.1,
+            "predicted_away_score": 3.2,
+            "predicted_total_runs": 6.3,
+            "home_score_range": [
+              1.0,
+              6.0
+            ],
+            "away_score_range": [
+              1.0,
+              6.0
+            ],
+            "total_runs_range": [
+              3.0,
+              9.0
+            ],
+            "confidence": 63.3
+          },
+          "betting_lines": {
+            "home_ml": 105,
+            "away_ml": -105,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 6.3,
+              "edge": 2.2,
+              "expected_value": 0.164,
+              "kelly_bet_size": 10.0,
+              "confidence": "HIGH",
+              "reasoning": "Model: 6.3 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Quinn Priester",
+            "home_pitcher_name": "Jameson Taillon",
+            "away_pitcher_factor": 0.8859999999999999,
+            "home_pitcher_factor": 0.9349999999999999
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 10.4,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-08T07:41:54.870396",
+            "data_source": "live_simulation"
+          }
+        },
+        "Toronto Blue Jays_vs_New York Yankees": {
+          "away_team": "Toronto Blue Jays",
+          "home_team": "New York Yankees",
+          "game_date": "2025-10-08",
+          "predictions": {
+            "home_win_prob": 0.558,
+            "away_win_prob": 0.442,
+            "predicted_home_score": 5.1,
+            "predicted_away_score": 4.6,
+            "predicted_total_runs": 9.7,
+            "home_score_range": [
+              2.0,
+              8.0
+            ],
+            "away_score_range": [
+              2.0,
+              8.0
+            ],
+            "total_runs_range": [
+              5.0,
+              14.0
+            ],
+            "confidence": 56.8
+          },
+          "betting_lines": {
+            "home_ml": -126,
+            "away_ml": 126,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 9.7,
+              "edge": 1.2,
+              "expected_value": 0.07,
+              "kelly_bet_size": 3.9,
+              "confidence": "HIGH",
+              "reasoning": "Model: 9.7 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Louis Varland",
+            "home_pitcher_name": "Cam Schlittler",
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 0.9595
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 9.2,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-08T07:41:54.879556",
+            "data_source": "live_simulation"
+          }
+        },
+        "Philadelphia Phillies_vs_Los Angeles Dodgers": {
+          "away_team": "Philadelphia Phillies",
+          "home_team": "Los Angeles Dodgers",
+          "game_date": "2025-10-08",
+          "predictions": {
+            "home_win_prob": 0.758,
+            "away_win_prob": 0.242,
+            "predicted_home_score": 6.7,
+            "predicted_away_score": 4.4,
+            "predicted_total_runs": 11.1,
+            "home_score_range": [
+              4.0,
+              10.0
+            ],
+            "away_score_range": [
+              2.0,
+              7.0
+            ],
+            "total_runs_range": [
+              7.0,
+              15.0
+            ],
+            "confidence": 56.0
+          },
+          "betting_lines": {
+            "home_ml": -314,
+            "away_ml": 314,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 11.1,
+              "edge": 2.6,
+              "expected_value": 0.203,
+              "kelly_bet_size": 12.8,
+              "confidence": "HIGH",
+              "reasoning": "Model: 11.1 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Aaron Nola",
+            "home_pitcher_name": "Yoshinobu Yamamoto",
+            "away_pitcher_factor": 1.2719999999999998,
+            "home_pitcher_factor": 0.865
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 6.1,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-08T07:41:54.886798",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-08T07:35:52.385997",
+        "pitcher_update_date": "2025-10-08",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-08T07:41:54.914492",
+        "last_update_type": "full",
+        "game_count": 4
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

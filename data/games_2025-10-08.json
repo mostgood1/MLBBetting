@@ -1,0 +1,42 @@
+[
+  {
+    "game_pk": 813055,
+    "game_time": "2025-10-08T19:08:00Z",
+    "away_team": "Seattle Mariners",
+    "home_team": "Detroit Tigers",
+    "away_pitcher": "Bryce Miller",
+    "home_pitcher": "Casey Mize",
+    "away_probable_pitcher": "Bryce Miller",
+    "home_probable_pitcher": "Casey Mize"
+  },
+  {
+    "game_pk": 813049,
+    "game_time": "2025-10-08T21:08:00Z",
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Chicago Cubs",
+    "away_pitcher": "Quinn Priester",
+    "home_pitcher": "Jameson Taillon",
+    "away_probable_pitcher": "Quinn Priester",
+    "home_probable_pitcher": "Jameson Taillon"
+  },
+  {
+    "game_pk": 813060,
+    "game_time": "2025-10-08T23:08:00Z",
+    "away_team": "Toronto Blue Jays",
+    "home_team": "New York Yankees",
+    "away_pitcher": "Louis Varland",
+    "home_pitcher": "Cam Schlittler",
+    "away_probable_pitcher": "Louis Varland",
+    "home_probable_pitcher": "Cam Schlittler"
+  },
+  {
+    "game_pk": 813041,
+    "game_time": "2025-10-09T01:08:00Z",
+    "away_team": "Philadelphia Phillies",
+    "home_team": "Los Angeles Dodgers",
+    "away_pitcher": "Aaron Nola",
+    "home_pitcher": "Yoshinobu Yamamoto",
+    "away_probable_pitcher": "Aaron Nola",
+    "home_probable_pitcher": "Yoshinobu Yamamoto"
+  }
+]
