@@ -1,0 +1,78 @@
+{
+  "date": "2025-10-09",
+  "generated_at": "2025-10-09T07:14:23.563214",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Philadelphia Phillies_vs_Los Angeles Dodgers": {
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Cristopher S\u00e1nchez",
+      "home_pitcher": "Tyler Glasnow",
+      "predicted_score": "4.7-4.1",
+      "predicted_total_runs": 8.7,
+      "win_probabilities": {
+        "away_prob": 0.584,
+        "home_prob": 0.416
+      },
+      "value_bets": [
+        {
+          "type": "moneyline",
+          "recommendation": "Philadelphia Phillies ML",
+          "expected_value": 0.2147199999999999,
+          "win_probability": 0.584,
+          "american_odds": "108",
+          "confidence": "low",
+          "kelly_bet_size": 19.9,
+          "reasoning": "Model projects 58.4% win probability vs 48.1% implied odds"
+        },
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.1366666666666665,
+          "win_probability": 0.6199999999999999,
+          "american_odds": "-120",
+          "confidence": "low",
+          "kelly_bet_size": 16.4,
+          "predicted_total": 8.7,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 8.7 vs line 7.5"
+        }
+      ]
+    },
+    "Milwaukee Brewers_vs_Chicago Cubs": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": null,
+      "home_pitcher": null,
+      "predicted_score": "4.0-4.1",
+      "predicted_total_runs": 8.1,
+      "win_probabilities": {
+        "away_prob": 0.486,
+        "home_prob": 0.514
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.0",
+          "expected_value": 0.12260504201680666,
+          "win_probability": 0.61,
+          "american_odds": "-119",
+          "confidence": "low",
+          "kelly_bet_size": 14.6,
+          "predicted_total": 8.1,
+          "betting_line": 7.0,
+          "reasoning": "Predicted 8.1 vs line 7.0"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 2,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 3,
+    "high_confidence_bets": 0,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

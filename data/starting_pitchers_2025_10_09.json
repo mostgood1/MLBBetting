@@ -1,0 +1,20 @@
+{
+  "date": "2025-10-09",
+  "fetched_at": "2025-10-09T07:08:27.126644",
+  "games": [
+    {
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Cristopher S\u00e1nchez",
+      "home_pitcher": "Tyler Glasnow",
+      "game_key": "Philadelphia Phillies @ Los Angeles Dodgers"
+    },
+    {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "game_key": "Milwaukee Brewers @ Chicago Cubs"
+    }
+  ]
+}

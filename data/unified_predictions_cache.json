@@ -32437,6 +32437,113 @@
         "last_update_type": "full",
         "game_count": 4
       }
+    },
+    "2025-10-09": {
+      "games": {
+        "Philadelphia Phillies_vs_Los Angeles Dodgers": {
+          "away_team": "Philadelphia Phillies",
+          "home_team": "Los Angeles Dodgers",
+          "game_date": "2025-10-09",
+          "predictions": {
+            "home_win_prob": 0.416,
+            "away_win_prob": 0.584,
+            "predicted_home_score": 4.1,
+            "predicted_away_score": 4.7,
+            "predicted_total_runs": 8.7,
+            "home_score_range": [
+              2.0,
+              7.0
+            ],
+            "away_score_range": [
+              2.0,
+              8.0
+            ],
+            "total_runs_range": [
+              5.0,
+              13.0
+            ],
+            "confidence": 59.5
+          },
+          "betting_lines": {
+            "home_ml": 140,
+            "away_ml": -140,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Cristopher S\u00e1nchez",
+            "home_pitcher_name": "Tyler Glasnow",
+            "away_pitcher_factor": 0.76,
+            "home_pitcher_factor": 0.9087999999999999
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 15.6,
+            "recommendations_found": 0,
+            "timestamp": "2025-10-09T07:14:23.203868",
+            "data_source": "live_simulation"
+          }
+        },
+        "Milwaukee Brewers_vs_Chicago Cubs": {
+          "away_team": "Milwaukee Brewers",
+          "home_team": "Chicago Cubs",
+          "game_date": "2025-10-09",
+          "predictions": {
+            "home_win_prob": 0.514,
+            "away_win_prob": 0.486,
+            "predicted_home_score": 4.1,
+            "predicted_away_score": 4.0,
+            "predicted_total_runs": 8.1,
+            "home_score_range": [
+              2.0,
+              7.0
+            ],
+            "away_score_range": [
+              1.0,
+              7.0
+            ],
+            "total_runs_range": [
+              5.0,
+              12.0
+            ],
+            "confidence": 60.7
+          },
+          "betting_lines": {
+            "home_ml": -105,
+            "away_ml": 105,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": null,
+            "home_pitcher_name": null,
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 1.0
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 6.5,
+            "recommendations_found": 0,
+            "timestamp": "2025-10-09T07:14:23.210387",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-09T07:08:27.156485",
+        "pitcher_update_date": "2025-10-09",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-09T07:14:23.247117",
+        "last_update_type": "full",
+        "game_count": 2
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

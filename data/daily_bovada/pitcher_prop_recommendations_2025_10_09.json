@@ -1,0 +1,451 @@
+{
+  "date": "2025-10-09",
+  "generated_at": "2025-10-09T12:09:19.561430",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 8,
+  "recommendations": [
+    {
+      "pitcher_key": "bryce miller",
+      "pitcher": "bryce miller",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 15.0,
+        "strikeouts": 4.4,
+        "earned_runs": 3.2,
+        "hits_allowed": 5.0,
+        "walks": 2.3,
+        "pitch_count": 76.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.3,
+          "edge": 0.8,
+          "confidence": "LOW",
+          "p_over": 0.788,
+          "ev_over": 0.852,
+          "ev_under": -0.674,
+          "selected_ev": 0.852,
+          "over_odds": 135,
+          "under_odds": -185,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "casey mize",
+      "pitcher": "casey mize",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 16.0,
+        "strikeouts": 4.9,
+        "earned_runs": 2.2,
+        "hits_allowed": 5.4,
+        "walks": 1.4,
+        "pitch_count": 82.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 0.5,
+          "proj": 1.4,
+          "edge": 0.9,
+          "confidence": "LOW",
+          "p_over": 0.816,
+          "ev_over": 0.269,
+          "ev_under": -0.577,
+          "selected_ev": 0.269,
+          "over_odds": -180,
+          "under_odds": 130,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "jameson taillon",
+      "pitcher": "jameson taillon",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 15.21,
+        "strikeouts": 3.81,
+        "earned_runs": 2.6,
+        "hits_allowed": 4.9,
+        "walks": 1.1,
+        "pitch_count": 78.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 2.5,
+          "proj": 3.81,
+          "edge": 1.31,
+          "confidence": "MEDIUM",
+          "p_over": 0.646,
+          "ev_over": 0.124,
+          "ev_under": -0.274,
+          "selected_ev": 0.124,
+          "over_odds": -135,
+          "under_odds": 105,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 9.5,
+          "proj": 15.21,
+          "edge": 5.71,
+          "confidence": "HIGH",
+          "p_over": 0.998,
+          "ev_over": 0.642,
+          "ev_under": -0.995,
+          "selected_ev": 0.642,
+          "over_odds": -155,
+          "under_odds": 115,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 4.9,
+          "edge": 1.4,
+          "confidence": "MEDIUM",
+          "p_over": 0.655,
+          "ev_over": 0.606,
+          "ev_under": -0.474,
+          "selected_ev": 0.606,
+          "over_odds": 145,
+          "under_odds": -190,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 0.5,
+          "proj": 1.1,
+          "edge": 0.6,
+          "confidence": "LOW",
+          "p_over": 0.726,
+          "ev_over": 0.226,
+          "ev_under": -0.438,
+          "selected_ev": 0.226,
+          "over_odds": -145,
+          "under_odds": 105,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.6,
+          "edge": 1.1,
+          "confidence": "MEDIUM",
+          "p_over": 0.623,
+          "ev_over": 0.496,
+          "ev_under": -0.414,
+          "selected_ev": 0.496,
+          "over_odds": 140,
+          "under_odds": -180,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "quinn priester",
+      "pitcher": "quinn priester",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 17.67,
+        "strikeouts": 5.64,
+        "earned_runs": 2.6,
+        "hits_allowed": 6.1,
+        "walks": 2.4,
+        "pitch_count": 90.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 5.64,
+          "edge": 2.14,
+          "confidence": "HIGH",
+          "p_over": 0.73,
+          "ev_over": 0.393,
+          "ev_under": -0.504,
+          "selected_ev": 0.393,
+          "over_odds": -110,
+          "under_odds": -120,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 12.5,
+          "proj": 17.67,
+          "edge": 5.17,
+          "confidence": "HIGH",
+          "p_over": 0.995,
+          "ev_over": 0.943,
+          "ev_under": -0.992,
+          "selected_ev": 0.943,
+          "over_odds": -105,
+          "under_odds": -135,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 6.1,
+          "edge": 2.6,
+          "confidence": "HIGH",
+          "p_over": 0.771,
+          "ev_over": 0.303,
+          "ev_under": -0.531,
+          "selected_ev": 0.303,
+          "over_odds": -145,
+          "under_odds": 105,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.4,
+          "edge": 0.9,
+          "confidence": "LOW",
+          "p_over": 0.816,
+          "ev_over": 0.877,
+          "ev_under": -0.714,
+          "selected_ev": 0.877,
+          "over_odds": 130,
+          "under_odds": -180,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.6,
+          "edge": 1.1,
+          "confidence": "MEDIUM",
+          "p_over": 0.623,
+          "ev_over": 0.278,
+          "ev_under": -0.364,
+          "selected_ev": 0.278,
+          "over_odds": 105,
+          "under_odds": -145,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "cam schlittler",
+      "pitcher": "cam schlittler",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 15.5,
+        "strikeouts": 6.3,
+        "earned_runs": 1.8,
+        "hits_allowed": 4.5,
+        "walks": 2.3,
+        "pitch_count": 79.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.3,
+          "edge": 0.8,
+          "confidence": "LOW",
+          "p_over": 0.788,
+          "ev_over": 0.892,
+          "ev_under": -0.682,
+          "selected_ev": 0.892,
+          "over_odds": 140,
+          "under_odds": -200,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "aaron nola",
+      "pitcher": "aaron nola",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 16.0,
+        "strikeouts": 6.4,
+        "earned_runs": 3.8,
+        "hits_allowed": 6.4,
+        "walks": 1.6,
+        "pitch_count": 82.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 0.5,
+          "proj": 1.6,
+          "edge": 1.1,
+          "confidence": "MEDIUM",
+          "p_over": 0.864,
+          "ev_over": 0.21,
+          "ev_under": -0.634,
+          "selected_ev": 0.21,
+          "over_odds": -250,
+          "under_odds": 170,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "cristopher sanchez",
+      "pitcher": "cristopher sanchez",
+      "team": "Philadelphia Phillies",
+      "opponent": "Los Angeles Dodgers",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 18.15,
+        "strikeouts": 6.15,
+        "earned_runs": 1.8,
+        "hits_allowed": 5.5,
+        "walks": 1.5,
+        "pitch_count": 93.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 5.5,
+          "proj": 6.15,
+          "edge": 0.65,
+          "confidence": "LOW",
+          "p_over": 0.574,
+          "ev_over": 0.052,
+          "ev_under": -0.186,
+          "selected_ev": 0.052,
+          "over_odds": -120,
+          "under_odds": -110,
+          "kelly_fraction": 0.0621
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 16.5,
+          "proj": 18.15,
+          "edge": 1.65,
+          "confidence": "HIGH",
+          "p_over": 0.795,
+          "ev_over": 0.458,
+          "ev_under": -0.625,
+          "selected_ev": 0.458,
+          "over_odds": -120,
+          "under_odds": -120,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "UNDER",
+          "line": 2.5,
+          "proj": 1.8,
+          "edge": -0.7,
+          "confidence": "LOW",
+          "p_over": 0.421,
+          "ev_over": -0.032,
+          "ev_under": -0.08,
+          "selected_ev": -0.08,
+          "over_odds": 130,
+          "under_odds": -170,
+          "kelly_fraction": 0.0
+        }
+      ]
+    },
+    {
+      "pitcher_key": "tyler glasnow",
+      "pitcher": "tyler glasnow",
+      "team": "Los Angeles Dodgers",
+      "opponent": "Philadelphia Phillies",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 14.88,
+        "strikeouts": 6.16,
+        "earned_runs": 1.8,
+        "hits_allowed": 3.0,
+        "walks": 2.5,
+        "pitch_count": 76.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 5.5,
+          "proj": 6.16,
+          "edge": 0.66,
+          "confidence": "LOW",
+          "p_over": 0.575,
+          "ev_over": -0.066,
+          "ev_under": -0.107,
+          "selected_ev": -0.066,
+          "over_odds": -160,
+          "under_odds": 110,
+          "kelly_fraction": 0.0
+        },
+        {
+          "market": "hits_allowed",
+          "side": "UNDER",
+          "line": 3.5,
+          "proj": 3.0,
+          "edge": -0.5,
+          "confidence": "LOW",
+          "p_over": 0.443,
+          "ev_over": -0.28,
+          "ev_under": 0.225,
+          "selected_ev": 0.225,
+          "over_odds": -160,
+          "under_odds": 120,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.5,
+          "edge": 1.0,
+          "confidence": "MEDIUM",
+          "p_over": 0.841,
+          "ev_over": 0.442,
+          "ev_under": null,
+          "selected_ev": 0.442,
+          "over_odds": -140,
+          "under_odds": null,
+          "kelly_fraction": 0.1
+        }
+      ]
+    }
+  ]
+}

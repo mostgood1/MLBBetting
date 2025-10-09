@@ -1,0 +1,42 @@
+{
+  "Seattle Mariners_vs_Detroit Tigers": {
+    "away_team": "Seattle Mariners",
+    "home_team": "Detroit Tigers",
+    "away_score": 3,
+    "home_score": 9,
+    "total_runs": 12,
+    "winner": "home",
+    "game_pk": 813055,
+    "is_final": true
+  },
+  "Milwaukee Brewers_vs_Chicago Cubs": {
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Chicago Cubs",
+    "away_score": 3,
+    "home_score": 4,
+    "total_runs": 7,
+    "winner": "home",
+    "game_pk": 813049,
+    "is_final": true
+  },
+  "Toronto Blue Jays_vs_New York Yankees": {
+    "away_team": "Toronto Blue Jays",
+    "home_team": "New York Yankees",
+    "away_score": 5,
+    "home_score": 2,
+    "total_runs": 7,
+    "winner": "away",
+    "game_pk": 813060,
+    "is_final": true
+  },
+  "Philadelphia Phillies_vs_Los Angeles Dodgers": {
+    "away_team": "Philadelphia Phillies",
+    "home_team": "Los Angeles Dodgers",
+    "away_score": 8,
+    "home_score": 2,
+    "total_runs": 10,
+    "winner": "away",
+    "game_pk": 813041,
+    "is_final": true
+  }
+}

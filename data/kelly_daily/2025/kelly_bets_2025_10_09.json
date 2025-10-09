@@ -1,0 +1,28 @@
+[
+  {
+    "date": "2025-10-09",
+    "game": "Philadelphia Phillies vs Los Angeles Dodgers",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.5",
+    "confidence": 0.164,
+    "kelly_percentage": 16.4,
+    "recommended_bet": 70,
+    "odds": -120,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  },
+  {
+    "date": "2025-10-09",
+    "game": "Milwaukee Brewers vs Chicago Cubs",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.0",
+    "confidence": 0.146,
+    "kelly_percentage": 14.6,
+    "recommended_bet": 60,
+    "odds": -119,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  }
+]
