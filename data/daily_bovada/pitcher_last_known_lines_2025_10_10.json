@@ -1,0 +1,74 @@
+{
+  "date": "2025-10-10",
+  "updated_at": "2025-10-10T11:40:03.188431",
+  "pitchers": {
+    "cristopher sanchez": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -120,
+        "under_odds": -110
+      },
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 130,
+        "under_odds": -170
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": null,
+        "under_odds": -140
+      },
+      "outs": {
+        "line": 16.5,
+        "over_odds": -120,
+        "under_odds": -120
+      }
+    },
+    "tyler glasnow": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -160,
+        "under_odds": 110
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -160,
+        "under_odds": 120
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -160,
+        "under_odds": 120
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -140,
+        "under_odds": null
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -165,
+        "under_odds": 125
+      }
+    },
+    "tarik skubal": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": 125,
+        "under_odds": -175
+      }
+    },
+    "george kirby": {
+      "walks": {
+        "line": 0.5,
+        "over_odds": -220,
+        "under_odds": 150
+      }
+    }
+  }
+}

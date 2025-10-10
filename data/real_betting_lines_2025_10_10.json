@@ -1,0 +1,39 @@
+{
+  "date": "2025-10-10",
+  "fetched_at": "2025-10-10T11:45:06.113704",
+  "source": "DraftKings_via_OddsAPI",
+  "lines": {
+    "Detroit Tigers @ Seattle Mariners": {
+      "moneyline": {
+        "away": -121,
+        "home": -101
+      },
+      "total_runs": {
+        "line": 6.0,
+        "over": -103,
+        "under": -118
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": 158,
+        "home": -194
+      }
+    },
+    "Chicago Cubs @ Milwaukee Brewers": {
+      "moneyline": {
+        "away": 108,
+        "home": -132
+      },
+      "total_runs": {
+        "line": 7.5,
+        "over": -108,
+        "under": -113
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -207,
+        "home": 168
+      }
+    }
+  }
+}

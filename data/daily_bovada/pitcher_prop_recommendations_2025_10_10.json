@@ -1,0 +1,203 @@
+{
+  "date": "2025-10-10",
+  "generated_at": "2025-10-10T16:40:03.019980",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 4,
+  "recommendations": [
+    {
+      "pitcher_key": "cristopher sanchez",
+      "pitcher": "cristopher sanchez",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 18.15,
+        "strikeouts": 6.15,
+        "earned_runs": 1.8,
+        "hits_allowed": 5.5,
+        "walks": 1.5,
+        "pitch_count": 93.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 5.5,
+          "proj": 6.15,
+          "edge": 0.65,
+          "confidence": "LOW",
+          "p_over": 0.574,
+          "ev_over": 0.052,
+          "ev_under": -0.186,
+          "selected_ev": 0.052,
+          "over_odds": -120,
+          "under_odds": -110,
+          "kelly_fraction": 0.0621
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 16.5,
+          "proj": 18.15,
+          "edge": 1.65,
+          "confidence": "HIGH",
+          "p_over": 0.795,
+          "ev_over": 0.458,
+          "ev_under": -0.625,
+          "selected_ev": 0.458,
+          "over_odds": -120,
+          "under_odds": -120,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "UNDER",
+          "line": 2.5,
+          "proj": 1.8,
+          "edge": -0.7,
+          "confidence": "LOW",
+          "p_over": 0.421,
+          "ev_over": -0.032,
+          "ev_under": -0.08,
+          "selected_ev": -0.08,
+          "over_odds": 130,
+          "under_odds": -170,
+          "kelly_fraction": 0.0
+        }
+      ]
+    },
+    {
+      "pitcher_key": "tyler glasnow",
+      "pitcher": "tyler glasnow",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 14.88,
+        "strikeouts": 6.16,
+        "earned_runs": 1.8,
+        "hits_allowed": 3.0,
+        "walks": 2.5,
+        "pitch_count": 76.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 5.5,
+          "proj": 6.16,
+          "edge": 0.66,
+          "confidence": "LOW",
+          "p_over": 0.575,
+          "ev_over": -0.066,
+          "ev_under": -0.107,
+          "selected_ev": -0.066,
+          "over_odds": -160,
+          "under_odds": 110,
+          "kelly_fraction": 0.0
+        },
+        {
+          "market": "hits_allowed",
+          "side": "UNDER",
+          "line": 3.5,
+          "proj": 3.0,
+          "edge": -0.5,
+          "confidence": "LOW",
+          "p_over": 0.443,
+          "ev_over": -0.28,
+          "ev_under": 0.225,
+          "selected_ev": 0.225,
+          "over_odds": -160,
+          "under_odds": 120,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.5,
+          "edge": 1.0,
+          "confidence": "MEDIUM",
+          "p_over": 0.841,
+          "ev_over": 0.442,
+          "ev_under": null,
+          "selected_ev": 0.442,
+          "over_odds": -140,
+          "under_odds": null,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "tarik skubal",
+      "pitcher": "tarik skubal",
+      "team": "Detroit Tigers",
+      "opponent": "Seattle Mariners",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 19.6,
+        "strikeouts": 6.8,
+        "earned_runs": 1.6,
+        "hits_allowed": 4.5,
+        "walks": 1.0,
+        "pitch_count": 100.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "UNDER",
+          "line": 1.5,
+          "proj": 1.0,
+          "edge": -0.5,
+          "confidence": "LOW",
+          "p_over": 0.309,
+          "ev_over": -0.306,
+          "ev_under": 0.087,
+          "selected_ev": 0.087,
+          "over_odds": 125,
+          "under_odds": -175,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "george kirby",
+      "pitcher": "george kirby",
+      "team": "Seattle Mariners",
+      "opponent": "Detroit Tigers",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 17.1,
+        "strikeouts": 6.4,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.1,
+        "walks": 1.5,
+        "pitch_count": 87.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 0.5,
+          "proj": 1.5,
+          "edge": 1.0,
+          "confidence": "MEDIUM",
+          "p_over": 0.841,
+          "ev_over": 0.224,
+          "ev_under": -0.603,
+          "selected_ev": 0.224,
+          "over_odds": -220,
+          "under_odds": 150,
+          "kelly_fraction": 0.1
+        }
+      ]
+    }
+  ]
+}

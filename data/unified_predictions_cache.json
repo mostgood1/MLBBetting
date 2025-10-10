@@ -32544,6 +32544,79 @@
         "last_update_type": "full",
         "game_count": 2
       }
+    },
+    "2025-10-10": {
+      "games": {
+        "Detroit Tigers_vs_Seattle Mariners": {
+          "away_team": "Detroit Tigers",
+          "home_team": "Seattle Mariners",
+          "game_date": "2025-10-10",
+          "predictions": {
+            "home_win_prob": 0.391,
+            "away_win_prob": 0.609,
+            "predicted_home_score": 2.5,
+            "predicted_away_score": 3.2,
+            "predicted_total_runs": 5.7,
+            "home_score_range": [
+              1.0,
+              5.0
+            ],
+            "away_score_range": [
+              1.0,
+              5.0
+            ],
+            "total_runs_range": [
+              3.0,
+              9.0
+            ],
+            "confidence": 64.9
+          },
+          "betting_lines": {
+            "home_ml": 156,
+            "away_ml": -156,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 5.7,
+              "edge": 2.8,
+              "expected_value": 0.219,
+              "kelly_bet_size": 14.0,
+              "confidence": "HIGH",
+              "reasoning": "Model: 5.7 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Tarik Skubal",
+            "home_pitcher_name": "George Kirby",
+            "away_pitcher_factor": 0.73,
+            "home_pitcher_factor": 0.9648
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 12.5,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-10T11:45:06.763245",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-10T11:39:02.227830",
+        "pitcher_update_date": "2025-10-10",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-10T11:45:06.798009",
+        "last_update_type": "full",
+        "game_count": 1
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

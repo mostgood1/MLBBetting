@@ -1,0 +1,22 @@
+{
+  "Philadelphia Phillies_vs_Los Angeles Dodgers": {
+    "away_team": "Philadelphia Phillies",
+    "home_team": "Los Angeles Dodgers",
+    "away_score": 1,
+    "home_score": 2,
+    "total_runs": 3,
+    "winner": "home",
+    "game_pk": 813042,
+    "is_final": true
+  },
+  "Milwaukee Brewers_vs_Chicago Cubs": {
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Chicago Cubs",
+    "away_score": 0,
+    "home_score": 6,
+    "total_runs": 6,
+    "winner": "home",
+    "game_pk": 813050,
+    "is_final": true
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "date": "2025-10-10",
+  "generated_at": "2025-10-10T11:45:07.104232",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Detroit Tigers_vs_Seattle Mariners": {
+      "away_team": "Detroit Tigers",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "Tarik Skubal",
+      "home_pitcher": "George Kirby",
+      "predicted_score": "3.2-2.5",
+      "predicted_total_runs": 5.7,
+      "win_probabilities": {
+        "away_prob": 0.609,
+        "home_prob": 0.391
+      },
+      "value_bets": [
+        {
+          "type": "moneyline",
+          "recommendation": "Detroit Tigers ML",
+          "expected_value": 0.11230578512396694,
+          "win_probability": 0.609,
+          "american_odds": "-121",
+          "confidence": "low",
+          "kelly_bet_size": 13.6,
+          "reasoning": "Model projects 60.9% win probability vs 54.8% implied odds"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 1,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 1,
+    "high_confidence_bets": 0,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

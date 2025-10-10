@@ -1,0 +1,228 @@
+{
+  "date": "2025-10-10",
+  "retrieved_at": "2025-10-10T16:39:35.627882",
+  "pitcher_props": {
+    "cristopher sanchez": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -120,
+        "under_odds": -110
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -4000
+        },
+        {
+          "threshold": 4,
+          "odds": -800
+        },
+        {
+          "threshold": 5,
+          "odds": -300
+        },
+        {
+          "threshold": 7,
+          "odds": 165
+        },
+        {
+          "threshold": 8,
+          "odds": 310
+        },
+        {
+          "threshold": 9,
+          "odds": 600
+        },
+        {
+          "threshold": 10,
+          "odds": 1050
+        },
+        {
+          "threshold": 11,
+          "odds": 2100
+        }
+      ],
+      "hits_allowed": {
+        "line": 5.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 130,
+        "under_odds": -170
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": null,
+        "under_odds": -140
+      },
+      "outs": {
+        "line": 16.5,
+        "over_odds": -120,
+        "under_odds": -120
+      }
+    },
+    "tyler glasnow": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -160,
+        "under_odds": 110
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -1400
+        },
+        {
+          "threshold": 5,
+          "odds": -130
+        },
+        {
+          "threshold": 7,
+          "odds": 120
+        },
+        {
+          "threshold": 8,
+          "odds": 215
+        },
+        {
+          "threshold": 9,
+          "odds": 425
+        },
+        {
+          "threshold": 10,
+          "odds": 825
+        },
+        {
+          "threshold": 11,
+          "odds": 1600
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -160,
+        "under_odds": 120
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -160,
+        "under_odds": 120
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -140,
+        "under_odds": null
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -165,
+        "under_odds": 125
+      }
+    },
+    "tarik skubal": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 5,
+          "odds": -4000
+        },
+        {
+          "threshold": 6,
+          "odds": -1500
+        },
+        {
+          "threshold": 7,
+          "odds": -650
+        },
+        {
+          "threshold": 8,
+          "odds": -300
+        },
+        {
+          "threshold": 9,
+          "odds": -170
+        },
+        {
+          "threshold": 10,
+          "odds": 105
+        },
+        {
+          "threshold": 11,
+          "odds": 185
+        },
+        {
+          "threshold": 12,
+          "odds": 350
+        },
+        {
+          "threshold": 13,
+          "odds": 675
+        },
+        {
+          "threshold": 14,
+          "odds": 1300
+        }
+      ],
+      "walks": {
+        "line": 1.5,
+        "over_odds": 125,
+        "under_odds": -175
+      }
+    },
+    "george kirby": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -4500
+        },
+        {
+          "threshold": 4,
+          "odds": -1000
+        },
+        {
+          "threshold": 5,
+          "odds": -340
+        },
+        {
+          "threshold": 6,
+          "odds": -135
+        },
+        {
+          "threshold": 7,
+          "odds": 145
+        },
+        {
+          "threshold": 8,
+          "odds": 280
+        },
+        {
+          "threshold": 9,
+          "odds": 525
+        },
+        {
+          "threshold": 10,
+          "odds": 1000
+        },
+        {
+          "threshold": 11,
+          "odds": 2000
+        }
+      ],
+      "walks": {
+        "line": 0.5,
+        "over_odds": -220,
+        "under_odds": 150
+      }
+    }
+  }
+}
