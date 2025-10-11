@@ -1,0 +1,20 @@
+{
+  "date": "2025-10-11",
+  "updated_at": "2025-10-11T10:10:32.853143",
+  "pitchers": {
+    "tarik skubal": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": 125,
+        "under_odds": -175
+      }
+    },
+    "george kirby": {
+      "walks": {
+        "line": 0.5,
+        "over_odds": -220,
+        "under_odds": 150
+      }
+    }
+  }
+}

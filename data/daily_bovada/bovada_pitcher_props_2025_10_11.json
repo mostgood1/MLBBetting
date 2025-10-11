@@ -1,0 +1,110 @@
+{
+  "date": "2025-10-11",
+  "retrieved_at": "2025-10-11T15:10:15.239333",
+  "pitcher_props": {
+    "tarik skubal": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 6,
+          "odds": -3500
+        },
+        {
+          "threshold": 7,
+          "odds": -1000
+        },
+        {
+          "threshold": 8,
+          "odds": -410
+        },
+        {
+          "threshold": 9,
+          "odds": -170
+        },
+        {
+          "threshold": 10,
+          "odds": null
+        },
+        {
+          "threshold": 11,
+          "odds": 185
+        },
+        {
+          "threshold": 12,
+          "odds": 350
+        },
+        {
+          "threshold": 13,
+          "odds": 650
+        },
+        {
+          "threshold": 14,
+          "odds": 1200
+        },
+        {
+          "threshold": 15,
+          "odds": 2500
+        }
+      ],
+      "walks": {
+        "line": 1.5,
+        "over_odds": 125,
+        "under_odds": -175
+      }
+    },
+    "george kirby": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -4500
+        },
+        {
+          "threshold": 4,
+          "odds": -1000
+        },
+        {
+          "threshold": 5,
+          "odds": -340
+        },
+        {
+          "threshold": 6,
+          "odds": -135
+        },
+        {
+          "threshold": 7,
+          "odds": 145
+        },
+        {
+          "threshold": 8,
+          "odds": 280
+        },
+        {
+          "threshold": 9,
+          "odds": 525
+        },
+        {
+          "threshold": 10,
+          "odds": 1000
+        },
+        {
+          "threshold": 11,
+          "odds": 2000
+        }
+      ],
+      "walks": {
+        "line": 0.5,
+        "over_odds": -220,
+        "under_odds": 150
+      }
+    }
+  }
+}

@@ -32617,6 +32617,79 @@
         "last_update_type": "full",
         "game_count": 1
       }
+    },
+    "2025-10-11": {
+      "games": {
+        "Chicago Cubs_vs_Milwaukee Brewers": {
+          "away_team": "Chicago Cubs",
+          "home_team": "Milwaukee Brewers",
+          "game_date": "2025-10-11",
+          "predictions": {
+            "home_win_prob": 0.55,
+            "away_win_prob": 0.45,
+            "predicted_home_score": 5.7,
+            "predicted_away_score": 5.4,
+            "predicted_total_runs": 11.1,
+            "home_score_range": [
+              3.0,
+              9.0
+            ],
+            "away_score_range": [
+              2.9,
+              8.0
+            ],
+            "total_runs_range": [
+              7.0,
+              15.1
+            ],
+            "confidence": 56.2
+          },
+          "betting_lines": {
+            "home_ml": -122,
+            "away_ml": 122,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 11.1,
+              "edge": 2.6,
+              "expected_value": 0.201,
+              "kelly_bet_size": 12.6,
+              "confidence": "HIGH",
+              "reasoning": "Model: 11.1 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": null,
+            "home_pitcher_name": null,
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 1.0
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 15.9,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-11T10:15:38.077908",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-11T10:09:30.872513",
+        "pitcher_update_date": "2025-10-11",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-11T10:15:38.100873",
+        "last_update_type": "full",
+        "game_count": 1
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

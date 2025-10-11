@@ -1,0 +1,12 @@
+{
+  "Detroit Tigers_vs_Seattle Mariners": {
+    "away_team": "Detroit Tigers",
+    "home_team": "Seattle Mariners",
+    "away_score": 2,
+    "home_score": 3,
+    "total_runs": 5,
+    "winner": "home",
+    "game_pk": 813054,
+    "is_final": true
+  }
+}

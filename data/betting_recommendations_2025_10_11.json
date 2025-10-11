@@ -1,0 +1,42 @@
+{
+  "date": "2025-10-11",
+  "generated_at": "2025-10-11T10:15:38.412379",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Chicago Cubs_vs_Milwaukee Brewers": {
+      "away_team": "Chicago Cubs",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": null,
+      "home_pitcher": null,
+      "predicted_score": "5.4-5.7",
+      "predicted_total_runs": 11.1,
+      "win_probabilities": {
+        "away_prob": 0.45,
+        "home_prob": 0.55
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.6489908256880734,
+          "win_probability": 0.86,
+          "american_odds": "-109",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 11.1,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 11.1 vs line 7.5"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 1,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 1,
+    "high_confidence_bets": 1,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

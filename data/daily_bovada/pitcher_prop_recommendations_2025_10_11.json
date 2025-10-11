@@ -1,0 +1,79 @@
+{
+  "date": "2025-10-11",
+  "generated_at": "2025-10-11T15:10:32.711725",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 2,
+  "recommendations": [
+    {
+      "pitcher_key": "tarik skubal",
+      "pitcher": "tarik skubal",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 19.3,
+        "strikeouts": 6.6,
+        "earned_runs": 1.6,
+        "hits_allowed": 4.5,
+        "walks": 1.0,
+        "pitch_count": 98.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "UNDER",
+          "line": 1.5,
+          "proj": 1.0,
+          "edge": -0.5,
+          "confidence": "LOW",
+          "p_over": 0.309,
+          "ev_over": -0.306,
+          "ev_under": 0.087,
+          "selected_ev": 0.087,
+          "over_odds": 125,
+          "under_odds": -175,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "george kirby",
+      "pitcher": "george kirby",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 17.1,
+        "strikeouts": 6.4,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.1,
+        "walks": 1.5,
+        "pitch_count": 87.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 0.5,
+          "proj": 1.5,
+          "edge": 1.0,
+          "confidence": "MEDIUM",
+          "p_over": 0.841,
+          "ev_over": 0.224,
+          "ev_under": -0.603,
+          "selected_ev": 0.224,
+          "over_odds": -220,
+          "under_odds": 150,
+          "kelly_fraction": 0.1
+        }
+      ]
+    }
+  ]
+}
