@@ -1,0 +1,52 @@
+{
+  "date": "2025-10-12",
+  "generated_at": "2025-10-12T08:30:58.169479",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Seattle Mariners_vs_Toronto Blue Jays": {
+      "away_team": "Seattle Mariners",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "Bryce Miller",
+      "home_pitcher": "Kevin Gausman",
+      "predicted_score": "5.1-6.8",
+      "predicted_total_runs": 12.0,
+      "win_probabilities": {
+        "away_prob": 0.311,
+        "home_prob": 0.689
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 8.0",
+          "expected_value": 0.682608695652174,
+          "win_probability": 0.9,
+          "american_odds": "-115",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 12.0,
+          "betting_line": 8.0,
+          "reasoning": "Predicted 12.0 vs line 8.0"
+        },
+        {
+          "type": "moneyline",
+          "recommendation": "Toronto Blue Jays ML",
+          "expected_value": 0.10157485029940105,
+          "win_probability": 0.689,
+          "american_odds": "-167",
+          "confidence": "low",
+          "kelly_bet_size": 17.0,
+          "reasoning": "Model projects 68.9% win probability vs 62.5% implied odds"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 1,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 2,
+    "high_confidence_bets": 1,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

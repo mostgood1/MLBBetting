@@ -1,0 +1,88 @@
+{
+  "date": "2025-10-12",
+  "retrieved_at": "2025-10-12T13:25:25.869915",
+  "pitcher_props": {
+    "bryce miller": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -3000
+        },
+        {
+          "threshold": 4,
+          "odds": -900
+        },
+        {
+          "threshold": 5,
+          "odds": -350
+        },
+        {
+          "threshold": 6,
+          "odds": -170
+        },
+        {
+          "threshold": 7,
+          "odds": 130
+        },
+        {
+          "threshold": 8,
+          "odds": 255
+        },
+        {
+          "threshold": 9,
+          "odds": 500
+        },
+        {
+          "threshold": 10,
+          "odds": 1100
+        }
+      ]
+    },
+    "kevin gausman": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -2600
+        },
+        {
+          "threshold": 4,
+          "odds": -775
+        },
+        {
+          "threshold": 5,
+          "odds": -325
+        },
+        {
+          "threshold": 6,
+          "odds": -145
+        },
+        {
+          "threshold": 7,
+          "odds": 145
+        },
+        {
+          "threshold": 8,
+          "odds": 295
+        },
+        {
+          "threshold": 9,
+          "odds": 600
+        },
+        {
+          "threshold": 10,
+          "odds": 1300
+        }
+      ]
+    }
+  }
+}
