@@ -1,0 +1,22 @@
+[
+  {
+    "game_pk": 813044,
+    "game_time": "2025-10-13T21:03:00Z",
+    "away_team": "Seattle Mariners",
+    "home_team": "Toronto Blue Jays",
+    "away_pitcher": "Logan Gilbert",
+    "home_pitcher": "Trey Yesavage",
+    "away_probable_pitcher": "Logan Gilbert",
+    "home_probable_pitcher": "Trey Yesavage"
+  },
+  {
+    "game_pk": 813036,
+    "game_time": "2025-10-14T00:08:00Z",
+    "away_team": "Los Angeles Dodgers",
+    "home_team": "Milwaukee Brewers",
+    "away_pitcher": "Blake Snell",
+    "home_pitcher": "TBD",
+    "away_probable_pitcher": "Blake Snell",
+    "home_probable_pitcher": "TBD"
+  }
+]

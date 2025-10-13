@@ -1,0 +1,20 @@
+{
+  "date": "2025-10-13",
+  "fetched_at": "2025-10-13T09:49:28.728299",
+  "games": [
+    {
+      "away_team": "Seattle Mariners",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "Logan Gilbert",
+      "home_pitcher": "Trey Yesavage",
+      "game_key": "Seattle Mariners @ Toronto Blue Jays"
+    },
+    {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": "Blake Snell",
+      "home_pitcher": "TBD",
+      "game_key": "Los Angeles Dodgers @ Milwaukee Brewers"
+    }
+  ]
+}

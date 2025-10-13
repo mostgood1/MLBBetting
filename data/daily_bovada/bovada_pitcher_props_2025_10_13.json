@@ -1,0 +1,147 @@
+{
+  "date": "2025-10-13",
+  "retrieved_at": "2025-10-13T14:49:48.558837",
+  "pitcher_props": {
+    "logan gilbert": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -135,
+        "under_odds": 105
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1400
+        },
+        {
+          "threshold": 4,
+          "odds": -375
+        },
+        {
+          "threshold": 6,
+          "odds": 140
+        },
+        {
+          "threshold": 7,
+          "odds": 270
+        },
+        {
+          "threshold": 8,
+          "odds": 550
+        },
+        {
+          "threshold": 9,
+          "odds": 1100
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 130,
+        "under_odds": -170
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -155,
+        "under_odds": 115
+      }
+    },
+    "trey yesavage": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -115,
+        "under_odds": -115
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1400
+        },
+        {
+          "threshold": 4,
+          "odds": -550
+        },
+        {
+          "threshold": 5,
+          "odds": -210
+        },
+        {
+          "threshold": 7,
+          "odds": 190
+        },
+        {
+          "threshold": 8,
+          "odds": 375
+        },
+        {
+          "threshold": 9,
+          "odds": 700
+        },
+        {
+          "threshold": 10,
+          "odds": 1200
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": 110,
+        "under_odds": -150
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -140,
+        "under_odds": null
+      },
+      "outs": {
+        "line": 13.5,
+        "over_odds": -130,
+        "under_odds": -110
+      }
+    },
+    "blake snell": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -1700
+        },
+        {
+          "threshold": 5,
+          "odds": -700
+        },
+        {
+          "threshold": 6,
+          "odds": -300
+        },
+        {
+          "threshold": 7,
+          "odds": -150
+        },
+        {
+          "threshold": 8,
+          "odds": 130
+        },
+        {
+          "threshold": 9,
+          "odds": 250
+        },
+        {
+          "threshold": 10,
+          "odds": 450
+        },
+        {
+          "threshold": 11,
+          "odds": 900
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "date": "2025-10-13",
+  "generated_at": "2025-10-13T09:55:17.692844",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Seattle Mariners_vs_Toronto Blue Jays": {
+      "away_team": "Seattle Mariners",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "Logan Gilbert",
+      "home_pitcher": "Trey Yesavage",
+      "predicted_score": "3.7-3.8",
+      "predicted_total_runs": 7.5,
+      "win_probabilities": {
+        "away_prob": 0.49,
+        "home_prob": 0.51
+      },
+      "value_bets": []
+    },
+    "Los Angeles Dodgers_vs_Milwaukee Brewers": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": null,
+      "home_pitcher": null,
+      "predicted_score": "5.5-5.8",
+      "predicted_total_runs": 11.2,
+      "win_probabilities": {
+        "away_prob": 0.457,
+        "home_prob": 0.543
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.6135897435897434,
+          "win_probability": 0.8699999999999999,
+          "american_odds": "-117",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 11.2,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 11.2 vs line 7.5"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 2,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 1,
+    "high_confidence_bets": 1,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

@@ -32763,6 +32763,126 @@
         "last_update_type": "full",
         "game_count": 1
       }
+    },
+    "2025-10-13": {
+      "games": {
+        "Seattle Mariners_vs_Toronto Blue Jays": {
+          "away_team": "Seattle Mariners",
+          "home_team": "Toronto Blue Jays",
+          "game_date": "2025-10-13",
+          "predictions": {
+            "home_win_prob": 0.51,
+            "away_win_prob": 0.49,
+            "predicted_home_score": 3.8,
+            "predicted_away_score": 3.7,
+            "predicted_total_runs": 7.5,
+            "home_score_range": [
+              1.0,
+              6.0
+            ],
+            "away_score_range": [
+              1.0,
+              6.0
+            ],
+            "total_runs_range": [
+              4.0,
+              11.0
+            ],
+            "confidence": 61.4
+          },
+          "betting_lines": {
+            "home_ml": -104,
+            "away_ml": 104,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Logan Gilbert",
+            "home_pitcher_name": "Trey Yesavage",
+            "away_pitcher_factor": 0.9349999999999999,
+            "home_pitcher_factor": 1.0
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 18.8,
+            "recommendations_found": 0,
+            "timestamp": "2025-10-13T09:55:17.366333",
+            "data_source": "live_simulation"
+          }
+        },
+        "Los Angeles Dodgers_vs_Milwaukee Brewers": {
+          "away_team": "Los Angeles Dodgers",
+          "home_team": "Milwaukee Brewers",
+          "game_date": "2025-10-13",
+          "predictions": {
+            "home_win_prob": 0.543,
+            "away_win_prob": 0.457,
+            "predicted_home_score": 5.8,
+            "predicted_away_score": 5.5,
+            "predicted_total_runs": 11.2,
+            "home_score_range": [
+              3.0,
+              9.0
+            ],
+            "away_score_range": [
+              2.9,
+              8.0
+            ],
+            "total_runs_range": [
+              7.0,
+              15.1
+            ],
+            "confidence": 56.3
+          },
+          "betting_lines": {
+            "home_ml": -119,
+            "away_ml": 119,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 11.2,
+              "edge": 2.7,
+              "expected_value": 0.216,
+              "kelly_bet_size": 13.8,
+              "confidence": "HIGH",
+              "reasoning": "Model: 11.2 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": null,
+            "home_pitcher_name": null,
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 1.0
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 5.8,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-13T09:55:17.372083",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-13T09:49:28.748920",
+        "pitcher_update_date": "2025-10-13",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-13T09:55:17.398413",
+        "last_update_type": "full",
+        "game_count": 2
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

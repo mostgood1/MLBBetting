@@ -1,0 +1,50 @@
+{
+  "date": "2025-10-13",
+  "updated_at": "2025-10-13T09:50:14.186606",
+  "pitchers": {
+    "logan gilbert": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -135,
+        "under_odds": 105
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 130,
+        "under_odds": -170
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "outs": {
+        "line": 14.5,
+        "over_odds": -155,
+        "under_odds": 115
+      }
+    },
+    "trey yesavage": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -115,
+        "under_odds": -115
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": 110,
+        "under_odds": -150
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -140,
+        "under_odds": null
+      },
+      "outs": {
+        "line": 13.5,
+        "over_odds": -130,
+        "under_odds": -110
+      }
+    }
+  }
+}
