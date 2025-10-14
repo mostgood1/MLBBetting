@@ -1,0 +1,166 @@
+{
+  "date": "2025-10-14",
+  "retrieved_at": "2025-10-14T13:41:50.197873",
+  "pitcher_props": {
+    "yoshinobu yamamoto": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -3000
+        },
+        {
+          "threshold": 5,
+          "odds": -750
+        },
+        {
+          "threshold": 6,
+          "odds": -330
+        },
+        {
+          "threshold": 7,
+          "odds": -140
+        },
+        {
+          "threshold": 8,
+          "odds": 140
+        },
+        {
+          "threshold": 9,
+          "odds": 270
+        },
+        {
+          "threshold": 10,
+          "odds": 520
+        },
+        {
+          "threshold": 11,
+          "odds": 1000
+        },
+        {
+          "threshold": 12,
+          "odds": 2100
+        }
+      ]
+    },
+    "freddy peralta": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -4500
+        },
+        {
+          "threshold": 4,
+          "odds": -900
+        },
+        {
+          "threshold": 5,
+          "odds": -325
+        },
+        {
+          "threshold": 6,
+          "odds": -135
+        },
+        {
+          "threshold": 7,
+          "odds": 155
+        },
+        {
+          "threshold": 8,
+          "odds": 310
+        },
+        {
+          "threshold": 9,
+          "odds": 650
+        },
+        {
+          "threshold": 10,
+          "odds": 1300
+        }
+      ]
+    },
+    "shane bieber": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1200
+        },
+        {
+          "threshold": 4,
+          "odds": -360
+        },
+        {
+          "threshold": 5,
+          "odds": -140
+        },
+        {
+          "threshold": 6,
+          "odds": 155
+        },
+        {
+          "threshold": 7,
+          "odds": 300
+        },
+        {
+          "threshold": 8,
+          "odds": 650
+        },
+        {
+          "threshold": 9,
+          "odds": 1500
+        }
+      ]
+    },
+    "george kirby": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1100
+        },
+        {
+          "threshold": 4,
+          "odds": -315
+        },
+        {
+          "threshold": 5,
+          "odds": -125
+        },
+        {
+          "threshold": 6,
+          "odds": 175
+        },
+        {
+          "threshold": 7,
+          "odds": 365
+        },
+        {
+          "threshold": 8,
+          "odds": 780
+        },
+        {
+          "threshold": 9,
+          "odds": 1700
+        }
+      ]
+    }
+  }
+}

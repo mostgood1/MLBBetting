@@ -1,0 +1,52 @@
+{
+  "date": "2025-10-14",
+  "generated_at": "2025-10-14T08:47:18.124051",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Los Angeles Dodgers_vs_Milwaukee Brewers": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": "Yoshinobu Yamamoto",
+      "home_pitcher": "Freddy Peralta",
+      "predicted_score": "2.6-3.1",
+      "predicted_total_runs": 5.7,
+      "win_probabilities": {
+        "away_prob": 0.425,
+        "home_prob": 0.575
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Under 7.5",
+          "expected_value": 0.22838709677419344,
+          "win_probability": 0.6799999999999999,
+          "american_odds": "-124",
+          "confidence": "medium",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 5.7,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 5.7 vs line 7.5"
+        },
+        {
+          "type": "moneyline",
+          "recommendation": "Milwaukee Brewers ML",
+          "expected_value": 0.17299999999999993,
+          "win_probability": 0.575,
+          "american_odds": "104",
+          "confidence": "low",
+          "kelly_bet_size": 16.6,
+          "reasoning": "Model projects 57.5% win probability vs 49.0% implied odds"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 1,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 2,
+    "high_confidence_bets": 0,
+    "medium_confidence_bets": 1,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

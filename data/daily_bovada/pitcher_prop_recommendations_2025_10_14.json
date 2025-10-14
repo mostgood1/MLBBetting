@@ -1,0 +1,14 @@
+{
+  "date": "2025-10-14",
+  "generated_at": "2025-10-14T13:42:14.744386",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 0,
+  "recommendations": []
+}

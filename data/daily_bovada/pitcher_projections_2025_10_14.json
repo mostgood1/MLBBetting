@@ -1,0 +1,235 @@
+{
+  "date": "2025-10-14",
+  "generated_at": "2025-10-14T13:41:51.595277",
+  "pitchers": [
+    {
+      "pitcher_id": "808967",
+      "pitcher_name": "Yoshinobu Yamamoto",
+      "team": "Los Angeles Dodgers",
+      "opponent": "Arizona Diamondbacks",
+      "venue_home_team": "Los Angeles Dodgers",
+      "team_source": "game_match",
+      "projected_outs": 18,
+      "projected_innings": 6.0,
+      "projected_strikeouts": 6.8,
+      "projected_earned_runs": 1.9,
+      "projected_hits_allowed": 4.4,
+      "projected_walks": 2.1,
+      "adjusted_projections": {
+        "strikeouts": 6.6,
+        "outs": 18,
+        "k_factor": 0.977,
+        "park_factor_used": 0.97,
+        "opponent_k_rate": 0.212,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9940724946695095,
+        "recent_ip_weighted": 6.0,
+        "recent_ip_per_start": 6.66
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 4,
+            "odds": -3000
+          },
+          {
+            "threshold": 5,
+            "odds": -750
+          },
+          {
+            "threshold": 6,
+            "odds": -330
+          },
+          {
+            "threshold": 7,
+            "odds": -140
+          },
+          {
+            "threshold": 8,
+            "odds": 140
+          },
+          {
+            "threshold": 9,
+            "odds": 270
+          },
+          {
+            "threshold": 10,
+            "odds": 520
+          },
+          {
+            "threshold": 11,
+            "odds": 1000
+          },
+          {
+            "threshold": 12,
+            "odds": 2100
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    },
+    {
+      "pitcher_id": "642547",
+      "pitcher_name": "Freddy Peralta",
+      "team": "Milwaukee Brewers",
+      "opponent": "Toronto Blue Jays",
+      "venue_home_team": "Toronto Blue Jays",
+      "team_source": "master_stats",
+      "projected_outs": 15,
+      "projected_innings": 5.1,
+      "projected_strikeouts": 5.7,
+      "projected_earned_runs": 1.4,
+      "projected_hits_allowed": 3.5,
+      "projected_walks": 2.0,
+      "adjusted_projections": {
+        "strikeouts": 4.5,
+        "outs": 15,
+        "k_factor": 0.794,
+        "park_factor_used": 1.01,
+        "opponent_k_rate": 0.1758,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9983368869936033,
+        "recent_ip_weighted": 5.11,
+        "recent_ip_per_start": 4.6
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -4500
+          },
+          {
+            "threshold": 4,
+            "odds": -900
+          },
+          {
+            "threshold": 5,
+            "odds": -325
+          },
+          {
+            "threshold": 6,
+            "odds": -135
+          },
+          {
+            "threshold": 7,
+            "odds": 155
+          },
+          {
+            "threshold": 8,
+            "odds": 310
+          },
+          {
+            "threshold": 9,
+            "odds": 650
+          },
+          {
+            "threshold": 10,
+            "odds": 1300
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    }
+  ],
+  "count": 2,
+  "notes": "Season averages baseline + opponent K-rate, park factor, patience (outs), recent form weighted IP when data available.",
+  "unmatched_starting_pitchers": [],
+  "props_without_start_flag": [
+    "shane bieber",
+    "george kirby"
+  ],
+  "adjustment_meta": {
+    "recent_form_pitchers_used": 1,
+    "patience_adjustments_used": 2,
+    "total_pitchers": 2,
+    "park_factors_count": 60,
+    "batting_k_rates_count": 30,
+    "patience_teams_count": 30,
+    "recent_pitchers_count": 55,
+    "park_factor_example_keys": [
+      "angels",
+      "los angeles angels",
+      "astros",
+      "houston astros",
+      "athletics",
+      "oakland athletics",
+      "blue_jays",
+      "toronto blue jays"
+    ],
+    "missing_counts": {
+      "opponent": 0,
+      "park_factor": 0,
+      "opponent_k_rate": 0,
+      "patience_stats": 0,
+      "recent_form": 0
+    },
+    "recent_form_on_demand_used": 1,
+    "synthetic_recent_form_count": 0,
+    "team_mismatches": 0,
+    "opponent_validation_mismatches": 0,
+    "opponent_corrections_count": 0
+  },
+  "adjustment_gaps": {
+    "opponent": [],
+    "park_factor": [],
+    "opponent_k_rate": [],
+    "patience_stats": [],
+    "recent_form": []
+  }
+}

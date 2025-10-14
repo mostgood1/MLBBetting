@@ -32883,6 +32883,79 @@
         "last_update_type": "full",
         "game_count": 2
       }
+    },
+    "2025-10-14": {
+      "games": {
+        "Los Angeles Dodgers_vs_Milwaukee Brewers": {
+          "away_team": "Los Angeles Dodgers",
+          "home_team": "Milwaukee Brewers",
+          "game_date": "2025-10-14",
+          "predictions": {
+            "home_win_prob": 0.575,
+            "away_win_prob": 0.425,
+            "predicted_home_score": 3.1,
+            "predicted_away_score": 2.6,
+            "predicted_total_runs": 5.7,
+            "home_score_range": [
+              1.0,
+              5.0
+            ],
+            "away_score_range": [
+              1.0,
+              5.0
+            ],
+            "total_runs_range": [
+              3.0,
+              9.0
+            ],
+            "confidence": 64.6
+          },
+          "betting_lines": {
+            "home_ml": -135,
+            "away_ml": 135,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 5.7,
+              "edge": 2.8,
+              "expected_value": 0.218,
+              "kelly_bet_size": 13.9,
+              "confidence": "HIGH",
+              "reasoning": "Model: 5.7 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Yoshinobu Yamamoto",
+            "home_pitcher_name": "Freddy Peralta",
+            "away_pitcher_factor": 0.865,
+            "home_pitcher_factor": 0.76
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 17.7,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-14T08:47:17.824209",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-14T08:40:42.305427",
+        "pitcher_update_date": "2025-10-14",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-14T08:47:17.844893",
+        "last_update_type": "full",
+        "game_count": 1
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",
