@@ -1,0 +1,349 @@
+{
+  "date": "2025-10-15",
+  "generated_at": "2025-10-15T13:59:10.514378",
+  "pitchers": [
+    {
+      "pitcher_id": "669456",
+      "pitcher_name": "Shane Bieber",
+      "team": "Toronto Blue Jays",
+      "opponent": "Milwaukee Brewers",
+      "venue_home_team": "Toronto Blue Jays",
+      "team_source": "master_stats",
+      "projected_outs": 18,
+      "projected_innings": 5.9,
+      "projected_strikeouts": 8.9,
+      "projected_earned_runs": 1.0,
+      "projected_hits_allowed": 2.0,
+      "projected_walks": 0.0,
+      "adjusted_projections": {
+        "strikeouts": 8.2,
+        "outs": 18,
+        "k_factor": 0.919,
+        "park_factor_used": 1.01,
+        "opponent_k_rate": 0.2034,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9881023454157782,
+        "recent_ip_weighted": 5.92,
+        "recent_ip_per_start": 5.8
+      },
+      "confidence": "LOW",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -1200
+          },
+          {
+            "threshold": 4,
+            "odds": -360
+          },
+          {
+            "threshold": 5,
+            "odds": -140
+          },
+          {
+            "threshold": 6,
+            "odds": 155
+          },
+          {
+            "threshold": 7,
+            "odds": 300
+          },
+          {
+            "threshold": 8,
+            "odds": 650
+          },
+          {
+            "threshold": 9,
+            "odds": 1500
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": {
+          "line": 1.5,
+          "over_odds": 130,
+          "under_odds": -180
+        }
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": "UNDER"
+      },
+      "recommendations_meta": {
+        "walks": {
+          "edge": -1.5,
+          "threshold": 0.6,
+          "confidence_score": 0.992,
+          "confidence_label": "HIGH",
+          "side_odds": -180,
+          "decimal_odds": 1.556,
+          "win_prob_est": 0.98,
+          "expected_value": 1.505,
+          "kelly_fraction": 0.25
+        }
+      },
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": -1.5
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    },
+    {
+      "pitcher_id": "669923",
+      "pitcher_name": "George Kirby",
+      "team": "Seattle Mariners",
+      "opponent": "Cleveland Guardians",
+      "venue_home_team": "Cleveland Guardians",
+      "team_source": "master_stats",
+      "projected_outs": 16,
+      "projected_innings": 5.5,
+      "projected_strikeouts": 5.6,
+      "projected_earned_runs": 2.5,
+      "projected_hits_allowed": 5.0,
+      "projected_walks": 1.5,
+      "adjusted_projections": {
+        "strikeouts": 5.8,
+        "outs": 16,
+        "k_factor": 1.037,
+        "park_factor_used": 0.98,
+        "opponent_k_rate": 0.226,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 1.0023880597014925,
+        "recent_ip_weighted": 5.5,
+        "recent_ip_per_start": 5.34
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -1100
+          },
+          {
+            "threshold": 4,
+            "odds": -315
+          },
+          {
+            "threshold": 5,
+            "odds": -125
+          },
+          {
+            "threshold": 6,
+            "odds": 175
+          },
+          {
+            "threshold": 7,
+            "odds": 365
+          },
+          {
+            "threshold": 8,
+            "odds": 780
+          },
+          {
+            "threshold": 9,
+            "odds": 1700
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": {
+          "line": 0.5,
+          "over_odds": -220,
+          "under_odds": 155
+        }
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": "OVER"
+      },
+      "recommendations_meta": {
+        "walks": {
+          "edge": 1.0,
+          "threshold": 0.6,
+          "confidence_score": 0.894,
+          "confidence_label": "HIGH",
+          "side_odds": -220,
+          "decimal_odds": 1.455,
+          "win_prob_est": 0.85,
+          "expected_value": 1.086,
+          "kelly_fraction": 0.25
+        }
+      },
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": 1.0
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    },
+    {
+      "pitcher_id": "808967",
+      "pitcher_name": "Yoshinobu Yamamoto",
+      "team": "Los Angeles Dodgers",
+      "opponent": "Arizona Diamondbacks",
+      "venue_home_team": "Los Angeles Dodgers",
+      "team_source": "game_match",
+      "projected_outs": 18,
+      "projected_innings": 6.0,
+      "projected_strikeouts": 6.8,
+      "projected_earned_runs": 1.9,
+      "projected_hits_allowed": 4.4,
+      "projected_walks": 2.1,
+      "adjusted_projections": {
+        "strikeouts": 6.6,
+        "outs": 18,
+        "k_factor": 0.977,
+        "park_factor_used": 0.97,
+        "opponent_k_rate": 0.212,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9940724946695095,
+        "recent_ip_weighted": 6.0,
+        "recent_ip_per_start": 6.66
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 4,
+            "odds": -3000
+          },
+          {
+            "threshold": 5,
+            "odds": -750
+          },
+          {
+            "threshold": 6,
+            "odds": -330
+          },
+          {
+            "threshold": 7,
+            "odds": -140
+          },
+          {
+            "threshold": 8,
+            "odds": 140
+          },
+          {
+            "threshold": 9,
+            "odds": 270
+          },
+          {
+            "threshold": 10,
+            "odds": 520
+          },
+          {
+            "threshold": 11,
+            "odds": 1000
+          },
+          {
+            "threshold": 12,
+            "odds": 2100
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    }
+  ],
+  "count": 3,
+  "notes": "Season averages baseline + opponent K-rate, park factor, patience (outs), recent form weighted IP when data available.",
+  "unmatched_starting_pitchers": [],
+  "props_without_start_flag": [
+    "freddy peralta",
+    "tyler glasnow"
+  ],
+  "adjustment_meta": {
+    "recent_form_pitchers_used": 2,
+    "patience_adjustments_used": 3,
+    "total_pitchers": 3,
+    "park_factors_count": 60,
+    "batting_k_rates_count": 30,
+    "patience_teams_count": 30,
+    "recent_pitchers_count": 55,
+    "park_factor_example_keys": [
+      "angels",
+      "los angeles angels",
+      "astros",
+      "houston astros",
+      "athletics",
+      "oakland athletics",
+      "blue_jays",
+      "toronto blue jays"
+    ],
+    "missing_counts": {
+      "opponent": 0,
+      "park_factor": 0,
+      "opponent_k_rate": 0,
+      "patience_stats": 0,
+      "recent_form": 0
+    },
+    "recent_form_on_demand_used": 1,
+    "synthetic_recent_form_count": 0,
+    "team_mismatches": 0,
+    "opponent_validation_mismatches": 0,
+    "opponent_corrections_count": 0
+  },
+  "adjustment_gaps": {
+    "opponent": [],
+    "park_factor": [],
+    "opponent_k_rate": [],
+    "patience_stats": [],
+    "recent_form": []
+  }
+}

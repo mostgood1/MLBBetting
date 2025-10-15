@@ -1,0 +1,39 @@
+{
+  "date": "2025-10-15",
+  "fetched_at": "2025-10-15T09:04:35.251326",
+  "source": "DraftKings_via_OddsAPI",
+  "lines": {
+    "Toronto Blue Jays @ Seattle Mariners": {
+      "moneyline": {
+        "away": 109,
+        "home": -132
+      },
+      "total_runs": {
+        "line": 7.0,
+        "over": -116,
+        "under": -105
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -206,
+        "home": 167
+      }
+    },
+    "Milwaukee Brewers @ Los Angeles Dodgers": {
+      "moneyline": {
+        "away": 158,
+        "home": -194
+      },
+      "total_runs": {
+        "line": 7.5,
+        "over": -115,
+        "under": -105
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -137,
+        "home": 112
+      }
+    }
+  }
+}

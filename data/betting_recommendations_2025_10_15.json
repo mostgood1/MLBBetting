@@ -1,0 +1,42 @@
+{
+  "date": "2025-10-15",
+  "generated_at": "2025-10-15T09:04:36.183410",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Toronto Blue Jays_vs_Seattle Mariners": {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "Shane Bieber",
+      "home_pitcher": "George Kirby",
+      "predicted_score": "5.1-5.5",
+      "predicted_total_runs": 10.6,
+      "win_probabilities": {
+        "away_prob": 0.438,
+        "home_prob": 0.562
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.0",
+          "expected_value": 0.6013793103448275,
+          "win_probability": 0.86,
+          "american_odds": "-116",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 10.6,
+          "betting_line": 7.0,
+          "reasoning": "Predicted 10.6 vs line 7.0"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 1,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 1,
+    "high_confidence_bets": 1,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

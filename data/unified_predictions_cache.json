@@ -32956,6 +32956,79 @@
         "last_update_type": "full",
         "game_count": 1
       }
+    },
+    "2025-10-15": {
+      "games": {
+        "Toronto Blue Jays_vs_Seattle Mariners": {
+          "away_team": "Toronto Blue Jays",
+          "home_team": "Seattle Mariners",
+          "game_date": "2025-10-15",
+          "predictions": {
+            "home_win_prob": 0.562,
+            "away_win_prob": 0.438,
+            "predicted_home_score": 5.5,
+            "predicted_away_score": 5.1,
+            "predicted_total_runs": 10.6,
+            "home_score_range": [
+              2.0,
+              9.0
+            ],
+            "away_score_range": [
+              2.0,
+              8.0
+            ],
+            "total_runs_range": [
+              7.0,
+              15.0
+            ],
+            "confidence": 57.1
+          },
+          "betting_lines": {
+            "home_ml": -128,
+            "away_ml": 128,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 10.6,
+              "edge": 2.1,
+              "expected_value": 0.155,
+              "kelly_bet_size": 9.4,
+              "confidence": "HIGH",
+              "reasoning": "Model: 10.6 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Shane Bieber",
+            "home_pitcher_name": "George Kirby",
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 0.9648
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 19.4,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-15T09:04:35.876566",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-15T08:58:03.176071",
+        "pitcher_update_date": "2025-10-15",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-15T09:04:35.900688",
+        "last_update_type": "full",
+        "game_count": 1
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

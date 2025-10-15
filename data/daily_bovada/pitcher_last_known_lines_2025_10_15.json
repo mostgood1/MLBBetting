@@ -1,0 +1,27 @@
+{
+  "date": "2025-10-15",
+  "updated_at": "2025-10-15T08:59:32.859173",
+  "pitchers": {
+    "shane bieber": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": 130,
+        "under_odds": -180
+      }
+    },
+    "george kirby": {
+      "walks": {
+        "line": 0.5,
+        "over_odds": -220,
+        "under_odds": 155
+      }
+    },
+    "tyler glasnow": {
+      "walks": {
+        "line": 2.5,
+        "over_odds": 140,
+        "under_odds": -200
+      }
+    }
+  }
+}
