@@ -1,0 +1,55 @@
+{
+  "date": "2025-10-16",
+  "generated_at": "2025-10-16T10:13:01.782736",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Milwaukee Brewers_vs_Los Angeles Dodgers": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": null,
+      "home_pitcher": null,
+      "predicted_score": "4.1-4.3",
+      "predicted_total_runs": 8.5,
+      "win_probabilities": {
+        "away_prob": 0.48,
+        "home_prob": 0.52
+      },
+      "value_bets": []
+    },
+    "Toronto Blue Jays_vs_Seattle Mariners": {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "Max Scherzer",
+      "home_pitcher": "Luis Castillo",
+      "predicted_score": "5.0-5.3",
+      "predicted_total_runs": 10.3,
+      "win_probabilities": {
+        "away_prob": 0.469,
+        "home_prob": 0.531
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.5228571428571429,
+          "win_probability": 0.78,
+          "american_odds": "-105",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 10.3,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 10.3 vs line 7.5"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 2,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 1,
+    "high_confidence_bets": 1,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

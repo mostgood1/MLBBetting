@@ -1,0 +1,20 @@
+{
+  "date": "2025-10-16",
+  "fetched_at": "2025-10-16T10:07:13.056854",
+  "games": [
+    {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "TBD",
+      "home_pitcher": "Tyler Glasnow",
+      "game_key": "Milwaukee Brewers @ Los Angeles Dodgers"
+    },
+    {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "Max Scherzer",
+      "home_pitcher": "Luis Castillo",
+      "game_key": "Toronto Blue Jays @ Seattle Mariners"
+    }
+  ]
+}

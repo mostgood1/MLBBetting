@@ -1,0 +1,111 @@
+{
+  "date": "2025-10-16",
+  "generated_at": "2025-10-16T15:07:55.626335",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 3,
+  "recommendations": [
+    {
+      "pitcher_key": "shane bieber",
+      "pitcher": "shane bieber",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 19.2,
+        "strikeouts": 6.6,
+        "earned_runs": 1.0,
+        "hits_allowed": 2.0,
+        "walks": 0.0,
+        "pitch_count": 98.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "UNDER",
+          "line": 1.5,
+          "proj": 0.0,
+          "edge": -1.5,
+          "confidence": "HIGH",
+          "p_over": 0.067,
+          "ev_over": -0.846,
+          "ev_under": 0.452,
+          "selected_ev": 0.452,
+          "over_odds": 130,
+          "under_odds": -180,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "george kirby",
+      "pitcher": "george kirby",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 17.1,
+        "strikeouts": 6.4,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.1,
+        "walks": 1.5,
+        "pitch_count": 87.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 0.5,
+          "proj": 1.5,
+          "edge": 1.0,
+          "confidence": "MEDIUM",
+          "p_over": 0.841,
+          "ev_over": 0.224,
+          "ev_under": -0.595,
+          "selected_ev": 0.224,
+          "over_odds": -220,
+          "under_odds": 155,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "tyler glasnow",
+      "pitcher": "tyler glasnow",
+      "team": "Los Angeles Dodgers",
+      "opponent": "Milwaukee Brewers",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 15.12,
+        "strikeouts": 6.5,
+        "earned_runs": 1.8,
+        "hits_allowed": 3.0,
+        "walks": 2.5,
+        "pitch_count": 77.0
+      },
+      "plays": [
+        {
+          "market": "hits_allowed",
+          "side": "UNDER",
+          "line": 3.5,
+          "proj": 3.0,
+          "edge": -0.5,
+          "confidence": "LOW",
+          "p_over": 0.443,
+          "ev_over": -0.304,
+          "ev_under": 0.308,
+          "selected_ev": 0.308,
+          "over_odds": -175,
+          "under_odds": 135,
+          "kelly_fraction": 0.1
+        }
+      ]
+    }
+  ]
+}

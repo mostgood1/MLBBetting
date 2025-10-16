@@ -1,0 +1,22 @@
+[
+  {
+    "game_pk": 813033,
+    "game_time": "2025-10-16T22:08:00Z",
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Los Angeles Dodgers",
+    "away_pitcher": "TBD",
+    "home_pitcher": "Tyler Glasnow",
+    "home_probable_pitcher": "Tyler Glasnow",
+    "away_probable_pitcher": "TBD"
+  },
+  {
+    "game_pk": 813035,
+    "game_time": "2025-10-17T00:33:00Z",
+    "away_team": "Toronto Blue Jays",
+    "home_team": "Seattle Mariners",
+    "away_pitcher": "Max Scherzer",
+    "home_pitcher": "Luis Castillo",
+    "away_probable_pitcher": "Max Scherzer",
+    "home_probable_pitcher": "Luis Castillo"
+  }
+]
