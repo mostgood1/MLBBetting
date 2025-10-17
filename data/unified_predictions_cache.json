@@ -33149,6 +33149,126 @@
         "last_update_type": "full",
         "game_count": 2
       }
+    },
+    "2025-10-17": {
+      "games": {
+        "Toronto Blue Jays_vs_Seattle Mariners": {
+          "away_team": "Toronto Blue Jays",
+          "home_team": "Seattle Mariners",
+          "game_date": "2025-10-17",
+          "predictions": {
+            "home_win_prob": 0.395,
+            "away_win_prob": 0.605,
+            "predicted_home_score": 3.2,
+            "predicted_away_score": 3.8,
+            "predicted_total_runs": 7.0,
+            "home_score_range": [
+              1.0,
+              6.0
+            ],
+            "away_score_range": [
+              1.0,
+              6.0
+            ],
+            "total_runs_range": [
+              3.0,
+              11.0
+            ],
+            "confidence": 62.3
+          },
+          "betting_lines": {
+            "home_ml": 153,
+            "away_ml": -153,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 7.0,
+              "edge": 1.5,
+              "expected_value": 0.101,
+              "kelly_bet_size": 5.8,
+              "confidence": "HIGH",
+              "reasoning": "Model: 7.0 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Kevin Gausman",
+            "home_pitcher_name": "Bryce Miller",
+            "away_pitcher_factor": 0.9349999999999999,
+            "home_pitcher_factor": 1.188
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 52.2,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-17T10:02:36.803797",
+            "data_source": "live_simulation"
+          }
+        },
+        "Milwaukee Brewers_vs_Los Angeles Dodgers": {
+          "away_team": "Milwaukee Brewers",
+          "home_team": "Los Angeles Dodgers",
+          "game_date": "2025-10-17",
+          "predictions": {
+            "home_win_prob": 0.527,
+            "away_win_prob": 0.473,
+            "predicted_home_score": 4.4,
+            "predicted_away_score": 4.2,
+            "predicted_total_runs": 8.6,
+            "home_score_range": [
+              2.0,
+              7.0
+            ],
+            "away_score_range": [
+              2.0,
+              7.0
+            ],
+            "total_runs_range": [
+              5.0,
+              13.0
+            ],
+            "confidence": 59.1
+          },
+          "betting_lines": {
+            "home_ml": -111,
+            "away_ml": 111,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": null,
+            "home_pitcher_name": null,
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 1.0
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 10.4,
+            "recommendations_found": 0,
+            "timestamp": "2025-10-17T10:02:36.814226",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-17T09:56:44.422653",
+        "pitcher_update_date": "2025-10-17",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-17T10:02:36.872819",
+        "last_update_type": "full",
+        "game_count": 2
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

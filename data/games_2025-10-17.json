@@ -1,0 +1,22 @@
+[
+  {
+    "game_pk": 813039,
+    "game_time": "2025-10-17T22:08:00Z",
+    "away_team": "Toronto Blue Jays",
+    "home_team": "Seattle Mariners",
+    "away_pitcher": "Kevin Gausman",
+    "home_pitcher": "Bryce Miller",
+    "away_probable_pitcher": "Kevin Gausman",
+    "home_probable_pitcher": "Bryce Miller"
+  },
+  {
+    "game_pk": 813031,
+    "game_time": "2025-10-18T00:38:00Z",
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Los Angeles Dodgers",
+    "away_pitcher": "TBD",
+    "home_pitcher": "Shohei Ohtani",
+    "home_probable_pitcher": "Shohei Ohtani",
+    "away_probable_pitcher": "TBD"
+  }
+]

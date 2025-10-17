@@ -1,0 +1,281 @@
+{
+  "date": "2025-10-17",
+  "retrieved_at": "2025-10-17T14:57:02.694180",
+  "pitcher_props": {
+    "tyler glasnow": {
+      "strikeouts": {
+        "line": 6.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -1500
+        },
+        {
+          "threshold": 5,
+          "odds": -440
+        },
+        {
+          "threshold": 6,
+          "odds": -190
+        },
+        {
+          "threshold": 8,
+          "odds": 225
+        },
+        {
+          "threshold": 9,
+          "odds": 450
+        },
+        {
+          "threshold": 10,
+          "odds": 900
+        },
+        {
+          "threshold": 11,
+          "odds": 1700
+        },
+        {
+          "threshold": 12,
+          "odds": 3500
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -175,
+        "under_odds": 135
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": -110,
+        "under_odds": -130
+      }
+    },
+    "luis castillo": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -495
+        },
+        {
+          "threshold": 4,
+          "odds": -195
+        },
+        {
+          "threshold": 5,
+          "odds": 115
+        },
+        {
+          "threshold": 6,
+          "odds": 250
+        },
+        {
+          "threshold": 7,
+          "odds": 575
+        },
+        {
+          "threshold": 8,
+          "odds": 1100
+        },
+        {
+          "threshold": 9,
+          "odds": 2200
+        }
+      ],
+      "walks": {
+        "line": 1.5,
+        "over_odds": 120,
+        "under_odds": -170
+      }
+    },
+    "max scherzer": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -425
+        },
+        {
+          "threshold": 4,
+          "odds": -170
+        },
+        {
+          "threshold": 5,
+          "odds": 135
+        },
+        {
+          "threshold": 6,
+          "odds": 280
+        },
+        {
+          "threshold": 7,
+          "odds": 600
+        },
+        {
+          "threshold": 8,
+          "odds": 1200
+        },
+        {
+          "threshold": 9,
+          "odds": 2500
+        }
+      ],
+      "walks": {
+        "line": 1.5,
+        "over_odds": 150,
+        "under_odds": -220
+      }
+    },
+    "kevin gausman": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -1100
+        },
+        {
+          "threshold": 5,
+          "odds": -330
+        },
+        {
+          "threshold": 6,
+          "odds": -135
+        },
+        {
+          "threshold": 7,
+          "odds": 140
+        },
+        {
+          "threshold": 8,
+          "odds": 280
+        },
+        {
+          "threshold": 9,
+          "odds": 575
+        },
+        {
+          "threshold": 10,
+          "odds": 1100
+        },
+        {
+          "threshold": 11,
+          "odds": 2200
+        }
+      ],
+      "walks": {
+        "line": 1.5,
+        "over_odds": -115,
+        "under_odds": -125
+      }
+    },
+    "bryce miller": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -150
+        },
+        {
+          "threshold": 4,
+          "odds": 170
+        },
+        {
+          "threshold": 5,
+          "odds": 360
+        },
+        {
+          "threshold": 6,
+          "odds": 750
+        },
+        {
+          "threshold": 7,
+          "odds": 1500
+        }
+      ],
+      "walks": {
+        "line": 0.5,
+        "over_odds": -190,
+        "under_odds": 145
+      }
+    },
+    "shohei ohtani": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -2200
+        },
+        {
+          "threshold": 5,
+          "odds": -650
+        },
+        {
+          "threshold": 6,
+          "odds": -250
+        },
+        {
+          "threshold": 7,
+          "odds": -105
+        },
+        {
+          "threshold": 8,
+          "odds": 175
+        },
+        {
+          "threshold": 9,
+          "odds": 320
+        },
+        {
+          "threshold": 10,
+          "odds": 625
+        },
+        {
+          "threshold": 11,
+          "odds": 1200
+        },
+        {
+          "threshold": 12,
+          "odds": 2500
+        }
+      ],
+      "walks": {
+        "line": 1.5,
+        "over_odds": -110,
+        "under_odds": -130
+      }
+    }
+  }
+}

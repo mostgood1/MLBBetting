@@ -1,0 +1,20 @@
+{
+  "date": "2025-10-17",
+  "fetched_at": "2025-10-17T09:56:44.395646",
+  "games": [
+    {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "Kevin Gausman",
+      "home_pitcher": "Bryce Miller",
+      "game_key": "Toronto Blue Jays @ Seattle Mariners"
+    },
+    {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "TBD",
+      "home_pitcher": "Shohei Ohtani",
+      "game_key": "Milwaukee Brewers @ Los Angeles Dodgers"
+    }
+  ]
+}

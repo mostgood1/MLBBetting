@@ -1,0 +1,15 @@
+[
+  {
+    "date": "2025-10-17",
+    "game": "Milwaukee Brewers vs Los Angeles Dodgers",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.5",
+    "confidence": 0.154,
+    "kelly_percentage": 15.4,
+    "recommended_bet": 60,
+    "odds": -117,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  }
+]

@@ -1,0 +1,66 @@
+{
+  "date": "2025-10-17",
+  "generated_at": "2025-10-17T10:02:38.560560",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Toronto Blue Jays_vs_Seattle Mariners": {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "Kevin Gausman",
+      "home_pitcher": "Bryce Miller",
+      "predicted_score": "3.8-3.2",
+      "predicted_total_runs": 7.0,
+      "win_probabilities": {
+        "away_prob": 0.605,
+        "home_prob": 0.395
+      },
+      "value_bets": [
+        {
+          "type": "moneyline",
+          "recommendation": "Toronto Blue Jays ML",
+          "expected_value": 0.13108695652173907,
+          "win_probability": 0.605,
+          "american_odds": "-115",
+          "confidence": "low",
+          "kelly_bet_size": 15.1,
+          "reasoning": "Model projects 60.5% win probability vs 53.5% implied odds"
+        }
+      ]
+    },
+    "Milwaukee Brewers_vs_Los Angeles Dodgers": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": null,
+      "home_pitcher": null,
+      "predicted_score": "4.2-4.4",
+      "predicted_total_runs": 8.6,
+      "win_probabilities": {
+        "away_prob": 0.473,
+        "home_prob": 0.527
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.13136752136752128,
+          "win_probability": 0.61,
+          "american_odds": "-117",
+          "confidence": "low",
+          "kelly_bet_size": 15.4,
+          "predicted_total": 8.6,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 8.6 vs line 7.5"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 2,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 2,
+    "high_confidence_bets": 0,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

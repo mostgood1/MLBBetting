@@ -1,0 +1,68 @@
+{
+  "date": "2025-10-17",
+  "updated_at": "2025-10-17T09:57:30.588742",
+  "pitchers": {
+    "tyler glasnow": {
+      "strikeouts": {
+        "line": 6.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -175,
+        "under_odds": 135
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": -110,
+        "under_odds": -130
+      }
+    },
+    "luis castillo": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": 120,
+        "under_odds": -170
+      }
+    },
+    "max scherzer": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": 150,
+        "under_odds": -220
+      }
+    },
+    "kevin gausman": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -115,
+        "under_odds": -125
+      }
+    },
+    "bryce miller": {
+      "walks": {
+        "line": 0.5,
+        "over_odds": -190,
+        "under_odds": 145
+      }
+    },
+    "shohei ohtani": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -110,
+        "under_odds": -130
+      }
+    }
+  }
+}

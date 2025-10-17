@@ -1,0 +1,22 @@
+{
+  "Milwaukee Brewers_vs_Los Angeles Dodgers": {
+    "away_team": "Milwaukee Brewers",
+    "home_team": "Los Angeles Dodgers",
+    "away_score": 1,
+    "home_score": 3,
+    "total_runs": 4,
+    "winner": "home",
+    "game_pk": 813033,
+    "is_final": true
+  },
+  "Toronto Blue Jays_vs_Seattle Mariners": {
+    "away_team": "Toronto Blue Jays",
+    "home_team": "Seattle Mariners",
+    "away_score": 8,
+    "home_score": 2,
+    "total_runs": 10,
+    "winner": "away",
+    "game_pk": 813035,
+    "is_final": true
+  }
+}
