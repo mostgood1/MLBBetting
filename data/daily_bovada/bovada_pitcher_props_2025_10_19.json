@@ -1,0 +1,110 @@
+{
+  "date": "2025-10-19",
+  "retrieved_at": "2025-10-19T14:15:38.551344",
+  "pitcher_props": {
+    "trey yesavage": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1200
+        },
+        {
+          "threshold": 4,
+          "odds": -400
+        },
+        {
+          "threshold": 5,
+          "odds": -170
+        },
+        {
+          "threshold": 6,
+          "odds": null
+        },
+        {
+          "threshold": 7,
+          "odds": 200
+        },
+        {
+          "threshold": 8,
+          "odds": 400
+        },
+        {
+          "threshold": 9,
+          "odds": 800
+        },
+        {
+          "threshold": 10,
+          "odds": 1400
+        },
+        {
+          "threshold": 11,
+          "odds": 2500
+        },
+        {
+          "threshold": 12,
+          "odds": 5000
+        }
+      ],
+      "walks": {
+        "line": 1.5,
+        "over_odds": -110,
+        "under_odds": -130
+      }
+    },
+    "logan gilbert": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -600
+        },
+        {
+          "threshold": 4,
+          "odds": -170
+        },
+        {
+          "threshold": 5,
+          "odds": 120
+        },
+        {
+          "threshold": 6,
+          "odds": 280
+        },
+        {
+          "threshold": 7,
+          "odds": 600
+        },
+        {
+          "threshold": 8,
+          "odds": 1200
+        },
+        {
+          "threshold": 9,
+          "odds": 2200
+        },
+        {
+          "threshold": 10,
+          "odds": 3500
+        },
+        {
+          "threshold": 11,
+          "odds": 7000
+        }
+      ],
+      "walks": {
+        "line": 0.5,
+        "over_odds": -240,
+        "under_odds": 165
+      }
+    }
+  }
+}

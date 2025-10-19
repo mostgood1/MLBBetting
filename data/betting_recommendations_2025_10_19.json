@@ -1,0 +1,42 @@
+{
+  "date": "2025-10-19",
+  "generated_at": "2025-10-19T09:21:20.919514",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Seattle Mariners_vs_Toronto Blue Jays": {
+      "away_team": "Seattle Mariners",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "Logan Gilbert",
+      "home_pitcher": "Trey Yesavage",
+      "predicted_score": "5.5-5.5",
+      "predicted_total_runs": 11.0,
+      "win_probabilities": {
+        "away_prob": 0.513,
+        "home_prob": 0.487
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 8.0",
+          "expected_value": 0.5843137254901961,
+          "win_probability": 0.8,
+          "american_odds": "-102",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 11.0,
+          "betting_line": 8.0,
+          "reasoning": "Predicted 11.0 vs line 8.0"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 1,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 1,
+    "high_confidence_bets": 1,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}
