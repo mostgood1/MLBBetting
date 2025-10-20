@@ -2325,5 +2325,18 @@
     "outcome": "pending",
     "profit_loss": 0.0,
     "roi": 0.0
+  },
+  {
+    "date": "2025-10-20",
+    "game": "Seattle Mariners vs Toronto Blue Jays",
+    "bet_type": "Over/Under",
+    "bet_details": "Under 7.5",
+    "confidence": 0.098,
+    "kelly_percentage": 9.8,
+    "recommended_bet": 40,
+    "odds": -105,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
   }
 ]

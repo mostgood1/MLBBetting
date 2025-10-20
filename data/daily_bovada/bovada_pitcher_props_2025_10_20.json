@@ -1,0 +1,116 @@
+{
+  "date": "2025-10-20",
+  "retrieved_at": "2025-10-20T16:20:23.571853",
+  "pitcher_props": {
+    "george kirby": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -270
+        },
+        {
+          "threshold": 5,
+          "odds": 225
+        },
+        {
+          "threshold": 6,
+          "odds": 450
+        },
+        {
+          "threshold": 7,
+          "odds": 900
+        },
+        {
+          "threshold": 8,
+          "odds": 1700
+        },
+        {
+          "threshold": 9,
+          "odds": 3500
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -115,
+        "under_odds": -125
+      },
+      "walks": {
+        "line": 0.5,
+        "over_odds": -170,
+        "under_odds": 120
+      },
+      "outs": {
+        "line": 10.5,
+        "over_odds": 105,
+        "under_odds": -145
+      }
+    },
+    "shane bieber": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -150,
+        "under_odds": 115
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1200
+        },
+        {
+          "threshold": 4,
+          "odds": -350
+        },
+        {
+          "threshold": 6,
+          "odds": 140
+        },
+        {
+          "threshold": 7,
+          "odds": 265
+        },
+        {
+          "threshold": 8,
+          "odds": 490
+        },
+        {
+          "threshold": 9,
+          "odds": 900
+        },
+        {
+          "threshold": 10,
+          "odds": 1700
+        }
+      ],
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -105,
+        "under_odds": -135
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -125,
+        "under_odds": -115
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": 150,
+        "under_odds": -220
+      },
+      "outs": {
+        "line": 12.5,
+        "over_odds": -135,
+        "under_odds": -105
+      }
+    }
+  }
+}

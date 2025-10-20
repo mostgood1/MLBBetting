@@ -1,0 +1,23 @@
+{
+  "date": "2025-10-20",
+  "fetched_at": "2025-10-20T11:25:55.297545",
+  "source": "DraftKings_via_OddsAPI",
+  "lines": {
+    "Seattle Mariners @ Toronto Blue Jays": {
+      "moneyline": {
+        "away": 108,
+        "home": -132
+      },
+      "total_runs": {
+        "line": 7.5,
+        "over": -116,
+        "under": -105
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -185,
+        "home": 151
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "date": "2025-10-20",
+  "updated_at": "2025-10-20T11:20:52.686093",
+  "pitchers": {
+    "george kirby": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -145,
+        "under_odds": 105
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -115,
+        "under_odds": -125
+      },
+      "walks": {
+        "line": 0.5,
+        "over_odds": -170,
+        "under_odds": 120
+      },
+      "outs": {
+        "line": 10.5,
+        "over_odds": 105,
+        "under_odds": -145
+      }
+    },
+    "shane bieber": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -150,
+        "under_odds": 115
+      },
+      "hits_allowed": {
+        "line": 3.5,
+        "over_odds": -105,
+        "under_odds": -135
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -125,
+        "under_odds": -115
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": 150,
+        "under_odds": -220
+      },
+      "outs": {
+        "line": 12.5,
+        "over_odds": -135,
+        "under_odds": -105
+      }
+    }
+  }
+}

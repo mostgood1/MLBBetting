@@ -1,0 +1,199 @@
+{
+  "date": "2025-10-20",
+  "generated_at": "2025-10-20T16:20:52.521132",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 2,
+  "recommendations": [
+    {
+      "pitcher_key": "george kirby",
+      "pitcher": "george kirby",
+      "team": "Seattle Mariners",
+      "opponent": "Toronto Blue Jays",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 15.52,
+        "strikeouts": 5.3,
+        "earned_runs": 2.5,
+        "hits_allowed": 5.1,
+        "walks": 1.5,
+        "pitch_count": 79.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 5.3,
+          "edge": 1.8,
+          "confidence": "HIGH",
+          "p_over": 0.696,
+          "ev_over": 0.567,
+          "ev_under": -0.513,
+          "selected_ev": 0.567,
+          "over_odds": 125,
+          "under_odds": -165,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 10.5,
+          "proj": 15.52,
+          "edge": 5.02,
+          "confidence": "HIGH",
+          "p_over": 0.994,
+          "ev_over": 1.038,
+          "ev_under": -0.99,
+          "selected_ev": 1.038,
+          "over_odds": 105,
+          "under_odds": -145,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 5.1,
+          "edge": 1.6,
+          "confidence": "HIGH",
+          "p_over": 0.676,
+          "ev_over": 0.143,
+          "ev_under": -0.336,
+          "selected_ev": 0.143,
+          "over_odds": -145,
+          "under_odds": 105,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 0.5,
+          "proj": 1.5,
+          "edge": 1.0,
+          "confidence": "MEDIUM",
+          "p_over": 0.841,
+          "ev_over": 0.336,
+          "ev_under": -0.651,
+          "selected_ev": 0.336,
+          "over_odds": -170,
+          "under_odds": 120,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.5,
+          "edge": 1.0,
+          "confidence": "MEDIUM",
+          "p_over": 0.612,
+          "ev_over": 0.145,
+          "ev_under": -0.302,
+          "selected_ev": 0.145,
+          "over_odds": -115,
+          "under_odds": -125,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "shane bieber",
+      "pitcher": "shane bieber",
+      "team": "Toronto Blue Jays",
+      "opponent": "Seattle Mariners",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 17.6,
+        "strikeouts": 6.01,
+        "earned_runs": 1.0,
+        "hits_allowed": 2.0,
+        "walks": 0.0,
+        "pitch_count": 90.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 4.5,
+          "proj": 6.01,
+          "edge": 1.51,
+          "confidence": "HIGH",
+          "p_over": 0.667,
+          "ev_over": 0.112,
+          "ev_under": -0.284,
+          "selected_ev": 0.112,
+          "over_odds": -150,
+          "under_odds": 115,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 12.5,
+          "proj": 17.6,
+          "edge": 5.1,
+          "confidence": "HIGH",
+          "p_over": 0.995,
+          "ev_over": 0.731,
+          "ev_under": -0.989,
+          "selected_ev": 0.731,
+          "over_odds": -135,
+          "under_odds": -105,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "UNDER",
+          "line": 3.5,
+          "proj": 2.0,
+          "edge": -1.5,
+          "confidence": "HIGH",
+          "p_over": 0.334,
+          "ev_over": -0.348,
+          "ev_under": 0.159,
+          "selected_ev": 0.159,
+          "over_odds": -105,
+          "under_odds": -135,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "walks",
+          "side": "UNDER",
+          "line": 1.5,
+          "proj": 0.0,
+          "edge": -1.5,
+          "confidence": "HIGH",
+          "p_over": 0.067,
+          "ev_over": -0.833,
+          "ev_under": 0.357,
+          "selected_ev": 0.357,
+          "over_odds": 150,
+          "under_odds": -220,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "UNDER",
+          "line": 1.5,
+          "proj": 1.0,
+          "edge": -0.5,
+          "confidence": "LOW",
+          "p_over": 0.443,
+          "ev_over": -0.202,
+          "ev_under": 0.041,
+          "selected_ev": 0.041,
+          "over_odds": -125,
+          "under_odds": -115,
+          "kelly_fraction": 0.0471
+        }
+      ]
+    }
+  ]
+}
