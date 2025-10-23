@@ -33439,6 +33439,14 @@
       "source": "daily_files",
       "games_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\games_2025-10-22.json",
       "betting_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\betting_recommendations_2025_10_22.json"
+    },
+    "2025-10-23": {
+      "games": {},
+      "timestamp": "2025-10-23T11:15:12.649023",
+      "total_games": 0,
+      "source": "daily_files",
+      "games_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\games_2025-10-23.json",
+      "betting_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\betting_recommendations_2025_10_23.json"
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",
