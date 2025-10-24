@@ -1,0 +1,47 @@
+{
+  "date": "2025-10-24",
+  "generated_at": "2025-10-24T13:47:38.330376",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 1,
+  "recommendations": [
+    {
+      "pitcher_key": "logan gilbert",
+      "pitcher": "logan gilbert",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 16.0,
+        "strikeouts": 6.4,
+        "earned_runs": 2.1,
+        "hits_allowed": 4.0,
+        "walks": 1.3,
+        "pitch_count": 82.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 0.5,
+          "proj": 1.3,
+          "edge": 0.8,
+          "confidence": "LOW",
+          "p_over": 0.788,
+          "ev_over": 0.117,
+          "ev_under": -0.439,
+          "selected_ev": 0.117,
+          "over_odds": -240,
+          "under_odds": 165,
+          "kelly_fraction": 0.1
+        }
+      ]
+    }
+  ]
+}

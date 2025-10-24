@@ -1,0 +1,160 @@
+{
+  "date": "2025-10-24",
+  "generated_at": "2025-10-24T13:44:55.618565",
+  "pitchers": [
+    {
+      "pitcher_id": "605483",
+      "pitcher_name": "Blake Snell",
+      "team": "Los Angeles Dodgers",
+      "opponent": "Arizona Diamondbacks",
+      "venue_home_team": "Los Angeles Dodgers",
+      "team_source": "master_stats",
+      "projected_outs": 17,
+      "projected_innings": 5.5,
+      "projected_strikeouts": 5.7,
+      "projected_earned_runs": 1.9,
+      "projected_hits_allowed": 5.5,
+      "projected_walks": 2.7,
+      "adjusted_projections": {
+        "strikeouts": 5.6,
+        "outs": 17,
+        "k_factor": 0.977,
+        "park_factor_used": 0.97,
+        "opponent_k_rate": 0.212,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9940724946695095,
+        "recent_ip_weighted": 5.5,
+        "recent_ip_per_start": 5.86
+      },
+      "confidence": "MEDIUM",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -4000
+          },
+          {
+            "threshold": 4,
+            "odds": -2000
+          },
+          {
+            "threshold": 5,
+            "odds": -580
+          },
+          {
+            "threshold": 6,
+            "odds": -235
+          },
+          {
+            "threshold": 8,
+            "odds": 190
+          },
+          {
+            "threshold": 9,
+            "odds": 390
+          },
+          {
+            "threshold": 10,
+            "odds": 750
+          },
+          {
+            "threshold": 11,
+            "odds": 1300
+          },
+          {
+            "threshold": 12,
+            "odds": 2500
+          },
+          {
+            "threshold": 13,
+            "odds": 5500
+          },
+          {
+            "threshold": 14,
+            "odds": 11000
+          },
+          {
+            "threshold": 15,
+            "odds": 15000
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": {
+          "line": 2.5,
+          "over_odds": 120,
+          "under_odds": -170
+        }
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {},
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": 0.20000000000000018
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    }
+  ],
+  "count": 1,
+  "notes": "Season averages baseline + opponent K-rate, park factor, patience (outs), recent form weighted IP when data available.",
+  "unmatched_starting_pitchers": [],
+  "props_without_start_flag": [
+    "logan gilbert"
+  ],
+  "adjustment_meta": {
+    "recent_form_pitchers_used": 0,
+    "patience_adjustments_used": 1,
+    "total_pitchers": 2,
+    "park_factors_count": 60,
+    "batting_k_rates_count": 30,
+    "patience_teams_count": 30,
+    "recent_pitchers_count": 55,
+    "park_factor_example_keys": [
+      "angels",
+      "los angeles angels",
+      "astros",
+      "houston astros",
+      "athletics",
+      "oakland athletics",
+      "blue_jays",
+      "toronto blue jays"
+    ],
+    "missing_counts": {
+      "opponent": 0,
+      "park_factor": 0,
+      "opponent_k_rate": 0,
+      "patience_stats": 0,
+      "recent_form": 0
+    },
+    "recent_form_on_demand_used": 1,
+    "synthetic_recent_form_count": 0,
+    "team_mismatches": 0,
+    "opponent_validation_mismatches": 0,
+    "opponent_corrections_count": 0
+  },
+  "adjustment_gaps": {
+    "opponent": [],
+    "park_factor": [],
+    "opponent_k_rate": [],
+    "patience_stats": [],
+    "recent_form": []
+  }
+}

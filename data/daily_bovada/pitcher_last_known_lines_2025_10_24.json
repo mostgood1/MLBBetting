@@ -1,0 +1,27 @@
+{
+  "date": "2025-10-24",
+  "updated_at": "2025-10-24T08:47:38.463510",
+  "pitchers": {
+    "trey yesavage": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -110,
+        "under_odds": -130
+      }
+    },
+    "logan gilbert": {
+      "walks": {
+        "line": 0.5,
+        "over_odds": -240,
+        "under_odds": 165
+      }
+    },
+    "blake snell": {
+      "walks": {
+        "line": 2.5,
+        "over_odds": 120,
+        "under_odds": -170
+      }
+    }
+  }
+}
