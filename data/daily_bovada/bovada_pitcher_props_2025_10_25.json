@@ -1,0 +1,124 @@
+{
+  "date": "2025-10-25",
+  "retrieved_at": "2025-10-25T13:57:36.954055",
+  "pitcher_props": {
+    "yoshinobu yamamoto": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -1400
+        },
+        {
+          "threshold": 5,
+          "odds": -425
+        },
+        {
+          "threshold": 6,
+          "odds": -175
+        },
+        {
+          "threshold": 7,
+          "odds": 115
+        },
+        {
+          "threshold": 8,
+          "odds": 225
+        },
+        {
+          "threshold": 9,
+          "odds": 450
+        },
+        {
+          "threshold": 10,
+          "odds": 850
+        },
+        {
+          "threshold": 11,
+          "odds": 1500
+        },
+        {
+          "threshold": 12,
+          "odds": 3200
+        },
+        {
+          "threshold": 13,
+          "odds": 6500
+        },
+        {
+          "threshold": 14,
+          "odds": 10000
+        },
+        {
+          "threshold": 15,
+          "odds": 15000
+        }
+      ]
+    },
+    "kevin gausman": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -3500
+        },
+        {
+          "threshold": 4,
+          "odds": -700
+        },
+        {
+          "threshold": 5,
+          "odds": -270
+        },
+        {
+          "threshold": 6,
+          "odds": -110
+        },
+        {
+          "threshold": 7,
+          "odds": 175
+        },
+        {
+          "threshold": 8,
+          "odds": 350
+        },
+        {
+          "threshold": 9,
+          "odds": 700
+        },
+        {
+          "threshold": 10,
+          "odds": 1200
+        },
+        {
+          "threshold": 11,
+          "odds": 2200
+        },
+        {
+          "threshold": 12,
+          "odds": 4500
+        },
+        {
+          "threshold": 13,
+          "odds": 8000
+        },
+        {
+          "threshold": 14,
+          "odds": 15000
+        },
+        {
+          "threshold": 15,
+          "odds": 25000
+        }
+      ]
+    }
+  }
+}
