@@ -33601,6 +33601,79 @@
       "source": "daily_files",
       "games_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\games_2025-10-26.json",
       "betting_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\betting_recommendations_2025_10_26.json"
+    },
+    "2025-10-27": {
+      "games": {
+        "Toronto Blue Jays_vs_Los Angeles Dodgers": {
+          "away_team": "Toronto Blue Jays",
+          "home_team": "Los Angeles Dodgers",
+          "game_date": "2025-10-27",
+          "predictions": {
+            "home_win_prob": 0.545,
+            "away_win_prob": 0.455,
+            "predicted_home_score": 3.3,
+            "predicted_away_score": 3.0,
+            "predicted_total_runs": 6.2,
+            "home_score_range": [
+              1.0,
+              6.0
+            ],
+            "away_score_range": [
+              1.0,
+              5.0
+            ],
+            "total_runs_range": [
+              3.0,
+              9.0
+            ],
+            "confidence": 63.3
+          },
+          "betting_lines": {
+            "home_ml": -120,
+            "away_ml": 120,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "under",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 6.2,
+              "edge": 2.3,
+              "expected_value": 0.171,
+              "kelly_bet_size": 10.5,
+              "confidence": "HIGH",
+              "reasoning": "Model: 6.2 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Max Scherzer",
+            "home_pitcher_name": "Tyler Glasnow",
+            "away_pitcher_factor": 0.948,
+            "home_pitcher_factor": 0.9087999999999999
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 17.4,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-27T15:16:02.451245",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-27T15:10:13.777434",
+        "pitcher_update_date": "2025-10-27",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-27T15:16:02.473804",
+        "last_update_type": "full",
+        "game_count": 1
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

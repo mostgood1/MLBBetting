@@ -1,0 +1,136 @@
+{
+  "date": "2025-10-27",
+  "retrieved_at": "2025-10-27T20:10:33.762633",
+  "pitcher_props": {
+    "max scherzer": {
+      "strikeouts": {
+        "line": 3.5,
+        "over_odds": -150,
+        "under_odds": 115
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -700
+        },
+        {
+          "threshold": 4,
+          "odds": -240
+        },
+        {
+          "threshold": 6,
+          "odds": 205
+        },
+        {
+          "threshold": 7,
+          "odds": 415
+        },
+        {
+          "threshold": 8,
+          "odds": 825
+        },
+        {
+          "threshold": 9,
+          "odds": 1500
+        },
+        {
+          "threshold": 10,
+          "odds": 3000
+        },
+        {
+          "threshold": 11,
+          "odds": 6000
+        },
+        {
+          "threshold": 12,
+          "odds": 10000
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 125,
+        "under_odds": -165
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 105,
+        "under_odds": -145
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -120,
+        "under_odds": -120
+      },
+      "outs": {
+        "line": 11.5,
+        "over_odds": -170,
+        "under_odds": 130
+      }
+    },
+    "tyler glasnow": {
+      "strikeouts": {
+        "line": 5.5,
+        "over_odds": -165,
+        "under_odds": 125
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -1300
+        },
+        {
+          "threshold": 5,
+          "odds": -425
+        },
+        {
+          "threshold": 7,
+          "odds": 115
+        },
+        {
+          "threshold": 8,
+          "odds": 200
+        },
+        {
+          "threshold": 9,
+          "odds": 425
+        },
+        {
+          "threshold": 10,
+          "odds": 850
+        },
+        {
+          "threshold": 11,
+          "odds": 1600
+        },
+        {
+          "threshold": 12,
+          "odds": 3200
+        },
+        {
+          "threshold": 13,
+          "odds": 6500
+        }
+      ],
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -120,
+        "under_odds": -120
+      },
+      "earned_runs": {
+        "line": 1.5,
+        "over_odds": -170,
+        "under_odds": 130
+      },
+      "walks": {
+        "line": 1.5,
+        "over_odds": -135,
+        "under_odds": -105
+      },
+      "outs": {
+        "line": 16.5,
+        "over_odds": -135,
+        "under_odds": -105
+      }
+    }
+  }
+}

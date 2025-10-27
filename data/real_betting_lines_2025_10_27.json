@@ -1,0 +1,23 @@
+{
+  "date": "2025-10-27",
+  "fetched_at": "2025-10-27T15:16:01.761514",
+  "source": "DraftKings_via_OddsAPI",
+  "lines": {
+    "Toronto Blue Jays @ Los Angeles Dodgers": {
+      "moneyline": {
+        "away": 167,
+        "home": -207
+      },
+      "total_runs": {
+        "line": 8.0,
+        "over": -114,
+        "under": -107
+      },
+      "run_line": {
+        "line": 1.5,
+        "away": -114,
+        "home": -106
+      }
+    }
+  }
+}

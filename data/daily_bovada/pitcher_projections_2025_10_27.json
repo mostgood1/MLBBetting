@@ -1,0 +1,325 @@
+{
+  "date": "2025-10-27",
+  "generated_at": "2025-10-27T20:10:35.460129",
+  "pitchers": [
+    {
+      "pitcher_id": "453286",
+      "pitcher_name": "Max Scherzer",
+      "team": "Toronto Blue Jays",
+      "opponent": "Milwaukee Brewers",
+      "venue_home_team": "Toronto Blue Jays",
+      "team_source": "game_match",
+      "projected_outs": 16,
+      "projected_innings": 5.5,
+      "projected_strikeouts": 5.1,
+      "projected_earned_runs": 2.2,
+      "projected_hits_allowed": 4.5,
+      "projected_walks": 1.4,
+      "adjusted_projections": {
+        "strikeouts": 4.7,
+        "outs": 16,
+        "k_factor": 0.919,
+        "park_factor_used": 1.01,
+        "opponent_k_rate": 0.2034,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9881023454157782,
+        "recent_ip_weighted": 5.46,
+        "recent_ip_per_start": 5.46
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": {
+          "line": 11.5,
+          "over_odds": -170,
+          "under_odds": 130
+        },
+        "strikeouts": {
+          "line": 3.5,
+          "over_odds": -150,
+          "under_odds": 115
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -700
+          },
+          {
+            "threshold": 4,
+            "odds": -240
+          },
+          {
+            "threshold": 6,
+            "odds": 205
+          },
+          {
+            "threshold": 7,
+            "odds": 415
+          },
+          {
+            "threshold": 8,
+            "odds": 825
+          },
+          {
+            "threshold": 9,
+            "odds": 1500
+          },
+          {
+            "threshold": 10,
+            "odds": 3000
+          },
+          {
+            "threshold": 11,
+            "odds": 6000
+          },
+          {
+            "threshold": 12,
+            "odds": 10000
+          }
+        ],
+        "earned_runs": {
+          "line": 2.5,
+          "over_odds": 105,
+          "under_odds": -145
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": 125,
+          "under_odds": -165
+        },
+        "walks": {
+          "line": 1.5,
+          "over_odds": -120,
+          "under_odds": -120
+        }
+      },
+      "recommendations": {
+        "outs": "OVER",
+        "strikeouts": "OVER",
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": null
+      },
+      "recommendations_meta": {
+        "strikeouts": {
+          "edge": 1.6,
+          "threshold": 0.7,
+          "confidence_score": 0.984,
+          "confidence_label": "HIGH",
+          "side_odds": -150,
+          "decimal_odds": 1.667,
+          "win_prob_est": 0.966,
+          "expected_value": 1.576,
+          "kelly_fraction": 0.25
+        },
+        "outs": {
+          "edge": 4.5,
+          "threshold": 2.0,
+          "confidence_score": 0.982,
+          "confidence_label": "HIGH",
+          "side_odds": -170,
+          "decimal_odds": 1.588,
+          "win_prob_est": 0.963,
+          "expected_value": 1.492,
+          "kelly_fraction": 0.25
+        }
+      },
+      "diffs": {
+        "outs": 4.5,
+        "strikeouts": 1.5999999999999996,
+        "earned_runs": -0.2999999999999998,
+        "hits_allowed": 0.0,
+        "walks": -0.10000000000000009
+      },
+      "diffs_adjusted": {
+        "outs": 4.5,
+        "strikeouts": 1.2000000000000002
+      }
+    },
+    {
+      "pitcher_id": "607192",
+      "pitcher_name": "Tyler Glasnow",
+      "team": "Los Angeles Dodgers",
+      "opponent": "Arizona Diamondbacks",
+      "venue_home_team": "Los Angeles Dodgers",
+      "team_source": "master_stats",
+      "projected_outs": 15,
+      "projected_innings": 5.1,
+      "projected_strikeouts": 6.3,
+      "projected_earned_runs": 1.9,
+      "projected_hits_allowed": 3.3,
+      "projected_walks": 2.7,
+      "adjusted_projections": {
+        "strikeouts": 6.2,
+        "outs": 15,
+        "k_factor": 0.977,
+        "park_factor_used": 0.97,
+        "opponent_k_rate": 0.212,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9940724946695095,
+        "recent_ip_weighted": 5.12,
+        "recent_ip_per_start": 5.74
+      },
+      "confidence": "HIGH",
+      "lines": {
+        "outs": {
+          "line": 16.5,
+          "over_odds": -135,
+          "under_odds": -105
+        },
+        "strikeouts": {
+          "line": 5.5,
+          "over_odds": -165,
+          "under_odds": 125
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 4,
+            "odds": -1300
+          },
+          {
+            "threshold": 5,
+            "odds": -425
+          },
+          {
+            "threshold": 7,
+            "odds": 115
+          },
+          {
+            "threshold": 8,
+            "odds": 200
+          },
+          {
+            "threshold": 9,
+            "odds": 425
+          },
+          {
+            "threshold": 10,
+            "odds": 850
+          },
+          {
+            "threshold": 11,
+            "odds": 1600
+          },
+          {
+            "threshold": 12,
+            "odds": 3200
+          },
+          {
+            "threshold": 13,
+            "odds": 6500
+          }
+        ],
+        "earned_runs": {
+          "line": 1.5,
+          "over_odds": -170,
+          "under_odds": 130
+        },
+        "hits_allowed": {
+          "line": 4.5,
+          "over_odds": -120,
+          "under_odds": -120
+        },
+        "walks": {
+          "line": 1.5,
+          "over_odds": -135,
+          "under_odds": -105
+        }
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": "OVER",
+        "earned_runs": null,
+        "hits_allowed": "UNDER",
+        "walks": "OVER"
+      },
+      "recommendations_meta": {
+        "strikeouts": {
+          "edge": 0.8,
+          "threshold": 0.7,
+          "confidence_score": 0.612,
+          "confidence_label": "LOW",
+          "side_odds": -165,
+          "decimal_odds": 1.606,
+          "win_prob_est": 0.592,
+          "expected_value": 0.542,
+          "kelly_fraction": 0.0
+        },
+        "hits_allowed": {
+          "edge": -1.2,
+          "threshold": 0.8,
+          "confidence_score": 0.832,
+          "confidence_label": "HIGH",
+          "side_odds": -120,
+          "decimal_odds": 1.833,
+          "win_prob_est": 0.786,
+          "expected_value": 1.227,
+          "kelly_fraction": 0.25
+        },
+        "walks": {
+          "edge": 1.2,
+          "threshold": 0.6,
+          "confidence_score": 0.961,
+          "confidence_label": "HIGH",
+          "side_odds": -135,
+          "decimal_odds": 1.741,
+          "win_prob_est": 0.931,
+          "expected_value": 1.551,
+          "kelly_fraction": 0.25
+        }
+      },
+      "diffs": {
+        "outs": -1.5,
+        "strikeouts": 0.7999999999999998,
+        "earned_runs": 0.3999999999999999,
+        "hits_allowed": -1.2000000000000002,
+        "walks": 1.2000000000000002
+      },
+      "diffs_adjusted": {
+        "outs": -1.5,
+        "strikeouts": 0.7000000000000002
+      }
+    }
+  ],
+  "count": 2,
+  "notes": "Season averages baseline + opponent K-rate, park factor, patience (outs), recent form weighted IP when data available.",
+  "unmatched_starting_pitchers": [],
+  "props_without_start_flag": [],
+  "adjustment_meta": {
+    "recent_form_pitchers_used": 1,
+    "patience_adjustments_used": 2,
+    "total_pitchers": 2,
+    "park_factors_count": 60,
+    "batting_k_rates_count": 30,
+    "patience_teams_count": 30,
+    "recent_pitchers_count": 55,
+    "park_factor_example_keys": [
+      "angels",
+      "los angeles angels",
+      "astros",
+      "houston astros",
+      "athletics",
+      "oakland athletics",
+      "blue_jays",
+      "toronto blue jays"
+    ],
+    "missing_counts": {
+      "opponent": 0,
+      "park_factor": 0,
+      "opponent_k_rate": 0,
+      "patience_stats": 0,
+      "recent_form": 0
+    },
+    "recent_form_on_demand_used": 1,
+    "synthetic_recent_form_count": 0,
+    "team_mismatches": 0,
+    "opponent_validation_mismatches": 0,
+    "opponent_corrections_count": 0
+  },
+  "adjustment_gaps": {
+    "opponent": [],
+    "park_factor": [],
+    "opponent_k_rate": [],
+    "patience_stats": [],
+    "recent_form": []
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "date": "2025-10-27",
+  "generated_at": "2025-10-27T15:16:02.751776",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Toronto Blue Jays_vs_Los Angeles Dodgers": {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Max Scherzer",
+      "home_pitcher": "Tyler Glasnow",
+      "predicted_score": "3.0-3.3",
+      "predicted_total_runs": 6.2,
+      "win_probabilities": {
+        "away_prob": 0.455,
+        "home_prob": 0.545
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Under 8.0",
+          "expected_value": 0.3155140186915887,
+          "win_probability": 0.6799999999999999,
+          "american_odds": "-107",
+          "confidence": "high",
+          "kelly_bet_size": 25.0,
+          "predicted_total": 6.2,
+          "betting_line": 8.0,
+          "reasoning": "Predicted 6.2 vs line 8.0"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 1,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 1,
+    "high_confidence_bets": 1,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

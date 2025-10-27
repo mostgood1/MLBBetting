@@ -1,0 +1,139 @@
+{
+  "date": "2025-10-27",
+  "generated_at": "2025-10-27T20:10:59.201240",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 2,
+  "recommendations": [
+    {
+      "pitcher_key": "max scherzer",
+      "pitcher": "max scherzer",
+      "team": "Toronto Blue Jays",
+      "opponent": "Los Angeles Dodgers",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 14.88,
+        "strikeouts": 4.42,
+        "earned_runs": 2.2,
+        "hits_allowed": 4.5,
+        "walks": 1.4,
+        "pitch_count": 76.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 3.5,
+          "proj": 4.42,
+          "edge": 0.92,
+          "confidence": "LOW",
+          "p_over": 0.604,
+          "ev_over": 0.006,
+          "ev_under": -0.148,
+          "selected_ev": 0.006,
+          "over_odds": -150,
+          "under_odds": 115,
+          "kelly_fraction": 0.0092
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 11.5,
+          "proj": 14.88,
+          "edge": 3.38,
+          "confidence": "HIGH",
+          "p_over": 0.954,
+          "ev_over": 0.516,
+          "ev_under": -0.895,
+          "selected_ev": 0.516,
+          "over_odds": -170,
+          "under_odds": 130,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "tyler glasnow",
+      "pitcher": "tyler glasnow",
+      "team": "Los Angeles Dodgers",
+      "opponent": "Toronto Blue Jays",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 15.38,
+        "strikeouts": 6.17,
+        "earned_runs": 1.8,
+        "hits_allowed": 3.0,
+        "walks": 2.5,
+        "pitch_count": 78.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 5.5,
+          "proj": 6.17,
+          "edge": 0.67,
+          "confidence": "LOW",
+          "p_over": 0.576,
+          "ev_over": -0.075,
+          "ev_under": -0.046,
+          "selected_ev": -0.075,
+          "over_odds": -165,
+          "under_odds": 125,
+          "kelly_fraction": 0.0
+        },
+        {
+          "market": "outs",
+          "side": "UNDER",
+          "line": 16.5,
+          "proj": 15.38,
+          "edge": -1.12,
+          "confidence": "MEDIUM",
+          "p_over": 0.288,
+          "ev_over": -0.499,
+          "ev_under": 0.391,
+          "selected_ev": 0.391,
+          "over_odds": -135,
+          "under_odds": -105,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "UNDER",
+          "line": 4.5,
+          "proj": 3.0,
+          "edge": -1.5,
+          "confidence": "HIGH",
+          "p_over": 0.334,
+          "ev_over": -0.387,
+          "ev_under": 0.221,
+          "selected_ev": 0.221,
+          "over_odds": -120,
+          "under_odds": -120,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "walks",
+          "side": "OVER",
+          "line": 1.5,
+          "proj": 2.5,
+          "edge": 1.0,
+          "confidence": "MEDIUM",
+          "p_over": 0.841,
+          "ev_over": 0.465,
+          "ev_under": -0.69,
+          "selected_ev": 0.465,
+          "over_odds": -135,
+          "under_odds": -105,
+          "kelly_fraction": 0.1
+        }
+      ]
+    }
+  ]
+}
