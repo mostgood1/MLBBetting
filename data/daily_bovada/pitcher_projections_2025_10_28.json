@@ -1,0 +1,166 @@
+{
+  "date": "2025-10-28",
+  "generated_at": "2025-10-28T15:33:53.847281",
+  "pitchers": [
+    {
+      "pitcher_id": "669456",
+      "pitcher_name": "Shane Bieber",
+      "team": "Toronto Blue Jays",
+      "opponent": "Milwaukee Brewers",
+      "venue_home_team": "Toronto Blue Jays",
+      "team_source": "master_stats",
+      "projected_outs": 18,
+      "projected_innings": 5.9,
+      "projected_strikeouts": 8.9,
+      "projected_earned_runs": 1.0,
+      "projected_hits_allowed": 2.0,
+      "projected_walks": 0.0,
+      "adjusted_projections": {
+        "strikeouts": 8.2,
+        "outs": 18,
+        "k_factor": 0.919,
+        "park_factor_used": 1.01,
+        "opponent_k_rate": 0.2034,
+        "league_avg_k_rate": 0.22019333333333335,
+        "outs_factor": 0.9881023454157782,
+        "recent_ip_weighted": 5.92,
+        "recent_ip_per_start": 5.8
+      },
+      "confidence": "LOW",
+      "lines": {
+        "outs": null,
+        "strikeouts": {
+          "line": null,
+          "over_odds": null,
+          "under_odds": null
+        },
+        "strikeouts_alts": [
+          {
+            "threshold": 3,
+            "odds": -1200
+          },
+          {
+            "threshold": 4,
+            "odds": -330
+          },
+          {
+            "threshold": 5,
+            "odds": -135
+          },
+          {
+            "threshold": 6,
+            "odds": 160
+          },
+          {
+            "threshold": 7,
+            "odds": 320
+          },
+          {
+            "threshold": 8,
+            "odds": 650
+          },
+          {
+            "threshold": 9,
+            "odds": 1100
+          },
+          {
+            "threshold": 10,
+            "odds": 2200
+          },
+          {
+            "threshold": 11,
+            "odds": 4200
+          },
+          {
+            "threshold": 12,
+            "odds": 8000
+          },
+          {
+            "threshold": 13,
+            "odds": 12000
+          }
+        ],
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": {
+          "line": 1.5,
+          "over_odds": -160,
+          "under_odds": 110
+        }
+      },
+      "recommendations": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": "UNDER"
+      },
+      "recommendations_meta": {
+        "walks": {
+          "edge": -1.5,
+          "threshold": 0.6,
+          "confidence_score": 0.992,
+          "confidence_label": "HIGH",
+          "side_odds": 110,
+          "decimal_odds": 2.1,
+          "win_prob_est": 0.98,
+          "expected_value": 2.038,
+          "kelly_fraction": 0.25
+        }
+      },
+      "diffs": {
+        "outs": null,
+        "strikeouts": null,
+        "earned_runs": null,
+        "hits_allowed": null,
+        "walks": -1.5
+      },
+      "diffs_adjusted": {
+        "outs": null,
+        "strikeouts": null
+      }
+    }
+  ],
+  "count": 1,
+  "notes": "Season averages baseline + opponent K-rate, park factor, patience (outs), recent form weighted IP when data available.",
+  "unmatched_starting_pitchers": [],
+  "props_without_start_flag": [],
+  "adjustment_meta": {
+    "recent_form_pitchers_used": 0,
+    "patience_adjustments_used": 1,
+    "total_pitchers": 2,
+    "park_factors_count": 60,
+    "batting_k_rates_count": 30,
+    "patience_teams_count": 30,
+    "recent_pitchers_count": 55,
+    "park_factor_example_keys": [
+      "angels",
+      "los angeles angels",
+      "astros",
+      "houston astros",
+      "athletics",
+      "oakland athletics",
+      "blue_jays",
+      "toronto blue jays"
+    ],
+    "missing_counts": {
+      "opponent": 0,
+      "park_factor": 0,
+      "opponent_k_rate": 0,
+      "patience_stats": 0,
+      "recent_form": 0
+    },
+    "recent_form_on_demand_used": 1,
+    "synthetic_recent_form_count": 0,
+    "team_mismatches": 0,
+    "opponent_validation_mismatches": 0,
+    "opponent_corrections_count": 0
+  },
+  "adjustment_gaps": {
+    "opponent": [],
+    "park_factor": [],
+    "opponent_k_rate": [],
+    "patience_stats": [],
+    "recent_form": []
+  }
+}

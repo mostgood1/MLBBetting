@@ -33674,6 +33674,79 @@
         "last_update_type": "full",
         "game_count": 1
       }
+    },
+    "2025-10-28": {
+      "games": {
+        "Toronto Blue Jays_vs_Los Angeles Dodgers": {
+          "away_team": "Toronto Blue Jays",
+          "home_team": "Los Angeles Dodgers",
+          "game_date": "2025-10-28",
+          "predictions": {
+            "home_win_prob": 0.542,
+            "away_win_prob": 0.458,
+            "predicted_home_score": 5.6,
+            "predicted_away_score": 5.3,
+            "predicted_total_runs": 10.8,
+            "home_score_range": [
+              3.0,
+              9.0
+            ],
+            "away_score_range": [
+              2.0,
+              8.0
+            ],
+            "total_runs_range": [
+              7.0,
+              15.0
+            ],
+            "confidence": 55.8
+          },
+          "betting_lines": {
+            "home_ml": -118,
+            "away_ml": 118,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [
+            {
+              "type": "total",
+              "side": "over",
+              "line": 8.5,
+              "odds": -110,
+              "model_total": 10.8,
+              "edge": 2.3,
+              "expected_value": 0.178,
+              "kelly_bet_size": 11.0,
+              "confidence": "HIGH",
+              "reasoning": "Model: 10.8 vs Line: 8.5"
+            }
+          ],
+          "pitcher_info": {
+            "away_pitcher_name": "Shane Bieber",
+            "home_pitcher_name": "Shohei Ohtani",
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 1.0
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 39.6,
+            "recommendations_found": 1,
+            "timestamp": "2025-10-28T10:39:14.217429",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-28T10:33:13.996492",
+        "pitcher_update_date": "2025-10-28",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-28T10:39:14.266717",
+        "last_update_type": "full",
+        "game_count": 1
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

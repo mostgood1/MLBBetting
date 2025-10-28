@@ -1,0 +1,126 @@
+{
+  "date": "2025-10-28",
+  "retrieved_at": "2025-10-28T15:33:52.313513",
+  "pitcher_props": {
+    "shane bieber": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1200
+        },
+        {
+          "threshold": 4,
+          "odds": -330
+        },
+        {
+          "threshold": 5,
+          "odds": -135
+        },
+        {
+          "threshold": 6,
+          "odds": 160
+        },
+        {
+          "threshold": 7,
+          "odds": 320
+        },
+        {
+          "threshold": 8,
+          "odds": 650
+        },
+        {
+          "threshold": 9,
+          "odds": 1100
+        },
+        {
+          "threshold": 10,
+          "odds": 2200
+        },
+        {
+          "threshold": 11,
+          "odds": 4200
+        },
+        {
+          "threshold": 12,
+          "odds": 8000
+        },
+        {
+          "threshold": 13,
+          "odds": 12000
+        }
+      ],
+      "walks": {
+        "line": 1.5,
+        "over_odds": -160,
+        "under_odds": 110
+      }
+    },
+    "shohei ohtani": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -2000
+        },
+        {
+          "threshold": 5,
+          "odds": -580
+        },
+        {
+          "threshold": 6,
+          "odds": -250
+        },
+        {
+          "threshold": 7,
+          "odds": -120
+        },
+        {
+          "threshold": 8,
+          "odds": 160
+        },
+        {
+          "threshold": 9,
+          "odds": 315
+        },
+        {
+          "threshold": 10,
+          "odds": 625
+        },
+        {
+          "threshold": 11,
+          "odds": 1200
+        },
+        {
+          "threshold": 12,
+          "odds": 2400
+        },
+        {
+          "threshold": 13,
+          "odds": 4500
+        },
+        {
+          "threshold": 14,
+          "odds": 9000
+        },
+        {
+          "threshold": 15,
+          "odds": 15000
+        }
+      ],
+      "walks": {
+        "line": 1.5,
+        "over_odds": -115,
+        "under_odds": -125
+      }
+    }
+  }
+}

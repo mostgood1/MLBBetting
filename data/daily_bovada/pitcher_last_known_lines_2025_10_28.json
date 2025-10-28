@@ -1,0 +1,20 @@
+{
+  "date": "2025-10-28",
+  "updated_at": "2025-10-28T10:34:09.719047",
+  "pitchers": {
+    "shane bieber": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -160,
+        "under_odds": 110
+      }
+    },
+    "shohei ohtani": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -115,
+        "under_odds": -125
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "Toronto Blue Jays_vs_Los Angeles Dodgers": {
+    "away_team": "Toronto Blue Jays",
+    "home_team": "Los Angeles Dodgers",
+    "away_score": 5,
+    "home_score": 6,
+    "total_runs": 11,
+    "winner": "home",
+    "game_pk": 813032,
+    "is_final": true
+  }
+}
