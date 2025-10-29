@@ -33747,6 +33747,66 @@
         "last_update_type": "full",
         "game_count": 1
       }
+    },
+    "2025-10-29": {
+      "games": {
+        "Toronto Blue Jays_vs_Los Angeles Dodgers": {
+          "away_team": "Toronto Blue Jays",
+          "home_team": "Los Angeles Dodgers",
+          "game_date": "2025-10-29",
+          "predictions": {
+            "home_win_prob": 0.564,
+            "away_win_prob": 0.436,
+            "predicted_home_score": 4.7,
+            "predicted_away_score": 4.3,
+            "predicted_total_runs": 8.9,
+            "home_score_range": [
+              2.0,
+              8.0
+            ],
+            "away_score_range": [
+              2.0,
+              7.0
+            ],
+            "total_runs_range": [
+              5.0,
+              13.0
+            ],
+            "confidence": 59.0
+          },
+          "betting_lines": {
+            "home_ml": -129,
+            "away_ml": 129,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Trey Yesavage",
+            "home_pitcher_name": "Blake Snell",
+            "away_pitcher_factor": 1.0,
+            "home_pitcher_factor": 0.9775
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 29.0,
+            "recommendations_found": 0,
+            "timestamp": "2025-10-29T08:13:13.825598",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-29T08:05:46.287667",
+        "pitcher_update_date": "2025-10-29",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-29T08:13:13.856635",
+        "last_update_type": "full",
+        "game_count": 1
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

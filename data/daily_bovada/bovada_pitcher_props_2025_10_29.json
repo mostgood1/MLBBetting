@@ -1,0 +1,130 @@
+{
+  "date": "2025-10-29",
+  "retrieved_at": "2025-10-29T13:07:32.424785",
+  "pitcher_props": {
+    "blake snell": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": -3000
+        },
+        {
+          "threshold": 5,
+          "odds": -750
+        },
+        {
+          "threshold": 6,
+          "odds": -290
+        },
+        {
+          "threshold": 7,
+          "odds": -130
+        },
+        {
+          "threshold": 8,
+          "odds": 145
+        },
+        {
+          "threshold": 9,
+          "odds": 270
+        },
+        {
+          "threshold": 10,
+          "odds": 510
+        },
+        {
+          "threshold": 11,
+          "odds": 950
+        },
+        {
+          "threshold": 12,
+          "odds": 1700
+        },
+        {
+          "threshold": 13,
+          "odds": 3500
+        },
+        {
+          "threshold": 14,
+          "odds": 7000
+        },
+        {
+          "threshold": 15,
+          "odds": 12000
+        }
+      ],
+      "walks": {
+        "line": 2.5,
+        "over_odds": 120,
+        "under_odds": -170
+      }
+    },
+    "trey yesavage": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -2200
+        },
+        {
+          "threshold": 4,
+          "odds": -500
+        },
+        {
+          "threshold": 5,
+          "odds": -190
+        },
+        {
+          "threshold": 6,
+          "odds": null
+        },
+        {
+          "threshold": 7,
+          "odds": 175
+        },
+        {
+          "threshold": 8,
+          "odds": 340
+        },
+        {
+          "threshold": 9,
+          "odds": 650
+        },
+        {
+          "threshold": 10,
+          "odds": 1200
+        },
+        {
+          "threshold": 11,
+          "odds": 2200
+        },
+        {
+          "threshold": 12,
+          "odds": 4500
+        },
+        {
+          "threshold": 13,
+          "odds": 8000
+        },
+        {
+          "threshold": 14,
+          "odds": 15000
+        }
+      ],
+      "walks": {
+        "line": 2.5,
+        "over_odds": -120,
+        "under_odds": -120
+      }
+    }
+  }
+}

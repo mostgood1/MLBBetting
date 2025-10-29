@@ -2377,5 +2377,18 @@
     "outcome": "pending",
     "profit_loss": 0.0,
     "roi": 0.0
+  },
+  {
+    "date": "2025-10-29",
+    "game": "Toronto Blue Jays vs Los Angeles Dodgers",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.0",
+    "confidence": 0.123,
+    "kelly_percentage": 12.3,
+    "recommended_bet": 50,
+    "odds": -114,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
   }
 ]

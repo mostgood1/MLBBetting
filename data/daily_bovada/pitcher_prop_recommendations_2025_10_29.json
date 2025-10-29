@@ -1,0 +1,47 @@
+{
+  "date": "2025-10-29",
+  "generated_at": "2025-10-29T13:08:03.730426",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 1,
+  "recommendations": [
+    {
+      "pitcher_key": "trey yesavage",
+      "pitcher": "trey yesavage",
+      "team": "Toronto Blue Jays",
+      "opponent": "Los Angeles Dodgers",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 16.0,
+        "strikeouts": 6.3,
+        "earned_runs": 2.6,
+        "hits_allowed": 5.2,
+        "walks": 1.9,
+        "pitch_count": 82.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "UNDER",
+          "line": 2.5,
+          "proj": 1.9,
+          "edge": -0.6,
+          "confidence": "LOW",
+          "p_over": 0.274,
+          "ev_over": -0.497,
+          "ev_under": 0.331,
+          "selected_ev": 0.331,
+          "over_odds": -120,
+          "under_odds": -120,
+          "kelly_fraction": 0.1
+        }
+      ]
+    }
+  ]
+}

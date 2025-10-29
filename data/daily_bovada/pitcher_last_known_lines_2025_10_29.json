@@ -1,0 +1,20 @@
+{
+  "date": "2025-10-29",
+  "updated_at": "2025-10-29T08:08:03.872468",
+  "pitchers": {
+    "blake snell": {
+      "walks": {
+        "line": 2.5,
+        "over_odds": 120,
+        "under_odds": -170
+      }
+    },
+    "trey yesavage": {
+      "walks": {
+        "line": 2.5,
+        "over_odds": -120,
+        "under_odds": -120
+      }
+    }
+  }
+}

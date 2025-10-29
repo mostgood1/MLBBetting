@@ -1,0 +1,42 @@
+{
+  "date": "2025-10-29",
+  "generated_at": "2025-10-29T08:13:15.252353",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Toronto Blue Jays_vs_Los Angeles Dodgers": {
+      "away_team": "Toronto Blue Jays",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "Trey Yesavage",
+      "home_pitcher": "Blake Snell",
+      "predicted_score": "4.3-4.7",
+      "predicted_total_runs": 8.9,
+      "win_probabilities": {
+        "away_prob": 0.436,
+        "home_prob": 0.564
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 8.0",
+          "expected_value": 0.10754385964912294,
+          "win_probability": 0.5900000000000001,
+          "american_odds": "-114",
+          "confidence": "low",
+          "kelly_bet_size": 12.3,
+          "predicted_total": 8.9,
+          "betting_line": 8.0,
+          "reasoning": "Predicted 8.9 vs line 8.0"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 1,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 1,
+    "high_confidence_bets": 0,
+    "medium_confidence_bets": 0,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}
