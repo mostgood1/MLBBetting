@@ -33815,6 +33815,66 @@
       "source": "daily_files",
       "games_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\games_2025-10-30.json",
       "betting_file": "c:\\Users\\mostg\\OneDrive\\Coding\\MLB-Betting\\data\\betting_recommendations_2025_10_30.json"
+    },
+    "2025-10-31": {
+      "games": {
+        "Los Angeles Dodgers_vs_Toronto Blue Jays": {
+          "away_team": "Los Angeles Dodgers",
+          "home_team": "Toronto Blue Jays",
+          "game_date": "2025-10-31",
+          "predictions": {
+            "home_win_prob": 0.482,
+            "away_win_prob": 0.518,
+            "predicted_home_score": 4.3,
+            "predicted_away_score": 4.5,
+            "predicted_total_runs": 8.8,
+            "home_score_range": [
+              2.0,
+              7.0
+            ],
+            "away_score_range": [
+              2.0,
+              7.0
+            ],
+            "total_runs_range": [
+              5.0,
+              13.0
+            ],
+            "confidence": 58.7
+          },
+          "betting_lines": {
+            "home_ml": 107,
+            "away_ml": -107,
+            "total_line": 8.5,
+            "over_odds": -110,
+            "under_odds": -110,
+            "source": "fallback"
+          },
+          "recommendations": [],
+          "pitcher_info": {
+            "away_pitcher_name": "Yoshinobu Yamamoto",
+            "home_pitcher_name": "Kevin Gausman",
+            "away_pitcher_factor": 0.865,
+            "home_pitcher_factor": 0.9349999999999999
+          },
+          "meta": {
+            "simulations_run": 2000,
+            "execution_time_ms": 28.4,
+            "recommendations_found": 0,
+            "timestamp": "2025-10-31T11:37:12.698511",
+            "data_source": "live_simulation"
+          }
+        }
+      },
+      "metadata": {
+        "last_pitcher_update": "2025-10-31T11:30:20.135974",
+        "pitcher_update_date": "2025-10-31",
+        "pitchers_updated_count": 0,
+        "engine": "UltraFast",
+        "generated_at": "2025-10-31T11:37:12.721789",
+        "last_update_type": "full",
+        "game_count": 1
+      }
     }
   },
   "last_updated": "2025-08-27T17:29:52.832615",

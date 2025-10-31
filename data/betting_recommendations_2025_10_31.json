@@ -1,0 +1,42 @@
+{
+  "date": "2025-10-31",
+  "generated_at": "2025-10-31T11:37:14.058199",
+  "source": "Unified Betting Engine v1.0",
+  "games": {
+    "Los Angeles Dodgers_vs_Toronto Blue Jays": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "Yoshinobu Yamamoto",
+      "home_pitcher": "Kevin Gausman",
+      "predicted_score": "4.5-4.3",
+      "predicted_total_runs": 8.8,
+      "win_probabilities": {
+        "away_prob": 0.518,
+        "home_prob": 0.482
+      },
+      "value_bets": [
+        {
+          "type": "total",
+          "recommendation": "Over 7.5",
+          "expected_value": 0.2133333333333336,
+          "win_probability": 0.6300000000000001,
+          "american_odds": "-108",
+          "confidence": "medium",
+          "kelly_bet_size": 23.0,
+          "predicted_total": 8.8,
+          "betting_line": 7.5,
+          "reasoning": "Predicted 8.8 vs line 7.5"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_games_analyzed": 1,
+    "games_with_betting_lines": 0,
+    "total_value_bets": 1,
+    "high_confidence_bets": 0,
+    "medium_confidence_bets": 1,
+    "pitcher_distribution_pitchers": 0,
+    "pitcher_distribution_built_at": null
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "date": "2025-10-31",
+  "updated_at": "2025-10-31T11:32:03.855125",
+  "pitchers": {
+    "shane bieber": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -160,
+        "under_odds": 110
+      }
+    },
+    "shohei ohtani": {
+      "walks": {
+        "line": 1.5,
+        "over_odds": -115,
+        "under_odds": -125
+      }
+    },
+    "kevin gausman": {
+      "strikeouts": {
+        "line": 4.5,
+        "over_odds": -165,
+        "under_odds": 125
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": 115,
+        "under_odds": -155
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 110,
+        "under_odds": -150
+      },
+      "outs": {
+        "line": 15.5,
+        "over_odds": -120,
+        "under_odds": -120
+      }
+    },
+    "yoshinobu yamamoto": {
+      "strikeouts": {
+        "line": 6.5,
+        "over_odds": -115,
+        "under_odds": -115
+      },
+      "hits_allowed": {
+        "line": 4.5,
+        "over_odds": -180,
+        "under_odds": 140
+      },
+      "earned_runs": {
+        "line": 2.5,
+        "over_odds": 135,
+        "under_odds": -175
+      },
+      "outs": {
+        "line": 18.5,
+        "over_odds": -155,
+        "under_odds": 115
+      }
+    }
+  }
+}

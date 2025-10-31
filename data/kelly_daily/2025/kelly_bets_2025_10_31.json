@@ -1,0 +1,15 @@
+[
+  {
+    "date": "2025-10-31",
+    "game": "Los Angeles Dodgers vs Toronto Blue Jays",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 7.5",
+    "confidence": 0.23,
+    "kelly_percentage": 23.0,
+    "recommended_bet": 90,
+    "odds": -108,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
+  }
+]

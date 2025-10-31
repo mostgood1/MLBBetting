@@ -1,0 +1,156 @@
+{
+  "date": "2025-10-31",
+  "generated_at": "2025-10-31T16:32:03.706162",
+  "edge_threshold_used": 0.5,
+  "kelly_cap": 0.1,
+  "blend": {
+    "ks": 0.35,
+    "outs": 0.25,
+    "skew_scale_ks": 0.6,
+    "skew_scale_outs": 0.4
+  },
+  "count": 3,
+  "recommendations": [
+    {
+      "pitcher_key": "shane bieber",
+      "pitcher": "shane bieber",
+      "team": null,
+      "opponent": null,
+      "opponent_strength": null,
+      "projections": {
+        "outs": 19.2,
+        "strikeouts": 6.6,
+        "earned_runs": 1.0,
+        "hits_allowed": 2.0,
+        "walks": 0.0,
+        "pitch_count": 98.0
+      },
+      "plays": [
+        {
+          "market": "walks",
+          "side": "UNDER",
+          "line": 1.5,
+          "proj": 0.0,
+          "edge": -1.5,
+          "confidence": "HIGH",
+          "p_over": 0.067,
+          "ev_over": -0.891,
+          "ev_under": 0.96,
+          "selected_ev": 0.96,
+          "over_odds": -160,
+          "under_odds": 110,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "kevin gausman",
+      "pitcher": "kevin gausman",
+      "team": "Toronto Blue Jays",
+      "opponent": "Los Angeles Dodgers",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 18.05,
+        "strikeouts": 5.82,
+        "earned_runs": 2.5,
+        "hits_allowed": 4.7,
+        "walks": 1.7,
+        "pitch_count": 92.0
+      },
+      "plays": [
+        {
+          "market": "strikeouts",
+          "side": "OVER",
+          "line": 4.5,
+          "proj": 5.82,
+          "edge": 1.32,
+          "confidence": "MEDIUM",
+          "p_over": 0.647,
+          "ev_over": 0.039,
+          "ev_under": -0.206,
+          "selected_ev": 0.039,
+          "over_odds": -165,
+          "under_odds": 125,
+          "kelly_fraction": 0.0645
+        },
+        {
+          "market": "outs",
+          "side": "OVER",
+          "line": 15.5,
+          "proj": 18.05,
+          "edge": 2.55,
+          "confidence": "HIGH",
+          "p_over": 0.899,
+          "ev_over": 0.648,
+          "ev_under": -0.815,
+          "selected_ev": 0.648,
+          "over_odds": -120,
+          "under_odds": -120,
+          "kelly_fraction": 0.1
+        }
+      ]
+    },
+    {
+      "pitcher_key": "yoshinobu yamamoto",
+      "pitcher": "yoshinobu yamamoto",
+      "team": "Los Angeles Dodgers",
+      "opponent": "Toronto Blue Jays",
+      "opponent_strength": null,
+      "projections": {
+        "outs": 17.38,
+        "strikeouts": 6.5,
+        "earned_runs": 1.8,
+        "hits_allowed": 4.0,
+        "walks": 1.9,
+        "pitch_count": 89.0
+      },
+      "plays": [
+        {
+          "market": "outs",
+          "side": "UNDER",
+          "line": 18.5,
+          "proj": 17.38,
+          "edge": -1.12,
+          "confidence": "MEDIUM",
+          "p_over": 0.288,
+          "ev_over": -0.527,
+          "ev_under": 0.531,
+          "selected_ev": 0.531,
+          "over_odds": -155,
+          "under_odds": 115,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "hits_allowed",
+          "side": "UNDER",
+          "line": 4.5,
+          "proj": 4.0,
+          "edge": -0.5,
+          "confidence": "LOW",
+          "p_over": 0.443,
+          "ev_over": -0.311,
+          "ev_under": 0.336,
+          "selected_ev": 0.336,
+          "over_odds": -180,
+          "under_odds": 140,
+          "kelly_fraction": 0.1
+        },
+        {
+          "market": "earned_runs",
+          "side": "UNDER",
+          "line": 2.5,
+          "proj": 1.8,
+          "edge": -0.7,
+          "confidence": "LOW",
+          "p_over": 0.421,
+          "ev_over": -0.011,
+          "ev_under": -0.09,
+          "selected_ev": -0.09,
+          "over_odds": 135,
+          "under_odds": -175,
+          "kelly_fraction": 0.0
+        }
+      ]
+    }
+  ]
+}
