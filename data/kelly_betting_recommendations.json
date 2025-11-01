@@ -2403,5 +2403,18 @@
     "outcome": "pending",
     "profit_loss": 0.0,
     "roi": 0.0
+  },
+  {
+    "date": "2025-11-01",
+    "game": "Los Angeles Dodgers vs Toronto Blue Jays",
+    "bet_type": "Over/Under",
+    "bet_details": "Over 8.0",
+    "confidence": 0.168,
+    "kelly_percentage": 16.8,
+    "recommended_bet": 70,
+    "odds": -103,
+    "outcome": "pending",
+    "profit_loss": 0.0,
+    "roi": 0.0
   }
 ]

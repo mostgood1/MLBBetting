@@ -1,0 +1,48 @@
+{
+  "date": "2025-11-01",
+  "retrieved_at": "2025-11-01T13:49:23.175073",
+  "pitcher_props": {
+    "shohei ohtani": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 3,
+          "odds": -1100
+        },
+        {
+          "threshold": 4,
+          "odds": -320
+        },
+        {
+          "threshold": 6,
+          "odds": 200
+        },
+        {
+          "threshold": 7,
+          "odds": 400
+        }
+      ]
+    },
+    "max scherzer": {
+      "strikeouts": {
+        "line": null,
+        "over_odds": null,
+        "under_odds": null
+      },
+      "strikeouts_alts": [
+        {
+          "threshold": 4,
+          "odds": 140
+        },
+        {
+          "threshold": 5,
+          "odds": 330
+        }
+      ]
+    }
+  }
+}
